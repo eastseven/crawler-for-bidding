@@ -1,0 +1,14 @@
+logging:
+  level:
+    com.har.sjfxpt.crawler.ggzy: debug
+    us.codecraft.webmagic.downloader: error
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://ggzy:ggzy123@192.168.3.81:27017/ggzy
+  redis:
+      host: 192.168.3.83
+      port: 6379
+      password: har123
+      database: 2
