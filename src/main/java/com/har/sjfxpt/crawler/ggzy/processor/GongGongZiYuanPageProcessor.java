@@ -22,9 +22,8 @@ import us.codecraft.webmagic.utils.HttpConstant;
 import java.util.List;
 import java.util.Map;
 
-import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanUtil.DEAL_CLASSIFY;
-import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanUtil.PAGE_NUMBER;
-import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanUtil.SEED_URL;
+import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
+import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanUtil.*;
 
 /**
  * 全国公共资源交易平台
@@ -62,7 +61,7 @@ public class GongGongZiYuanPageProcessor implements PageProcessor {
         handlePaging(page, currentPageNum, pageNum);
 
         if (!dataItemList.isEmpty()) {
-            page.putField("dataItemList", dataItemList);
+            page.putField(KEY_DATA_ITEMS, dataItemList);
         }
     }
 

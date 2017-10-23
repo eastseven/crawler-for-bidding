@@ -2,10 +2,17 @@ package com.har.sjfxpt.crawler.ggzy.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
+import org.jsoup.safety.Whitelist;
 
+/**
+ * @author dongqi
+ */
 @Slf4j
 public final class PageProcessorUtil {
+
+    final static String REGEX_TAG_STYLE = "((<style>)|(<style type=.+))((\\s+)|(\\S+)|(\\r+)|(\\n+))(.+)((\\s+)|(\\S+)|(\\r+)|(\\n+))(<\\/style>)";
 
     /**
      * 抽取标签文本内容
@@ -16,10 +23,20 @@ public final class PageProcessorUtil {
      */
     public static String extractText(Element root) {
         if (root == null) return null;
+
         String html = root.html();
-        String formatContent = StringUtils.removeAll(html, "<style>.*</style>");
+        String formatContent = StringUtils.removeAll(html, REGEX_TAG_STYLE);
+        formatContent = StringUtils.removeAll(formatContent, "<o:p>|</o:p>");
         formatContent = StringUtils.removeAll(formatContent, "<\\w+[^>]*>|</\\w+>|<!-{2,}.*?-{2,}>|(&nbsp;)");
         return formatContent;
+    }
+
+    public static String extractTextByWhitelist(Element root) {
+        if (root == null) return null;
+        String html = root.html();
+        String textContent = Jsoup.clean(html, Whitelist.none());
+        textContent = StringUtils.removeAll(textContent, "<!-{2,}.*?-{2,}>|(&nbsp;)|<o:p>|</o:p>");
+        return textContent;
     }
 
     /**
@@ -31,9 +48,21 @@ public final class PageProcessorUtil {
     public static String formatElements(Element root) {
         if (root == null) return null;
         String html = root.html();
-        final String regex = "(style=\".*?\")|(width=\".*?\")|(height=\".*?\")|<!-{2,}.*?-{2,}>|(&nbsp;)|<style>.*</style>";
-        String formatContent = StringUtils.removeAll(html, regex);
+        final String regex = "(style=\".*?\")|(width=\".*?\")|(height=\".*?\")|<!-{2,}.*?-{2,}>|(&nbsp;)|<o:p>|</o:p>";
+        String formatContent = StringUtils.removeAll(html, REGEX_TAG_STYLE);
+        formatContent = StringUtils.removeAll(formatContent, regex);
         return formatContent;
     }
 
+    public static String formatElementsByWhitelist(Element root) {
+        if (root == null) return null;
+        String html = root.html();
+        Whitelist whitelist = Whitelist.relaxed();
+        whitelist.removeTags("style");
+        whitelist.removeAttributes("table", "style", "width", "height");
+        whitelist.removeAttributes("td", "style", "width", "height");
+        String formatContent = Jsoup.clean(html, whitelist);
+        formatContent = StringUtils.removeAll(formatContent, "<!-{2,}.*?-{2,}>|(&nbsp;)|<o:p>|</o:p>");
+        return formatContent;
+    }
 }

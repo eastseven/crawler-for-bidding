@@ -5,10 +5,13 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
+
+import static com.har.sjfxpt.crawler.ggzy.model.DataItem.T_NAME;
 
 /**
  * @author dongqi
@@ -16,8 +19,10 @@ import java.util.Date;
 @Getter
 @Setter
 @Builder@ToString
-@Document(collection = "data_item_ggzy")
+@Document(collection = T_NAME)
 public class DataItem {
+
+    public static final String T_NAME = "data_item_ggzy";
 
     @Id
     private String id;
@@ -39,13 +44,16 @@ public class DataItem {
     @Indexed
     private String date;
 
+    @Indexed
     private String title;
 
+    @Transient
     private String html;
 
+    @Transient
     private String formatContent;
 
-    @Indexed
+    @Transient
     private String textContent;
 }
 

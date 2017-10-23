@@ -6,9 +6,13 @@ logging:
 spring:
   data:
     mongodb:
-      uri: mongodb://ggzy:ggzy123@192.168.3.81:27017/ggzy
+      uri: mongodb://192.168.3.108:27017/ggzy
   redis:
       host: 192.168.3.83
       port: 6379
       password: har123
       database: 2
+
+hbase.zookeeper.quorum: s97,s98,s99
+hbase.table.clean: false
+hbase.table.namespace: bid_news_test

@@ -1,15 +1,18 @@
 package com.har.sjfxpt.crawler.ggzy;
 
 import com.har.sjfxpt.crawler.ggzy.downloader.PageDownloader;
-import com.har.sjfxpt.crawler.ggzy.model.DataItem;
+import com.har.sjfxpt.crawler.ggzy.listener.MonitorSpiderListener;
 import com.har.sjfxpt.crawler.ggzy.pipeline.DataItemPipeline;
+import com.har.sjfxpt.crawler.ggzy.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.ggzy.processor.GongGongZiYuanPageProcessor;
 import com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.util.Lists;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
@@ -30,6 +33,7 @@ import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanUtil.YYYYMMDD;
  */
 @Slf4j
 @Service
+@Order()
 public class SpiderLauncher implements CommandLineRunner {
 
     final int num = Runtime.getRuntime().availableProcessors() * 4;
@@ -81,8 +85,7 @@ public class SpiderLauncher implements CommandLineRunner {
      */
     public void start() {
         for (String type : types) {
-            Spider ggzy = Spider.create(context.getBean(GongGongZiYuanPageProcessor.class));
-            ggzy.addPipeline(context.getBean(DataItemPipeline.class));
+            Spider ggzy = getGongGongZiYuanSpider();
             ggzy.addRequest(getRequest(type));
             ggzy.thread(num).start();
         }
@@ -90,8 +93,7 @@ public class SpiderLauncher implements CommandLineRunner {
 
     public void start(String date) {
         for (String type : types) {
-            Spider ggzy = Spider.create(context.getBean(GongGongZiYuanPageProcessor.class));
-            ggzy.addPipeline(context.getBean(DataItemPipeline.class));
+            Spider ggzy = getGongGongZiYuanSpider();
             ggzy.addRequest(getRequest(type, date));
             ggzy.start();
         }
@@ -111,11 +113,18 @@ public class SpiderLauncher implements CommandLineRunner {
     }
 
     public void fetchHistory(String type, String begin, String end) {
-        Spider ggzy = Spider.create(context.getBean(GongGongZiYuanPageProcessor.class));
-        ggzy.addPipeline(context.getBean(DataItemPipeline.class));
+        Spider ggzy = getGongGongZiYuanSpider();
         ggzy.addRequest(getRequest(GongGongZiYuanUtil.getPageParamsByType(type, begin, end)));
         ggzy.thread(num);
         ggzy.start();
+    }
+
+    Spider getGongGongZiYuanSpider() {
+        Spider ggzy = Spider.create(context.getBean(GongGongZiYuanPageProcessor.class));
+        ggzy.addPipeline(context.getBean(DataItemPipeline.class));
+        ggzy.addPipeline(context.getBean(HBasePipeline.class));
+        ggzy.setSpiderListeners(Lists.newArrayList(context.getBean(MonitorSpiderListener.class)));
+        return ggzy;
     }
 
     @Override

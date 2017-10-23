@@ -43,8 +43,8 @@ public class PageDownloader {
             dataItem.setHtml(html);
 
             Element content = document.body().select("#mycontent").first();
-            dataItem.setFormatContent(PageProcessorUtil.formatElements(content));
-            dataItem.setTextContent(PageProcessorUtil.extractText(content));
+            dataItem.setFormatContent(PageProcessorUtil.formatElementsByWhitelist(content));
+            dataItem.setTextContent(PageProcessorUtil.extractTextByWhitelist(content));
         } catch (Exception e) {
             log.error("", e);
             log.error("{} download html content fail", dataItem.getId());
