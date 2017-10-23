@@ -43,7 +43,9 @@ public class DataItemService {
             final String charsetName = "utf-8";
             List<Put> putList = Lists.newArrayList();
             for (DataItem dataItem : dataItemList) {
-                String rowKey = prefix + dataItem.getId();
+                String date = dataItem.getDate().replace("-", "");
+                String rowKey = prefix + date;
+
                 Put put = new Put(rowKey.getBytes());
                 put.addColumn(family, "url".getBytes(), StringUtils.defaultString(dataItem.getUrl(), "").getBytes(charsetName));
                 put.addColumn(family, "createTime".getBytes(), StringUtils.defaultString(new DateTime(dataItem.getCreateTime()).toString("yyyy-MM-dd HH:mm:ss"), "").getBytes(charsetName));

@@ -1,0 +1,19 @@
+logging:
+  level:
+    com.har.sjfxpt.crawler.ggzy: info
+    us.codecraft.webmagic.downloader: error
+  file: ggzy.log
+
+spring:
+  data:
+    mongodb:
+      uri: mongodb://business:business123@192.168.3.95:27017/ggzy
+  redis:
+      host: 192.168.3.95
+      port: 6379
+      password: har123
+      database: 7
+
+hbase.zookeeper.quorum: s94,s95,s96
+hbase.table.clean: false
+hbase.table.namespace: bid_news

@@ -15,6 +15,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 
+import java.io.IOException;
+
 /**
  * @author dongqi
  */
@@ -61,13 +63,13 @@ public class HBaseConfig implements CommandLineRunner {
         return configuration;
     }
 
-    @Override
-    public void run(String... strings) throws Exception {
-        // 启动检查
-        Connection conn = ConnectionFactory.createConnection(configuration());
-        Admin admin = conn.getAdmin();
+    void init() throws IOException {
+        Connection conn = null;
+        Admin admin = null;
 
         try {
+            conn = ConnectionFactory.createConnection(configuration());
+            admin = conn.getAdmin();
             boolean namespaceExists = false;
             for (NamespaceDescriptor namespaceDescriptor : admin.listNamespaceDescriptors()) {
                 if (namespace.equalsIgnoreCase(namespaceDescriptor.getName())) {
@@ -103,6 +105,12 @@ public class HBaseConfig implements CommandLineRunner {
             if (admin != null) admin.close();
             if (conn != null) conn.close();
         }
+    }
+
+    @Override
+    public void run(String... strings) throws Exception {
+        // 启动检查
+        init();
 
     }
 }

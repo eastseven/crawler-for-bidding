@@ -42,6 +42,9 @@ public class DataItem {
     private String industry;
 
     @Indexed
+    private String pubDate;
+
+    @Indexed
     private String date;
 
     @Indexed

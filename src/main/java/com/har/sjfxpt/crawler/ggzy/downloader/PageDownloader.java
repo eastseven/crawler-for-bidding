@@ -6,6 +6,7 @@ import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -39,6 +40,11 @@ public class PageDownloader {
         try {
             log.info("download {}, {}", dataItem.getId(), dataItem.getUrl());
             document = Jsoup.connect(dataItem.getUrl()).userAgent(SiteUtil.get().getUserAgent()).timeout(60000).get();
+
+            String pubDate = document.select("body > div.detail > p.p_o > span:nth-child(1)").text();
+            pubDate = StringUtils.removeAll(pubDate, "发布时间：");
+            dataItem.setPubDate(StringUtils.defaultString(pubDate, DateTime.now().toString("yyyy-MM-dd HH:mm")));
+
             html = document.html();
             dataItem.setHtml(html);
 
