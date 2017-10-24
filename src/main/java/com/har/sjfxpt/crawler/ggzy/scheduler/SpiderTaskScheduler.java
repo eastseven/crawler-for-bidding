@@ -19,7 +19,7 @@ public class SpiderTaskScheduler {
     GongGongZiYuanSpiderLauncher gongGongZiYuanSpiderLauncher;
 
     //第一次延迟10秒后执行，之后按fixedRate的规则每20分钟执行一次
-    @Scheduled(initialDelay = 10000, fixedRate = 5 * 60 * 1000)
+//    @Scheduled(initialDelay = 10000, fixedRate = 5 * 60 * 1000)
     public void test() {
         log.info(">>> start");
         gongGongZiYuanSpiderLauncher.start();
