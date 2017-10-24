@@ -1,6 +1,6 @@
 logging:
   level:
-    com.har.sjfxpt.crawler.ggzy: debug
+    com.har.sjfxpt.crawler: debug
     us.codecraft.webmagic.downloader: error
 
 spring:
@@ -14,6 +14,9 @@ spring:
       database: 2
 
 hbase.zookeeper.quorum: s94,s95,s96
-hbase.table.clean: true
+hbase.table.clean: false
 hbase.table.namespace: bid_news_test
-hbase.table.prefix: bid_news_
+
+app.proxy.pool:
+  url: http://192.168.3.117:5000/get/
+  urls: http://192.168.3.117:5000/get_all/

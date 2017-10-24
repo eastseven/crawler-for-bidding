@@ -7,7 +7,7 @@ logging:
 spring:
   data:
     mongodb:
-      uri: mongodb://business:business123@192.168.3.95:27017/ggzy
+      uri: mongodb://business:business123@192.168.3.95:27017/business
   redis:
       host: 192.168.3.95
       port: 6379
@@ -17,3 +17,7 @@ spring:
 hbase.zookeeper.quorum: s94,s95,s96
 hbase.table.clean: false
 hbase.table.namespace: bid_news
+
+app.proxy.pool:
+  url: http://192.168.3.117:5000/get/
+  urls: http://192.168.3.117:5000/get_all/

@@ -42,24 +42,13 @@ public class GongGongZiYuanPageProcessor implements PageProcessor {
 
     @Override
     public void process(Page page) {
-        Map extra = (Map) page.getRequest().getExtra(KEY_PAGE_PARAMS);
-        Elements totalSize = page.getHtml().getDocument().body().select("div#publicl div.contp span.span_left:nth-child(1)");
-        Elements totalPage = page.getHtml().getDocument().body().select("div#publicl div.contp span.span_right");
-
-        long sizeNum        = Long.parseLong(totalSize.select("b").text());
-        long currentPageNum = Long.parseLong(StringUtils.substringBefore(totalPage.select("b").text(), "/"));
-        long pageNum        = Long.parseLong(StringUtils.substringAfter(totalPage.select("b").text(), "/"));
-
-        log.info("type {}, current page {}/{}, total size={}", extra.get(DEAL_CLASSIFY), currentPageNum, pageNum, sizeNum);
+        //处理分页
+        handlePaging(page);
 
         //获取列表内容
         final String css = "div#publicl div.publicont div";
         Elements items = page.getHtml().getDocument().body().select(css);
         List<DataItem> dataItemList = parseContent(items);
-
-        //处理分页
-        handlePaging(page, currentPageNum, pageNum);
-
         if (!dataItemList.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItemList);
         }
@@ -113,7 +102,17 @@ public class GongGongZiYuanPageProcessor implements PageProcessor {
         return dataItemList;
     }
 
-    private void handlePaging(Page page, long currentPageNum, long pageNum) {
+    private void handlePaging(Page page) {
+        Map extra = (Map) page.getRequest().getExtra(KEY_PAGE_PARAMS);
+        Elements totalSize = page.getHtml().getDocument().body().select("div#publicl div.contp span.span_left:nth-child(1)");
+        Elements totalPage = page.getHtml().getDocument().body().select("div#publicl div.contp span.span_right");
+
+        long sizeNum        = Long.parseLong(totalSize.select("b").text());
+        long currentPageNum = Long.parseLong(StringUtils.substringBefore(totalPage.select("b").text(), "/"));
+        long pageNum        = Long.parseLong(StringUtils.substringAfter(totalPage.select("b").text(), "/"));
+
+        log.info("type {}, current page {}/{}, total size={}", extra.get(DEAL_CLASSIFY), currentPageNum, pageNum, sizeNum);
+
         if (currentPageNum == 1L) {
             final int start = 2;
             Map<String, Object> firstPage = (Map<String, Object>) page.getRequest().getExtra(KEY_PAGE_PARAMS);

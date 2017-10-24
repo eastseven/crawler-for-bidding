@@ -18,7 +18,7 @@ import java.io.IOException;
 import java.util.Arrays;
 
 @Slf4j
-public class HBaseTests extends GongGongZiYuanApplicationTests {
+public class HBaseTests extends SpiderApplicationTests {
 
     @Autowired
     Configuration conf;

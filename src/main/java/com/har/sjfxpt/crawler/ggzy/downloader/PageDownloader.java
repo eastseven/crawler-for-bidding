@@ -16,6 +16,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.concurrent.ExecutorService;
+import java.util.regex.Pattern;
 
 /**
  * @author dongqi
@@ -23,6 +24,10 @@ import java.util.concurrent.ExecutorService;
 @Slf4j
 @Component
 public class PageDownloader {
+
+    Pattern patternLong = Pattern.compile("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}");
+    Pattern patternShort = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
+    final int ten = 10;
 
     @Autowired
     ExecutorService executorService;
@@ -38,11 +43,14 @@ public class PageDownloader {
         String html = null;
         Document document = null;
         try {
-            log.info("download {}, {}", dataItem.getId(), dataItem.getUrl());
+            log.debug("download {}, {}", dataItem.getId(), dataItem.getUrl());
             document = Jsoup.connect(dataItem.getUrl()).userAgent(SiteUtil.get().getUserAgent()).timeout(60000).get();
 
             String pubDate = document.select("body > div.detail > p.p_o > span:nth-child(1)").text();
-            pubDate = StringUtils.removeAll(pubDate, "发布时间：");
+            pubDate = StringUtils.substringAfter(pubDate, "：");
+            if (pubDate.trim().length() == ten) {
+                pubDate = pubDate + " " + DateTime.now().toString("HH:mm");
+            }
             dataItem.setPubDate(StringUtils.defaultString(pubDate, DateTime.now().toString("yyyy-MM-dd HH:mm")));
 
             html = document.html();

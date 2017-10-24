@@ -23,10 +23,10 @@ import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanUtil.YYYYMMDD;
 @Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class GongGongZiYuanApplicationTests {
+public class SpiderApplicationTests {
 
     @Autowired
-    SpiderLauncher launcher;
+    GongGongZiYuanSpiderLauncher launcher;
 
     @Autowired
     PageDownloader pageDownloader;

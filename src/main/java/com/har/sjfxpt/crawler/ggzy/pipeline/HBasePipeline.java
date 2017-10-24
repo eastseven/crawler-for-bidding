@@ -27,6 +27,8 @@ public class HBasePipeline implements Pipeline {
     public void process(ResultItems resultItems, Task task) {
         List<DataItem> dataItemList = resultItems.get(KEY_DATA_ITEMS);
         dataItemService.save(dataItemList);
+
+        dataItemService.save2BidNewsOriginalTable(dataItemList);
     }
 
 }

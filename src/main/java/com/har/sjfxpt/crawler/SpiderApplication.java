@@ -1,12 +1,12 @@
-package com.har.sjfxpt.crawler.ggzy;
+package com.har.sjfxpt.crawler;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class GongGongZiYuanApplication {
+public class SpiderApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(GongGongZiYuanApplication.class, args);
+		SpringApplication.run(SpiderApplication.class, args);
 	}
 }

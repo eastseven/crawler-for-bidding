@@ -1,4 +1,4 @@
-package com.har.sjfxpt.crawler.ggzy.model;
+package com.har.sjfxpt.crawler.ccgp;
 
 import lombok.Builder;
 import lombok.Getter;
@@ -11,20 +11,17 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 
-import static com.har.sjfxpt.crawler.ggzy.model.DataItem.T_NAME;
+import static com.har.sjfxpt.crawler.ccgp.ZhengFuCaiGouDataItem.T_NAME;
 
-/**
- * @author dongqi
- */
 @Getter
 @Setter
-@Builder@ToString
+@Builder
+@ToString
 @Document(collection = T_NAME)
-public class DataItem {
+public class ZhengFuCaiGouDataItem {
 
-    public static final String T_NAME = "data_item_ggzy";
-
-    public static final String T_NAME_HTML = "bid_news_original";
+    public static final String T_NAME      = "data_item_ccgp";
+    public static final String T_NAME_HTML = "data_item_ccgp_html";
 
     @Id
     private String id;
@@ -35,13 +32,11 @@ public class DataItem {
 
     private String province;
 
-    private String source;
+    private String type;
 
-    private String businessType;
+    private String purchaser;
 
-    private String infoType;
-
-    private String industry;
+    private String purchaserAgent;
 
     @Indexed
     private String pubDate;
@@ -61,4 +56,3 @@ public class DataItem {
     @Transient
     private String textContent;
 }
-

@@ -34,7 +34,7 @@ import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanUtil.YYYYMMDD;
 @Slf4j
 @Service
 @Order()
-public class SpiderLauncher implements CommandLineRunner {
+public class GongGongZiYuanSpiderLauncher implements CommandLineRunner {
 
     final int num = Runtime.getRuntime().availableProcessors() * 4;
 
