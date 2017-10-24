@@ -1,5 +1,6 @@
 package com.har.sjfxpt.crawler.ccgp;
 
+import com.har.sjfxpt.crawler.ggzy.processor.BasePageProcessor;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -13,7 +14,6 @@ import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
-import us.codecraft.webmagic.processor.PageProcessor;
 
 import java.util.List;
 
@@ -21,7 +21,7 @@ import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_
 
 @Slf4j
 @Component
-public class ZhengFuCaiGouPageProcessor implements PageProcessor {
+public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
 
     @Override
     public void process(Page page) {
@@ -44,7 +44,8 @@ public class ZhengFuCaiGouPageProcessor implements PageProcessor {
         return SiteUtil.get().setTimeOut(60000);
     }
 
-    private void handlePaging(Page page) {
+    @Override
+    public void handlePaging(Page page) {
         String url = page.getUrl().get();
         log.debug(">>> url {}", url);
         //div.vT_z div div p.pager
@@ -69,7 +70,8 @@ public class ZhengFuCaiGouPageProcessor implements PageProcessor {
         }
     }
 
-    private List<ZhengFuCaiGouDataItem> parseContent(Elements items) {
+    @Override
+    public List<ZhengFuCaiGouDataItem> parseContent(Elements items) {
         List<ZhengFuCaiGouDataItem> dataItemList = Lists.newArrayList();
         for (Element element : items) {
             String href = element.select("a").attr("href");
