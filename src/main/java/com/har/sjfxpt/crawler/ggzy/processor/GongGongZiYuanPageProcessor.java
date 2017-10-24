@@ -16,7 +16,6 @@ import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.model.HttpRequestBody;
-import us.codecraft.webmagic.processor.PageProcessor;
 import us.codecraft.webmagic.utils.HttpConstant;
 
 import java.util.List;
@@ -33,7 +32,7 @@ import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanUtil.*;
  */
 @Slf4j
 @Component
-public class GongGongZiYuanPageProcessor implements PageProcessor {
+public class GongGongZiYuanPageProcessor implements BasePageProcessor {
 
     final String KEY_PAGE_PARAMS = "pageParams";
 
@@ -54,7 +53,8 @@ public class GongGongZiYuanPageProcessor implements PageProcessor {
         }
     }
 
-    private List<DataItem> parseContent(Elements items) {
+    @Override
+    public List<DataItem> parseContent(Elements items) {
         List<DataItem> dataItemList = Lists.newArrayList();
 
         for (Element item : items) {
@@ -102,7 +102,8 @@ public class GongGongZiYuanPageProcessor implements PageProcessor {
         return dataItemList;
     }
 
-    private void handlePaging(Page page) {
+    @Override
+    public void handlePaging(Page page) {
         Map extra = (Map) page.getRequest().getExtra(KEY_PAGE_PARAMS);
         Elements totalSize = page.getHtml().getDocument().body().select("div#publicl div.contp span.span_left:nth-child(1)");
         Elements totalPage = page.getHtml().getDocument().body().select("div#publicl div.contp span.span_right");
