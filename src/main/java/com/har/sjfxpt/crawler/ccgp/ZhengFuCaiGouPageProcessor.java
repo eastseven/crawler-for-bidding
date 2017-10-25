@@ -19,13 +19,17 @@ import java.util.List;
 
 import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
 
+/**
+ * 中国政府采购网
+ * @author dongqi
+ */
 @Slf4j
 @Component
 public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
 
     @Override
     public void process(Page page) {
-
+        log.debug("\n{}", page.getHtml().toString());
         //处理分页
         handlePaging(page);
 
@@ -86,6 +90,7 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
             String pubDate = null, purchaser = null, purchaserAgent = null;
             String type = null;
             String province = null;
+            String industry = null;
             for (int index = 0; index < lines.length; index++) {
                 String line = lines[index];
                 switch (index) {
@@ -115,6 +120,10 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
                     case 3:
                         province = StringUtils.trim(line);
                         dataItem.setProvince(province);
+                        break;
+                    case 4:
+                        industry = StringUtils.trim(line);
+                        dataItem.setIndustry(industry);
                         break;
                     default:
                         break;

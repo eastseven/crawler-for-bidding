@@ -35,16 +35,16 @@ public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
     public void test() throws UnsupportedEncodingException {
         String url = "http://search.ccgp.gov.cn/bxsearch?searchtype=1&bidSort=&buyerName=&projectId=&pinMu=&bidType=&dbselect=bidx&kw=&timeType=6&displayZone=&zoneId=&pppStatus=0&agentName=";
         Assert.assertNotNull(url);
-        String params = "&start_time=2017%3A10%3A23&end_time=2017%3A10%3A23&page_index=1";
-
-        Request request = new Request(url + params);
 
         String date = DateTime.now().toString("yyyy:MM:dd");
-        log.debug("date={}, {}", date, URLEncoder.encode(date, "utf-8"));
+        date = URLEncoder.encode(date, "utf-8");
+        String params = "&start_time=" + date + "&end_time=" + date + "&page_index=1";
+        url = url + params;
+        log.debug(">>> test {}", url);
         Spider.create(pageProcessor)
                 .setDownloader(proxyService.getDownloader())
                 .addPipeline(pipeline)
-                .addRequest(request).thread(10).run();
+                .addRequest(new Request(url)).run();
     }
 
     @Test
@@ -53,13 +53,9 @@ public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
         Assert.assertNotNull(spider);
         // 7天
         DateTime df = DateTime.now().minusDays(1);
-        int day = 30;
+        int day = 7;
         for (int index = 0; index < day; index++) {
             String dateText = df.minusDays(index).toString("yyyy:MM:dd");
-//            if (pageDataRepository.exists(dateText)) {
-//                log.warn(">>> {} exists", dateText);
-//                continue;
-//            }
             String date = URLEncoder.encode(dateText, "utf-8");
             PageData pageData = new PageData();
             pageData.setDate(dateText);

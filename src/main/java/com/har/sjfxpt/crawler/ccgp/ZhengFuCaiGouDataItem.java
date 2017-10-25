@@ -38,6 +38,8 @@ public class ZhengFuCaiGouDataItem {
 
     private String purchaserAgent;
 
+    private String industry;
+
     @Indexed
     private String pubDate;
 

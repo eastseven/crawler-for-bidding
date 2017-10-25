@@ -13,7 +13,7 @@ import lombok.ToString;
 public class DataItemDTO {
 
     /**
-     * hbase rowKey: yyyyMMdd:sourceCode:id
+     * hbase rowKey: yyyyMMdd:sourceCode:title
      */
     private String rowKey;
 

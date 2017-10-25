@@ -27,10 +27,14 @@ public class SpiderLauncher implements CommandLineRunner {
     public void run(String... args) throws Exception {
         for (String arg : args) {
             switch (arg) {
-                case "start":
+                case "start-all":
+                    gongGongZiYuanSpiderLauncher.start();
+                    chinaMobileSpiderLauncher.start();
+                    break;
+                case "start-ggzy":
                     gongGongZiYuanSpiderLauncher.start();
                     break;
-                case "history":
+                case "history-ggzy":
                     gongGongZiYuanSpiderLauncher.fetchHistory();
                     break;
                 case "start-cm":

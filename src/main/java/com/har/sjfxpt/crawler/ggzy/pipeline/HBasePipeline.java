@@ -32,9 +32,6 @@ public class HBasePipeline implements Pipeline {
         if (CollectionUtils.isEmpty(dataItemList)) {
             log.warn("ggzy save nothing, {}", task.getSite());
         } else {
-            dataItemService.save(dataItemList);
-            log.info("ggzy save {} to mongodb", dataItemList.size());
-
             List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
             dataItemService.save2BidNewsOriginalTable(dtoList);
 

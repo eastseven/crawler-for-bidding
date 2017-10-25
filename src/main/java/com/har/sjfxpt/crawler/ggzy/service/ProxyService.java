@@ -4,9 +4,11 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.util.Lists;
 import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Service;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.proxy.Proxy;
@@ -15,17 +17,49 @@ import us.codecraft.webmagic.selector.Html;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
 @Service
+@ConfigurationProperties(prefix = "app.proxy.pool")
 public class ProxyService {
 
-    @Value("${app.proxy.pool.url}") String GET_PROXY_URL;
+    private List<String> ips = Lists.newArrayList();
+
+    public List<String> getIps() {
+        return ips;
+    }
+
+    public void setIps(List<String> ips) {
+        this.ips = ips;
+    }
+
+    @Value("${app.proxy.pool.url}")
+    String GET_PROXY_URL;
+
+    HttpClientDownloader downloader = new HttpClientDownloader();
 
     public HttpClientDownloader getDownloader() {
-        HttpClientDownloader downloader = new HttpClientDownloader();
-        downloader.setProxyProvider(SimpleProxyProvider.from(getProxyWithZhiMa()));
+        log.debug("{}", Arrays.toString(ips.toArray()));
+        List<Proxy> proxyList = Lists.newArrayList();
+        for (String ip : ips) {
+            String host = StringUtils.substringBefore(ip, ":");
+            String port = StringUtils.substringAfter(ip, ":");
+            proxyList.add(new Proxy(host, Integer.parseInt(port)));
+        }
+        downloader.setProxyProvider(SimpleProxyProvider.from(proxyList.toArray(new Proxy[ips.size()])));
+        return downloader;
+    }
+
+    public HttpClientDownloader getDownloader(String proxy) {
+        String host = StringUtils.substringBefore(proxy, ":");
+        String port = StringUtils.substringAfter(proxy, ":");
+        return getDownloader(host, Integer.parseInt(port));
+    }
+
+    public HttpClientDownloader getDownloader(String host, int port) {
+        downloader.setProxyProvider(SimpleProxyProvider.from(new Proxy(host, port)));
         return downloader;
     }
 
@@ -70,7 +104,7 @@ public class ProxyService {
             JSONObject jsonObject = (JSONObject) JSONObject.parse(jsonText);
             JSONArray data = (JSONArray) jsonObject.get("data");
             for (Object object : data) {
-                JSONObject json = (JSONObject)object;
+                JSONObject json = (JSONObject) object;
                 String host = json.getString("ip");
                 int port = json.getIntValue("port");
                 log.debug("{}", json);
