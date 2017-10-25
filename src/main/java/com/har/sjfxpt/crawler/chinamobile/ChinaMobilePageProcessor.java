@@ -1,14 +1,16 @@
 package com.har.sjfxpt.crawler.chinamobile;
 
 import com.google.common.collect.Maps;
-import com.har.sjfxpt.crawler.ggzy.model.DataItem;
 import com.har.sjfxpt.crawler.ggzy.processor.BasePageProcessor;
+import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.ProvinceUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.util.Lists;
+import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
@@ -23,6 +25,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
+import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanUtil.YYYYMMDD;
 
 @Slf4j
 @Component
@@ -34,13 +37,20 @@ public class ChinaMobilePageProcessor implements BasePageProcessor {
 
     @Override
     public void process(Page page) {
-        handlePaging(page);
-
         Elements elements = page.getHtml().getDocument().body().select("table tr");
-        List<DataItem> dataItemList = parseContent(elements);
+        if (elements.isEmpty()) {
+            log.error("fetch error, elements is empty");
+            return;
+        }
+
+        List<ChinaMobileDataItem> dataItemList = parseContent(elements);
         if (!dataItemList.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItemList);
+        } else {
+            log.warn("fetch {} no data", page.getUrl().get());
         }
+
+        handlePaging(page);
     }
 
     @Override
@@ -83,20 +93,22 @@ public class ChinaMobilePageProcessor implements BasePageProcessor {
     public List parseContent(Elements items) {
         List<ChinaMobileDataItem> dataItems = Lists.newArrayList();
         for (Element element : items) {
-            if (element.isBlock()) continue;
+            if (!element.hasText()) continue;
             if (element.hasClass("zb_table_tr")) continue;
-            String id = StringUtils.substringBetween(element.attr("onclick"), "(", ")");
+            if (!element.hasAttr("onclick")) continue;
+            log.debug("{}", element);
+            String id = StringUtils.substringBetween(element.attr("onclick"), "('", "')");
             String url = URL + id;
             String purchaser = element.select("td").get(0).text();
             String type = StringUtils.defaultString(element.select("td").get(1).text(), "其他");
-            String title = element.select("td").get(2).select("a").attr("title");
-            String date = element.select("td").get(3).text();
 
-            try {
-                Jsoup.connect(url).timeout(60000).userAgent(SiteUtil.get().getUserAgent()).get().body().select("div#mobanDiv");
-            } catch (IOException e) {
-                log.error("", e);
+            String title = element.select("td").get(2).select("a").attr("title");
+            if (StringUtils.isBlank(title)) {
+                title = element.select("td").get(2).text();
             }
+
+            String date = element.select("td").get(3).text();
+            date = new DateTime(date).toString(YYYYMMDD);
 
             ChinaMobileDataItem dataItem = new ChinaMobileDataItem(url);
             dataItem.setDate(date);
@@ -104,6 +116,22 @@ public class ChinaMobilePageProcessor implements BasePageProcessor {
             dataItem.setType(type);
             dataItem.setPurchaser(purchaser);
             dataItem.setProvince(ProvinceUtil.get(purchaser + title));
+
+            try {
+                log.debug(">>> download {}", url);
+                Document document = Jsoup.connect(url).timeout(60000).userAgent(SiteUtil.get().getUserAgent()).get();
+                String html = document.html();
+                Element root = document.body().select("div#container").first();
+                String formatContent = PageProcessorUtil.formatElementsByWhitelist(root);
+                String textContent = PageProcessorUtil.extractTextByWhitelist(root);
+                dataItem.setHtml(html);
+                dataItem.setFormatContent(formatContent);
+                dataItem.setTextContent(textContent);
+            } catch (IOException e) {
+                log.error("", e);
+            } finally {
+                dataItem.setDownload(StringUtils.isNotBlank(dataItem.getFormatContent()));
+            }
 
             dataItems.add(dataItem);
             log.debug(">>> {}", dataItem);

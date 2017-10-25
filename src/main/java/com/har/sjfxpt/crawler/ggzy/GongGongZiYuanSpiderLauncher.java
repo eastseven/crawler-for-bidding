@@ -1,6 +1,5 @@
 package com.har.sjfxpt.crawler.ggzy;
 
-import com.har.sjfxpt.crawler.ggzy.downloader.PageDownloader;
 import com.har.sjfxpt.crawler.ggzy.listener.MonitorSpiderListener;
 import com.har.sjfxpt.crawler.ggzy.pipeline.DataItemPipeline;
 import com.har.sjfxpt.crawler.ggzy.pipeline.HBasePipeline;
@@ -10,9 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.util.Lists;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ApplicationContext;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
@@ -33,8 +30,7 @@ import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanUtil.YYYYMMDD;
  */
 @Slf4j
 @Service
-@Order()
-public class GongGongZiYuanSpiderLauncher implements CommandLineRunner {
+public class GongGongZiYuanSpiderLauncher {
 
     final int num = Runtime.getRuntime().availableProcessors() * 4;
 
@@ -127,22 +123,4 @@ public class GongGongZiYuanSpiderLauncher implements CommandLineRunner {
         return ggzy;
     }
 
-    @Override
-    public void run(String... args) throws Exception {
-        for (String arg : args) {
-            switch (arg) {
-                case "start":
-                    start();
-                    break;
-                case "history":
-                    fetchHistory();
-                    break;
-                case "download":
-                    executorService.execute(() -> context.getBean(PageDownloader.class).download());
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
 }

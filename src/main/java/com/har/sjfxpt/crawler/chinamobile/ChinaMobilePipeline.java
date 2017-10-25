@@ -1,6 +1,5 @@
-package com.har.sjfxpt.crawler.ggzy.pipeline;
+package com.har.sjfxpt.crawler.chinamobile;
 
-import com.har.sjfxpt.crawler.ggzy.model.DataItem;
 import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
 import com.har.sjfxpt.crawler.ggzy.service.DataItemService;
 import lombok.extern.slf4j.Slf4j;
@@ -16,31 +15,27 @@ import java.util.stream.Collectors;
 
 import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
 
-/**
- * @author dongqi
- */
 @Slf4j
 @Component
-public class HBasePipeline implements Pipeline {
+public class ChinaMobilePipeline implements Pipeline {
+
+    @Autowired
+    ChinaMobileDataItemRepository dataItemRepository;
 
     @Autowired
     DataItemService dataItemService;
 
     @Override
     public void process(ResultItems resultItems, Task task) {
-        List<DataItem> dataItemList = resultItems.get(KEY_DATA_ITEMS);
+        List<ChinaMobileDataItem> dataItemList = resultItems.get(KEY_DATA_ITEMS);
         if (CollectionUtils.isEmpty(dataItemList)) {
-            log.warn("ggzy save nothing, {}", task.getSite());
+            log.warn("china mobile save nothing, {}", task.getSite());
         } else {
-            dataItemService.save(dataItemList);
-            log.info("ggzy save {} to mongodb", dataItemList.size());
+            dataItemRepository.save(dataItemList);
+            log.info("china mobile save {} to mongodb", dataItemList.size());
 
             List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
             dataItemService.save2BidNewsOriginalTable(dtoList);
-
         }
-
-
     }
-
 }
