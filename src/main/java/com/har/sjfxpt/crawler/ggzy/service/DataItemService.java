@@ -2,7 +2,7 @@ package com.har.sjfxpt.crawler.ggzy.service;
 
 import com.har.sjfxpt.crawler.ggzy.config.HBaseConfig;
 import com.har.sjfxpt.crawler.ggzy.model.DataItem;
-import com.har.sjfxpt.crawler.ggzy.model.GongGongZiYuanModel;
+import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -53,24 +53,6 @@ public class DataItemService {
 
     @PreDestroy
     public void destroy() {
-        if (table != null) {
-            try {
-                table.close();
-                log.info(">>> hbase table {} close", DataItem.T_NAME);
-            } catch (IOException e) {
-                log.error("", e);
-            }
-        }
-
-        if (html != null) {
-            try {
-                html.close();
-                log.info(">>> hbase table {} close", DataItem.T_NAME_HTML);
-            } catch (IOException e) {
-                log.error("", e);
-            }
-        }
-
         if (conn != null) {
             try {
                 conn.close();
@@ -95,7 +77,7 @@ public class DataItemService {
         }
     }
 
-    public void save2BidNewsOriginalTable(List<DataItem> dataItemList) {
+    public void save2BidNewsOriginalTable(List<DataItemDTO> dataItemList) {
         if (CollectionUtils.isEmpty(dataItemList)) {
             return;
         }
@@ -136,33 +118,51 @@ public class DataItemService {
         return putList;
     }
 
-    private List<Put> assembleWithGGZY(List<DataItem> dataItemList) throws UnsupportedEncodingException {
+    private List<Put> assembleWithGGZY(List<DataItemDTO> dataItemList) throws UnsupportedEncodingException {
         List<Put> putList = Lists.newArrayList();
-        for (DataItem dataItem : dataItemList) {
+        int counter = 1;
+        for (DataItemDTO dataItem : dataItemList) {
+
             if (StringUtils.isBlank(dataItem.getFormatContent())) {
-                log.warn(">>> {} formatContent is blank", dataItem.getId());
+                log.warn(">>> {} {} formatContent is blank", dataItem.getSourceCode(), dataItem.getId());
                 continue;
             }
 
-            GongGongZiYuanModel model = new GongGongZiYuanModel(dataItem);
-            String date = dataItem.getDate().replace("-", "") + ':';
-            String rowKey = date + dataItem.getId();
+            if (StringUtils.isBlank(dataItem.getTitle())) {
+                log.warn(">>> {} {} title is blank", dataItem.getSourceCode(), dataItem.getId());
+                continue;
+            }
+
+            String date = StringUtils.substring(dataItem.getDate(), 0,10).replace("-","");
+            String rowKey = date;
+            //兼容之前存储的rowKey，避免重复数据出现
+            if (!"ggzy".equalsIgnoreCase(dataItem.getSourceCode())) {
+                rowKey += ':' + dataItem.getSourceCode().toLowerCase();
+            }
+            rowKey += ':' + dataItem.getId();
 
             Put put = new Put(rowKey.getBytes());
-            put.addColumn(family, "url".getBytes(),           StringUtils.defaultString(model.getUrl(), "").getBytes(charsetName));
-            put.addColumn(family, "title".getBytes(),         StringUtils.defaultString(model.getTitle(), "").getBytes(charsetName));
-            put.addColumn(family, "province".getBytes(),      StringUtils.defaultString(model.getProvince(), "全国").getBytes(charsetName));
-            put.addColumn(family, "type".getBytes(),          StringUtils.defaultString(model.getType(), "").getBytes(charsetName));
-            put.addColumn(family, "source".getBytes(),        StringUtils.defaultString(model.getSource(), "全国公共资源交易平台").getBytes(charsetName));
-            put.addColumn(family, "sourceCode".getBytes(),    StringUtils.defaultString(model.getSourceCode(), "GGZY").getBytes(charsetName));
-            put.addColumn(family, "date".getBytes(),          StringUtils.defaultString(model.getDate(), "").getBytes(charsetName));
-            put.addColumn(family, "create_time".getBytes(),   StringUtils.defaultString(model.getCreateTime(), "").getBytes(charsetName));
-            put.addColumn(family, "formatContent".getBytes(), StringUtils.defaultString(model.getFormatContent(), "").getBytes(charsetName));
-            put.addColumn(family, "textContent".getBytes(),   StringUtils.defaultString(model.getTextContent(), "").getBytes(charsetName));
+            put.addColumn(family, "url".getBytes(),           StringUtils.defaultString(dataItem.getUrl(), "").getBytes(charsetName));
+            put.addColumn(family, "title".getBytes(),         StringUtils.defaultString(dataItem.getTitle(), "").getBytes(charsetName));
+            put.addColumn(family, "province".getBytes(),      StringUtils.defaultString(dataItem.getProvince(), "全国").getBytes(charsetName));
+            put.addColumn(family, "type".getBytes(),          StringUtils.defaultString(dataItem.getType(), "").getBytes(charsetName));
+            put.addColumn(family, "source".getBytes(),        StringUtils.defaultString(dataItem.getSource(), "其他").getBytes(charsetName));
+            put.addColumn(family, "sourceCode".getBytes(),    StringUtils.defaultString(dataItem.getSourceCode(), "UNKNOWN").getBytes(charsetName));
+            put.addColumn(family, "date".getBytes(),          StringUtils.defaultString(dataItem.getDate(), "").getBytes(charsetName));
+            put.addColumn(family, "create_time".getBytes(),   StringUtils.defaultString(dataItem.getCreateTime(), "").getBytes(charsetName));
+            put.addColumn(family, "formatContent".getBytes(), StringUtils.defaultString(dataItem.getFormatContent(), "").getBytes(charsetName));
+            put.addColumn(family, "textContent".getBytes(),   StringUtils.defaultString(dataItem.getTextContent(), "").getBytes(charsetName));
 
             putList.add(put);
+
+            if (counter == 1) {
+                log.info("rowKey {} put to table {}", rowKey, DataItem.T_NAME_HTML);
+            }
+            counter++;
         }
 
         return putList;
     }
+
+
 }

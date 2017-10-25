@@ -13,6 +13,7 @@ import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -73,14 +74,20 @@ public class JinCaiWangPageProcessor implements BasePageProcessor {
             String href = target.select("p.cfcpn_list_title > a").attr("href");
             href="http://www.cfcpn.com"+href;
             log.debug("href=={}", href);
-            String txt = target.select("p.cfcpn_list_title > a").text();
-            log.debug("txt=={}", txt);
-            String time = target.select("p.cfcpn_list_date.text-right").text();
-            log.debug("time=={}", time);
+            String titleTxt = target.select("p.cfcpn_list_title > a").text();
+            log.debug("txt=={}", titleTxt);
+            String date = target.select("p.cfcpn_list_date.text-right").text();
+            log.debug("time=={}", date);
 
             JinCaiWangDataItem jinCaiWangDataItem=new JinCaiWangDataItem(DigestUtils.md5Hex(href));
 
+            jinCaiWangDataItem.setUrl(href);//url
 
+            jinCaiWangDataItem.setTitle(titleTxt);//title
+
+            jinCaiWangDataItem.setCreateTime(new Date());//date
+
+            jinCaiWangDataItem.setDate(date);
 
             Elements elements = target.select("div.media-body");
             String content = elements.text();
@@ -89,6 +96,6 @@ public class JinCaiWangPageProcessor implements BasePageProcessor {
             }
         }
 
-        return null;
+        return dataItemList;
     }
 }

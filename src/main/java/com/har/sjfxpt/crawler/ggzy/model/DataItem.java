@@ -4,6 +4,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -14,11 +17,13 @@ import java.util.Date;
 import static com.har.sjfxpt.crawler.ggzy.model.DataItem.T_NAME;
 
 /**
+ * 全国公共资源交易平台 实体
  * @author dongqi
  */
 @Getter
 @Setter
-@Builder@ToString
+@Builder
+@ToString
 @Document(collection = T_NAME)
 public class DataItem {
 
@@ -60,5 +65,20 @@ public class DataItem {
 
     @Transient
     private String textContent;
+
+    public DataItemDTO dto() {
+        DataItemDTO dto = new DataItemDTO();
+        BeanUtils.copyProperties(this, dto);
+        dto.setCreateTime(new DateTime(this.getCreateTime()).toString("yyyyMMddHH"));
+        if (StringUtils.isNotBlank(pubDate)) {
+            dto.setDate(pubDate);
+        } else {
+            dto.setDate(new DateTime(this.getCreateTime()).toString("yyyy-MM-dd HH:mm"));
+        }
+
+        dto.setProvince(StringUtils.defaultString(province, "全国"));
+        dto.setType(StringUtils.defaultString(infoType, "其他"));
+        return dto;
+    }
 }
 
