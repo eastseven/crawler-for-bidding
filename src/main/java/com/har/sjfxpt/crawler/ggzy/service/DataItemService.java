@@ -8,10 +8,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.ConnectionFactory;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.client.*;
 import org.assertj.core.util.Lists;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,7 +67,7 @@ public class DataItemService {
         }
 
         String current = DateTime.now().toString("yyyyMMdd");
-        int counter = 1;
+        int counter = 0;
         for (DataItemDTO dataItem : dataItemList) {
             try {
                 String rowKey = getRowKey(dataItem);
@@ -149,7 +146,6 @@ public class DataItemService {
     private String getRowKey(DataItemDTO dataItem) {
         String date = StringUtils.substring(dataItem.getDate(), 0,10).replace("-","");
         String rowKey = date;
-        rowKey += ':' + dataItem.getSourceCode().toLowerCase();
         rowKey += ':' + DigestUtils.md5Hex(StringUtils.trim(dataItem.getTitle()));
 
         return rowKey;
@@ -169,5 +165,14 @@ public class DataItemService {
         put.addColumn(family, "textContent".getBytes(),   StringUtils.defaultString(dataItem.getTextContent(), "").getBytes(charsetName));
 
         return put;
+    }
+
+    public void test() {
+        Scan scan = new Scan();
+        try {
+            originalTable.getScanner(scan);
+        } catch (IOException e) {
+            log.error("", e);
+        }
     }
 }
