@@ -32,15 +32,24 @@ public class JinCaiWangPageProcessorTests {
     JinCaiWangPipeline jinCaiWangPipeline;
 
     @Test
-    public void testJinCaiWangProcessor(){
-        String[] urls={"http://www.cfcpn.com/plist/caigou?pageNo=1&kflag=0&keyword=&keywordType=&province=&city=&typeOne=&ptpTwo=",
+    public void testJinCaiWangProcessor() {
+        String[] urls = {"http://www.cfcpn.com/plist/caigou?pageNo=1&kflag=0&keyword=&keywordType=&province=&city=&typeOne=&ptpTwo=",
                 "http://www.cfcpn.com/plist/zhengji?pageNo=1&kflag=0&keyword=&keywordType=&province=&city=&typeOne=&ptpTwo=",
                 "http://www.cfcpn.com/plist/jieguo?pageNo=1&kflag=0&keyword=&keywordType=&province=&city=&typeOne=&ptpTwo=",
                 "http://www.cfcpn.com/plist/biangeng?pageNo=1&kflag=0&keyword=&keywordType=&province=&city=&typeOne=&ptpTwo="};
-        Request[] requests=new Request[urls.length];
-        for (int i=0;i<urls.length;i++){
-            Request request=new Request(urls[i]);
-            requests[i]=request;
+        Request[] requests = new Request[urls.length];
+        for (int i = 0; i < urls.length; i++) {
+            Request request = new Request(urls[i]);
+            if(urls[i].contains("caigou")){
+                request.putExtra("type","采购");
+            } if(urls[i].contains("zhengji")){
+                request.putExtra("type","征集");
+            }if(urls[i].contains("jieguo")){
+                request.putExtra("type","结果");
+            }if(urls[i].contains("biangeng")){
+                request.putExtra("type","变更");
+            }
+            requests[i] = request;
         }
         Spider.create(jinCaiWangPageProcessor)
                 .addRequest(requests)
@@ -50,9 +59,9 @@ public class JinCaiWangPageProcessorTests {
     }
 
     @Test
-    public void testStringUtil(){
-        String date=new DateTime(new Date()).toString("yyyy-MM-dd-HH");
-        log.debug("date={}",date);
+    public void testStringUtil() {
+        String date = new DateTime(new Date()).toString("yyyy-MM-dd-HH");
+        log.debug("date={}", date);
     }
 
 }

@@ -1,12 +1,15 @@
 package com.har.sjfxpt.crawler.jcw;
 
 import com.har.sjfxpt.crawler.ggzy.processor.BasePageProcessor;
+import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.ProvinceUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.util.Lists;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
@@ -14,7 +17,7 @@ import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
 
-import java.util.Date;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -34,6 +37,8 @@ public class JinCaiWangPageProcessor implements BasePageProcessor {
         Element html = page.getHtml().getDocument().body();
         Elements items = html.select("body > div.container-fluid.cfcpn_container_list-bg > div > div > div.col-lg-9.cfcpn_padding_LR0.cfcpn_list_border-right > div.cfcpn_list_content.text-left");
         List<JinCaiWangDataItem> dataItemList = parseContent(items);
+        String type = (String) page.getRequest().getExtra("type");
+        dataItemList.forEach(dataItem -> dataItem.setType(type));
         if (dataItemList != null) {
             page.putField("dataItemList", dataItemList);
         }
@@ -89,7 +94,7 @@ public class JinCaiWangPageProcessor implements BasePageProcessor {
 
             jinCaiWangDataItem.setTitle(titleTxt);
 
-            jinCaiWangDataItem.setPubDate(date);
+            jinCaiWangDataItem.setDate(date);
 
             Elements elements = target.select("div.media-body");
             String content = elements.text();
@@ -108,9 +113,21 @@ public class JinCaiWangPageProcessor implements BasePageProcessor {
                     jinCaiWangDataItem.setCategory(StringUtils.substringAfter(text[i], ":"));
                 }
             }
+
+            try {
+                Document document= Jsoup.connect(href).timeout(60000).userAgent(SiteUtil.get().getUserAgent()).get();
+                String html=document.html();
+                Element root=document.body().select("body > div.container-fluid.cfcpn_container_list-bg > div > div.row > div.col-lg-9.cfcpn_news_mian").first();
+                String formatContent = PageProcessorUtil.formatElementsByWhitelist(root);
+                String textContent = PageProcessorUtil.extractTextByWhitelist(root);
+                jinCaiWangDataItem.setHtml(html);
+                jinCaiWangDataItem.setFormatContent(formatContent);
+                jinCaiWangDataItem.setTextContent(textContent);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             dataItemList.add(jinCaiWangDataItem);
         }
-
         return dataItemList;
     }
 }

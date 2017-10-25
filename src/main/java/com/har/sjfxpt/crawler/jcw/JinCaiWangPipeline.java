@@ -1,5 +1,7 @@
 package com.har.sjfxpt.crawler.jcw;
 
+import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
+import com.har.sjfxpt.crawler.ggzy.service.DataItemService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -9,6 +11,7 @@ import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.pipeline.Pipeline;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by Administrator on 2017/10/25.
@@ -19,6 +22,10 @@ public class JinCaiWangPipeline implements Pipeline{
 
     @Autowired
     JinCaiWangDataItemRepository jinCaiWangDataItemRepository;
+
+    @Autowired
+    DataItemService dataItemService;
+
     @Override
     public void process(ResultItems resultItems, Task task) {
         List<JinCaiWangDataItem> dataItemList=resultItems.get("dataItemList");
@@ -27,6 +34,9 @@ public class JinCaiWangPipeline implements Pipeline{
         }else {
             jinCaiWangDataItemRepository.save(dataItemList);
             log.info("jincaiwang save {} to mongodb",dataItemList.size());
+
+            List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
+            dataItemService.save2BidNewsOriginalTable(dtoList);
         }
     }
 }
