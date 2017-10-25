@@ -1,6 +1,7 @@
 package com.har.sjfxpt.crawler.jcw;
 
 import com.har.sjfxpt.crawler.ggzy.processor.BasePageProcessor;
+import com.har.sjfxpt.crawler.ggzy.utils.ProvinceUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -33,6 +34,9 @@ public class JinCaiWangPageProcessor implements BasePageProcessor {
         Element html = page.getHtml().getDocument().body();
         Elements items = html.select("body > div.container-fluid.cfcpn_container_list-bg > div > div > div.col-lg-9.cfcpn_padding_LR0.cfcpn_list_border-right > div.cfcpn_list_content.text-left");
         List<JinCaiWangDataItem> dataItemList = parseContent(items);
+        if (dataItemList != null) {
+            page.putField("dataItemList", dataItemList);
+        }
     }
 
     @Override
@@ -72,28 +76,39 @@ public class JinCaiWangPageProcessor implements BasePageProcessor {
 
         for (Element target : items) {
             String href = target.select("p.cfcpn_list_title > a").attr("href");
-            href="http://www.cfcpn.com"+href;
+            href = "http://www.cfcpn.com" + href;
             log.debug("href=={}", href);
             String titleTxt = target.select("p.cfcpn_list_title > a").text();
             log.debug("txt=={}", titleTxt);
             String date = target.select("p.cfcpn_list_date.text-right").text();
             log.debug("time=={}", date);
 
-            JinCaiWangDataItem jinCaiWangDataItem=new JinCaiWangDataItem(DigestUtils.md5Hex(href));
+            JinCaiWangDataItem jinCaiWangDataItem = new JinCaiWangDataItem(DigestUtils.md5Hex(href));
 
-            jinCaiWangDataItem.setUrl(href);//url
+            jinCaiWangDataItem.setUrl(href);
 
-            jinCaiWangDataItem.setTitle(titleTxt);//title
+            jinCaiWangDataItem.setTitle(titleTxt);
 
-            jinCaiWangDataItem.setCreateTime(new Date());//date
-
-            jinCaiWangDataItem.setDate(date);
+            jinCaiWangDataItem.setPubDate(date);
 
             Elements elements = target.select("div.media-body");
             String content = elements.text();
             String[] text = StringUtils.split(content, "    ");
             for (int i = 0; i < text.length; i++) {
+                if (text[i].contains("采购人")) {
+                    jinCaiWangDataItem.setProcurement(StringUtils.substringAfter(text[i], ":"));
+                }
+                if (text[i].contains("采购方式")) {
+                    jinCaiWangDataItem.setPurchaseWay(StringUtils.substringAfter(text[i], ":"));
+                }
+                if (text[i].contains("地区")) {
+                    jinCaiWangDataItem.setProvince(ProvinceUtil.get(StringUtils.substringAfter(text[i], ":")));
+                }
+                if (text[i].contains("品类")) {
+                    jinCaiWangDataItem.setCategory(StringUtils.substringAfter(text[i], ":"));
+                }
             }
+            dataItemList.add(jinCaiWangDataItem);
         }
 
         return dataItemList;
