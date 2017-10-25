@@ -20,10 +20,14 @@ public class SpiderTaskScheduler {
 
     //第一次延迟10秒后执行，之后按fixedRate的规则每20分钟执行一次
     @Scheduled(initialDelay = 10000, fixedRate = 5 * 60 * 1000)
-    public void test() {
+    public void fetchCurrentDay() {
         log.info(">>> start");
         gongGongZiYuanSpiderLauncher.start();
-
         log.info(">>> end");
+    }
+
+    @Scheduled(cron = "0 0 1 * * MON-FRI")
+    public void fetchHistory() {
+        gongGongZiYuanSpiderLauncher.fetchHistory();
     }
 }

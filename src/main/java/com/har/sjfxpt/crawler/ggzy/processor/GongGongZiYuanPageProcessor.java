@@ -3,6 +3,7 @@ package com.har.sjfxpt.crawler.ggzy.processor;
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.ggzy.downloader.PageDownloader;
 import com.har.sjfxpt.crawler.ggzy.model.DataItem;
+import com.har.sjfxpt.crawler.ggzy.service.PageDataService;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -38,6 +39,9 @@ public class GongGongZiYuanPageProcessor implements BasePageProcessor {
 
     @Autowired
     PageDownloader pageDownloader;
+
+    @Autowired
+    PageDataService pageDataService;
 
     @Override
     public void process(Page page) {
@@ -108,11 +112,16 @@ public class GongGongZiYuanPageProcessor implements BasePageProcessor {
         Elements totalSize = page.getHtml().getDocument().body().select("div#publicl div.contp span.span_left:nth-child(1)");
         Elements totalPage = page.getHtml().getDocument().body().select("div#publicl div.contp span.span_right");
 
-        long sizeNum        = Long.parseLong(totalSize.select("b").text());
-        long currentPageNum = Long.parseLong(StringUtils.substringBefore(totalPage.select("b").text(), "/"));
-        long pageNum        = Long.parseLong(StringUtils.substringAfter(totalPage.select("b").text(), "/"));
+        int sizeNum        = Integer.parseInt(totalSize.select("b").text());
+        int currentPageNum = Integer.parseInt(StringUtils.substringBefore(totalPage.select("b").text(), "/"));
+        int pageNum        = Integer.parseInt(StringUtils.substringAfter(totalPage.select("b").text(), "/"));
 
         log.info("type {}, current page {}/{}, total size={}", extra.get(DEAL_CLASSIFY), currentPageNum, pageNum, sizeNum);
+        try {
+            pageDataService.save(extra.get("TIMEBEGIN").toString(), sizeNum, pageNum, page.getUrl().get());
+        } catch (Exception e) {
+            log.error("", e);
+        }
 
         if (currentPageNum == 1L) {
             final int start = 2;
