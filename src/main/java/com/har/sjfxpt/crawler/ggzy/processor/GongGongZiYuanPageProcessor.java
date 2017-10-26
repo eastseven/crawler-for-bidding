@@ -49,12 +49,7 @@ public class GongGongZiYuanPageProcessor implements BasePageProcessor {
         handlePaging(page);
 
         //获取列表内容
-        final String css = "div#publicl div.publicont div";
-        Elements items = page.getHtml().getDocument().body().select(css);
-        List<DataItem> dataItemList = parseContent(items);
-        if (!dataItemList.isEmpty()) {
-            page.putField(KEY_DATA_ITEMS, dataItemList);
-        }
+        handleContent(page);
     }
 
     @Override
@@ -136,6 +131,16 @@ public class GongGongZiYuanPageProcessor implements BasePageProcessor {
 
                 page.addTargetRequest(request);
             }
+        }
+    }
+
+    @Override
+    public void handleContent(Page page) {
+        final String css = "div#publicl div.publicont div";
+        Elements items = page.getHtml().getDocument().body().select(css);
+        List<DataItem> dataItemList = parseContent(items);
+        if (!dataItemList.isEmpty()) {
+            page.putField(KEY_DATA_ITEMS, dataItemList);
         }
     }
 

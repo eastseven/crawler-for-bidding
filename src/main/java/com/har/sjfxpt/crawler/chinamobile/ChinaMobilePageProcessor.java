@@ -27,6 +27,9 @@ import java.util.Map;
 import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
 import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanUtil.YYYYMMDD;
 
+/**
+ * @author dongqi
+ */
 @Slf4j
 @Component
 public class ChinaMobilePageProcessor implements BasePageProcessor {
@@ -37,20 +40,9 @@ public class ChinaMobilePageProcessor implements BasePageProcessor {
 
     @Override
     public void process(Page page) {
-        Elements elements = page.getHtml().getDocument().body().select("table tr");
-        if (elements.isEmpty()) {
-            log.error("fetch error, elements is empty");
-            return;
-        }
-
-        List<ChinaMobileDataItem> dataItemList = parseContent(elements);
-        if (!dataItemList.isEmpty()) {
-            page.putField(KEY_DATA_ITEMS, dataItemList);
-        } else {
-            log.warn("fetch {} no data", page.getUrl().get());
-        }
-
         handlePaging(page);
+
+        handleContent(page);
     }
 
     @Override
@@ -86,6 +78,22 @@ public class ChinaMobilePageProcessor implements BasePageProcessor {
 
                 page.addTargetRequest(request);
             }
+        }
+    }
+
+    @Override
+    public void handleContent(Page page) {
+        Elements elements = page.getHtml().getDocument().body().select("table tr");
+        if (elements.isEmpty()) {
+            log.error("fetch error, elements is empty");
+            return;
+        }
+
+        List<ChinaMobileDataItem> dataItemList = parseContent(elements);
+        if (!dataItemList.isEmpty()) {
+            page.putField(KEY_DATA_ITEMS, dataItemList);
+        } else {
+            log.warn("fetch {} no data", page.getUrl().get());
         }
     }
 
