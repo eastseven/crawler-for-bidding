@@ -18,9 +18,6 @@ public class JinCaiWangSpiderLauncher {
     @Autowired
     JinCaiWangPipeline jinCaiWangPipeline;
 
-    @Autowired
-    RedisScheduler redisScheduler;
-
     public void start() {
         String[] urls = {"http://www.cfcpn.com/plist/caigou?pageNo=1&kflag=0&keyword=&keywordType=&province=&city=&typeOne=&ptpTwo=",
                 "http://www.cfcpn.com/plist/zhengji?pageNo=1&kflag=0&keyword=&keywordType=&province=&city=&typeOne=&ptpTwo=",
