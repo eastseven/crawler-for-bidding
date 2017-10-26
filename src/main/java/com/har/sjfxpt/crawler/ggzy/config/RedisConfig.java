@@ -1,5 +1,6 @@
 package com.har.sjfxpt.crawler.ggzy.config;
 
+import com.har.sjfxpt.crawler.ggzy.scheduler.RedisSchedulerExt;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -26,7 +27,7 @@ public class RedisConfig {
                 jedisConnectionFactory.getPassword(),
                 jedisConnectionFactory.getDatabase());
 
-        RedisScheduler redisScheduler = new RedisScheduler(jedisPool);
+        RedisSchedulerExt redisScheduler = new RedisSchedulerExt(jedisPool);
         return redisScheduler;
     }
 }
