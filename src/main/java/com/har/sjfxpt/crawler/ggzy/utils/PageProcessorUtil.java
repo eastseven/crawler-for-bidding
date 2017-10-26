@@ -6,6 +6,12 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.safety.Whitelist;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * @author dongqi
  */
@@ -64,5 +70,23 @@ public final class PageProcessorUtil {
         String formatContent = Jsoup.clean(html, whitelist);
         formatContent = StringUtils.removeAll(formatContent, "<!-{2,}.*?-{2,}>|(&nbsp;)|<o:p>|</o:p>");
         return formatContent;
+    }
+
+    /**
+     * @return
+     */
+    public static String dataTxt(String date) {
+        Pattern pattern = Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}");
+        Matcher matcher = pattern.matcher(date);
+        String dataStr = null;
+        if (matcher.find()) {
+            dataStr = matcher.group(0);
+        }
+        if (dataStr != null) {
+            log.debug("dataStr=={}", dataStr);
+            return dataStr;
+        } else {
+            return date;
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.har.sjfxpt.crawler.ggzy.scheduler;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import redis.clients.jedis.JedisPool;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Task;
@@ -15,7 +16,7 @@ public class RedisSchedulerExt extends RedisScheduler {
 
     @Override
     public boolean isDuplicate(Request request, Task task) {
-        Object ignore = request.getExtra("ignore");
+        Object ignore = request.getExtras().get("ignore");
         if (ignore != null && Boolean.TRUE.equals(ignore)) {
             return false;
         }
