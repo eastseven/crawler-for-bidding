@@ -2,6 +2,7 @@ package com.har.sjfxpt.crawler;
 
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
+import com.har.sjfxpt.crawler.jcw.JinCaiWangSpiderLauncher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -24,6 +25,9 @@ public class SpiderLauncher implements CommandLineRunner {
 
     @Autowired
     ChinaMobileSpiderLauncher chinaMobileSpiderLauncher;
+
+    @Autowired
+    JinCaiWangSpiderLauncher jinCaiWangSpiderLauncher;
 
     @Override
     public void run(String... args) throws Exception {
@@ -50,6 +54,9 @@ public class SpiderLauncher implements CommandLineRunner {
                     break;
                 case "history-cm":
                     chinaMobileSpiderLauncher.fetchHistory();
+                    break;
+                case "start-jcw":
+                    jinCaiWangSpiderLauncher.start();
                     break;
                 default:
                     break;

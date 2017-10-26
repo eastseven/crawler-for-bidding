@@ -70,11 +70,17 @@ public class JinCaiWangPageProcessor implements BasePageProcessor {
                     String type = (String) page.getRequest().getExtras().get("type");
                     Request request = new Request(urlTarget);
                     request.putExtra("type", type);
+                    request.putExtra("ignore",true);
                     page.addTargetRequest(request);
                 }
             }
 
         }
+    }
+
+    @Override
+    public void handleContent(Page page) {
+
     }
 
     @Override
