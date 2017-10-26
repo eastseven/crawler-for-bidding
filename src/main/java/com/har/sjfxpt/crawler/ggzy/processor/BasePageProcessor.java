@@ -8,7 +8,22 @@ import java.util.List;
 
 public interface BasePageProcessor extends PageProcessor {
 
+    /**
+     * 处理分页
+     * @param page
+     */
     void handlePaging(Page page);
 
+    /**
+     * 处理列表内容
+     * @param page
+     */
+    void handleContent(Page page);
+
+    /**
+     * 解析列表内容
+     * @param items
+     * @return
+     */
     List parseContent(Elements items);
 }

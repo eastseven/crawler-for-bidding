@@ -30,17 +30,13 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
     @Override
     public void process(Page page) {
         log.debug("\n{}", page.getHtml().toString());
+        String url = page.getUrl().get();
+
         //处理分页
         handlePaging(page);
 
         //处理列表
-        Document document = page.getHtml().getDocument();
-        String cssQuery4List = "div.vT_z div.vT-srch-result div.vT-srch-result-list-con2 div.vT-srch-result-list ul.vT-srch-result-list-bid li";
-        Elements elements = document.body().select(cssQuery4List);
-        List<ZhengFuCaiGouDataItem> dataItemList = parseContent(elements);
-        if (!dataItemList.isEmpty()) {
-            page.putField(KEY_DATA_ITEMS, dataItemList);
-        }
+        handleContent(page);
     }
 
     @Override
@@ -71,6 +67,17 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
                 log.info("size {}, total {}, pager url {}", totalSizeText, totalPageText, requestUrl);
                 page.addTargetRequest(requestUrl);
             }
+        }
+    }
+
+    @Override
+    public void handleContent(Page page) {
+        Document document = page.getHtml().getDocument();
+        String cssQuery4List = "div.vT_z div.vT-srch-result div.vT-srch-result-list-con2 div.vT-srch-result-list ul.vT-srch-result-list-bid li";
+        Elements elements = document.body().select(cssQuery4List);
+        List<ZhengFuCaiGouDataItem> dataItemList = parseContent(elements);
+        if (!dataItemList.isEmpty()) {
+            page.putField(KEY_DATA_ITEMS, dataItemList);
         }
     }
 
