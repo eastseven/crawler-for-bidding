@@ -63,8 +63,9 @@ public class JinCaiWangDataItem {
         BeanUtils.copyProperties(this,dto);
         dto.setSource("金采网");
         dto.setSourceCode("JC");
-        DateTime dt=new DateTime(this.getCreateTime());
-        dto.setCreateTime(dt.toString("yyyyMMddHH"));
+        DateTime ct=new DateTime(this.getCreateTime());
+        dto.setCreateTime(ct.toString("yyyyMMddHH"));
+        DateTime dt=new DateTime(this.getDate());
         if (StringUtils.isBlank(date)) {
             dto.setDate(dt.toString("yyyy-MM-dd HH:mm"));
         }
