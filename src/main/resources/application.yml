@@ -13,7 +13,7 @@ spring:
       password: har123
       database: 4
 
-hbase.zookeeper.quorum: s94,s95,s96
+hbase.zookeeper.quorum: s97,s98,s99
 hbase.table.clean: false
 hbase.table.namespace: bid_news_test
 

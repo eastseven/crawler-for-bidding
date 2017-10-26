@@ -72,8 +72,11 @@ public class JinCaiWangPageProcessorTests {
 
     @Test
     public void testStringUtil() {
-        String date = new DateTime(new Date()).toString("yyyy-MM-dd-HH");
-        log.debug("date={}", date);
+        Date createTime=new Date();
+        log.debug("createTime=={}",createTime);
+        DateTime ct=new DateTime(createTime);
+        String time=ct.toString("yyyyMMddHH");
+        log.debug("time=={}",time);
     }
 
 

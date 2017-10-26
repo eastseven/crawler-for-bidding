@@ -31,7 +31,7 @@ public class JinCaiWangDataItem {
 
     private String url;
 
-    private String createTime=new DateTime(new Date()).toString("yyyyMMddHH");
+    private Date createTime=new Date();
 
     private String province="全国";//地区
 
@@ -65,9 +65,8 @@ public class JinCaiWangDataItem {
         dto.setSourceCode("JC");
         DateTime ct=new DateTime(this.getCreateTime());
         dto.setCreateTime(ct.toString("yyyyMMddHH"));
-        DateTime dt=new DateTime(this.getDate());
         if (StringUtils.isBlank(date)) {
-            dto.setDate(dt.toString("yyyy-MM-dd HH:mm"));
+            dto.setDate(date);
         }
         return dto;
     }
