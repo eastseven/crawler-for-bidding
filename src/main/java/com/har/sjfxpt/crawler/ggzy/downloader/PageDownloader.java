@@ -44,7 +44,7 @@ public class PageDownloader {
         Document document = null;
         try {
             log.debug("download {}, {}", dataItem.getId(), dataItem.getUrl());
-            document = Jsoup.connect(dataItem.getUrl()).userAgent(SiteUtil.get().getUserAgent()).timeout(60000).get();
+            document = Jsoup.connect(dataItem.getUrl()).userAgent(SiteUtil.get().getUserAgent()).ignoreHttpErrors(true).timeout(60000).get();
 
             String pubDate = document.select("body > div.detail > p.p_o > span:nth-child(1)").text();
             pubDate = StringUtils.substringAfter(pubDate, "：");
@@ -60,9 +60,7 @@ public class PageDownloader {
             dataItem.setFormatContent(PageProcessorUtil.formatElementsByWhitelist(content));
             dataItem.setTextContent(PageProcessorUtil.extractTextByWhitelist(content));
         } catch (Exception e) {
-            log.error("", e);
             log.error("{} download html content fail", dataItem.getId());
-            return;
         }
 
     }

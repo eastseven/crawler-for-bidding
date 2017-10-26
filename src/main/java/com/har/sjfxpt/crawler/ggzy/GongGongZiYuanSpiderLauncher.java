@@ -84,6 +84,7 @@ public class GongGongZiYuanSpiderLauncher {
             Spider ggzy = getGongGongZiYuanSpider();
             ggzy.addRequest(getRequest(type));
             ggzy.thread(num).start();
+            log.info("ggzy {} spider start {}, status {}", type, ggzy.getStartTime(), ggzy.getStatus());
         }
     }
 

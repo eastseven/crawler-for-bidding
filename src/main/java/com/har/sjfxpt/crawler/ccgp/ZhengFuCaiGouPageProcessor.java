@@ -1,13 +1,16 @@
 package com.har.sjfxpt.crawler.ccgp;
 
 import com.har.sjfxpt.crawler.ggzy.processor.BasePageProcessor;
+import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.util.Lists;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
@@ -15,23 +18,24 @@ import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
 
+import java.io.IOException;
 import java.util.List;
 
 import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
 
 /**
  * 中国政府采购网
+ *
  * @author dongqi
  */
 @Slf4j
 @Component
 public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
 
+    private final String cssQuery4List = "div.vT_z div.vT-srch-result div.vT-srch-result-list-con2 div.vT-srch-result-list ul.vT-srch-result-list-bid li";
+
     @Override
     public void process(Page page) {
-        log.debug("\n{}", page.getHtml().toString());
-        String url = page.getUrl().get();
-
         //处理分页
         handlePaging(page);
 
@@ -41,13 +45,14 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
 
     @Override
     public Site getSite() {
-        return SiteUtil.get().setTimeOut(60000).setSleepTime(5000);
+        return SiteUtil.get().setTimeOut(60000).setSleepTime(RandomUtils.nextInt(10, 30) * 1000);
     }
 
     @Override
     public void handlePaging(Page page) {
         String url = page.getUrl().get();
         log.debug(">>> url {}", url);
+        if (!StringUtils.contains(url, "search.ccgp.gov.cn")) return;
         //div.vT_z div div p.pager
         //body > div:nth-child(8) > div:nth-child(1) > div > p.pager
         Element totalSize = page.getHtml().getDocument().body().select("body > div:nth-child(8) > div:nth-child(1) > div > p:nth-child(1)").first();
@@ -72,13 +77,40 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
 
     @Override
     public void handleContent(Page page) {
+        //提取列表字段内容
         Document document = page.getHtml().getDocument();
-        String cssQuery4List = "div.vT_z div.vT-srch-result div.vT-srch-result-list-con2 div.vT-srch-result-list ul.vT-srch-result-list-bid li";
         Elements elements = document.body().select(cssQuery4List);
         List<ZhengFuCaiGouDataItem> dataItemList = parseContent(elements);
         if (!dataItemList.isEmpty()) {
+            dataItemList.forEach(dataItem -> {
+                try {
+                    download(dataItem);
+                } catch (Exception e) {
+                    log.error("", e);
+                    log.error("ccgp {} download fail", dataItem.getId());
+                }
+            });
+
             page.putField(KEY_DATA_ITEMS, dataItemList);
         }
+    }
+
+    private void download(ZhengFuCaiGouDataItem dataItem) throws IOException {
+        Document document = Jsoup.connect(dataItem.getUrl()).userAgent(SiteUtil.get().getUserAgent()).timeout(600000).get();
+        if (StringUtils.equalsAnyIgnoreCase(document.title(), "安全验证")) {
+            log.warn("ccgp verification {}", dataItem.getUrl());
+            return;
+        }
+
+        Element element = document.body();
+        String detailCssQuery = "div.vT_detail_main > div.vT_detail_content";
+
+        String detailFormatContent = PageProcessorUtil.formatElementsByWhitelist(element.select(detailCssQuery).first());
+        String detailTextContent = PageProcessorUtil.extractTextByWhitelist(element.select(detailCssQuery).first());
+
+        dataItem.setFormatContent(detailFormatContent);
+        dataItem.setTextContent(detailTextContent);
+
     }
 
     @Override

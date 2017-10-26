@@ -24,3 +24,4 @@ app.proxy.pool:
   url: http://192.168.3.117:5000/get/
   urls: http://192.168.3.117:5000/get_all/
   ips:
+    - 120.26.162.31:3333

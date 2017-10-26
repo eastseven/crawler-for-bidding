@@ -34,10 +34,7 @@ public class HBasePipeline implements Pipeline {
         } else {
             List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
             dataItemService.save2BidNewsOriginalTable(dtoList);
-
         }
-
-
     }
 
 }
