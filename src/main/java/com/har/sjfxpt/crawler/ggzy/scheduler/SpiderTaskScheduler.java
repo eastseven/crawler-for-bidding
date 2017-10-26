@@ -4,6 +4,7 @@ import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -16,23 +17,33 @@ import org.springframework.stereotype.Component;
 @Profile({"prod"})
 public class SpiderTaskScheduler {
 
+    @Value("${app.fetch.current.day:false}") boolean flag;
+
     @Autowired
     GongGongZiYuanSpiderLauncher gongGongZiYuanSpiderLauncher;
 
     @Autowired
     ChinaMobileSpiderLauncher chinaMobileSpiderLauncher;
 
-    //第一次延迟10秒后执行，之后按fixedRate的规则每20分钟执行一次
+    /**
+     * 启动后10秒执行，5分钟一次
+     */
     @Scheduled(initialDelay = 10000, fixedRate = 5 * 60 * 1000)
     public void fetchCurrentDay() {
-        log.info(">>> start");
-        gongGongZiYuanSpiderLauncher.start();
-
-        log.info(">>> end");
+        if (flag) {
+            log.info(">>> start fetch ggzy");
+            gongGongZiYuanSpiderLauncher.start();
+        }
     }
 
-    @Scheduled(cron = "0 0 1 * * MON-FRI")
-    public void fetchHistory() {
-        gongGongZiYuanSpiderLauncher.fetchHistory();
+    /**
+     * 启动后20秒执行，10分钟一次
+     */
+    @Scheduled(initialDelay = 20000, fixedRate = 10 * 60 * 1000)
+    public void fetchCurrentDay4CM() {
+        if (flag) {
+            log.info(">>> start fetch china mobile");
+            chinaMobileSpiderLauncher.start();
+        }
     }
 }

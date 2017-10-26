@@ -18,6 +18,9 @@ hbase.zookeeper.quorum: s94,s95,s96
 hbase.table.clean: false
 hbase.table.namespace: bid_news
 
+app.fetch.current.day: true
+
 app.proxy.pool:
   url: http://192.168.3.117:5000/get/
   urls: http://192.168.3.117:5000/get_all/
+  ips:

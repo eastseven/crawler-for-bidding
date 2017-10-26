@@ -1,6 +1,7 @@
 package com.har.sjfxpt.crawler.ggzy;
 
 import com.har.sjfxpt.crawler.ccgp.*;
+import com.har.sjfxpt.crawler.ggzy.downloader.HttpClientDownloaderExt;
 import com.har.sjfxpt.crawler.ggzy.service.ProxyService;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
@@ -42,7 +43,8 @@ public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
         url = url + params;
         log.debug(">>> test {}", url);
         Spider.create(pageProcessor)
-                .setDownloader(proxyService.getDownloader())
+                .setDownloader(new HttpClientDownloaderExt())
+                //.setDownloader(proxyService.getDownloader())
                 .addPipeline(pipeline)
                 .addRequest(new Request(url)).run();
     }

@@ -113,6 +113,8 @@ public class GongGongZiYuanSpiderLauncher {
         ggzy.addRequest(getRequest(GongGongZiYuanUtil.getPageParamsByType(type, begin, end)));
         ggzy.thread(num);
         ggzy.start();
+
+        log.info("ggzy spider start {}, {}", new DateTime(ggzy.getStartTime()).toString("yyyy-MM-dd HH:mm:ss"), ggzy.getStatus());
     }
 
     Spider getGongGongZiYuanSpider() {

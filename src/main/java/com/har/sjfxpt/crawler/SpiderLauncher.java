@@ -9,6 +9,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+
 @Slf4j
 @Service
 @Order
@@ -25,6 +27,7 @@ public class SpiderLauncher implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+        log.info("{}", Arrays.toString(args));
         for (String arg : args) {
             switch (arg) {
                 case "start-all":
@@ -34,7 +37,12 @@ public class SpiderLauncher implements CommandLineRunner {
                 case "start-ggzy":
                     gongGongZiYuanSpiderLauncher.start();
                     break;
+                case "history-all":
+                    chinaMobileSpiderLauncher.fetchHistory();
+                    gongGongZiYuanSpiderLauncher.fetchHistory();
+                    break;
                 case "history-ggzy":
+                    log.info(">>> start {}", arg);
                     gongGongZiYuanSpiderLauncher.fetchHistory();
                     break;
                 case "start-cm":

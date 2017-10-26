@@ -45,7 +45,7 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
 
     @Override
     public Site getSite() {
-        return SiteUtil.get().setTimeOut(60000);
+        return SiteUtil.get().setTimeOut(60000).setSleepTime(5000);
     }
 
     @Override
