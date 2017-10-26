@@ -4,6 +4,7 @@ import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
 import com.har.sjfxpt.crawler.ggzy.service.DataItemService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import us.codecraft.webmagic.ResultItems;
@@ -26,6 +27,9 @@ public class JinCaiWangPipeline implements Pipeline{
     @Autowired
     DataItemService dataItemService;
 
+    @Autowired
+    StringRedisTemplate stringRedisTemplate;
+
     @Override
     public void process(ResultItems resultItems, Task task) {
         List<JinCaiWangDataItem> dataItemList=resultItems.get("dataItemList");
@@ -35,8 +39,8 @@ public class JinCaiWangPipeline implements Pipeline{
             jinCaiWangDataItemRepository.save(dataItemList);
             log.info("jincaiwang save {} to mongodb",dataItemList.size());
 
-//            List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
-//            dataItemService.save2BidNewsOriginalTable(dtoList);
+            List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
+            dataItemService.save2BidNewsOriginalTable(dtoList);
         }
     }
 }

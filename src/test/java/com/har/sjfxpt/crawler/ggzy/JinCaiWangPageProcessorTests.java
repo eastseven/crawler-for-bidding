@@ -35,9 +35,6 @@ public class JinCaiWangPageProcessorTests {
     @Autowired
     JinCaiWangPipeline jinCaiWangPipeline;
 
-    @Autowired
-    RedisScheduler redisScheduler;
-
     @Test
     public void testJinCaiWangProcessor() {
         String[] urls = {"http://www.cfcpn.com/plist/caigou?pageNo=1&kflag=0&keyword=&keywordType=&province=&city=&typeOne=&ptpTwo=",
@@ -59,24 +56,22 @@ public class JinCaiWangPageProcessorTests {
             if (urls[i].contains("biangeng")) {
                 request.putExtra("type", "变更");
             }
-            request.putExtra("ignore", true);
             requests[i] = request;
         }
         Spider.create(jinCaiWangPageProcessor)
                 .addRequest(requests)
                 .addPipeline(jinCaiWangPipeline)
-                .setScheduler(redisScheduler)
                 .thread(10)
                 .run();
     }
 
     @Test
     public void testStringUtil() {
-        Date createTime=new Date();
-        log.debug("createTime=={}",createTime);
-        DateTime ct=new DateTime(createTime);
-        String time=ct.toString("yyyyMMddHH");
-        log.debug("time=={}",time);
+        Date createTime = new Date();
+        log.debug("createTime=={}", createTime);
+        DateTime ct = new DateTime(createTime);
+        String time = ct.toString("yyyyMMddHH");
+        log.debug("time=={}", time);
     }
 
 

@@ -41,13 +41,11 @@ public class JinCaiWangSpiderLauncher {
             if (urls[i].contains("biangeng")) {
                 request.putExtra("type", "变更");
             }
-            request.putExtra("ignore", true);
             requests[i] = request;
         }
         Spider.create(jinCaiWangPageProcessor)
                 .addRequest(requests)
                 .addPipeline(jinCaiWangPipeline)
-                .setScheduler(redisScheduler)
                 .thread(10)
                 .run();
     }
