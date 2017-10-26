@@ -84,21 +84,16 @@ public class HBaseConfig implements CommandLineRunner {
                 log.info("create hbase namespace {}", namespace);
             }
 
-            TableName tableName = TableName.valueOf(namespace, DataItem.T_NAME);
-            boolean exists = admin.tableExists(tableName);
-            if (!exists) {
-                admin.createTable(new HTableDescriptor(tableName).addFamily(new HColumnDescriptor(Bytes.toBytes("f"))));
-                log.info("create hbase table {}", DataItem.T_NAME);
+            String[] tables = {DataItem.T_NAME_HTML, DataItem.T_NAME_HTML_HISTORY};
+            for (String table : tables) {
+                TableName tableName = TableName.valueOf(namespace, table);
+                boolean exists = admin.tableExists(tableName);
+                if (!exists) {
+                    admin.createTable(new HTableDescriptor(tableName).addFamily(new HColumnDescriptor(Bytes.toBytes("f"))));
+                    log.info("create hbase table {}", table);
+                }
             }
 
-            // drop and create
-            if (this.clean) {
-                admin.disableTable(tableName);
-                admin.deleteTable(tableName);
-                log.info("delete hbase table {}", DataItem.T_NAME);
-                admin.createTable(new HTableDescriptor(tableName).addFamily(new HColumnDescriptor(Bytes.toBytes("f"))));
-                log.info("create hbase table {}", DataItem.T_NAME);
-            }
         } catch (Exception e) {
             log.error("", e);
         } finally {

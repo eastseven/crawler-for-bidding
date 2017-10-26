@@ -31,6 +31,8 @@ public class DataItem {
 
     public static final String T_NAME_HTML = "bid_news_original";
 
+    public static final String T_NAME_HTML_HISTORY = "bid_news_original_history";
+
     @Id
     private String id;
 

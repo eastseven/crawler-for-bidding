@@ -4,13 +4,11 @@ import com.har.sjfxpt.crawler.ggzy.config.HBaseConfig;
 import com.har.sjfxpt.crawler.ggzy.model.DataItem;
 import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.TableName;
-import org.apache.hadoop.hbase.client.Connection;
-import org.apache.hadoop.hbase.client.ConnectionFactory;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Table;
+import org.apache.hadoop.hbase.client.*;
 import org.assertj.core.util.Lists;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,15 +35,15 @@ public class DataItemService {
 
     private Connection conn;
 
-    private Table table;
-    private Table html;
+    private Table originalTable;
+    private Table historyTable;
 
     @PostConstruct
     public void init() {
         try {
             this.conn = ConnectionFactory.createConnection(config.get());
-            this.table = conn.getTable(TableName.valueOf(config.getNamespace(), DataItem.T_NAME));
-            this.html = conn.getTable(TableName.valueOf(config.getNamespace(), DataItem.T_NAME_HTML));
+            this.originalTable = conn.getTable(TableName.valueOf(config.getNamespace(), DataItem.T_NAME_HTML));
+            this.historyTable = conn.getTable(TableName.valueOf(config.getNamespace(), DataItem.T_NAME_HTML_HISTORY));
         } catch (Exception e) {
             log.error("", e);
         }
@@ -63,32 +61,32 @@ public class DataItemService {
         }
     }
 
-    public void save(List<DataItem> dataItemList) {
-        if (CollectionUtils.isEmpty(dataItemList)) {
-            return;
-        }
-
-        try {
-            List<Put> putList = assemble(dataItemList);
-            table.put(putList);
-            log.info("hbase save size {}", putList.size());
-        } catch (Exception e) {
-            log.error("", e);
-        }
-    }
-
     public void save2BidNewsOriginalTable(List<DataItemDTO> dataItemList) {
         if (CollectionUtils.isEmpty(dataItemList)) {
             return;
         }
 
-        try {
-            List<Put> putList = assembleWithGGZY(dataItemList);
-            html.put(putList);
-            log.info("hbase table {} save size {}", DataItem.T_NAME_HTML, putList.size());
-        } catch (Exception e) {
-            log.error("", e);
+        String current = DateTime.now().toString("yyyyMMdd");
+        int counter = 0;
+        for (DataItemDTO dataItem : dataItemList) {
+            try {
+                String rowKey = getRowKey(dataItem);
+                Put row = assemble(rowKey, dataItem);
+
+                String date = StringUtils.substringBefore(rowKey, ":");
+                if (current.equalsIgnoreCase(date)) {
+                    originalTable.put(row);
+                } else {
+                    historyTable.put(row);
+                }
+
+                counter++;
+            } catch (Exception e) {
+                log.error("", e);
+            }
         }
+
+        log.info("hbase save {}", counter);
     }
 
     private List<Put> assemble(List<DataItem> dataItemList) throws UnsupportedEncodingException {
@@ -133,27 +131,8 @@ public class DataItemService {
                 continue;
             }
 
-            String date = StringUtils.substring(dataItem.getDate(), 0,10).replace("-","");
-            String rowKey = date;
-            //兼容之前存储的rowKey，避免重复数据出现
-            if (!"ggzy".equalsIgnoreCase(dataItem.getSourceCode())) {
-                rowKey += ':' + dataItem.getSourceCode().toLowerCase();
-            }
-            rowKey += ':' + dataItem.getId();
-
-            Put put = new Put(rowKey.getBytes());
-            put.addColumn(family, "url".getBytes(),           StringUtils.defaultString(dataItem.getUrl(), "").getBytes(charsetName));
-            put.addColumn(family, "title".getBytes(),         StringUtils.defaultString(dataItem.getTitle(), "").getBytes(charsetName));
-            put.addColumn(family, "province".getBytes(),      StringUtils.defaultString(dataItem.getProvince(), "全国").getBytes(charsetName));
-            put.addColumn(family, "type".getBytes(),          StringUtils.defaultString(dataItem.getType(), "").getBytes(charsetName));
-            put.addColumn(family, "source".getBytes(),        StringUtils.defaultString(dataItem.getSource(), "其他").getBytes(charsetName));
-            put.addColumn(family, "sourceCode".getBytes(),    StringUtils.defaultString(dataItem.getSourceCode(), "UNKNOWN").getBytes(charsetName));
-            put.addColumn(family, "date".getBytes(),          StringUtils.defaultString(dataItem.getDate(), "").getBytes(charsetName));
-            put.addColumn(family, "create_time".getBytes(),   StringUtils.defaultString(dataItem.getCreateTime(), "").getBytes(charsetName));
-            put.addColumn(family, "formatContent".getBytes(), StringUtils.defaultString(dataItem.getFormatContent(), "").getBytes(charsetName));
-            put.addColumn(family, "textContent".getBytes(),   StringUtils.defaultString(dataItem.getTextContent(), "").getBytes(charsetName));
-
-            putList.add(put);
+            String rowKey = getRowKey(dataItem);
+            putList.add(assemble(rowKey, dataItem));
 
             if (counter == 1) {
                 log.info("rowKey {} put to table {}", rowKey, DataItem.T_NAME_HTML);
@@ -164,5 +143,36 @@ public class DataItemService {
         return putList;
     }
 
+    private String getRowKey(DataItemDTO dataItem) {
+        String date = StringUtils.substring(dataItem.getDate(), 0,10).replace("-","");
+        String rowKey = date;
+        rowKey += ':' + DigestUtils.md5Hex(StringUtils.trim(dataItem.getTitle()));
 
+        return rowKey;
+    }
+
+    private Put assemble(String rowKey, DataItemDTO dataItem) throws UnsupportedEncodingException {
+        Put put = new Put(rowKey.getBytes());
+        put.addColumn(family, "url".getBytes(),           StringUtils.defaultString(dataItem.getUrl(), "").getBytes(charsetName));
+        put.addColumn(family, "title".getBytes(),         StringUtils.defaultString(dataItem.getTitle(), "").getBytes(charsetName));
+        put.addColumn(family, "province".getBytes(),      StringUtils.defaultString(dataItem.getProvince(), "全国").getBytes(charsetName));
+        put.addColumn(family, "type".getBytes(),          StringUtils.defaultString(dataItem.getType(), "").getBytes(charsetName));
+        put.addColumn(family, "source".getBytes(),        StringUtils.defaultString(dataItem.getSource(), "其他").getBytes(charsetName));
+        put.addColumn(family, "sourceCode".getBytes(),    StringUtils.defaultString(dataItem.getSourceCode(), "UNKNOWN").getBytes(charsetName));
+        put.addColumn(family, "date".getBytes(),          StringUtils.defaultString(dataItem.getDate(), "").getBytes(charsetName));
+        put.addColumn(family, "create_time".getBytes(),   StringUtils.defaultString(dataItem.getCreateTime(), "").getBytes(charsetName));
+        put.addColumn(family, "formatContent".getBytes(), StringUtils.defaultString(dataItem.getFormatContent(), "").getBytes(charsetName));
+        put.addColumn(family, "textContent".getBytes(),   StringUtils.defaultString(dataItem.getTextContent(), "").getBytes(charsetName));
+
+        return put;
+    }
+
+    public void test() {
+        Scan scan = new Scan();
+        try {
+            originalTable.getScanner(scan);
+        } catch (IOException e) {
+            log.error("", e);
+        }
+    }
 }
