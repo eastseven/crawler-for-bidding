@@ -19,7 +19,7 @@ import java.util.Date;
  */
 @Data
 @ToString
-@Document(collection = "data_item_jincaiwang")
+@Document(collection = "data_item_jin_cai_wang")
 public class JinCaiWangDataItem {
 
     public JinCaiWangDataItem(String url) {
@@ -31,9 +31,9 @@ public class JinCaiWangDataItem {
 
     private String url;
 
-    private String createTime=new DateTime(new Date()).toString("yyyy-MM-dd-HH");
+    private String createTime=new DateTime(new Date()).toString("yyyyMMddHH");
 
-    private String province;//地区
+    private String province="全国";//地区
 
     private String purchaseWay;//采购方式
 
@@ -52,7 +52,7 @@ public class JinCaiWangDataItem {
     @Transient
     private String html;
 
-    @Transient
+//    @Transient
     private String formatContent;
 
     @Transient

@@ -53,7 +53,7 @@ public class JinCaiWangPageProcessorTests {
         }
         Spider.create(jinCaiWangPageProcessor)
                 .addRequest(requests)
-//                .addPipeline(jinCaiWangPipeline)
+                .addPipeline(jinCaiWangPipeline)
                 .thread(10)
                 .run();
     }

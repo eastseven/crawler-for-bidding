@@ -37,7 +37,7 @@ public class JinCaiWangPageProcessor implements BasePageProcessor {
         Element html = page.getHtml().getDocument().body();
         Elements items = html.select("body > div.container-fluid.cfcpn_container_list-bg > div > div > div.col-lg-9.cfcpn_padding_LR0.cfcpn_list_border-right > div.cfcpn_list_content.text-left");
         List<JinCaiWangDataItem> dataItemList = parseContent(items);
-        String type = (String) page.getRequest().getExtra("type");
+        String type = (String) page.getRequest().getExtras().get("type");
         dataItemList.forEach(dataItem -> dataItem.setType(type));
         if (dataItemList != null) {
             page.putField("dataItemList", dataItemList);
@@ -67,7 +67,9 @@ public class JinCaiWangPageProcessor implements BasePageProcessor {
                 for (int i = 2; i <= sizeNum; i++) {
                     String urlTarget = url.replace("1", "" + i);
                     log.debug("urlTarget=={}", urlTarget);
+                    String type = (String) page.getRequest().getExtras().get("type");
                     Request request = new Request(urlTarget);
+                    request.putExtra("type", type);
                     page.addTargetRequest(request);
                 }
             }
@@ -94,7 +96,7 @@ public class JinCaiWangPageProcessor implements BasePageProcessor {
 
             jinCaiWangDataItem.setTitle(titleTxt);
 
-            jinCaiWangDataItem.setDate(date);
+            jinCaiWangDataItem.setDate(PageProcessorUtil.dataTxt(date));
 
             Elements elements = target.select("div.media-body");
             String content = elements.text();
@@ -115,9 +117,9 @@ public class JinCaiWangPageProcessor implements BasePageProcessor {
             }
 
             try {
-                Document document= Jsoup.connect(href).timeout(60000).userAgent(SiteUtil.get().getUserAgent()).get();
-                String html=document.html();
-                Element root=document.body().select("body > div.container-fluid.cfcpn_container_list-bg > div > div.row > div.col-lg-9.cfcpn_news_mian").first();
+                Document document = Jsoup.connect(href).timeout(60000).userAgent(SiteUtil.get().getUserAgent()).get();
+                String html = document.html();
+                Element root = document.body().select("body > div.container-fluid.cfcpn_container_list-bg > div > div.row > div.col-lg-9.cfcpn_news_mian").first();
                 String formatContent = PageProcessorUtil.formatElementsByWhitelist(root);
                 String textContent = PageProcessorUtil.extractTextByWhitelist(root);
                 jinCaiWangDataItem.setHtml(html);
