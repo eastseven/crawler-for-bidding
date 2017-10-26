@@ -2,6 +2,7 @@ package com.har.sjfxpt.crawler.ccgp;
 
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,6 +43,6 @@ public class PageDataProcessor implements PageProcessor {
 
     @Override
     public Site getSite() {
-        return SiteUtil.get().setSleepTime(5000);
+        return SiteUtil.get().setSleepTime(RandomUtils.nextInt(5000, 10000));
     }
 }

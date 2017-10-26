@@ -45,11 +45,12 @@ public class GongGongZiYuanPageProcessor implements BasePageProcessor {
 
     @Override
     public void process(Page page) {
+        //获取列表内容
+        handleContent(page);
+
         //处理分页
         handlePaging(page);
 
-        //获取列表内容
-        handleContent(page);
     }
 
     @Override
@@ -118,7 +119,7 @@ public class GongGongZiYuanPageProcessor implements BasePageProcessor {
             log.error("", e);
         }
 
-        if (currentPageNum == 1L) {
+        if (currentPageNum == 1) {
             final int start = 2;
             Map<String, Object> firstPage = (Map<String, Object>) page.getRequest().getExtra(KEY_PAGE_PARAMS);
             for (int index = start; index <= pageNum; index++) {
@@ -130,6 +131,7 @@ public class GongGongZiYuanPageProcessor implements BasePageProcessor {
                 request.putExtra(KEY_PAGE_PARAMS, nextPage);
 
                 page.addTargetRequest(request);
+                log.debug("add next page {}, {}", index, nextPage);
             }
         }
     }

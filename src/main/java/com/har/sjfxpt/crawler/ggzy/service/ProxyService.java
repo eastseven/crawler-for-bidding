@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.proxy.Proxy;
 import us.codecraft.webmagic.proxy.SimpleProxyProvider;
-import us.codecraft.webmagic.selector.Html;
 
 import java.io.IOException;
 import java.net.URL;
@@ -66,8 +65,6 @@ public class ProxyService {
     public Proxy get() {
         try {
             String html = Jsoup.parse(new URL(GET_PROXY_URL), 10000).body().html();
-            log.debug("{}", html);
-
             String host = html.split(":")[0];
             int port = Integer.valueOf(html.split(":")[1]);
 
@@ -84,8 +81,7 @@ public class ProxyService {
             Proxy proxy = get();
             downloader.setProxyProvider(SimpleProxyProvider.from(proxy));
             try {
-                Html html = downloader.download("https://www.baidu.com/", "UTF-8");
-                log.debug("{}", html);
+                downloader.download("https://www.baidu.com/", "UTF-8");
                 return proxy;
             } catch (Exception e) {
                 log.warn("无效代理 {}", proxy);

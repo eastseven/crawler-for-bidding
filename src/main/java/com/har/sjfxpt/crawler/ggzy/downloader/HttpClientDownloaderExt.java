@@ -12,14 +12,12 @@ public class HttpClientDownloaderExt extends HttpClientDownloader {
     @Override
     public Page download(Request request, Task task) {
         Page page = super.download(request, task);
-        log.debug("{}", page.getHtml().toString());
+        boolean bln = page.getHtml().getDocument().title().equalsIgnoreCase("安全验证");
+        if (bln) {
+            onError(request);
+            return Page.fail();
+        }
         return page;
-    }
-
-    @Override
-    protected void onSuccess(Request request) {
-        log.info("onSuccess {}", request);
-        super.onSuccess(request);
     }
 
     @Override

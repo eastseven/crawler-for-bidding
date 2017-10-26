@@ -12,6 +12,7 @@ import org.apache.hadoop.hbase.client.*;
 import org.assertj.core.util.Lists;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -26,6 +27,9 @@ import java.util.List;
 @Slf4j
 @Service
 public class DataItemService {
+
+    @Autowired
+    StringRedisTemplate redisTemplate;
 
     @Autowired
     HBaseConfig config;
@@ -70,14 +74,25 @@ public class DataItemService {
         int counter = 0;
         for (DataItemDTO dataItem : dataItemList) {
             try {
+                String sourceCode = dataItem.getSourceCode();
                 String rowKey = getRowKey(dataItem);
                 Put row = assemble(rowKey, dataItem);
 
                 String date = StringUtils.substringBefore(rowKey, ":");
                 if (current.equalsIgnoreCase(date)) {
-                    originalTable.put(row);
+                    boolean exists = originalTable.exists(new Get(rowKey.getBytes()));
+                    if (!exists) {
+                        originalTable.put(row);
+                        redisTemplate.boundValueOps(date + ':' + sourceCode.toLowerCase()).increment(1L);
+                        log.info("save {} {} to {}", sourceCode, rowKey, DataItem.T_NAME_HTML);
+                    }
                 } else {
-                    historyTable.put(row);
+                    boolean exists = historyTable.exists(new Get(rowKey.getBytes()));
+                    if (!exists) {
+                        historyTable.put(row);
+                        redisTemplate.boundValueOps(date + ':' + sourceCode.toLowerCase()).increment(1L);
+                        log.info("save {} {} to {}", sourceCode, rowKey, DataItem.T_NAME_HTML_HISTORY);
+                    }
                 }
 
                 counter++;
@@ -144,7 +159,7 @@ public class DataItemService {
     }
 
     private String getRowKey(DataItemDTO dataItem) {
-        String date = StringUtils.substring(dataItem.getDate(), 0,10).replace("-","");
+        String date = StringUtils.substring(dataItem.getDate(), 0, 10).replace("-", "");
         String rowKey = date;
         rowKey += ':' + DigestUtils.md5Hex(StringUtils.trim(dataItem.getTitle()));
 
@@ -153,16 +168,16 @@ public class DataItemService {
 
     private Put assemble(String rowKey, DataItemDTO dataItem) throws UnsupportedEncodingException {
         Put put = new Put(rowKey.getBytes());
-        put.addColumn(family, "url".getBytes(),           StringUtils.defaultString(dataItem.getUrl(), "").getBytes(charsetName));
-        put.addColumn(family, "title".getBytes(),         StringUtils.defaultString(dataItem.getTitle(), "").getBytes(charsetName));
-        put.addColumn(family, "province".getBytes(),      StringUtils.defaultString(dataItem.getProvince(), "全国").getBytes(charsetName));
-        put.addColumn(family, "type".getBytes(),          StringUtils.defaultString(dataItem.getType(), "").getBytes(charsetName));
-        put.addColumn(family, "source".getBytes(),        StringUtils.defaultString(dataItem.getSource(), "其他").getBytes(charsetName));
-        put.addColumn(family, "sourceCode".getBytes(),    StringUtils.defaultString(dataItem.getSourceCode(), "UNKNOWN").getBytes(charsetName));
-        put.addColumn(family, "date".getBytes(),          StringUtils.defaultString(dataItem.getDate(), "").getBytes(charsetName));
-        put.addColumn(family, "create_time".getBytes(),   StringUtils.defaultString(dataItem.getCreateTime(), "").getBytes(charsetName));
+        put.addColumn(family, "url".getBytes(), StringUtils.defaultString(dataItem.getUrl(), "").getBytes(charsetName));
+        put.addColumn(family, "title".getBytes(), StringUtils.defaultString(dataItem.getTitle(), "").getBytes(charsetName));
+        put.addColumn(family, "province".getBytes(), StringUtils.defaultString(dataItem.getProvince(), "全国").getBytes(charsetName));
+        put.addColumn(family, "type".getBytes(), StringUtils.defaultString(dataItem.getType(), "").getBytes(charsetName));
+        put.addColumn(family, "source".getBytes(), StringUtils.defaultString(dataItem.getSource(), "其他").getBytes(charsetName));
+        put.addColumn(family, "sourceCode".getBytes(), StringUtils.defaultString(dataItem.getSourceCode(), "UNKNOWN").getBytes(charsetName));
+        put.addColumn(family, "date".getBytes(), StringUtils.defaultString(dataItem.getDate(), "").getBytes(charsetName));
+        put.addColumn(family, "create_time".getBytes(), StringUtils.defaultString(dataItem.getCreateTime(), "").getBytes(charsetName));
         put.addColumn(family, "formatContent".getBytes(), StringUtils.defaultString(dataItem.getFormatContent(), "").getBytes(charsetName));
-        put.addColumn(family, "textContent".getBytes(),   StringUtils.defaultString(dataItem.getTextContent(), "").getBytes(charsetName));
+        put.addColumn(family, "textContent".getBytes(), StringUtils.defaultString(dataItem.getTextContent(), "").getBytes(charsetName));
 
         return put;
     }

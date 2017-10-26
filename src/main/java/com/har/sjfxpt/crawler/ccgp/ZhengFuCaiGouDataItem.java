@@ -52,7 +52,6 @@ public class ZhengFuCaiGouDataItem {
     @Transient
     private String html;
 
-    @Transient
     private String formatContent;
 
     @Transient

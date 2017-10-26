@@ -41,6 +41,11 @@ public class SpiderApplicationTests {
     public void contextLoads() {
         Assert.assertNotNull(launcher);
         launcher.start();
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test

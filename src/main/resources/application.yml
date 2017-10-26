@@ -8,12 +8,12 @@ spring:
     mongodb:
       uri: mongodb://192.168.3.108:27017/ggzy
   redis:
-      host: 192.168.3.83
+      host: 192.168.3.81
       port: 6379
       password: har123
-      database: 2
+      database: 7
 
-hbase.zookeeper.quorum: s94,s95,s96
+hbase.zookeeper.quorum: s97,s98,s99
 hbase.table.clean: false
 hbase.table.namespace: bid_news_test
 

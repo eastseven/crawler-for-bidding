@@ -1,5 +1,6 @@
 package com.har.sjfxpt.crawler;
 
+import com.har.sjfxpt.crawler.ccgp.ZhengFuCaiGouSpiderLauncher;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,9 @@ public class SpiderLauncher implements CommandLineRunner {
 
     @Autowired
     ChinaMobileSpiderLauncher chinaMobileSpiderLauncher;
+
+    @Autowired
+    ZhengFuCaiGouSpiderLauncher zhengFuCaiGouSpiderLauncher;
 
     @Override
     public void run(String... args) throws Exception {
@@ -50,6 +54,9 @@ public class SpiderLauncher implements CommandLineRunner {
                     break;
                 case "history-cm":
                     chinaMobileSpiderLauncher.fetchHistory();
+                    break;
+                case "test-ccgp":
+                    zhengFuCaiGouSpiderLauncher.test();
                     break;
                 default:
                     break;
