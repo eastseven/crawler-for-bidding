@@ -1,22 +1,16 @@
 package com.har.sjfxpt.crawler.ggzy;
 
-import com.har.sjfxpt.crawler.ggzy.pipeline.DataItemPipeline;
-import com.har.sjfxpt.crawler.ggzy.scheduler.RedisSchedulerExt;
-import com.har.sjfxpt.crawler.jcw.JinCaiWangDataItemRepository;
 import com.har.sjfxpt.crawler.jcw.JinCaiWangPageProcessor;
 import com.har.sjfxpt.crawler.jcw.JinCaiWangPipeline;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import us.codecraft.webmagic.Site;
-import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.Request;
-import us.codecraft.webmagic.Task;
+import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.scheduler.RedisScheduler;
 
 import java.util.Date;

@@ -45,6 +45,8 @@ public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
     @Autowired
     ExecutorService executorService;
 
+    int num = Runtime.getRuntime().availableProcessors();
+
     @Test
     public void test() throws UnsupportedEncodingException {
         String url = "http://search.ccgp.gov.cn/bxsearch?searchtype=1&bidSort=&buyerName=&projectId=&pinMu=&bidType=&dbselect=bidx&kw=&timeType=6&displayZone=&zoneId=&pppStatus=0&agentName=";
@@ -59,7 +61,7 @@ public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
                 .setDownloader(new HttpClientDownloaderExt())
                 .setDownloader(proxyService.getDownloader("120.26.162.31:3333"))
                 .addPipeline(pipeline)
-                .addRequest(new Request(url)).run();
+                .addRequest(new Request(url)).thread(num).run();
     }
 
     @Test

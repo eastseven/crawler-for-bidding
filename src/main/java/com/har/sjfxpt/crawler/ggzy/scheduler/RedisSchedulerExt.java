@@ -1,7 +1,6 @@
 package com.har.sjfxpt.crawler.ggzy.scheduler;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 import redis.clients.jedis.JedisPool;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Task;

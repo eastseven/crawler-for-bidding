@@ -82,14 +82,14 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
         Elements elements = document.body().select(cssQuery4List);
         List<ZhengFuCaiGouDataItem> dataItemList = parseContent(elements);
         if (!dataItemList.isEmpty()) {
-            /*dataItemList.forEach(dataItem -> {
+            dataItemList.forEach(dataItem -> {
                 try {
                     download(dataItem);
                 } catch (Exception e) {
                     log.error("", e);
                     log.error("ccgp {} download fail", dataItem.getId());
                 }
-            });*/
+            });
 
             page.putField(KEY_DATA_ITEMS, dataItemList);
         }

@@ -1,9 +1,13 @@
 package com.har.sjfxpt.crawler.ccgp;
 
+import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.springframework.beans.BeanUtils;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
@@ -20,8 +24,7 @@ import static com.har.sjfxpt.crawler.ccgp.ZhengFuCaiGouDataItem.T_NAME;
 @Document(collection = T_NAME)
 public class ZhengFuCaiGouDataItem {
 
-    public static final String T_NAME      = "data_item_ccgp";
-    public static final String T_NAME_HTML = "data_item_ccgp_html";
+    public static final String T_NAME = "data_item_ccgp";
 
     @Id
     private String id;
@@ -56,4 +59,22 @@ public class ZhengFuCaiGouDataItem {
 
     @Transient
     private String textContent;
+
+    public DataItemDTO dto() {
+        DataItemDTO dto = new DataItemDTO();
+        BeanUtils.copyProperties(this, dto);
+        dto.setCreateTime(new DateTime(this.getCreateTime()).toString("yyyyMMddHH"));
+        if (StringUtils.isNotBlank(pubDate)) {
+            dto.setDate(pubDate);
+        } else {
+            dto.setDate(new DateTime(this.getCreateTime()).toString("yyyy-MM-dd HH:mm"));
+        }
+
+        dto.setType(StringUtils.defaultString(type, "其他"));
+        dto.setProvince(StringUtils.defaultString(province, "全国"));
+        dto.setSource("中国政府采购网");
+        dto.setSourceCode("CCGP");
+
+        return dto;
+    }
 }
