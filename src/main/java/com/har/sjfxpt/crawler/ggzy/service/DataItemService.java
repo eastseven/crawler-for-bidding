@@ -73,6 +73,18 @@ public class DataItemService {
         String current = DateTime.now().toString("yyyyMMdd");
         int counter = 0;
         for (DataItemDTO dataItem : dataItemList) {
+            if (StringUtils.isBlank(dataItem.getFormatContent())) {
+                log.error("{} {} save to hbase fail, formatContent is empty", dataItem.getSourceCode(), dataItem.getId());
+                redisTemplate.boundListOps("fetch_fail_url_" + dataItem.getSourceCode().toLowerCase()).leftPush(dataItem.getUrl());
+                continue;
+            }
+
+            if (StringUtils.isBlank(dataItem.getTextContent())) {
+                log.error("{} {} save to hbase fail, textContent is empty", dataItem.getSourceCode(), dataItem.getId());
+                redisTemplate.boundListOps("fetch_fail_url_" + dataItem.getSourceCode().toLowerCase()).leftPush(dataItem.getUrl());
+                continue;
+            }
+
             try {
                 String sourceCode = dataItem.getSourceCode();
                 String rowKey = getRowKey(dataItem);
@@ -182,12 +194,4 @@ public class DataItemService {
         return put;
     }
 
-    public void test() {
-        Scan scan = new Scan();
-        try {
-            originalTable.getScanner(scan);
-        } catch (IOException e) {
-            log.error("", e);
-        }
-    }
 }

@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.regex.Pattern;
 
@@ -35,16 +36,20 @@ public class PageDownloader {
     @Autowired
     DataItemRepository dataItemRepository;
 
+    private Document getDocument(String url) throws IOException {
+        return Jsoup.connect(url).userAgent(SiteUtil.get().getUserAgent()).ignoreHttpErrors(true).timeout(60000).get();
+    }
+
     public void download(DataItem dataItem) {
         if (StringUtils.isNotBlank(dataItem.getTextContent())) return;
         if (StringUtils.isNotBlank(dataItem.getFormatContent())) return;
         if (StringUtils.isNotBlank(dataItem.getHtml())) return;
 
-        String html = null;
+        String html = null, formatContent = null, textContent = null;
         Document document = null;
         try {
             log.debug("download {}, {}", dataItem.getId(), dataItem.getUrl());
-            document = Jsoup.connect(dataItem.getUrl()).userAgent(SiteUtil.get().getUserAgent()).ignoreHttpErrors(true).timeout(60000).get();
+            document = getDocument(dataItem.getUrl());
 
             String pubDate = document.select("body > div.detail > p.p_o > span:nth-child(1)").text();
             pubDate = StringUtils.substringAfter(pubDate, "：");
@@ -57,8 +62,31 @@ public class PageDownloader {
             dataItem.setHtml(html);
 
             Element content = document.body().select("#mycontent").first();
-            dataItem.setFormatContent(PageProcessorUtil.formatElementsByWhitelist(content));
-            dataItem.setTextContent(PageProcessorUtil.extractTextByWhitelist(content));
+            boolean hasIframeTag = !content.getElementsByTag("iframe").isEmpty();
+            boolean isImageTag = !content.getElementsByTag("img").isEmpty();
+            if (hasIframeTag) {
+                //iframe
+                String url = content.getElementsByTag("iframe").attr("src");
+                log.debug("iframe url {}", url);
+                if (StringUtils.endsWithIgnoreCase(url, ".pdf")) {
+                    log.info("fetch content, {} ignore", url);
+                    return;
+                }
+
+                Element body = getDocument(url).body();
+                formatContent = PageProcessorUtil.formatElementsByWhitelist(body);
+                textContent = PageProcessorUtil.extractTextByWhitelist(body);
+            } else if (isImageTag) {
+                //img
+                formatContent = content.select("img").toString();
+                textContent = formatContent;
+            } else {
+                formatContent = PageProcessorUtil.formatElementsByWhitelist(content);
+                textContent = PageProcessorUtil.extractTextByWhitelist(content);
+            }
+
+            dataItem.setFormatContent(formatContent);
+            dataItem.setTextContent(textContent);
         } catch (Exception e) {
             log.error("{} download html content fail", dataItem.getId());
         }

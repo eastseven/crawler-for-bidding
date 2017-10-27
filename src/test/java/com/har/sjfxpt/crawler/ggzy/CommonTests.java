@@ -1,7 +1,11 @@
 package com.har.sjfxpt.crawler.ggzy;
 
+import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.junit.Assert;
 import org.junit.Test;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
@@ -42,5 +46,54 @@ public class CommonTests {
         Assert.assertNotNull(html);
 
         log.debug("\n{}", html);
+    }
+
+    @Test
+    public void testPage() throws Exception {
+        String formatContent = null, textContent = null;
+        String url = "http://www.ggzy.gov.cn/information/html/b/210000/0202/201710/23/0021220ee1f022d8492c84760339ecd07e50.shtml";
+        Assert.assertNotNull(url);
+
+        //iframe
+        url = "http://www.ggzy.gov.cn/information/html/b/620000/0104/201710/27/00628ef903f0607a4d118468b8aecbd6a54d.shtml";
+
+        //img
+        url = "http://www.ggzy.gov.cn/information/html/b/330000/0101/201710/27/00334e7e04a1a4b744ca919576e06dcc0b15.shtml";
+
+        // iframe pdf
+        url = "http://www.ggzy.gov.cn/information/html/b/510000/0101/201710/27/0051bb1827804c5c4450aed01b53e5f025f1.shtml";
+
+        Document document = Jsoup.connect(url).get();
+        Element content = document.body().select("#mycontent").first();
+
+        log.debug("\n{}\n", content.html());
+
+        boolean hasIframeTag = !content.getElementsByTag("iframe").isEmpty();
+        log.debug("has iframe {}", hasIframeTag);
+
+        boolean isImageTag = !content.getElementsByTag("img").isEmpty();
+        log.debug("is image {}", isImageTag);
+
+        if (hasIframeTag) {
+            url = content.getElementsByTag("iframe").attr("src");
+            log.debug("iframe url {}", url);
+            Element body = Jsoup.connect(url).get().body();
+            log.debug("\n{}\n", body.html());
+            formatContent = PageProcessorUtil.formatElementsByWhitelist(body);
+            textContent = PageProcessorUtil.extractTextByWhitelist(body);
+        } else if (isImageTag) {
+            log.debug("{}", content.select("img"));
+            formatContent = content.select("img").toString();
+            textContent = formatContent;
+        } else {
+            formatContent = PageProcessorUtil.formatElementsByWhitelist(content);
+            textContent = PageProcessorUtil.extractTextByWhitelist(content);
+        }
+
+        Assert.assertNotNull(formatContent);
+        Assert.assertNotNull(textContent);
+
+        log.debug("\n=== format ===\n{}\n", formatContent);
+        log.debug("\n=== text   ===\n{}\n", textContent);
     }
 }

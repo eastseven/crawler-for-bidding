@@ -13,6 +13,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 
+/**
+ * @author dongqi
+ */
 @Slf4j
 @Service
 @Order
@@ -59,8 +62,8 @@ public class SpiderLauncher implements CommandLineRunner {
                 case "history-cm":
                     chinaMobileSpiderLauncher.fetchHistory();
                     break;
-                case "test-ccgp":
-                    zhengFuCaiGouSpiderLauncher.test();
+                case "start-ccgp":
+                    zhengFuCaiGouSpiderLauncher.start();
                     break;
                 case "start-jcw":
                     jinCaiWangSpiderLauncher.start();
@@ -70,4 +73,5 @@ public class SpiderLauncher implements CommandLineRunner {
             }
         }
     }
+
 }
