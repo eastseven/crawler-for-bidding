@@ -139,6 +139,11 @@ public class JinCaiWangPageProcessor implements BasePageProcessor {
                     Document document = Jsoup.connect(href).timeout(60000).userAgent(SiteUtil.get().getUserAgent()).get();
                     String html = document.html();
                     Element root = document.body().select("body > div.container-fluid.cfcpn_container_list-bg > div > div.row > div.col-lg-9.cfcpn_news_mian").first();
+                    Elements title=root.select("#news_head > p.cfcpn_news_title");
+                    String titleT=title.text();
+                    if(jinCaiWangDataItem.getTitle().contains("...")&&StringUtils.isNotBlank(titleT)){
+                        jinCaiWangDataItem.setTitle(titleT);
+                    }
                     String formatContent = PageProcessorUtil.formatElementsByWhitelist(root);
                     String textContent = PageProcessorUtil.extractTextByWhitelist(root);
                     jinCaiWangDataItem.setHtml(html);
@@ -146,6 +151,7 @@ public class JinCaiWangPageProcessor implements BasePageProcessor {
                     jinCaiWangDataItem.setTextContent(textContent);
                 } catch (IOException e) {
                     e.printStackTrace();
+                    log.error("",e);
                 }
                 dataItemList.add(jinCaiWangDataItem);
             }
