@@ -85,6 +85,7 @@ public class DataItemService {
                         originalTable.put(row);
                         redisTemplate.boundValueOps(date + ':' + sourceCode.toLowerCase()).increment(1L);
                         log.info("save {} {} to {}", sourceCode, rowKey, DataItem.T_NAME_HTML);
+                        counter++;
                     }
                 } else {
                     boolean exists = historyTable.exists(new Get(rowKey.getBytes()));
@@ -92,10 +93,9 @@ public class DataItemService {
                         historyTable.put(row);
                         redisTemplate.boundValueOps(date + ':' + sourceCode.toLowerCase()).increment(1L);
                         log.info("save {} {} to {}", sourceCode, rowKey, DataItem.T_NAME_HTML_HISTORY);
+                        counter++;
                     }
                 }
-
-                counter++;
             } catch (Exception e) {
                 log.error("", e);
             }
