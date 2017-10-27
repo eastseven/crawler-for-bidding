@@ -44,6 +44,9 @@ public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
     @Autowired
     ExecutorService executorService;
 
+    @Autowired
+    ZhengFuCaiGouDownloader downloader;
+
     int num = Runtime.getRuntime().availableProcessors();
 
     @Test
@@ -57,8 +60,7 @@ public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
         url = url + params;
         log.debug(">>> test {}", url);
         Spider.create(pageProcessor)
-                .setDownloader(new ZhengFuCaiGouDownloader())
-                .setDownloader(proxyService.getDownloader("120.26.162.31:3333"))
+                .setDownloader(downloader)
                 //.addPipeline(pipeline)
                 .addRequest(new Request(url)).thread(1).run();
     }
@@ -84,14 +86,45 @@ public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
         Element element = Jsoup.connect(url).get().body();
 
         String summaryFormatContent = PageProcessorUtil.formatElementsByWhitelist(element.select(summaryCssQuery).first());
-        String detailFormatContent  = PageProcessorUtil.formatElementsByWhitelist(element.select(detailCssQuery).first());
-        String summaryTextContent   = PageProcessorUtil.extractTextByWhitelist(element.select(summaryCssQuery).first());
-        String detailTextContent    = PageProcessorUtil.extractTextByWhitelist(element.select(detailCssQuery).first());
+        String detailFormatContent = PageProcessorUtil.formatElementsByWhitelist(element.select(detailCssQuery).first());
+        String summaryTextContent = PageProcessorUtil.extractTextByWhitelist(element.select(summaryCssQuery).first());
+        String detailTextContent = PageProcessorUtil.extractTextByWhitelist(element.select(detailCssQuery).first());
 
         Path path = Paths.get("target", url);
-        FileUtils.write(path.toFile(), summaryFormatContent+'\n', true);
-        FileUtils.write(path.toFile(), detailFormatContent+'\n', true);
-        FileUtils.write(path.toFile(), summaryTextContent+'\n', true);
-        FileUtils.write(path.toFile(), detailTextContent+'\n', true);
+        FileUtils.write(path.toFile(), summaryFormatContent + '\n', true);
+        FileUtils.write(path.toFile(), detailFormatContent + '\n', true);
+        FileUtils.write(path.toFile(), summaryTextContent + '\n', true);
+        FileUtils.write(path.toFile(), detailTextContent + '\n', true);
+    }
+
+    @Test
+    public void testFetchPageData() {
+        List<PageData> pageDataList = pageDataRepository.findAll();
+        Assert.assertFalse(pageDataList.isEmpty());
+        final String prefix = "http://search.ccgp.gov.cn/bxsearch?searchtype=1&bidSort=&buyerName=&projectId=&pinMu=&bidType=&dbselect=bidx&kw=&timeType=6&displayZone=&zoneId=&pppStatus=0&agentName=";
+        DateTime dt = DateTime.now();
+        int days = 30;
+        for (int day = 0; day < days; day++) {
+            String date = null;
+            String id = dt.minusDays(day).toString("yyyy:MM:dd");
+            try {
+                date = URLEncoder.encode(id, "utf-8");
+            } catch (UnsupportedEncodingException e) {
+                log.error("", e);
+            }
+            String params = "&start_time=" + date + "&end_time=" + date + "&page_index=1";
+            String url = prefix + params;
+
+            PageData pageData = new PageData();
+            pageData.setDate(id);
+            pageData.setUrl(url);
+            Request request = new Request(url);
+            request.putExtra(PageData.class.getSimpleName(), pageData);
+
+            Spider.create(pageDataProcessor)
+                    .addRequest(request)
+                    .setExitWhenComplete(true);
+        }
+
     }
 }

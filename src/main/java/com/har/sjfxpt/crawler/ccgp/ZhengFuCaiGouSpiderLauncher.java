@@ -16,8 +16,6 @@ import java.net.URLEncoder;
 import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 
-import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanUtil.YYYYMMDD;
-
 /**
  * @author dongqi
  */
@@ -82,7 +80,7 @@ public class ZhengFuCaiGouSpiderLauncher extends BaseSpiderLauncher {
     public void start() {
         DateTime dt = DateTime.now();
         PageData pageData = new PageData();
-        pageData.setDate(dt.toString(YYYYMMDD));
+        pageData.setDate(dt.toString("yyyy:MM:dd"));
         String date = null;
         try {
             date = URLEncoder.encode(dt.toString("yyyy:MM:dd"), "utf-8");
