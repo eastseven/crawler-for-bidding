@@ -105,7 +105,6 @@ public class JinCaiWangPageProcessor implements BasePageProcessor {
             } else {
                 log.debug("href=={}", href);
                 String titleTxt = target.select("p.cfcpn_list_title > a").text();
-                log.debug("txt=={}", titleTxt);
                 String date = target.select("p.cfcpn_list_date.text-right").text();
                 log.debug("time=={}", date);
 
@@ -141,7 +140,8 @@ public class JinCaiWangPageProcessor implements BasePageProcessor {
                     Element root = document.body().select("body > div.container-fluid.cfcpn_container_list-bg > div > div.row > div.col-lg-9.cfcpn_news_mian").first();
                     Elements title=root.select("#news_head > p.cfcpn_news_title");
                     String titleT=title.text();
-                    if(jinCaiWangDataItem.getTitle().contains("...")&&StringUtils.isNotBlank(titleT)){
+                    log.debug("titleT=={}",titleT);
+                    if(titleT!=null){
                         jinCaiWangDataItem.setTitle(titleT);
                     }
                     String formatContent = PageProcessorUtil.formatElementsByWhitelist(root);

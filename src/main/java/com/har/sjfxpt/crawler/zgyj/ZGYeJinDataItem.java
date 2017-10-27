@@ -36,12 +36,6 @@ public class ZGYeJinDataItem {
 
     private String province="全国";//地区
 
-    private String purchaseWay;//采购方式
-
-    private String procurement;//采购人
-
-    private String category;//品类
-
     private String type;
 
     @Indexed
@@ -56,7 +50,7 @@ public class ZGYeJinDataItem {
     //    @Transient
     private String formatContent;
 
-    @Transient
+//    @Transient
     private String textContent;
 
     public DataItemDTO dto(){
