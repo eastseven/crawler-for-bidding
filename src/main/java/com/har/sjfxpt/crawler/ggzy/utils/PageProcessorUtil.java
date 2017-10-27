@@ -24,6 +24,7 @@ public final class PageProcessorUtil {
      * @param root
      * @return
      */
+    @Deprecated
     public static String extractText(Element root) {
         if (root == null) return null;
 
@@ -48,6 +49,7 @@ public final class PageProcessorUtil {
      * @param root
      * @return <tag>文本内容1</tag><tag>文本内容2</tag><tag>文本内容3</tag>
      */
+    @Deprecated
     public static String formatElements(Element root) {
         if (root == null) return null;
         String html = root.html();
