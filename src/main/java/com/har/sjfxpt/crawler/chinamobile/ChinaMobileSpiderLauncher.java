@@ -27,7 +27,7 @@ public class ChinaMobileSpiderLauncher {
      * 7 结果公示
      * 8 供应商信息收集公告
      */
-    int[] types = {1, 2, 3, 7, 8};
+    int[] types = {1, 2, 3, 7};
 
     @Autowired
     ChinaMobilePageProcessor pageProcessor;
