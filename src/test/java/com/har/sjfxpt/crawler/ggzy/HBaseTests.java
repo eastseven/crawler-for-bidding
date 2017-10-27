@@ -131,4 +131,26 @@ public class HBaseTests extends SpiderApplicationTests {
 
         }
     }
+
+    @Test
+    public void testCountBySourceCode() {
+        Assert.assertNotNull(conf);
+
+        Connection conn = null;
+        Table table = null;
+        try {
+            conn = ConnectionFactory.createConnection(conf);
+            table = conn.getTable(TableName.valueOf("", ""));
+
+            Scan scan = new Scan();
+            table.getScanner(scan);
+
+            table.close();
+            conn.close();
+        } catch (Exception e) {
+            log.error("", e);
+        } finally {
+
+        }
+    }
 }

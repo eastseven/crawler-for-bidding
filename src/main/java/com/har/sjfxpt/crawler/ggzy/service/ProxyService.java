@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.util.Lists;
 import org.jsoup.Jsoup;
@@ -41,13 +42,7 @@ public class ProxyService {
 
     public HttpClientDownloader getDownloader() {
         log.debug("{}", Arrays.toString(ips.toArray()));
-        List<Proxy> proxyList = Lists.newArrayList();
-        for (String ip : ips) {
-            String host = StringUtils.substringBefore(ip, ":");
-            String port = StringUtils.substringAfter(ip, ":");
-            proxyList.add(new Proxy(host, Integer.parseInt(port)));
-        }
-        downloader.setProxyProvider(SimpleProxyProvider.from(proxyList.toArray(new Proxy[ips.size()])));
+        downloader.setProxyProvider(SimpleProxyProvider.from(getAliyunProxy()));
         return downloader;
     }
 
@@ -60,6 +55,31 @@ public class ProxyService {
     public HttpClientDownloader getDownloader(String host, int port) {
         downloader.setProxyProvider(SimpleProxyProvider.from(new Proxy(host, port)));
         return downloader;
+    }
+
+    /**
+     * aliyun 高质量代理
+     *
+     * @return
+     */
+    public Proxy getAliyunProxy() {
+        List<Proxy> proxyList = Lists.newArrayList();
+        for (String ip : ips) {
+            String host = StringUtils.substringBefore(ip, ":");
+            String port = StringUtils.substringAfter(ip, ":");
+            proxyList.add(new Proxy(host, Integer.parseInt(port)));
+        }
+        return proxyList.get(RandomUtils.nextInt(0, ips.size() - 1));
+    }
+
+    public Proxy[] getAliyunProxies() {
+        List<Proxy> proxyList = Lists.newArrayList();
+        for (String ip : ips) {
+            String host = StringUtils.substringBefore(ip, ":");
+            String port = StringUtils.substringAfter(ip, ":");
+            proxyList.add(new Proxy(host, Integer.parseInt(port)));
+        }
+        return proxyList.toArray(new Proxy[ips.size()]);
     }
 
     public Proxy get() {

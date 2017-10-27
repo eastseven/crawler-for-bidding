@@ -1,6 +1,7 @@
 package com.har.sjfxpt.crawler.chinamobile;
 
 import com.google.common.collect.Maps;
+import com.har.sjfxpt.crawler.BaseSpiderLauncher;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +15,12 @@ import java.util.Map;
 
 import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanUtil.YYYYMMDD;
 
+/**
+ * @author dongqi
+ */
 @Slf4j
 @Service
-public class ChinaMobileSpiderLauncher {
+public class ChinaMobileSpiderLauncher extends BaseSpiderLauncher {
 
     final String SEED_URL = "https://b2b.10086.cn/b2b/main/listVendorNoticeResult.html?noticeBean.noticeType=";
 
@@ -41,7 +45,10 @@ public class ChinaMobileSpiderLauncher {
             Spider spider = Spider.create(pageProcessor).addPipeline(pipeline);
             spider.addRequest(getRequest(type));
             spider.thread(num);
+            spider.setExitWhenComplete(true);
             spider.start();
+
+            addSpider(spider);
         }
     }
 
@@ -55,7 +62,10 @@ public class ChinaMobileSpiderLauncher {
             Spider spider = Spider.create(pageProcessor).addPipeline(pipeline);
             spider.addRequest(getRequest(type, pageParams(startDate, endDate)));
             spider.thread(num);
+            spider.setExitWhenComplete(true);
             spider.start();
+
+            addSpider(spider);
         }
     }
 
@@ -89,4 +99,5 @@ public class ChinaMobileSpiderLauncher {
         params.put("noticeBean.endDate", endDate);
         return params;
     }
+
 }

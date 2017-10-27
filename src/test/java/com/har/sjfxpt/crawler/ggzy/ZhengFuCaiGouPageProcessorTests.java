@@ -1,10 +1,6 @@
 package com.har.sjfxpt.crawler.ggzy;
 
-import com.har.sjfxpt.crawler.ccgp.PageDataProcessor;
-import com.har.sjfxpt.crawler.ccgp.PageDataRepository;
-import com.har.sjfxpt.crawler.ccgp.ZhengFuCaiGouPageProcessor;
-import com.har.sjfxpt.crawler.ccgp.ZhengFuCaiGouPipeline;
-import com.har.sjfxpt.crawler.ggzy.downloader.HttpClientDownloaderExt;
+import com.har.sjfxpt.crawler.ccgp.*;
 import com.har.sjfxpt.crawler.ggzy.service.ProxyService;
 import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -12,16 +8,19 @@ import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 @Slf4j
@@ -58,18 +57,21 @@ public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
         url = url + params;
         log.debug(">>> test {}", url);
         Spider.create(pageProcessor)
-                .setDownloader(new HttpClientDownloaderExt())
+                .setDownloader(new ZhengFuCaiGouDownloader())
                 .setDownloader(proxyService.getDownloader("120.26.162.31:3333"))
-                .addPipeline(pipeline)
-                .addRequest(new Request(url)).thread(num).run();
+                //.addPipeline(pipeline)
+                .addRequest(new Request(url)).thread(1).run();
     }
 
     @Test
-    public void testPageData() throws Exception {
-        // 7天
-
-
-        Thread.sleep(60*1000);
+    public void testPageList() throws Exception {
+        File file = Paths.get("target", "ccgp.html").toFile();
+        Assert.assertNotNull(file);
+        Elements elements = Jsoup.parse(file, "utf-8").body().select(ZhengFuCaiGouPageProcessor.cssQuery4List);
+        List<ZhengFuCaiGouDataItem> dataItemList = pageProcessor.parseContent(elements);
+        Assert.assertNotNull(dataItemList);
+        Assert.assertFalse(dataItemList.isEmpty());
+        dataItemList.forEach(System.out::println);
     }
 
     @Test

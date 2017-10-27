@@ -1,5 +1,6 @@
 package com.har.sjfxpt.crawler.ggzy;
 
+import com.har.sjfxpt.crawler.BaseSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.listener.MonitorSpiderListener;
 import com.har.sjfxpt.crawler.ggzy.pipeline.DataItemPipeline;
 import com.har.sjfxpt.crawler.ggzy.pipeline.HBasePipeline;
@@ -30,7 +31,7 @@ import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanUtil.YYYYMMDD;
  */
 @Slf4j
 @Service
-public class GongGongZiYuanSpiderLauncher {
+public class GongGongZiYuanSpiderLauncher extends BaseSpiderLauncher {
 
     final int num = Runtime.getRuntime().availableProcessors() * 4;
 
@@ -47,6 +48,7 @@ public class GongGongZiYuanSpiderLauncher {
 
     /**
      * 获取当天的抓取请求
+     *
      * @param type
      * @return
      */
@@ -81,18 +83,19 @@ public class GongGongZiYuanSpiderLauncher {
      */
     public void start() {
         for (String type : types) {
-            Spider ggzy = getGongGongZiYuanSpider();
-            ggzy.addRequest(getRequest(type));
-            ggzy.thread(num).start();
-            log.info("ggzy {} spider start {}, status {}", type, ggzy.getStartTime(), ggzy.getStatus());
+            Spider spider = getGongGongZiYuanSpider();
+            spider.addRequest(getRequest(type));
+            spider.thread(num).start();
+            spider.setUUID("ggzy-" + type + "-" + DateTime.now().toString("yyyyMMdd-HHmmss"));
+            log.info("ggzy {} spider start {}, status {}", type, spider.getStartTime(), spider.getStatus());
         }
     }
 
     public void start(String date) {
         for (String type : types) {
-            Spider ggzy = getGongGongZiYuanSpider();
-            ggzy.addRequest(getRequest(type, date));
-            ggzy.start();
+            Spider spider = getGongGongZiYuanSpider();
+            spider.addRequest(getRequest(type, date));
+            spider.start();
         }
     }
 
@@ -110,20 +113,22 @@ public class GongGongZiYuanSpiderLauncher {
     }
 
     public void fetchHistory(String type, String begin, String end) {
-        Spider ggzy = getGongGongZiYuanSpider();
-        ggzy.addRequest(getRequest(GongGongZiYuanUtil.getPageParamsByType(type, begin, end)));
-        ggzy.thread(num);
-        ggzy.start();
+        Spider spider = getGongGongZiYuanSpider();
+        spider.addRequest(getRequest(GongGongZiYuanUtil.getPageParamsByType(type, begin, end)));
+        spider.thread(num);
+        spider.start();
 
-        log.info("ggzy spider start {}, {}", new DateTime(ggzy.getStartTime()).toString("yyyy-MM-dd HH:mm:ss"), ggzy.getStatus());
+        log.info("ggzy spider start {}, {}", new DateTime(spider.getStartTime()).toString("yyyy-MM-dd HH:mm:ss"), spider.getStatus());
     }
 
     Spider getGongGongZiYuanSpider() {
-        Spider ggzy = Spider.create(context.getBean(GongGongZiYuanPageProcessor.class));
-        ggzy.addPipeline(context.getBean(DataItemPipeline.class));
-        ggzy.addPipeline(context.getBean(HBasePipeline.class));
-        ggzy.setSpiderListeners(Lists.newArrayList(context.getBean(MonitorSpiderListener.class)));
-        return ggzy;
+        Spider spider = Spider.create(context.getBean(GongGongZiYuanPageProcessor.class));
+        spider.addPipeline(context.getBean(DataItemPipeline.class));
+        spider.addPipeline(context.getBean(HBasePipeline.class));
+        spider.setSpiderListeners(Lists.newArrayList(context.getBean(MonitorSpiderListener.class)));
+        spider.setExitWhenComplete(true);
+        addSpider(spider);
+        return spider;
     }
 
 }

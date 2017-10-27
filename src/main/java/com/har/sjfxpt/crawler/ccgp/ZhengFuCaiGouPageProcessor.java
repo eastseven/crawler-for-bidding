@@ -14,6 +14,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
@@ -32,7 +33,13 @@ import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_
 @Component
 public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
 
-    private final String cssQuery4List = "div.vT_z div.vT-srch-result div.vT-srch-result-list-con2 div.vT-srch-result-list ul.vT-srch-result-list-bid li";
+    public static final String cssQuery4List = "div.vT_z div.vT-srch-result div.vT-srch-result-list-con2 div.vT-srch-result-list ul.vT-srch-result-list-bid li";
+
+    @Autowired
+    PageDataRepository repository;
+
+    @Autowired
+    ZhengFuCaiGouRepository zhengFuCaiGouRepository;
 
     @Override
     public void process(Page page) {
@@ -53,6 +60,7 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
         String url = page.getUrl().get();
         log.debug(">>> url {}", url);
         if (!StringUtils.contains(url, "search.ccgp.gov.cn")) return;
+
         //div.vT_z div div p.pager
         //body > div:nth-child(8) > div:nth-child(1) > div > p.pager
         Element totalSize = page.getHtml().getDocument().body().select("body > div:nth-child(8) > div:nth-child(1) > div > p:nth-child(1)").first();
@@ -63,13 +71,26 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
         String totalPageText = pager.html();
         totalPageText = StringUtils.substringBetween(totalPageText, "size: ", ",");
 
+        try {
+            //记录每天数据总数及分页总数，便于后面排查及统计
+            PageData pageData = (PageData) page.getRequest().getExtra(PageData.class.getSimpleName());
+            if (pageData != null) {
+                pageData.setPage(Integer.parseInt(totalPageText));
+                pageData.setSize(Integer.parseInt(totalSizeText));
+                repository.save(pageData);
+                log.debug("{}", pageData);
+            }
+        } catch (Exception e) {
+            log.error("", e);
+        }
+
         String pageIndexText = StringUtils.substringAfterLast(url, "=");
         String firstPage = "1";
         if (firstPage.equalsIgnoreCase(pageIndexText)) {
             int totalPage = Integer.parseInt(totalPageText);
             for (int pageIndex = 2; pageIndex <= totalPage; pageIndex++) {
                 String requestUrl = StringUtils.substringBeforeLast(url, "=") + "=" + pageIndex;
-                log.info("size {}, total {}, pager url {}", totalSizeText, totalPageText, requestUrl);
+                log.info("ccgp size {}, total {}, pager url {}", totalSizeText, totalPageText, requestUrl);
                 page.addTargetRequest(requestUrl);
             }
         }
@@ -84,9 +105,14 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
         if (!dataItemList.isEmpty()) {
             dataItemList.forEach(dataItem -> {
                 try {
-                    download(dataItem);
+                    //减少http请求，避免过早被要求输入验证码
+                    ZhengFuCaiGouDataItem dataInDB = zhengFuCaiGouRepository.findOne(dataItem.getId());
+                    if (dataInDB == null) {
+                        download(dataItem);
+                    } else if (dataInDB != null && StringUtils.isBlank(dataInDB.getFormatContent())) {
+                        download(dataItem);
+                    }
                 } catch (Exception e) {
-                    log.error("", e);
                     log.error("ccgp {} download fail", dataItem.getId());
                 }
             });
@@ -119,7 +145,13 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
         for (Element element : items) {
             String href = element.select("a").attr("href");
             String id = DigestUtils.md5Hex(href);
-            String title = element.select("a").text();
+
+            String title = element.select("a").first().text();
+            if (StringUtils.isBlank(title)) {
+                log.error("ccgp url {} fetch title fail", href);
+                continue;
+            }
+
             ZhengFuCaiGouDataItem dataItem = ZhengFuCaiGouDataItem.builder()
                     .id(id).url(href).title(title)
                     .build();
