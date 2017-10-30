@@ -105,15 +105,14 @@ public class ZGYeJinPageProcessor implements BasePageProcessor {
                     Document document = Jsoup.connect(url).timeout(60000).userAgent(SiteUtil.get().getUserAgent()).get();
                     String html = document.html();
                     Element root = document.body().select("body > div.main-news").first();
-                    String formatContent = PageProcessorUtil.formatElements(root);
-                    String textContent = PageProcessorUtil.extractText(root);
+                    String formatContent = PageProcessorUtil.formatElementsByWhitelist(root);
+                    String textContent = PageProcessorUtil.extractTextByWhitelist(root);
 
                     zgYeJinDataItem.setHtml(html);
                     zgYeJinDataItem.setFormatContent(formatContent);
                     zgYeJinDataItem.setTextContent(textContent);
                 } catch (IOException e) {
-                    e.printStackTrace();
-                    log.error("", e);
+                    log.error("page download failed!", e);
                 }
                 dataItems.add(zgYeJinDataItem);
             }
