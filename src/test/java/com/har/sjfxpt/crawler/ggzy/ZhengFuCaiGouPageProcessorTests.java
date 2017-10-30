@@ -12,6 +12,7 @@ import org.jsoup.select.Elements;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 
@@ -99,14 +100,22 @@ public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
 
     @Test
     public void testFetchPageData() {
-        List<PageData> pageDataList = pageDataRepository.findAll();
+        List<PageData> pageDataList = pageDataRepository.findAll(new Sort(Sort.Direction.ASC, "date"));
         Assert.assertFalse(pageDataList.isEmpty());
+
+        PageData first = pageDataList.get(0);
+        log.debug(">>> {}", first);
+
+        DateTime start = new DateTime(first.getDate().replace(":", "-"));
+
         final String prefix = "http://search.ccgp.gov.cn/bxsearch?searchtype=1&bidSort=&buyerName=&projectId=&pinMu=&bidType=&dbselect=bidx&kw=&timeType=6&displayZone=&zoneId=&pppStatus=0&agentName=";
-        DateTime dt = DateTime.now();
-        int days = 30;
+        int days = 7;
+
+        Spider spider = Spider.create(pageDataProcessor).setExitWhenComplete(true);
+
         for (int day = 0; day < days; day++) {
             String date = null;
-            String id = dt.minusDays(day).toString("yyyy:MM:dd");
+            String id = start.minusDays(day).toString("yyyy:MM:dd");
             try {
                 date = URLEncoder.encode(id, "utf-8");
             } catch (UnsupportedEncodingException e) {
@@ -121,10 +130,9 @@ public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
             Request request = new Request(url);
             request.putExtra(PageData.class.getSimpleName(), pageData);
 
-            Spider.create(pageDataProcessor)
-                    .addRequest(request)
-                    .setExitWhenComplete(true);
+            spider.addRequest(request);
         }
 
+        spider.run();
     }
 }
