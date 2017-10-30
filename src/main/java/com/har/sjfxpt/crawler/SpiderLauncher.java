@@ -36,6 +36,19 @@ public class SpiderLauncher implements CommandLineRunner {
     @Autowired
     JinCaiWangSpiderLauncher jinCaiWangSpiderLauncher;
 
+    public void info() {
+        int ggzySize = gongGongZiYuanSpiderLauncher.getSpiderList().size();
+        int cmSize = chinaMobileSpiderLauncher.getSpiderList().size();
+        int ccgpSize = zhengFuCaiGouSpiderLauncher.getSpiderList().size();
+        int jcwSize = jinCaiWangSpiderLauncher.getSpiderList().size();
+
+        log.debug("spider size\tggzy={}, cm={}, ccgp={}, jcw={}", ggzySize, cmSize, ccgpSize, jcwSize);
+        gongGongZiYuanSpiderLauncher.printInfo();
+        chinaMobileSpiderLauncher.printInfo();
+        zhengFuCaiGouSpiderLauncher.printInfo();
+        jinCaiWangSpiderLauncher.printInfo();
+    }
+
     @Override
     public void run(String... args) throws Exception {
         log.info("{}", Arrays.toString(args));

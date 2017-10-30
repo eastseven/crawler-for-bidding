@@ -11,6 +11,9 @@ import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.processor.PageProcessor;
 
+/**
+ * @author dongqi
+ */
 @Slf4j
 @Component
 public class PageDataProcessor implements PageProcessor {
@@ -26,16 +29,19 @@ public class PageDataProcessor implements PageProcessor {
             return;
         }
 
-        Element totalSize = page.getHtml().getDocument().body().select("body > div:nth-child(8) > div:nth-child(1) > div > p:nth-child(1)").first();
+        Element body = page.getHtml().getDocument().body();
+
+        /*Element totalSize = body.select("p.pager").first();
         String totalSizeText = totalSize.text();
         totalSizeText = StringUtils.substringBetween(totalSizeText, "共找到", "条内容");
-        totalSizeText = StringUtils.trim(totalSizeText);
-        Element pager = page.getHtml().getDocument().body().select("body > div:nth-child(8) > div:nth-child(1) > div > p.pager script").first();
+        totalSizeText = StringUtils.trim(totalSizeText);*/
+
+        Element pager = body.select("p.pager").first();
         String totalPageText = pager.html();
         totalPageText = StringUtils.substringBetween(totalPageText, "size: ", ",");
 
         pageData.setPage(Integer.parseInt(totalPageText));
-        pageData.setSize(Integer.parseInt(totalSizeText));
+        pageData.setSize(Integer.parseInt(totalPageText) * 20);
 
         repository.save(pageData);
         log.debug("{}", pageData);

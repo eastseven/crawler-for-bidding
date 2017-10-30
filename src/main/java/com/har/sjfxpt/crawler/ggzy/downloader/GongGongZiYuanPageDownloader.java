@@ -2,32 +2,31 @@ package com.har.sjfxpt.crawler.ggzy.downloader;
 
 import com.har.sjfxpt.crawler.ggzy.model.DataItem;
 import com.har.sjfxpt.crawler.ggzy.repository.DataItemRepository;
+import com.har.sjfxpt.crawler.ggzy.service.ProxyService;
 import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
+import us.codecraft.webmagic.SimpleHttpClient;
+import us.codecraft.webmagic.proxy.SimpleProxyProvider;
 
-import java.io.IOException;
+import javax.annotation.PostConstruct;
 import java.util.concurrent.ExecutorService;
-import java.util.regex.Pattern;
 
 /**
  * @author dongqi
  */
 @Slf4j
 @Component
-public class PageDownloader {
+public class GongGongZiYuanPageDownloader {
 
-    Pattern patternLong = Pattern.compile("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}");
-    Pattern patternShort = Pattern.compile("\\d{4}-\\d{2}-\\d{2}");
     final int ten = 10;
 
     @Autowired
@@ -36,8 +35,19 @@ public class PageDownloader {
     @Autowired
     DataItemRepository dataItemRepository;
 
-    private Document getDocument(String url) throws IOException {
-        return Jsoup.connect(url).userAgent(SiteUtil.get().getUserAgent()).ignoreHttpErrors(true).timeout(60000).get();
+    @Autowired
+    ProxyService proxyService;
+
+    private SimpleHttpClient simpleHttpClient;
+
+    @PostConstruct
+    public void init() {
+        simpleHttpClient = new SimpleHttpClient(SiteUtil.get().setTimeOut(60000).setSleepTime(123));
+        simpleHttpClient.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
+    }
+
+    private Document getDocument(String url) {
+        return simpleHttpClient.get(url).getHtml().getDocument();
     }
 
     public void download(DataItem dataItem) {
@@ -88,7 +98,8 @@ public class PageDownloader {
             dataItem.setFormatContent(formatContent);
             dataItem.setTextContent(textContent);
         } catch (Exception e) {
-            log.error("{} download html content fail", dataItem.getId());
+            log.error("", e);
+            log.error("{} download html content fail, {}", dataItem.getId(), dataItem.getUrl());
         }
 
     }

@@ -5,18 +5,17 @@ import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.util.Lists;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
+import us.codecraft.webmagic.SimpleHttpClient;
 import us.codecraft.webmagic.Site;
 
 import java.io.IOException;
@@ -35,6 +34,8 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
 
     public static final String cssQuery4List = "div.vT_z div.vT-srch-result div.vT-srch-result-list-con2 div.vT-srch-result-list ul.vT-srch-result-list-bid li";
 
+    private SimpleHttpClient simpleHttpClient;
+
     @Autowired
     PageDataRepository repository;
 
@@ -52,7 +53,10 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
 
     @Override
     public Site getSite() {
-        return SiteUtil.get().setTimeOut(60000).setSleepTime(RandomUtils.nextInt(10, 30) * 1000);
+        simpleHttpClient = new SimpleHttpClient(SiteUtil.get().setTimeOut(60000));
+        Site site = SiteUtil.get().setTimeOut(60000);
+        //site.setSleepTime(RandomUtils.nextInt(10, 30) * 1000);
+        return site;
     }
 
     @Override
@@ -61,13 +65,7 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
         log.debug(">>> url {}", url);
         if (!StringUtils.contains(url, "search.ccgp.gov.cn")) return;
 
-        //div.vT_z div div p.pager
-        //body > div:nth-child(8) > div:nth-child(1) > div > p.pager
-        Element totalSize = page.getHtml().getDocument().body().select("body > div:nth-child(8) > div:nth-child(1) > div > p:nth-child(1)").first();
-        String totalSizeText = totalSize.text();
-        totalSizeText = StringUtils.substringBetween(totalSizeText, "共找到", "条内容");
-        totalSizeText = StringUtils.trim(totalSizeText);
-        Element pager = page.getHtml().getDocument().body().select("body > div:nth-child(8) > div:nth-child(1) > div > p.pager script").first();
+        Element pager = page.getHtml().getDocument().body().select("p.pager script").first();
         String totalPageText = pager.html();
         totalPageText = StringUtils.substringBetween(totalPageText, "size: ", ",");
 
@@ -76,7 +74,7 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
             PageData pageData = (PageData) page.getRequest().getExtra(PageData.class.getSimpleName());
             if (pageData != null) {
                 pageData.setPage(Integer.parseInt(totalPageText));
-                pageData.setSize(Integer.parseInt(totalSizeText));
+                pageData.setSize(Integer.parseInt(totalPageText) * 20);
                 repository.save(pageData);
                 log.debug("{}", pageData);
             }
@@ -90,7 +88,7 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
             int totalPage = Integer.parseInt(totalPageText);
             for (int pageIndex = 2; pageIndex <= totalPage; pageIndex++) {
                 String requestUrl = StringUtils.substringBeforeLast(url, "=") + "=" + pageIndex;
-                log.info("ccgp size {}, total {}, pager url {}", totalSizeText, totalPageText, requestUrl);
+                log.info("ccgp size {}, total {}, pager url {}", (Integer.parseInt(totalPageText) * 20), totalPageText, requestUrl);
                 page.addTargetRequest(requestUrl);
             }
         }
@@ -122,18 +120,21 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
     }
 
     private void download(ZhengFuCaiGouDataItem dataItem) throws IOException {
-        Document document = Jsoup.connect(dataItem.getUrl()).userAgent(SiteUtil.get().getUserAgent()).timeout(600000).get();
+        Document document = simpleHttpClient.get(dataItem.getUrl()).getHtml().getDocument();
         if (StringUtils.equalsAnyIgnoreCase(document.title(), "安全验证")) {
             log.warn("ccgp verification {}", dataItem.getUrl());
             return;
         }
 
         Element element = document.body();
-        String detailCssQuery = "div.vT_detail_main > div.vT_detail_content";
+        String detailCssQuery = "div.vF_detail_content_container > div.vF_detail_content";
+        String summaryCssQuery = "div.vF_detail_main table";
 
+        String summaryFormatContent = PageProcessorUtil.formatElementsByWhitelist(element.select(summaryCssQuery).first());
         String detailFormatContent = PageProcessorUtil.formatElementsByWhitelist(element.select(detailCssQuery).first());
         String detailTextContent = PageProcessorUtil.extractTextByWhitelist(element.select(detailCssQuery).first());
 
+        dataItem.setSummaryFormatContent(summaryFormatContent);
         dataItem.setFormatContent(detailFormatContent);
         dataItem.setTextContent(detailTextContent);
 

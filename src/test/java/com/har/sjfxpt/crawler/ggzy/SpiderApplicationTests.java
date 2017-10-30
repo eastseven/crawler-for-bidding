@@ -1,6 +1,6 @@
 package com.har.sjfxpt.crawler.ggzy;
 
-import com.har.sjfxpt.crawler.ggzy.downloader.PageDownloader;
+import com.har.sjfxpt.crawler.ggzy.downloader.GongGongZiYuanPageDownloader;
 import com.har.sjfxpt.crawler.ggzy.model.DataItem;
 import com.har.sjfxpt.crawler.ggzy.processor.GongGongZiYuanPageProcessor;
 import com.har.sjfxpt.crawler.ggzy.repository.DataItemRepository;
@@ -25,7 +25,7 @@ public class SpiderApplicationTests {
     GongGongZiYuanSpiderLauncher launcher;
 
     @Autowired
-    PageDownloader pageDownloader;
+    GongGongZiYuanPageDownloader gongGongZiYuanPageDownloader;
 
     @Autowired
     DataItemRepository repository;
@@ -59,19 +59,19 @@ public class SpiderApplicationTests {
 
     @Test
     public void testDownload() {
-        Assert.assertNotNull(pageDownloader);
+        Assert.assertNotNull(gongGongZiYuanPageDownloader);
         DataItem dataItem = repository.findTopByHtmlIsNull();
         Assert.assertNotNull(dataItem);
         Assert.assertNull(dataItem.getHtml());
-        pageDownloader.download(dataItem);
+        gongGongZiYuanPageDownloader.download(dataItem);
 
         Assert.assertNotNull(dataItem.getHtml());
     }
 
     @Test
     public void testDownloadAll() throws InterruptedException {
-        Assert.assertNotNull(pageDownloader);
-        pageDownloader.download();
+        Assert.assertNotNull(gongGongZiYuanPageDownloader);
+        gongGongZiYuanPageDownloader.download();
         Thread.sleep(5000L);
     }
 

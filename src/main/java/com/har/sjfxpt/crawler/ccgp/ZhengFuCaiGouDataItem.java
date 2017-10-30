@@ -60,6 +60,11 @@ public class ZhengFuCaiGouDataItem {
     @Transient
     private String textContent;
 
+    /**
+     * 公告概要 summary
+     */
+    private String summaryFormatContent;
+
     public DataItemDTO dto() {
         DataItemDTO dto = new DataItemDTO();
         BeanUtils.copyProperties(this, dto);
