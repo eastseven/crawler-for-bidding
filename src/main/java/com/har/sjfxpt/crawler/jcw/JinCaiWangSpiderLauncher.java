@@ -8,7 +8,8 @@ import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.scheduler.RedisScheduler;
 
 /**
- * Created by Administrator on 2017/10/26.
+ * Created on 2017/10/26.
+ * @author luofei
  */
 @Service
 public class JinCaiWangSpiderLauncher extends BaseSpiderLauncher {
