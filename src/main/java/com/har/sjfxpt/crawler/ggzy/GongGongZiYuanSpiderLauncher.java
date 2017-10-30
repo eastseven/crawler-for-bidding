@@ -83,10 +83,17 @@ public class GongGongZiYuanSpiderLauncher extends BaseSpiderLauncher {
      */
     public void start() {
         for (String type : types) {
+            final String uuid = "ggzy-" + type + "-current";
+            getSpiderList().forEach(spider -> {
+                if (spider.getUUID().equalsIgnoreCase(uuid)) {
+                    spider.stop();
+                    spider.close();
+                }
+            });
             Spider spider = getGongGongZiYuanSpider();
             spider.addRequest(getRequest(type));
             spider.thread(num).start();
-            spider.setUUID("ggzy-" + type + "-" + DateTime.now().toString("yyyyMMdd-HHmmss"));
+            spider.setUUID(uuid);
             log.info("ggzy {} spider start {}, status {}", type, spider.getStartTime(), spider.getStatus());
         }
     }

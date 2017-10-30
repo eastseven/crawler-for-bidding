@@ -21,6 +21,10 @@ public class BaseSpiderLauncher implements DisposableBean {
         spiderList.add(spider);
     }
 
+    public List<Spider> getSpiderList() {
+        return spiderList;
+    }
+
     @Override
     public void destroy() throws Exception {
         for (Spider spider : spiderList) {
