@@ -1,6 +1,7 @@
 package com.har.sjfxpt.crawler.ggzy;
 
 import com.google.common.collect.Maps;
+import com.har.sjfxpt.crawler.ggzy.service.ProxyService;
 import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import com.har.sjfxpt.crawler.zgyj.ZGYeJinPageProcessor;
@@ -19,7 +20,9 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.test.context.junit4.SpringRunner;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
+import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.model.HttpRequestBody;
+import us.codecraft.webmagic.proxy.SimpleProxyProvider;
 import us.codecraft.webmagic.utils.HttpConstant;
 
 import java.io.IOException;
@@ -55,28 +58,31 @@ public class ZGYeJinPageProcessorTests {
 
         Request[] requests = new Request[urls.length];
 
-        String date=new DateTime(new Date()).toString("yyyy-MM-dd");
+        String date = new DateTime(new Date()).toString("yyyy-MM-dd");
 
         for (int i = 0; i < urls.length; i++) {
-            requests[i] = requestGenerator(urls[i],date,date);
+            requests[i] = requestGenerator(urls[i], date, date);
         }
 
+        HttpClientDownloader test = new HttpClientDownloader();
+        test.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxy()));
         Spider.create(zgYeJinPageProcessor)
                 .addRequest(requests)
                 .addPipeline(zgYeJinPipeline)
+                .setDownloader(test)
                 .thread(8)
                 .run();
     }
 
     //爬取13年至今的历史数据
     @Test
-    public void testZGYeJinHistoryPageProcessor(){
+    public void testZGYeJinHistoryPageProcessor() {
         Request[] requests = new Request[urls.length];
 
-        String date=new DateTime(new Date()).toString("yyyy-MM-dd");
+        String date = new DateTime(new Date()).toString("yyyy-MM-dd");
 
         for (int i = 0; i < urls.length; i++) {
-            requests[i] = requestGenerator(urls[i],"2013-01-01",date);
+            requests[i] = requestGenerator(urls[i], "2013-01-01", date);
         }
 
         Spider.create(zgYeJinPageProcessor)
@@ -87,21 +93,19 @@ public class ZGYeJinPageProcessorTests {
     }
 
 
-
-
     @Test
-    public void testPageProcessor(){
-        String url="http://ec.mcc.com.cn/b2b/web/two/indexinfoAction.do?actionType=showZbsDetail&inviteid=40494E5EDE184218AF106A0DAD7FC9BF";
+    public void testPageProcessor() {
+        String url = "http://ec.mcc.com.cn/b2b/web/two/indexinfoAction.do?actionType=showZbsDetail&inviteid=40494E5EDE184218AF106A0DAD7FC9BF";
         log.info(">>> download {}", url);
         try {
-            Document document =  Jsoup.connect(url).timeout(60000).userAgent(SiteUtil.get().getUserAgent()).get();
+            Document document = Jsoup.connect(url).timeout(60000).userAgent(SiteUtil.get().getUserAgent()).get();
             String html = document.html();
             Element root = document.body().select("body > div.main-news").first();
             String formatContent = PageProcessorUtil.formatElementsByWhitelist(root);
             String textContent = PageProcessorUtil.extractTextByWhitelist(root);
 
-            log.info("formatContent=={}",formatContent);
-            log.info("textContent=={}",textContent);
+            log.info("formatContent=={}", formatContent);
+            log.info("textContent=={}", textContent);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -109,11 +113,21 @@ public class ZGYeJinPageProcessorTests {
     }
 
     @Test
-    public void testTime(){
-        String end=DateTime.now().minusDays(1).toString("yyyy-MM-dd");
-        log.debug("end=={}",end);
+    public void testTime() {
+        String end = DateTime.now().minusDays(1).toString("yyyy-MM-dd");
+        log.debug("end=={}", end);
     }
 
+    @Autowired
+    ProxyService proxyService;
+
+    @Test
+    public void testProxyService() {
+        HttpClientDownloader test = new HttpClientDownloader();
+        test.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxy()));
+        String html = test.download("http://ec.mcc.com.cn/b2b/web/two/indexinfoAction.do?actionType=showMoreZbs&xxposition=zbgg").get();
+        log.debug("html=={}", html);
+    }
 
 
 }

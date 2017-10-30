@@ -65,11 +65,11 @@ public class ZGYeJinSpiderLauncher extends BaseSpiderLauncher{
             requests[i] = requestGenerator(urls[i],"2013-01-01",date);
         }
 
-        log.debug("num=={}",num*2);
+        log.debug("num=={}",num);
         Spider spider=Spider.create(zgYeJinPageProcessor)
                 .addRequest(requests)
                 .addPipeline(zgYeJinPipeline)
-                .thread(num*2);
+                .thread(num);
         spider.start();
         addSpider(spider);
     }
