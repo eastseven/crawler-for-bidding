@@ -20,9 +20,6 @@ public class JinCaiWangSpiderLauncher extends BaseSpiderLauncher {
     @Autowired
     JinCaiWangPipeline jinCaiWangPipeline;
 
-    @Autowired
-    RedisScheduler redisScheduler;
-
     public void start() {
         final int num = Runtime.getRuntime().availableProcessors();
         String[] urls = {
@@ -45,18 +42,15 @@ public class JinCaiWangSpiderLauncher extends BaseSpiderLauncher {
             if (urls[i].contains("biangeng")) {
                 request.putExtra("type", "变更");
             }
-            request.putExtra("ignore", true);
 
             Spider spider = Spider.create(jinCaiWangPageProcessor)
                     .addPipeline(jinCaiWangPipeline)
-                    .setScheduler(redisScheduler)
                     .addRequest(request)
                     .thread(num);
 
             spider.start();
             addSpider(spider);
         }
-
 
     }
 }

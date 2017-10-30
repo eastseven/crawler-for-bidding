@@ -12,6 +12,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
@@ -26,6 +28,11 @@ import java.util.List;
 @Slf4j
 @Component
 public class JinCaiWangPageProcessor implements BasePageProcessor {
+
+    final String KEY_URLS = "jin_cai_wang";
+
+    @Autowired
+    StringRedisTemplate stringRedisTemplate;
 
     @Override
     public void process(Page page) {
@@ -70,7 +77,7 @@ public class JinCaiWangPageProcessor implements BasePageProcessor {
                     String type = (String) page.getRequest().getExtras().get("type");
                     Request request = new Request(urlTarget);
                     request.putExtra("type", type);
-                    request.putExtra("ignore",true);
+                    request.putExtra("ignore", true);
                     page.addTargetRequest(request);
                 }
             }
@@ -90,51 +97,65 @@ public class JinCaiWangPageProcessor implements BasePageProcessor {
         for (Element target : items) {
             String href = target.select("p.cfcpn_list_title > a").attr("href");
             href = "http://www.cfcpn.com" + href;
-            log.debug("href=={}", href);
-            String titleTxt = target.select("p.cfcpn_list_title > a").text();
-            log.debug("txt=={}", titleTxt);
-            String date = target.select("p.cfcpn_list_date.text-right").text();
-            log.debug("time=={}", date);
+            long value = stringRedisTemplate.boundSetOps(KEY_URLS).add(href);
+            if (value == 0L) {
+                // 重复数据
+                log.info("重复数据=={}",href);
+                continue;
+            } else {
+                log.debug("href=={}", href);
+                String titleTxt = target.select("p.cfcpn_list_title > a").text();
+                String date = target.select("p.cfcpn_list_date.text-right").text();
+                log.debug("time=={}", date);
 
-            JinCaiWangDataItem jinCaiWangDataItem = new JinCaiWangDataItem(DigestUtils.md5Hex(href));
+                JinCaiWangDataItem jinCaiWangDataItem = new JinCaiWangDataItem(DigestUtils.md5Hex(href));
 
-            jinCaiWangDataItem.setUrl(href);
+                jinCaiWangDataItem.setUrl(href);
 
-            jinCaiWangDataItem.setTitle(titleTxt);
+                jinCaiWangDataItem.setTitle(titleTxt);
 
-            jinCaiWangDataItem.setDate(PageProcessorUtil.dataTxt(date));
+                jinCaiWangDataItem.setDate(PageProcessorUtil.dataTxt(date));
 
-            Elements elements = target.select("div.media-body");
-            String content = elements.text();
-            String[] text = StringUtils.split(content, "    ");
-            for (int i = 0; i < text.length; i++) {
-                if (text[i].contains("采购人")) {
-                    jinCaiWangDataItem.setProcurement(StringUtils.substringAfter(text[i], ":"));
+                Elements elements = target.select("div.media-body");
+                String content = elements.text();
+                String[] text = StringUtils.split(content, "    ");
+                for (int i = 0; i < text.length; i++) {
+                    if (text[i].contains("采购人")) {
+                        jinCaiWangDataItem.setProcurement(StringUtils.substringAfter(text[i], ":"));
+                    }
+                    if (text[i].contains("采购方式")) {
+                        jinCaiWangDataItem.setPurchaseWay(StringUtils.substringAfter(text[i], ":"));
+                    }
+                    if (text[i].contains("地区")) {
+                        jinCaiWangDataItem.setProvince(ProvinceUtil.get(StringUtils.substringAfter(text[i], ":")));
+                    }
+                    if (text[i].contains("品类")) {
+                        jinCaiWangDataItem.setCategory(StringUtils.substringAfter(text[i], ":"));
+                    }
                 }
-                if (text[i].contains("采购方式")) {
-                    jinCaiWangDataItem.setPurchaseWay(StringUtils.substringAfter(text[i], ":"));
+
+                try {
+                    Document document = Jsoup.connect(href).timeout(60000).userAgent(SiteUtil.get().getUserAgent()).get();
+                    String html = document.html();
+                    Element root = document.body().select("body > div.container-fluid.cfcpn_container_list-bg > div > div.row > div.col-lg-9.cfcpn_news_mian").first();
+                    Elements title=root.select("#news_head > p.cfcpn_news_title");
+                    String titleT=title.text();
+                    log.debug("titleT=={}",titleT);
+                    if(titleT!=null){
+                        jinCaiWangDataItem.setTitle(titleT);
+                    }
+                    String formatContent = PageProcessorUtil.formatElementsByWhitelist(root);
+                    String textContent = PageProcessorUtil.extractTextByWhitelist(root);
+                    jinCaiWangDataItem.setHtml(html);
+                    jinCaiWangDataItem.setFormatContent(formatContent);
+                    jinCaiWangDataItem.setTextContent(textContent);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    log.error("",e);
                 }
-                if (text[i].contains("地区")) {
-                    jinCaiWangDataItem.setProvince(ProvinceUtil.get(StringUtils.substringAfter(text[i], ":")));
-                }
-                if (text[i].contains("品类")) {
-                    jinCaiWangDataItem.setCategory(StringUtils.substringAfter(text[i], ":"));
-                }
+                dataItemList.add(jinCaiWangDataItem);
             }
 
-            try {
-                Document document = Jsoup.connect(href).timeout(60000).userAgent(SiteUtil.get().getUserAgent()).get();
-                String html = document.html();
-                Element root = document.body().select("body > div.container-fluid.cfcpn_container_list-bg > div > div.row > div.col-lg-9.cfcpn_news_mian").first();
-                String formatContent = PageProcessorUtil.formatElementsByWhitelist(root);
-                String textContent = PageProcessorUtil.extractTextByWhitelist(root);
-                jinCaiWangDataItem.setHtml(html);
-                jinCaiWangDataItem.setFormatContent(formatContent);
-                jinCaiWangDataItem.setTextContent(textContent);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            dataItemList.add(jinCaiWangDataItem);
         }
         return dataItemList;
     }
