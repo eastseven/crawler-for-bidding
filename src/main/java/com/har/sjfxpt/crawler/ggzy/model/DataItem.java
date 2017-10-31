@@ -80,6 +80,8 @@ public class DataItem {
 
         dto.setProvince(StringUtils.defaultString(province, "全国"));
         dto.setType(StringUtils.defaultString(infoType, "其他"));
+        dto.setSource(SourceCode.GGZY.getValue());
+        dto.setSourceCode(SourceCode.GGZY.toString());
         return dto;
     }
 }

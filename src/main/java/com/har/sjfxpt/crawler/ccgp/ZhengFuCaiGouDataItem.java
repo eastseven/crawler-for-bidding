@@ -1,6 +1,7 @@
 package com.har.sjfxpt.crawler.ccgp;
 
 import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
+import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
 import lombok.*;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -76,9 +77,8 @@ public class ZhengFuCaiGouDataItem {
 
         dto.setType(StringUtils.defaultString(type, "其他"));
         dto.setProvince(StringUtils.defaultString(province, "全国"));
-        dto.setSource("中国政府采购网");
-        dto.setSourceCode("CCGP");
-
+        dto.setSource(SourceCode.CCGP.getValue());
+        dto.setSourceCode(SourceCode.CCGP.toString());
         return dto;
     }
 }

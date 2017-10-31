@@ -1,6 +1,7 @@
 package com.har.sjfxpt.crawler.ggzy;
 
 import com.google.common.collect.Maps;
+import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
 import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,12 @@ import java.util.regex.Pattern;
 
 @Slf4j
 public class CommonTests {
+
+    @Test
+    public void testSourceCode() {
+        Assert.assertNotNull(SourceCode.CCGP);
+        log.debug(">>> source code {}, {}", SourceCode.CCGP.toString(), SourceCode.CCGP.getValue());
+    }
 
     @Test
     public void testCCGP() {
