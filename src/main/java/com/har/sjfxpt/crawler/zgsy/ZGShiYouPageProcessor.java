@@ -1,22 +1,27 @@
 package com.har.sjfxpt.crawler.zgsy;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.ggzy.processor.BasePageProcessor;
+import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
+import com.har.sjfxpt.crawler.ggzy.utils.ProvinceUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.yarn.webapp.hamlet.Hamlet;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
+import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.model.HttpRequestBody;
 import us.codecraft.webmagic.utils.HttpConstant;
 
 import java.util.List;
 import java.util.Map;
+
+import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
 
 /**
  * Created by Administrator on 2017/10/30.
@@ -26,6 +31,8 @@ import java.util.Map;
 public class ZGShiYouPageProcessor implements BasePageProcessor {
 
     final static String PAGE_PARAMS = "pageParams";
+
+    final static String formUrl = "http://eportal.energyahead.com/wps/portal/ebid/!ut/p/c5/hY3LdoIwEEC_xQ_wJGgCdRkRgjwKCGJg4wnWglBelofy9cWebrUzyztzL4jAtCXvLwlvL1XJvwADkXgkKywTX9QNjF0Mt9pm_-aKsmDYeOLhU44C9M_34dF7fgHhS_7rf3D4ZAgE71pVnEEIImmyLP8s5mqy-ObOsX20pBoCPmAQHb0M1pb5XVrjynZ8JW-902hB92zUtlt-zXmB6wDVXarRNI-LtAupnZWH2r2SRPbaYO2-7gjSo8PCQZIrMiiEOShRcwUeoMrvbUyN5c3Za_eQoyz-ZI3OhiIt6PpuW5wG2WYeJpnG1cWwOzX0NASumW4qRlTlyrogwk1kfxiU7HeCRHQdZZ0wL8um39pCHo35uhfVfOGNC_FmoLqXWLSOw1xOrBmoCwYvTnrFFZn9AIuHl4s!/dl3/d3/L0lDU0dabVppbW1BIS9JTFNBQ0l3a0FnUWlRQ0NLSkFJRVlrQWdUaVFDQ0JKQUlJbFNRQ0FKMkZEUS80QzFiOFVBZy83X0E5M0NBVDZKSzVMOTUwSVRMUlBPVDQzRzE3L2RldGFpbA!!/";
 
     @Override
     public void process(Page page) {
@@ -64,29 +71,64 @@ public class ZGShiYouPageProcessor implements BasePageProcessor {
 
     @Override
     public void handleContent(Page page) {
-        Map<String,Object> pageParams= (Map<String, Object>) page.getRequest().getExtras().get(PAGE_PARAMS);
-        Elements elements=page.getHtml().getDocument().body().select("#list_content > div > div");
+        Map<String, Object> pageParams = (Map<String, Object>) page.getRequest().getExtras().get(PAGE_PARAMS);
+        Elements elements = page.getHtml().getDocument().body().select("#list_content > div > div");
 
-        if(elements.isEmpty()){
+        if (elements.isEmpty()) {
             log.error("fetch error, elements is empty");
             return;
         }
 
-        List<ZGShiYouDataItem> dataItems=parseContent(elements);
+        List<ZGShiYouDataItem> dataItems = parseContent(elements);
+        String type = (String) pageParams.get("type");
+        dataItems.forEach(dataItem -> dataItem.setType(type));
+        if (!dataItems.isEmpty()) {
+            page.putField(KEY_DATA_ITEMS, "dataItems");
+        } else {
+            log.warn("fetch {} no data", page.getUrl().get());
+        }
     }
 
     @Override
     public List parseContent(Elements items) {
-        List<ZGShiYouDataItem> dataItems= Lists.newArrayList();
-        for (Element a:items){
-            String title=a.select("div.f-left > a").text();
-            String date=a.select("div.f-right").text();
-            log.debug("title=={}",title);
+        List<ZGShiYouDataItem> dataItems = Lists.newArrayList();
+        for (Element a : items) {
+            String hrefId = a.select("div.f-left > a").attr("href");
+            String title = a.select("div.f-left > a").text();
+            String information = a.select("div.f-right").text();
+            String date = StringUtils.substringAfter(information, "         ");
+            String tenderer = StringUtils.substringBefore(information, "         ");
+            if (StringUtils.isNotBlank(hrefId)) {
+                ZGShiYouDataItem zgShiYouDataItem = new ZGShiYouDataItem(hrefId);
+                zgShiYouDataItem.setTitle(title);
+                zgShiYouDataItem.setDate(date);
+                zgShiYouDataItem.setUrl(hrefId);
+                zgShiYouDataItem.setTenderer(tenderer);
+                zgShiYouDataItem.setProvince(ProvinceUtil.get(title));
 
-            log.debug("date=={}",date);
+                log.info(">>> download {}", hrefId);
+
+                HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
+                Request request = new Request(formUrl);
+                Map<String, Object> param = Maps.newHashMap();
+                param.put("documentId", StringUtils.substringBefore(StringUtils.substringAfter(hrefId, "("), ")"));
+                request.setMethod(HttpConstant.Method.POST);
+                request.setRequestBody(HttpRequestBody.form(param, "UTF-8"));
+                Page page = httpClientDownloader.download(request, SiteUtil.get().toTask());
+                String html = page.getHtml().getDocument().html();
+                Element element = page.getHtml().getDocument().body();
+                Element formatContentHtml = element.select("#wptheme_pageArea").first();
+                String formatContent = PageProcessorUtil.formatElementsByWhitelist(formatContentHtml);
+                String textContent = PageProcessorUtil.extractTextByWhitelist(formatContentHtml);
+                if (StringUtils.isNotBlank(html)) {
+                    zgShiYouDataItem.setHtml(html);
+                    zgShiYouDataItem.setFormatContent(formatContent);
+                    zgShiYouDataItem.setTextContent(textContent);
+                }
+                dataItems.add(zgShiYouDataItem);
+            }
         }
-
-        return null;
+        return dataItems;
     }
 
 

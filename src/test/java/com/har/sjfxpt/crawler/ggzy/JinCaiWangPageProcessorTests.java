@@ -29,6 +29,16 @@ public class JinCaiWangPageProcessorTests {
     JinCaiWangPipeline jinCaiWangPipeline;
 
     @Test
+    public void test() {
+        Request request = new Request("http://www.cfcpn.com/plist/caigou?pageNo=1&kflag=0&keyword=&keywordType=&province=&city=&typeOne=&ptpTwo=");
+        request.putExtra("type", "采购");
+        Spider.create(jinCaiWangPageProcessor)
+                .addRequest(request)
+                .addPipeline(jinCaiWangPipeline)
+                .run();
+    }
+
+    @Test
     public void testJinCaiWangProcessor() {
         String[] urls = {"http://www.cfcpn.com/plist/caigou?pageNo=1&kflag=0&keyword=&keywordType=&province=&city=&typeOne=&ptpTwo=",
                 "http://www.cfcpn.com/plist/zhengji?pageNo=1&kflag=0&keyword=&keywordType=&province=&city=&typeOne=&ptpTwo=",

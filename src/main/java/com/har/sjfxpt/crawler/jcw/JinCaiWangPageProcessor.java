@@ -24,6 +24,8 @@ import java.util.List;
 
 /**
  * Created by Administrator on 2017/10/24.
+ *
+ * @author luofei
  */
 @Slf4j
 @Component
@@ -100,7 +102,7 @@ public class JinCaiWangPageProcessor implements BasePageProcessor {
             long value = stringRedisTemplate.boundSetOps(KEY_URLS).add(href);
             if (value == 0L) {
                 // 重复数据
-                log.info("重复数据=={}",href);
+                log.warn("{} is duplication", href);
                 continue;
             } else {
                 log.debug("href=={}", href);
@@ -138,10 +140,10 @@ public class JinCaiWangPageProcessor implements BasePageProcessor {
                     Document document = Jsoup.connect(href).timeout(60000).userAgent(SiteUtil.get().getUserAgent()).get();
                     String html = document.html();
                     Element root = document.body().select("body > div.container-fluid.cfcpn_container_list-bg > div > div.row > div.col-lg-9.cfcpn_news_mian").first();
-                    Elements title=root.select("#news_head > p.cfcpn_news_title");
-                    String titleT=title.text();
-                    log.debug("titleT=={}",titleT);
-                    if(titleT!=null){
+                    Elements title = root.select("#news_head > p.cfcpn_news_title");
+                    String titleT = title.text();
+                    log.debug("titleT=={}", titleT);
+                    if (titleT != null) {
                         jinCaiWangDataItem.setTitle(titleT);
                     }
                     String formatContent = PageProcessorUtil.formatElementsByWhitelist(root);
@@ -150,8 +152,7 @@ public class JinCaiWangPageProcessor implements BasePageProcessor {
                     jinCaiWangDataItem.setFormatContent(formatContent);
                     jinCaiWangDataItem.setTextContent(textContent);
                 } catch (IOException e) {
-                    e.printStackTrace();
-                    log.error("",e);
+                    log.error("", e);
                 }
                 dataItemList.add(jinCaiWangDataItem);
             }

@@ -18,6 +18,7 @@ import us.codecraft.webmagic.model.HttpRequestBody;
 import us.codecraft.webmagic.scheduler.RedisScheduler;
 import us.codecraft.webmagic.utils.HttpConstant;
 
+import javax.annotation.PostConstruct;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
@@ -78,24 +79,41 @@ public class GongGongZiYuanSpiderLauncher extends BaseSpiderLauncher {
         return getRequest(params);
     }
 
+    @PostConstruct
+    public void init() {
+        for (String type : types) {
+            final String uuid = "ggzy-" + type + "-current";
+            cleanSpider(uuid);
+
+            Spider spider = getGongGongZiYuanSpider();
+            spider.addRequest(getRequest(type));
+            spider.thread(num);
+            spider.setUUID(uuid);
+
+            addSpider(spider);
+        }
+    }
+
     /**
      * 按type抓取当天的数据
      */
     public void start() {
         for (String type : types) {
-            Spider spider = getGongGongZiYuanSpider();
-            spider.addRequest(getRequest(type));
-            spider.thread(num).start();
-            spider.setUUID("ggzy-" + type + "-" + DateTime.now().toString("yyyyMMdd-HHmmss"));
-            log.info("ggzy {} spider start {}, status {}", type, spider.getStartTime(), spider.getStatus());
+            final String uuid = "ggzy-" + type + "-current";
+            start(uuid);
+            log.info("ggzy {} spider start", type);
         }
     }
 
-    public void start(String date) {
+    public void startByDate(String date) {
         for (String type : types) {
+            String uuid = "ggzy-" + type + '-' + date;
+            cleanSpider(uuid);
             Spider spider = getGongGongZiYuanSpider();
             spider.addRequest(getRequest(type, date));
-            spider.start();
+            spider.setUUID(uuid);
+
+            addSpider(spider);
         }
     }
 
@@ -113,12 +131,13 @@ public class GongGongZiYuanSpiderLauncher extends BaseSpiderLauncher {
     }
 
     public void fetchHistory(String type, String begin, String end) {
+        String uuid = "ggzy-" + type + "-history-" + begin + '-' + end;
+        cleanSpider(uuid);
+
         Spider spider = getGongGongZiYuanSpider();
         spider.addRequest(getRequest(GongGongZiYuanUtil.getPageParamsByType(type, begin, end)));
         spider.thread(num);
-        spider.start();
-
-        log.info("ggzy spider start {}, {}", new DateTime(spider.getStartTime()).toString("yyyy-MM-dd HH:mm:ss"), spider.getStatus());
+        addSpider(spider);
     }
 
     Spider getGongGongZiYuanSpider() {
@@ -127,7 +146,7 @@ public class GongGongZiYuanSpiderLauncher extends BaseSpiderLauncher {
         spider.addPipeline(context.getBean(HBasePipeline.class));
         spider.setSpiderListeners(Lists.newArrayList(context.getBean(MonitorSpiderListener.class)));
         spider.setExitWhenComplete(true);
-        addSpider(spider);
+
         return spider;
     }
 

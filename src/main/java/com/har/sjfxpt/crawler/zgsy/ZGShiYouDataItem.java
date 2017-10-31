@@ -37,6 +37,8 @@ public class ZGShiYouDataItem {
 
     private String type;
 
+    private String tenderer;
+
     @Indexed
     private String date;//发布时间
 

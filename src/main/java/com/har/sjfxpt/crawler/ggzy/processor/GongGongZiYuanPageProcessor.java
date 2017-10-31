@@ -1,7 +1,7 @@
 package com.har.sjfxpt.crawler.ggzy.processor;
 
 import com.google.common.collect.Maps;
-import com.har.sjfxpt.crawler.ggzy.downloader.PageDownloader;
+import com.har.sjfxpt.crawler.ggzy.downloader.GongGongZiYuanPageDownloader;
 import com.har.sjfxpt.crawler.ggzy.model.DataItem;
 import com.har.sjfxpt.crawler.ggzy.service.PageDataService;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
@@ -38,7 +38,7 @@ public class GongGongZiYuanPageProcessor implements BasePageProcessor {
     final String KEY_PAGE_PARAMS = "pageParams";
 
     @Autowired
-    PageDownloader pageDownloader;
+    GongGongZiYuanPageDownloader gongGongZiYuanPageDownloader;
 
     @Autowired
     PageDataService pageDataService;
@@ -95,7 +95,7 @@ public class GongGongZiYuanPageProcessor implements BasePageProcessor {
                 }
             }
 
-            pageDownloader.download(dataItem);
+            gongGongZiYuanPageDownloader.download(dataItem);
             dataItemList.add(dataItem);
         }
 

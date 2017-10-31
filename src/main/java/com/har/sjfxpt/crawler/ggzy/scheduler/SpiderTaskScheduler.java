@@ -1,10 +1,13 @@
 package com.har.sjfxpt.crawler.ggzy.scheduler;
 
+import com.har.sjfxpt.crawler.SpiderLauncher;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
+import com.har.sjfxpt.crawler.jcw.JinCaiWangSpiderLauncher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -17,13 +20,16 @@ import org.springframework.stereotype.Component;
 @Profile({"prod"})
 public class SpiderTaskScheduler {
 
-    @Value("${app.fetch.current.day:false}") boolean flag;
+    @Value("${app.fetch.current.day:false}")
+    boolean flag;
 
     @Autowired
-    GongGongZiYuanSpiderLauncher gongGongZiYuanSpiderLauncher;
+    ApplicationContext context;
 
-    @Autowired
-    ChinaMobileSpiderLauncher chinaMobileSpiderLauncher;
+    @Scheduled(initialDelay = 10000, fixedRate = 60 * 1000)
+    public void monitor() {
+        context.getBean(SpiderLauncher.class).info();
+    }
 
     /**
      * 启动后10秒执行，5分钟一次
@@ -31,8 +37,8 @@ public class SpiderTaskScheduler {
     @Scheduled(initialDelay = 10000, fixedRate = 5 * 60 * 1000)
     public void fetchCurrentDay() {
         if (flag) {
-            log.info(">>> start fetch ggzy");
-            gongGongZiYuanSpiderLauncher.start();
+            log.info(">>> start fetch gong gong zi yuan");
+            context.getBean(GongGongZiYuanSpiderLauncher.class).start();
         }
     }
 
@@ -43,7 +49,18 @@ public class SpiderTaskScheduler {
     public void fetchCurrentDay4CM() {
         if (flag) {
             log.info(">>> start fetch china mobile");
-            chinaMobileSpiderLauncher.start();
+            context.getBean(ChinaMobileSpiderLauncher.class).start();
+        }
+    }
+
+    /**
+     * 由于金采网每日更新数据很少，所以抓取频率按小时规划，分别在9点，12点，17点执行一次
+     */
+    @Scheduled(cron = "0 0 9,12,17 * * *")
+    public void fetchJinCaiWang() {
+        if (flag) {
+            log.info(">>> start fetch jin cai wang");
+            context.getBean(JinCaiWangSpiderLauncher.class).start();
         }
     }
 }

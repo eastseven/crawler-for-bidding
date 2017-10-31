@@ -113,7 +113,9 @@ public class DataItemService {
             }
         }
 
-        log.info("hbase save {}", counter);
+        if (counter > 0) {
+            log.info("{} hbase save {}", current, counter);
+        }
     }
 
     private List<Put> assemble(List<DataItem> dataItemList) throws UnsupportedEncodingException {

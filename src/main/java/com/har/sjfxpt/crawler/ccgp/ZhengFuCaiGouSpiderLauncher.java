@@ -8,9 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
-import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.proxy.SimpleProxyProvider;
 
+import javax.annotation.PostConstruct;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Arrays;
@@ -43,41 +43,18 @@ public class ZhengFuCaiGouSpiderLauncher extends BaseSpiderLauncher {
     @Autowired
     ZhengFuCaiGouPipeline pipeline;
 
-    public void test() {
-        DateTime df = DateTime.now().minusDays(1);
-        int day = 30;
-        for (int index = 0; index < day; index++) {
-            final int days = index;
-            executorService.execute(() -> {
+    Spider spider;
 
-                String dateText = df.minusDays(days).toString("yyyy:MM:dd");
-                String date = null;
-                try {
-                    date = URLEncoder.encode(dateText, "utf-8");
-                } catch (UnsupportedEncodingException e) {
-                    log.error("", e);
-                }
-                PageData pageData = new PageData();
-                pageData.setDate(dateText);
-
-                String url = "http://search.ccgp.gov.cn/bxsearch?searchtype=1&bidSort=&buyerName=&projectId=&pinMu=&bidType=&dbselect=bidx&kw=&timeType=6&displayZone=&zoneId=&pppStatus=0&agentName=";
-                String params = "&start_time=" + date + "&end_time=" + date + "&page_index=1";
-                url = url + params;
-                Request request = new Request(url);
-                pageData.setUrl(url);
-                request.putExtra(PageData.class.getSimpleName(), pageData);
-
-                Spider spider = Spider.create(pageDataProcessor);
-                HttpClientDownloader downloader = new HttpClientDownloader();
-                downloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getValidProxy()));
-                spider.setDownloader(downloader);
-                spider.addRequest(request);
-                spider.runAsync();
-            });
-        }
+    public Spider getSpider() {
+        return spider;
     }
 
-    public void start() {
+    final String uuid = "ccgp-current";
+
+    @PostConstruct
+    public void init() {
+        cleanSpider(uuid);
+
         DateTime dt = DateTime.now();
         PageData pageData = new PageData();
         pageData.setDate(dt.toString("yyyy:MM:dd"));
@@ -94,7 +71,7 @@ public class ZhengFuCaiGouSpiderLauncher extends BaseSpiderLauncher {
         pageData.setUrl(url);
         request.putExtra(PageData.class.getSimpleName(), pageData);
 
-        Spider spider = Spider.create(pageProcessor).addPipeline(pipeline);
+        spider = Spider.create(pageProcessor).addPipeline(pipeline);
 
         downloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
         spider.setDownloader(downloader);
@@ -102,9 +79,13 @@ public class ZhengFuCaiGouSpiderLauncher extends BaseSpiderLauncher {
 
         spider.setExitWhenComplete(true);
         spider.addRequest(request);
-        spider.start();
+        spider.setUUID(uuid);
 
         addSpider(spider);
+    }
+
+    public void start() {
+        start(uuid);
     }
 
     public void history() {

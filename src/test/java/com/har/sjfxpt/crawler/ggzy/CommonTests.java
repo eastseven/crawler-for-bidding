@@ -20,6 +20,14 @@ import java.util.regex.Pattern;
 public class CommonTests {
 
     @Test
+    public void testPageProcessorUtil() {
+        String text = "发布时间：2017-10-30 10:03:36";
+        String result = PageProcessorUtil.dataTxt(text);
+        Assert.assertNotNull(result);
+        log.debug("{}, {}", text, result);
+    }
+
+    @Test
     public void test() {
         String text = "递交时间：2017-10-23 15:10";
         Matcher m = Pattern.compile("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}").matcher(text);
