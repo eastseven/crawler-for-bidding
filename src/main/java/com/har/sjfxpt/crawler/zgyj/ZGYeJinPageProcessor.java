@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
@@ -17,7 +18,6 @@ import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.model.HttpRequestBody;
 import us.codecraft.webmagic.utils.HttpConstant;
-import org.jsoup.nodes.Element;
 
 import java.io.IOException;
 import java.util.List;
@@ -105,8 +105,8 @@ public class ZGYeJinPageProcessor implements BasePageProcessor {
                     Document document = Jsoup.connect(url).timeout(60000).userAgent(SiteUtil.get().getUserAgent()).get();
                     String html = document.html();
                     Element root = document.body().select("body > div.main-news").first();
-                    String formatContent = PageProcessorUtil.formatElements(root);
-                    String textContent = PageProcessorUtil.extractText(root);
+                    String formatContent = PageProcessorUtil.formatElementsByWhitelist(root);
+                    String textContent = PageProcessorUtil.extractTextByWhitelist(root);
 
                     zgYeJinDataItem.setHtml(html);
                     zgYeJinDataItem.setFormatContent(formatContent);
