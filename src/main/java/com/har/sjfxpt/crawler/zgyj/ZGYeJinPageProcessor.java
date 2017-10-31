@@ -112,8 +112,7 @@ public class ZGYeJinPageProcessor implements BasePageProcessor {
                     zgYeJinDataItem.setFormatContent(formatContent);
                     zgYeJinDataItem.setTextContent(textContent);
                 } catch (IOException e) {
-                    e.printStackTrace();
-                    log.error("", e);
+                    log.error("page download failed!", e);
                 }
                 dataItems.add(zgYeJinDataItem);
             }

@@ -4,6 +4,7 @@ import com.har.sjfxpt.crawler.ccgp.ZhengFuCaiGouSpiderLauncher;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
 import com.har.sjfxpt.crawler.jcw.JinCaiWangSpiderLauncher;
+import com.har.sjfxpt.crawler.zgyj.ZGYeJinSpiderLauncher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -43,6 +44,9 @@ public class SpiderLauncher implements CommandLineRunner {
         jinCaiWangSpiderLauncher.printInfo();
     }
 
+    @Autowired
+    ZGYeJinSpiderLauncher zgYeJinSpiderLauncher;
+
     @Override
     public void run(String... args) throws Exception {
         log.info("{}", Arrays.toString(args));
@@ -69,6 +73,11 @@ public class SpiderLauncher implements CommandLineRunner {
                 case "start-jcw":
                     jinCaiWangSpiderLauncher.start();
                     break;
+                case "start-zgyj":
+                    zgYeJinSpiderLauncher.start();
+                    break;
+                case "history-zgyj":
+                    zgYeJinSpiderLauncher.fetchHistory();
                 default:
                     break;
             }
