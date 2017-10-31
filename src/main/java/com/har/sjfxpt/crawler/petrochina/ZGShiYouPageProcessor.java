@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
@@ -30,9 +32,14 @@ import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_
 @Component
 public class ZGShiYouPageProcessor implements BasePageProcessor {
 
+    @Autowired
+    StringRedisTemplate stringRedisTemplate;
+
     HttpClientDownloader httpClientDownloader;
 
     final static String PAGE_PARAMS = "pageParams";
+
+    final static String KEY_URLS = "petrochina";
 
     final static String formUrl = "http://eportal.energyahead.com/wps/portal/ebid/!ut/p/c5/hY3LdoIwEEC_xQ_wJGgCdRkRgjwKCGJg4wnWglBelofy9cWebrUzyztzL4jAtCXvLwlvL1XJvwADkXgkKywTX9QNjF0Mt9pm_-aKsmDYeOLhU44C9M_34dF7fgHhS_7rf3D4ZAgE71pVnEEIImmyLP8s5mqy-ObOsX20pBoCPmAQHb0M1pb5XVrjynZ8JW-902hB92zUtlt-zXmB6wDVXarRNI-LtAupnZWH2r2SRPbaYO2-7gjSo8PCQZIrMiiEOShRcwUeoMrvbUyN5c3Za_eQoyz-ZI3OhiIt6PpuW5wG2WYeJpnG1cWwOzX0NASumW4qRlTlyrogwk1kfxiU7HeCRHQdZZ0wL8um39pCHo35uhfVfOGNC_FmoLqXWLSOw1xOrBmoCwYvTnrFFZn9AIuHl4s!/dl3/d3/L0lDU0dabVppbW1BIS9JTFNBQ0l3a0FnUWlRQ0NLSkFJRVlrQWdUaVFDQ0JKQUlJbFNRQ0FKMkZEUS80QzFiOFVBZy83X0E5M0NBVDZKSzVMOTUwSVRMUlBPVDQzRzE3L2RldGFpbA!!/";
 
@@ -45,7 +52,7 @@ public class ZGShiYouPageProcessor implements BasePageProcessor {
 
     @Override
     public Site getSite() {
-        httpClientDownloader= new HttpClientDownloader();
+        httpClientDownloader = new HttpClientDownloader();
         return SiteUtil.get();
     }
 
@@ -100,16 +107,20 @@ public class ZGShiYouPageProcessor implements BasePageProcessor {
             if (hrefId.contains("#")) {
                 continue;
             } else {
-                String title = a.select("div.f-left > a").text();
-                String information = a.select("div.f-right").text();
-                String date = StringUtils.substringAfter(information, "         ");
-                String tenderer = a.select("div.f-right").attr("title");
-                String id = StringUtils.substringBefore(StringUtils.substringAfter(hrefId, "("), ")");
-                if (StringUtils.isNotBlank(hrefId)) {
+                String id = StringUtils.substringBetween(hrefId, "(", ")");
+                long value = stringRedisTemplate.boundSetOps(KEY_URLS).add(id);
+                if (value==0L) {
+                    log.warn("{} is duplication", id);
+                    continue;
+                } else{
+                    String title = a.select("div.f-left > a").text();
+                    String information = a.select("div.f-right").text();
+                    String date = StringUtils.substringAfter(information, "         ");
+                    String tenderer = a.select("div.f-right").attr("title");
+
                     ZGShiYouDataItem zgShiYouDataItem = new ZGShiYouDataItem(id);
                     zgShiYouDataItem.setTitle(title);
                     zgShiYouDataItem.setDate(date);
-                    zgShiYouDataItem.setUrl(id);
                     zgShiYouDataItem.setTenderer(tenderer);
                     zgShiYouDataItem.setProvince(ProvinceUtil.get(title));
 
@@ -139,16 +150,16 @@ public class ZGShiYouPageProcessor implements BasePageProcessor {
         return dataItems;
     }
 
-    public String formatText(String textContent){
-        String[] removeText={
+    public String formatText(String textContent) {
+        String[] removeText = {
                 "/wps/contenthandler/ebid/!ut/p/digest!mNxE8R0tr4bpN964Me4g1g/pm/oid:--portletwindowid--@oid:6_A95CAT6JK55Q50IHDU8Q6C1KO5",
                 "/wps/contenthandler/ebid/!ut/p/digest!mNxE8R0tr4bpN964Me4g1g/um/secure/currentuser/profile?expandRefs=true",
                 "首页 &gt;&gt; 公开招标公告 &gt;&gt; 详细信息",
                 "                                 "
         };
-        for (int i=0;i<removeText.length;i++){
-            if(textContent.contains(removeText[i])){
-                textContent=textContent.replace(removeText[i],"");
+        for (int i = 0; i < removeText.length; i++) {
+            if (textContent.contains(removeText[i])) {
+                textContent = textContent.replace(removeText[i], "");
             }
         }
         return textContent;
