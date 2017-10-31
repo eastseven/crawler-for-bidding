@@ -1,6 +1,7 @@
 package com.har.sjfxpt.crawler.petrochina;
 
 import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
+import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
 import lombok.Data;
 import lombok.ToString;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -33,14 +34,23 @@ public class ZGShiYouDataItem {
 
     private Date createTime=DateTime.now().toDate();
 
-    private String province="全国";//地区
+    /**
+     * 地区
+     */
+    private String province="全国";
 
     private String type;
 
+    /**
+     * 投标人
+     */
     private String tenderer;
 
+    /**
+     * 发布时间
+     */
     @Indexed
-    private String date;//发布时间
+    private String date;
 
     @Indexed
     private String title;
@@ -57,8 +67,8 @@ public class ZGShiYouDataItem {
     public DataItemDTO dto(){
         DataItemDTO dto=new DataItemDTO();
         BeanUtils.copyProperties(this,dto);
-        dto.setSource("中国石油");
-        dto.setSourceCode("ZGSY");
+        dto.setSource(SourceCode.ZSY.getValue());
+        dto.setSourceCode(SourceCode.ZSY.toString());
         DateTime ct=new DateTime(this.getCreateTime());
         dto.setCreateTime(ct.toString("yyyyMMddHH"));
         if (StringUtils.isBlank(date)) {
