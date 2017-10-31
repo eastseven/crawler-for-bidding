@@ -109,10 +109,10 @@ public class ZGShiYouPageProcessor implements BasePageProcessor {
             } else {
                 String id = StringUtils.substringBetween(hrefId, "(", ")");
                 long value = stringRedisTemplate.boundSetOps(KEY_URLS).add(id);
-                if (value==0L) {
+                if (value == 0L) {
                     log.warn("{} is duplication", id);
                     continue;
-                } else{
+                } else {
                     String title = a.select("div.f-left > a").text();
                     String information = a.select("div.f-right").text();
                     String date = StringUtils.substringAfter(information, "         ");
