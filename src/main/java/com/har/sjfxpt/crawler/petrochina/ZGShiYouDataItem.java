@@ -1,4 +1,4 @@
-package com.har.sjfxpt.crawler.zgsy;
+package com.har.sjfxpt.crawler.petrochina;
 
 import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
 import lombok.Data;
@@ -19,7 +19,7 @@ import java.util.Date;
  */
 @Data
 @ToString
-@Document(collection = "data_item_zhong_guo_shi_you")
+@Document(collection = "data_item_petrochina")
 public class ZGShiYouDataItem {
 
     public ZGShiYouDataItem(String url) {
@@ -31,7 +31,7 @@ public class ZGShiYouDataItem {
 
     private String url;
 
-    private Date createTime=new Date();
+    private Date createTime=DateTime.now().toDate();
 
     private String province="全国";//地区
 

@@ -1,10 +1,10 @@
 package com.har.sjfxpt.crawler.ggzy;
 
 import com.google.common.collect.Maps;
-import com.har.sjfxpt.crawler.zgsy.ZGShiYouPageProcessor;
-import com.har.sjfxpt.crawler.zgsy.ZGShiYouPipeline;
+import com.har.sjfxpt.crawler.petrochina.ZGShiYouPageProcessor;
+import com.har.sjfxpt.crawler.petrochina.ZGShiYouPipeline;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
+import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,33 +34,74 @@ public class ZGShiYouPageProcessorTests {
 
     String[] urls = {
             "http://eportal.energyahead.com/wps/portal/ebid/!ut/p/c5/hY7JkqpAEEW_xQ8gKKCYlgjIJKOAUBsDlEEREOSB5dc33dFb-2WuMk7myUsicu0um69VNl37LruTCYm4kySyshRypsWyPgsMXYkEn5Mpy2VXnn7kMIb_uT5-__u8AcCf_Mf_zcGHkgDp6H1bkCmJ-NXC_Fr24moJ94HnhpDRdEiGZJKc-5cM7UU18jqh_XlIHZoX8QPzbWSwXOp3Rq2PIUEwgxEZwVwEAqFpctXvVAxtM1oWnM9WlsK3WcZPJS8ZYVseiep8vdwXa34nhXMBzBg2_hSHaImBPgxNA0-I4oZZ6fozpgWdd3rFwxUyGU6cbt32RRwOC9z8nZ_if_KnCy_30qJKiQerXaNiGuwyPOWaxby8SMdpBm95mQTyXDuhbSs4S4E9uvrzZWou0G5LC8FzW12kfa33iRSrPfOI0b0rKFvKbChURisEe3QKh3jERom0oyCNdI3EZlKK6vCPzwmqjpi3C1AvbTbko03A1atHdp2-ALdev00!/dl3/d3/L3dDbzIyMkEhL0lKU0FDSXdrQWdRaVFDQ0tKQUlFWWtBZ1RpUUNDQkpBSUlBIS9ZQzZfd0EhIS83X0E5M0NBVDZKSzVMOTUwSVRMUlBPVDQzRzE3/",
-            "http://eportal.energyahead.com/wps/portal/ebid/!ut/p/c5/pY7JkqowGEafpR-gK4Ah6DIoEAFlkCFhYwUnlIsMpQw-fUPXXdxN24v7_8tT56sDEjD-nbfXC39cyzv_AyhI0B4v5CUOkGkFW6IJaxL5O0-VZ5Iljpz9w2XZk0e-CuceWoowgv9hW4Lwix1Pte_9N_y7buLCD4cFsCVlcQIMJMq4Mvu7Yi_GlcD2XSeAM4NAEADqs7xflrhbadSFl3xADq4dchx4evBKMSlDaR2naK9f2iVZLBDBmJhlEXQ6cnc4nldPexPMtU2U98W2i46nJ1c5LIZzOjTVGbbWEAc2jZo1qwhjvD71jfxAGcx2zIDv-0Rl6qOsU6Y-DU99eq51sajz4ZEa1qx3QzIwDm_pmdYm7YqsMNTB2XAjuq0-2eVGuC51_qE2Dl3k2dmqpFjXGvqMErlOnKNl4NAXFWya8PYUP-_3ul07Yp68crVFei7tXhLqLVi1Ck1UGvd7-fABqiKkwtXNGrn8-AJyC_Fj/dl3/d3/L2dJQSEvUUt3QS9ZQnZ3LzZfQTk1Q0FUNkpLVE5IRTBJSFZSU1FCNTMySzE!/",
-            "http://eportal.energyahead.com/wps/portal/ebid/!ut/p/c5/pY7JkqowGEafpR-gK4Ah6DIoEAFlkCFhYwUnlIsMpQw-fUPXXdxN24v7_8tT56sDEjD-nbfXC39cyzv_AyhI0B4v5CUOkGkFW6IJaxL5O0-VZ5Iljpz9w2XZk0e-CuceWoowgv9hW4Lwix1Pte_9N_y7buLCD4cFsCVlcQIMJMq4Mvu7Yi_GlcD2XSeAM4NAEADqs7xflrhbadSFl3xADq4dchx4evBKMSlDaR2naK9f2iVZLBDBmJhlEXQ6cnc4nldPexPMtU2U98W2i46nJ1c5LIZzOjTVGbbWEAc2jZo1qwhjvD71jfxAGcx2zIDv-0Rl6qOsU6Y-DU99eq51sajz4ZEa1qx3QzIwDm_pmdYm7YqsMNTB2XAjuq0-2eVGuC51_qE2Dl3k2dmqpFjXGvqMErlOnKNl4NAXFWya8PYUP-_3ul07Yp68crVFei7tXhLqLVi1Ck1UGvd7-fABqiKkwtXNGrn8-AJyC_Fj/dl3/d3/L2dJQSEvUUt3QS9ZQnZ3LzZfQTk1Q0FUNkpLNTVRNTBJSERVOFE2QzFLRzI!/",
+            "http://eportal.energyahead.com/wps/portal/ebid/!ut/p/c5/pY7JcoJAFEW_xQ-wuoFmcInI2KJgIAwbqyERkEFBENqvj6SyjVnkveWpc-uAGDy_IfciI31xaUgFQhALR3nFK7InWJjnXR6axsaXXEFhsM4-efQrR-_oHzaG8A87mGtf-y_4d93M4S8nQ7AzLvUniEAsPle4n5Xt6rnibQ_O3kOcbiDggfAQlZNykceNGjooK5Why_DjyqRswantOiSVddZYdphM55HfT2nuqgrF60aaSA5H7YbFYVRP2lGL1fgsWe_hti2C_e7e1LATOMGidl_RaiI0UA5sjdsmDYpkyD5csynF132MOPeF0SjOfao892mlSlmoEdonOuYmxzdoRNA5STn_7Z7vPNveUBJBu9sbt8nS91Cn7iElgTxWKSo5vHPNNkj8dqCnYbJlYiMpM2tp2sZHr2NOqr-k9hWtw-vmIVqJ3q-rj5pbdW_9QJcr5iwvFuBa-yEsnLzjL4svc7U7YQ!!/dl3/d3/L0lDU0NTQ1FvS1VRIS9JSFNBQ0lLRURNeW01dXBnLzRDMWI4SWtmb2lUSmVLQVEvN19BOTNDQVQ2Sks1TDk1MElUTFJQT1Q0M0dINi9zZWFyY2g!/",
     };
 
     //爬去当日的数据
     @Test
     public void testzgShiYouPageProcessor() {
 
-        String url = "http://eportal.energyahead.com/wps/portal/ebid/!ut/p/c5/hY7JkqpAEEW_xQ8gKKCYlgjIJKOAUBsDlEEREOSB5dc33dFb-2WuMk7myUsicu0um69VNl37LruTCYm4kySyshRypsWyPgsMXYkEn5Mpy2VXnn7kMIb_uT5-__u8AcCf_Mf_zcGHkgDp6H1bkCmJ-NXC_Fr24moJ94HnhpDRdEiGZJKc-5cM7UU18jqh_XlIHZoX8QPzbWSwXOp3Rq2PIUEwgxEZwVwEAqFpctXvVAxtM1oWnM9WlsK3WcZPJS8ZYVseiep8vdwXa34nhXMBzBg2_hSHaImBPgxNA0-I4oZZ6fozpgWdd3rFwxUyGU6cbt32RRwOC9z8nZ_if_KnCy_30qJKiQerXaNiGuwyPOWaxby8SMdpBm95mQTyXDuhbSs4S4E9uvrzZWou0G5LC8FzW12kfa33iRSrPfOI0b0rKFvKbChURisEe3QKh3jERom0oyCNdI3EZlKK6vCPzwmqjpi3C1AvbTbko03A1atHdp2-ALdev00!/dl3/d3/L3dDbzIyMkEhL0lKU0FDSXdrQWdRaVFDQ0tKQUlFWWtBZ1RpUUNDQkpBSUlBIS9ZQzZfd0EhIS83X0E5M0NBVDZKSzVMOTUwSVRMUlBPVDQzRzE3/";
+        Request[] requests = new Request[urls.length];
+
+        String dateBegin = DateTime.now().toString("yyyy-MM-dd");
+        String dateEnd = DateTime.now().plusDays(1).toString("yyyy-MM-dd");
+
+        log.info("dateBegin={}", dateBegin);
+        log.info("dateEnd={}", dateEnd);
+
+        for (int i = 0; i < urls.length; i++) {
+            requests[i] = requestGenerator(urls[i], dateBegin, dateEnd);
+        }
+
+        Spider.create(zgShiYouPageProcessor)
+                .addPipeline(zgShiYouPipeline)
+                .addRequest(requests)
+                .thread(8)
+                .run();
+    }
+
+    //爬去历史的数据
+    @Test
+    public void fetchHistory() {
+
+        Request[] requests = new Request[urls.length];
+
+        String dateBegin = "2013-01-01";
+        String dateEnd = DateTime.now().minusDays(1).toString("yyyy-MM-dd");
+
+        for (int i = 0; i < urls.length; i++) {
+            requests[i] = requestGenerator(urls[i], dateBegin, dateEnd);
+        }
+
+        Spider.create(zgShiYouPageProcessor)
+                .addPipeline(zgShiYouPipeline)
+                .addRequest(requests)
+                .thread(8)
+                .run();
+    }
+
+
+    //生成request
+    public Request requestGenerator(String url, String dateBegin, String dateEnd) {
+        Request request = new Request(url);
         Map<String, Object> params = Maps.newHashMap();
         params.put("department", "");
         params.put("noticeName", "");
         params.put("projectType", "");
-        params.put("fromDate", "2017-10-30");
-        params.put("toDate", "2017-10-31");
+        params.put("fromDate", dateBegin);
+        params.put("toDate", dateEnd);
         params.put("pageNo", 1);
-        params.put("type", "公开招标公告");
+        if (url.contains("L3dDbzIyMkEhL0lKU0FDSXdrQWdRaVFDQ0tKQUlFWWtBZ1RpUUNDQkpBSUlBIS9ZQzZfd0EhIS83X0E5M0NBVDZKSzVMOTUwSVRMUlBPVDQzRzE3")) {
+            params.put("type", "公开招标公告");
+        }
+        if (url.contains("L0lDU0NTQ1FvS1VRIS9JSFNBQ0lLRURNeW01dXBnLzRDMWI4SWtmb2lUSmVLQVEvN19BOTNDQVQ2Sks1TDk1MElUTFJQT1Q0M0dINi9zZWFyY2g")) {
+            params.put("type", "资格预审公告");
+        }
 
-        Request request = new Request(url);
         request.setMethod(HttpConstant.Method.POST);
         request.setRequestBody(HttpRequestBody.form(params, "UTF-8"));
         request.putExtra("pageParams", params);
-
-        Spider.create(zgShiYouPageProcessor)
-                .addPipeline(zgShiYouPipeline)
-                .addRequest(request)
-                .run();
+        return request;
     }
 
 }

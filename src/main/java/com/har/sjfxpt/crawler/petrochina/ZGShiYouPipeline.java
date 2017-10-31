@@ -1,8 +1,7 @@
-package com.har.sjfxpt.crawler.zgsy;
+package com.har.sjfxpt.crawler.petrochina;
 
 import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
 import com.har.sjfxpt.crawler.ggzy.service.DataItemService;
-import com.har.sjfxpt.crawler.zgyj.ZGYeJinDataItem;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -32,13 +31,13 @@ public class ZGShiYouPipeline implements Pipeline{
     public void process(ResultItems resultItems, Task task) {
         List<ZGShiYouDataItem> dataItemList=resultItems.get(KEY_DATA_ITEMS);
         if(org.springframework.util.CollectionUtils.isEmpty(dataItemList)){
-            log.warn("jincaiwang save nothing,{}",task.getSite());
+            log.warn("zhongguoshiyou save nothing,{}",task.getSite());
         }else {
            zgShiYouDataItemRepository.save(dataItemList);
-            log.info("jincaiwang save {} to mongodb",dataItemList.size());
+            log.info("zhongguoshiyou save {} to mongodb",dataItemList.size());
 
-//            List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
-//            dataItemService.save2BidNewsOriginalTable(dtoList);
+            List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
+            dataItemService.save2BidNewsOriginalTable(dtoList);
         }
     }
 }

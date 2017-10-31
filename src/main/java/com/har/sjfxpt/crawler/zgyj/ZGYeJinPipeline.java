@@ -31,10 +31,10 @@ public class ZGYeJinPipeline implements Pipeline{
     public void process(ResultItems resultItems, Task task) {
         List<ZGYeJinDataItem> dataItemList=resultItems.get(KEY_DATA_ITEMS);
         if(org.springframework.util.CollectionUtils.isEmpty(dataItemList)){
-            log.warn("jincaiwang save nothing,{}",task.getSite());
+            log.warn("zhongguoyejin save nothing,{}",task.getSite());
         }else {
             zgYeJinDataItemRepository.save(dataItemList);
-            log.info("jincaiwang save {} to mongodb",dataItemList.size());
+            log.info("zhongguoyejin save {} to mongodb",dataItemList.size());
 
 //            List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
 //            dataItemService.save2BidNewsOriginalTable(dtoList);

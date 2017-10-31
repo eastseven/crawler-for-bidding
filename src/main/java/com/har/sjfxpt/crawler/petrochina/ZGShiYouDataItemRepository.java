@@ -1,4 +1,4 @@
-package com.har.sjfxpt.crawler.zgsy;
+package com.har.sjfxpt.crawler.petrochina;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 

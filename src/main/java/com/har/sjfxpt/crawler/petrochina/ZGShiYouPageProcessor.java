@@ -1,4 +1,4 @@
-package com.har.sjfxpt.crawler.zgsy;
+package com.har.sjfxpt.crawler.petrochina;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -83,7 +83,7 @@ public class ZGShiYouPageProcessor implements BasePageProcessor {
         String type = (String) pageParams.get("type");
         dataItems.forEach(dataItem -> dataItem.setType(type));
         if (!dataItems.isEmpty()) {
-            page.putField(KEY_DATA_ITEMS, "dataItems");
+            page.putField(KEY_DATA_ITEMS, dataItems);
         } else {
             log.warn("fetch {} no data", page.getUrl().get());
         }
@@ -94,39 +94,46 @@ public class ZGShiYouPageProcessor implements BasePageProcessor {
         List<ZGShiYouDataItem> dataItems = Lists.newArrayList();
         for (Element a : items) {
             String hrefId = a.select("div.f-left > a").attr("href");
-            String title = a.select("div.f-left > a").text();
-            String information = a.select("div.f-right").text();
-            String date = StringUtils.substringAfter(information, "         ");
-            String tenderer = StringUtils.substringBefore(information, "         ");
-            if (StringUtils.isNotBlank(hrefId)) {
-                ZGShiYouDataItem zgShiYouDataItem = new ZGShiYouDataItem(hrefId);
-                zgShiYouDataItem.setTitle(title);
-                zgShiYouDataItem.setDate(date);
-                zgShiYouDataItem.setUrl(hrefId);
-                zgShiYouDataItem.setTenderer(tenderer);
-                zgShiYouDataItem.setProvince(ProvinceUtil.get(title));
+            if (hrefId.contains("#")) {
+                continue;
+            } else {
+                String title = a.select("div.f-left > a").text();
+                String information = a.select("div.f-right").text();
+                String date = StringUtils.substringAfter(information, "         ");
+                String tenderer = a.select("div.f-right").attr("title");
+                String id = StringUtils.substringBefore(StringUtils.substringAfter(hrefId, "("), ")");
+                if (StringUtils.isNotBlank(hrefId)) {
+                    ZGShiYouDataItem zgShiYouDataItem = new ZGShiYouDataItem(id);
+                    zgShiYouDataItem.setTitle(title);
+                    zgShiYouDataItem.setDate(date);
+                    zgShiYouDataItem.setUrl(id);
+                    zgShiYouDataItem.setTenderer(tenderer);
+                    zgShiYouDataItem.setProvince(ProvinceUtil.get(title));
 
-                log.info(">>> download {}", hrefId);
 
-                HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
-                Request request = new Request(formUrl);
-                Map<String, Object> param = Maps.newHashMap();
-                param.put("documentId", StringUtils.substringBefore(StringUtils.substringAfter(hrefId, "("), ")"));
-                request.setMethod(HttpConstant.Method.POST);
-                request.setRequestBody(HttpRequestBody.form(param, "UTF-8"));
-                Page page = httpClientDownloader.download(request, SiteUtil.get().toTask());
-                String html = page.getHtml().getDocument().html();
-                Element element = page.getHtml().getDocument().body();
-                Element formatContentHtml = element.select("#wptheme_pageArea").first();
-                String formatContent = PageProcessorUtil.formatElementsByWhitelist(formatContentHtml);
-                String textContent = PageProcessorUtil.extractTextByWhitelist(formatContentHtml);
-                if (StringUtils.isNotBlank(html)) {
-                    zgShiYouDataItem.setHtml(html);
-                    zgShiYouDataItem.setFormatContent(formatContent);
-                    zgShiYouDataItem.setTextContent(textContent);
+                    HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
+                    Request request = new Request(formUrl);
+                    Map<String, Object> param = Maps.newHashMap();
+
+                    param.put("documentId", id);
+                    log.info(">>> downloadid {}", id);
+                    request.setMethod(HttpConstant.Method.POST);
+                    request.setRequestBody(HttpRequestBody.form(param, "UTF-8"));
+                    Page page = httpClientDownloader.download(request, SiteUtil.get().toTask());
+                    String html = page.getHtml().getDocument().html();
+                    Element element = page.getHtml().getDocument().body();
+                    Element formatContentHtml = element.select("#wptheme_pageArea").first();
+                    String formatContent = PageProcessorUtil.formatElementsByWhitelist(formatContentHtml);
+                    String textContent = PageProcessorUtil.extractTextByWhitelist(formatContentHtml);
+                    if (StringUtils.isNotBlank(html)) {
+                        zgShiYouDataItem.setHtml(html);
+                        zgShiYouDataItem.setFormatContent(formatContent);
+                        zgShiYouDataItem.setTextContent(textContent);
+                    }
+                    dataItems.add(zgShiYouDataItem);
                 }
-                dataItems.add(zgShiYouDataItem);
             }
+
         }
         return dataItems;
     }
