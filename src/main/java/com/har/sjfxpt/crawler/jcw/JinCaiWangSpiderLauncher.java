@@ -6,8 +6,6 @@ import org.springframework.stereotype.Service;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 
-import javax.annotation.PostConstruct;
-
 /**
  * Created on 2017/10/26.
  *
@@ -31,7 +29,6 @@ public class JinCaiWangSpiderLauncher extends BaseSpiderLauncher {
             "http://www.cfcpn.com/plist/biangeng?pageNo=1&kflag=0&keyword=&keywordType=&province=&city=&typeOne=&ptpTwo="
     };
 
-    @PostConstruct
     public void init() {
         for (String url : urls) {
             Request request = new Request(url);
@@ -67,6 +64,7 @@ public class JinCaiWangSpiderLauncher extends BaseSpiderLauncher {
     }
 
     public void start() {
+        init();
         for (String url : urls) {
             String uuid = "jcw-";
             if (url.contains("caigou")) {

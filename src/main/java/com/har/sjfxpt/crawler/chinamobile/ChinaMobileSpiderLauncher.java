@@ -11,7 +11,6 @@ import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.model.HttpRequestBody;
 import us.codecraft.webmagic.utils.HttpConstant;
 
-import javax.annotation.PostConstruct;
 import java.util.Map;
 
 import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanUtil.YYYYMMDD;
@@ -42,7 +41,6 @@ public class ChinaMobileSpiderLauncher extends BaseSpiderLauncher {
 
     final int num = Runtime.getRuntime().availableProcessors();
 
-    @PostConstruct
     public void init() {
         for (int type : types) {
             final String uuid = "cm-" + type + "-current";
@@ -59,6 +57,7 @@ public class ChinaMobileSpiderLauncher extends BaseSpiderLauncher {
     }
 
     public void start() {
+        init();
         for (int type : types) {
             final String uuid = "cm-" + type + "-current";
             start(uuid);

@@ -15,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.SimpleHttpClient;
-import us.codecraft.webmagic.proxy.SimpleProxyProvider;
 
 import javax.annotation.PostConstruct;
 import java.util.concurrent.ExecutorService;
@@ -43,7 +42,7 @@ public class GongGongZiYuanPageDownloader {
     @PostConstruct
     public void init() {
         simpleHttpClient = new SimpleHttpClient(SiteUtil.get().setTimeOut(60000).setSleepTime(123));
-        simpleHttpClient.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
+        //simpleHttpClient.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
     }
 
     private Document getDocument(String url) {
@@ -70,6 +69,10 @@ public class GongGongZiYuanPageDownloader {
 
             html = document.html();
             dataItem.setHtml(html);
+
+            if (document.body().select("#mycontent").isEmpty()) {
+                throw new Exception(dataItem.getUrl() + " can not access, maybe 403 or 404...");
+            }
 
             Element content = document.body().select("#mycontent").first();
             boolean hasIframeTag = !content.getElementsByTag("iframe").isEmpty();

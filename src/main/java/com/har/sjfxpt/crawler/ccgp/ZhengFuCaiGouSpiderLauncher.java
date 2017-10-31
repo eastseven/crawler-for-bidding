@@ -12,7 +12,6 @@ import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.proxy.SimpleProxyProvider;
 
-import javax.annotation.PostConstruct;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Arrays;
@@ -60,7 +59,6 @@ public class ZhengFuCaiGouSpiderLauncher extends BaseSpiderLauncher {
 
     final String DATE_PATTERN = "yyyy:MM:dd";
 
-    @PostConstruct
     public void init() {
         cleanSpider(uuid);
 
@@ -95,6 +93,7 @@ public class ZhengFuCaiGouSpiderLauncher extends BaseSpiderLauncher {
     }
 
     public void start() {
+        init();
         start(uuid);
     }
 
