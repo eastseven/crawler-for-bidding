@@ -21,7 +21,7 @@ import java.util.Date;
  */
 @Data
 @ToString
-@Document(collection = "data_item_zhong_guo_ye_jin")
+@Document(collection = "data_item_mcc")
 public class ZGYeJinDataItem {
 
 
