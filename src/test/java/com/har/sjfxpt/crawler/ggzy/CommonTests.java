@@ -1,6 +1,9 @@
 package com.har.sjfxpt.crawler.ggzy;
 
+import com.google.common.collect.Maps;
+import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
 import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
+import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
@@ -8,16 +11,62 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.junit.Assert;
 import org.junit.Test;
+import us.codecraft.webmagic.Page;
+import us.codecraft.webmagic.Request;
+import us.codecraft.webmagic.SimpleHttpClient;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
+import us.codecraft.webmagic.model.HttpRequestBody;
 import us.codecraft.webmagic.proxy.Proxy;
 import us.codecraft.webmagic.proxy.SimpleProxyProvider;
 import us.codecraft.webmagic.selector.Html;
+import us.codecraft.webmagic.utils.HttpConstant;
 
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @Slf4j
 public class CommonTests {
+
+    @Test
+    public void testSourceCode() {
+        Assert.assertNotNull(SourceCode.CCGP);
+        log.debug(">>> source code {}, {}", SourceCode.CCGP.toString(), SourceCode.CCGP.getValue());
+    }
+
+    @Test
+    public void testCCGP() {
+        String url = "http://www.ccgp.gov.cn/cggg/dfgg/cjgg/201710/t20171030_9077520.htm";
+        SimpleHttpClient simpleHttpClient = new SimpleHttpClient();
+        Page page = simpleHttpClient.get(url);
+        Element element = page.getHtml().getDocument().body();
+
+        //判断是否为新版css
+        boolean isNewVersion = !element.select("div.vF_detail_content_container div.vF_detail_content").isEmpty();
+        log.debug("isNewVersion {}", isNewVersion);
+        String detailCssQuery = isNewVersion ? "div.vF_detail_content_container div.vF_detail_content" : "div.vT_detail_main div.vT_detail_content";
+
+        String detailFormatContent = PageProcessorUtil.formatElementsByWhitelist(element.select(detailCssQuery).first());
+        Assert.assertNotNull(detailFormatContent);
+        Assert.assertTrue(StringUtils.isNotBlank(detailFormatContent));
+        System.out.println(detailFormatContent);
+    }
+
+    @Test
+    public void testPostMethod() {
+        String url = "http://eportal.energyahead.com/wps/portal/ebid/!ut/p/c5/04_SB8K8xLLM9MSSzPy8xBz9CP0os3hHS1NnxxAzL29T00BTA08Pl1CLQDNnQ29_U6B8JE55kzATArrDQfbhVmFggFcebD5I3gAHcDTQ9_PIz03VL8iNMMgMSFcEAPi205o!/dl3/d3/L0lDU0NTQ1FvS1VRIS9JSFNBQ0lLRURNeW01dXBnLzRDMWI4SWtmb2lUSmVLQVEvN19BOTNDQVQ2Sks1TDk1MElUTFJQT1Q0M0cxNy9kZXRhaWw!/";
+
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("documentId", "2324164");
+        Request request = new Request(url);
+        request.setMethod(HttpConstant.Method.POST);
+        request.setRequestBody(HttpRequestBody.form(params, "UTF-8"));
+
+        HttpClientDownloader downloader = new HttpClientDownloader();
+        Page page = downloader.download(request, SiteUtil.get().setCharset("utf-8").toTask());
+        Assert.assertNotNull(page);
+        log.debug("\n{}", page.getHtml().getDocument().body().html());
+    }
 
     @Test
     public void testPageProcessorUtil() {

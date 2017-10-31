@@ -30,12 +30,6 @@ public class PageDataProcessor implements PageProcessor {
         }
 
         Element body = page.getHtml().getDocument().body();
-
-        /*Element totalSize = body.select("p.pager").first();
-        String totalSizeText = totalSize.text();
-        totalSizeText = StringUtils.substringBetween(totalSizeText, "共找到", "条内容");
-        totalSizeText = StringUtils.trim(totalSizeText);*/
-
         Element pager = body.select("p.pager").first();
         String totalPageText = pager.html();
         totalPageText = StringUtils.substringBetween(totalPageText, "size: ", ",");

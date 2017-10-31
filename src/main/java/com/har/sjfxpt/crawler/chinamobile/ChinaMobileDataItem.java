@@ -1,6 +1,7 @@
 package com.har.sjfxpt.crawler.chinamobile;
 
 import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
+import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -58,8 +59,8 @@ public class ChinaMobileDataItem {
     public DataItemDTO dto() {
         DataItemDTO dto = new DataItemDTO();
         BeanUtils.copyProperties(this, dto);
-        dto.setSource("中国移动采购与招标网");
-        dto.setSourceCode("CM");
+        dto.setSource(SourceCode.CM.getValue());
+        dto.setSourceCode(SourceCode.CM.toString());
         DateTime dt = new DateTime(this.getCreateTime());
         dto.setCreateTime(dt.toString("yyyyMMddHH"));
         if (StringUtils.isBlank(date)) {

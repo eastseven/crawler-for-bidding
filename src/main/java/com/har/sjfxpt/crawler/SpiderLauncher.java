@@ -38,12 +38,6 @@ public class SpiderLauncher implements CommandLineRunner {
     JinCaiWangSpiderLauncher jinCaiWangSpiderLauncher;
 
     public void info() {
-        int ggzySize = gongGongZiYuanSpiderLauncher.getSpiderList().size();
-        int cmSize = chinaMobileSpiderLauncher.getSpiderList().size();
-        int ccgpSize = zhengFuCaiGouSpiderLauncher.getSpiderList().size();
-        int jcwSize = jinCaiWangSpiderLauncher.getSpiderList().size();
-
-        log.debug("spider size\tggzy={}, cm={}, ccgp={}, jcw={}", ggzySize, cmSize, ccgpSize, jcwSize);
         gongGongZiYuanSpiderLauncher.printInfo();
         chinaMobileSpiderLauncher.printInfo();
         zhengFuCaiGouSpiderLauncher.printInfo();
@@ -58,19 +52,10 @@ public class SpiderLauncher implements CommandLineRunner {
         log.info("{}", Arrays.toString(args));
         for (String arg : args) {
             switch (arg) {
-                case "start-all":
-                    gongGongZiYuanSpiderLauncher.start();
-                    chinaMobileSpiderLauncher.start();
-                    break;
                 case "start-ggzy":
                     gongGongZiYuanSpiderLauncher.start();
                     break;
-                case "history-all":
-                    chinaMobileSpiderLauncher.fetchHistory();
-                    gongGongZiYuanSpiderLauncher.fetchHistory();
-                    break;
                 case "history-ggzy":
-                    log.info(">>> start {}", arg);
                     gongGongZiYuanSpiderLauncher.fetchHistory();
                     break;
                 case "start-cm":
@@ -81,6 +66,9 @@ public class SpiderLauncher implements CommandLineRunner {
                     break;
                 case "start-ccgp":
                     zhengFuCaiGouSpiderLauncher.start();
+                    break;
+                case "history-ccgp":
+                    zhengFuCaiGouSpiderLauncher.history();
                     break;
                 case "start-jcw":
                     jinCaiWangSpiderLauncher.start();

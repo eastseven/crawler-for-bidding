@@ -18,7 +18,6 @@ import us.codecraft.webmagic.model.HttpRequestBody;
 import us.codecraft.webmagic.scheduler.RedisScheduler;
 import us.codecraft.webmagic.utils.HttpConstant;
 
-import javax.annotation.PostConstruct;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 
@@ -79,7 +78,6 @@ public class GongGongZiYuanSpiderLauncher extends BaseSpiderLauncher {
         return getRequest(params);
     }
 
-    @PostConstruct
     public void init() {
         for (String type : types) {
             final String uuid = "ggzy-" + type + "-current";
@@ -98,6 +96,7 @@ public class GongGongZiYuanSpiderLauncher extends BaseSpiderLauncher {
      * 按type抓取当天的数据
      */
     public void start() {
+        init();
         for (String type : types) {
             final String uuid = "ggzy-" + type + "-current";
             start(uuid);

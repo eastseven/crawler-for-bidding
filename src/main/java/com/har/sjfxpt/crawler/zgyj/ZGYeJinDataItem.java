@@ -1,6 +1,7 @@
 package com.har.sjfxpt.crawler.zgyj;
 
 import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
+import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
 import lombok.Data;
 import lombok.ToString;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -16,6 +17,7 @@ import java.util.Date;
 
 /**
  * Created by Administrator on 2017/10/27.
+ * @author luofei
  */
 @Data
 @ToString
@@ -32,14 +34,20 @@ public class ZGYeJinDataItem {
 
     private String url;
 
-    private Date createTime=new Date();
+    private Date createTime = new Date();
 
-    private String province="全国";//地区
+    /**
+     * 地区
+     */
+    private String province = "全国";
 
     private String type;
 
+    /**
+     * 发布时间
+     */
     @Indexed
-    private String date;//发布时间
+    private String date;
 
     @Indexed
     private String title;
@@ -47,18 +55,16 @@ public class ZGYeJinDataItem {
     @Transient
     private String html;
 
-    //    @Transient
     private String formatContent;
 
-//    @Transient
     private String textContent;
 
-    public DataItemDTO dto(){
-        DataItemDTO dto=new DataItemDTO();
-        BeanUtils.copyProperties(this,dto);
-        dto.setSource("中国冶金");
-        dto.setSourceCode("ZGYJ");
-        DateTime ct=new DateTime(this.getCreateTime());
+    public DataItemDTO dto() {
+        DataItemDTO dto = new DataItemDTO();
+        BeanUtils.copyProperties(this, dto);
+        dto.setSource(SourceCode.ZGYJ.getValue());
+        dto.setSourceCode(SourceCode.ZGYJ.toString());
+        DateTime ct = new DateTime(this.getCreateTime());
         dto.setCreateTime(ct.toString("yyyyMMddHH"));
         if (StringUtils.isBlank(date)) {
             dto.setDate(date);

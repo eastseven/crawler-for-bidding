@@ -101,43 +101,37 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
         Elements elements = document.body().select(cssQuery4List);
         List<ZhengFuCaiGouDataItem> dataItemList = parseContent(elements);
         if (!dataItemList.isEmpty()) {
-            dataItemList.forEach(dataItem -> {
-                try {
-                    //减少http请求，避免过早被要求输入验证码
-                    ZhengFuCaiGouDataItem dataInDB = zhengFuCaiGouRepository.findOne(dataItem.getId());
-                    if (dataInDB == null) {
-                        download(dataItem);
-                    } else if (dataInDB != null && StringUtils.isBlank(dataInDB.getFormatContent())) {
-                        download(dataItem);
-                    }
-                } catch (Exception e) {
-                    log.error("ccgp {} download fail", dataItem.getId());
-                }
-            });
-
             page.putField(KEY_DATA_ITEMS, dataItemList);
         }
     }
 
-    private void download(ZhengFuCaiGouDataItem dataItem) throws IOException {
+    private ZhengFuCaiGouDataItem download(ZhengFuCaiGouDataItem dataItem) throws IOException {
         Document document = simpleHttpClient.get(dataItem.getUrl()).getHtml().getDocument();
         if (StringUtils.equalsAnyIgnoreCase(document.title(), "安全验证")) {
             log.warn("ccgp verification {}", dataItem.getUrl());
-            return;
+            return dataItem;
         }
 
         Element element = document.body();
-        String detailCssQuery = "div.vF_detail_content_container > div.vF_detail_content";
-        String summaryCssQuery = "div.vF_detail_main table";
+
+        //判断是否为新版css
+        boolean isNewVersion = !element.select("div.vF_detail_content_container div.vF_detail_content").isEmpty();
+        String detailCssQuery = isNewVersion ? "div.vF_detail_content_container div.vF_detail_content" : "div.vT_detail_main div.vT_detail_content";
+        String summaryCssQuery = isNewVersion ? "div.vF_detail_main table" : "div.vT_detail_main table";
+
+        String detailFormatContent = PageProcessorUtil.formatElementsByWhitelist(element.select(detailCssQuery).first());
+        if (StringUtils.isBlank(detailFormatContent)) {
+            log.error("ccgp download fail, id is {}", dataItem.getId());
+            return dataItem;
+        }
 
         String summaryFormatContent = PageProcessorUtil.formatElementsByWhitelist(element.select(summaryCssQuery).first());
-        String detailFormatContent = PageProcessorUtil.formatElementsByWhitelist(element.select(detailCssQuery).first());
         String detailTextContent = PageProcessorUtil.extractTextByWhitelist(element.select(detailCssQuery).first());
 
         dataItem.setSummaryFormatContent(summaryFormatContent);
         dataItem.setFormatContent(detailFormatContent);
         dataItem.setTextContent(detailTextContent);
-
+        return dataItem;
     }
 
     @Override
@@ -200,6 +194,13 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
                     default:
                         break;
                 }
+            }
+
+            try {
+                dataItem = download(dataItem);
+            } catch (Exception e) {
+                log.error("", e);
+                log.error("ccgp {} download fail", dataItem.getId());
             }
 
             dataItemList.add(dataItem);
