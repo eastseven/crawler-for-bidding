@@ -5,6 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Spider;
 
 import java.util.List;
@@ -13,7 +16,13 @@ import java.util.List;
  * @author dongqi
  */
 @Slf4j
+@Component
 public class BaseSpiderLauncher implements DisposableBean {
+
+    private final String SPIDER_UUID_KEY = "spider_uuid";
+
+    @Autowired
+    StringRedisTemplate redisTemplate;
 
     private List<Spider> spiderList = Lists.newCopyOnWriteArrayList();
 
@@ -24,8 +33,13 @@ public class BaseSpiderLauncher implements DisposableBean {
             log.warn("spider uuid is null, {}", spider);
             return;
         }
-        log.info("add spider {}, {}", spider.getUUID(), spider);
-        spiderList.add(spider);
+
+        String uuid = spider.getUUID();
+        if (redisTemplate.boundSetOps(SPIDER_UUID_KEY).add(uuid) > 0) {
+            spiderList.add(spider);
+            log.info("add spider {}, {}", spider.getUUID(), spider);
+        }
+
     }
 
     public List<Spider> getSpiderList() {
@@ -61,15 +75,21 @@ public class BaseSpiderLauncher implements DisposableBean {
 
     @Override
     public void destroy() throws Exception {
-        log.info(">>> spider size {}", spiderList.size());
+        String info = ">>> spider size " + spiderList.size();
 
         for (Spider spider : spiderList) {
-            if (spider.getStatus().equals(Spider.Status.Running)) {
-                spider.stop();
+            try {
+                if (spider != null) {
+                    spider.close();
+                }
+            } catch (Exception e) {
+                log.error("", e);
             }
-            Thread.sleep(1234L);
-            spider.close();
-            log.info(">>> destroy spider {}", spider.getUUID());
+
+            redisTemplate.boundSetOps(SPIDER_UUID_KEY).remove(spider.getUUID());
+            info += "\n>>> destroy spider " + spider.getUUID();
         }
+
+        log.info("\n{}\n", info);
     }
 }

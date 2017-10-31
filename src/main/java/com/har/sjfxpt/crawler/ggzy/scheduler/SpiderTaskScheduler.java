@@ -1,6 +1,6 @@
 package com.har.sjfxpt.crawler.ggzy.scheduler;
 
-import com.har.sjfxpt.crawler.SpiderLauncher;
+import com.har.sjfxpt.crawler.ccgp.ZhengFuCaiGouSpiderLauncher;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
 import com.har.sjfxpt.crawler.jcw.JinCaiWangSpiderLauncher;
@@ -25,11 +25,6 @@ public class SpiderTaskScheduler {
 
     @Autowired
     ApplicationContext context;
-
-    @Scheduled(initialDelay = 10000, fixedRate = 60 * 1000)
-    public void monitor() {
-        context.getBean(SpiderLauncher.class).info();
-    }
 
     /**
      * 启动后10秒执行，5分钟一次
@@ -61,6 +56,14 @@ public class SpiderTaskScheduler {
         if (flag) {
             log.info(">>> start fetch jin cai wang");
             context.getBean(JinCaiWangSpiderLauncher.class).start();
+        }
+    }
+
+    @Scheduled(initialDelay = 20000, fixedRate = 15 * 60 * 1000)
+    public void fetchCCGP() {
+        if (flag) {
+            log.info(">>> start fetch ccgp");
+            context.getBean(ZhengFuCaiGouSpiderLauncher.class).start();
         }
     }
 }

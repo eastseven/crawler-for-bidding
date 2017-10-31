@@ -96,7 +96,7 @@ public class DataItemService {
                     if (!exists) {
                         originalTable.put(row);
                         redisTemplate.boundValueOps(date + ':' + sourceCode.toLowerCase()).increment(1L);
-                        log.info("save {} {} to {}", sourceCode, rowKey, DataItem.T_NAME_HTML);
+                        log.debug("save {} {}[mongo={}] to {}", sourceCode, rowKey, dataItem.getId(), DataItem.T_NAME_HTML);
                         counter++;
                     }
                 } else {
@@ -114,7 +114,7 @@ public class DataItemService {
         }
 
         if (counter > 0) {
-            log.info("{} hbase save {}", current, counter);
+            log.info("{} {} hbase save {}", dataItemList.iterator().next().getSourceCode(), current, counter);
         }
     }
 

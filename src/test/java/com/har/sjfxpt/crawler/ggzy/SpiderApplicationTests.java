@@ -48,7 +48,7 @@ public class SpiderApplicationTests {
     public void testStartByDate() {
         Assert.assertNotNull(launcher);
         String date = DateTime.now().minusDays(RandomUtils.nextInt(1, 80)).toString(YYYYMMDD);
-        launcher.start(date);
+        launcher.startByDate(date);
     }
 
     @Test

@@ -1,10 +1,7 @@
 package com.har.sjfxpt.crawler.ccgp;
 
 import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
@@ -20,6 +17,8 @@ import static com.har.sjfxpt.crawler.ccgp.ZhengFuCaiGouDataItem.T_NAME;
 @Getter
 @Setter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @ToString
 @Document(collection = T_NAME)
 public class ZhengFuCaiGouDataItem {

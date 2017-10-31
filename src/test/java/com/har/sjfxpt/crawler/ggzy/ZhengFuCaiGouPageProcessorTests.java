@@ -90,37 +90,7 @@ public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
         List<PageData> pageDataList = pageDataRepository.findAll(new Sort(Sort.Direction.ASC, "date"));
         Assert.assertFalse(pageDataList.isEmpty());
 
-        PageData first = pageDataList.get(0);
-        log.debug(">>> {}", first);
-
-        DateTime start = new DateTime(first.getDate().replace(":", "-"));
-
-        final String prefix = "http://search.ccgp.gov.cn/bxsearch?searchtype=1&bidSort=&buyerName=&projectId=&pinMu=&bidType=&dbselect=bidx&kw=&timeType=6&displayZone=&zoneId=&pppStatus=0&agentName=";
-        int days = 14;
-
-        Spider spider = Spider.create(pageDataProcessor).setExitWhenComplete(true);
-
-        for (int day = 0; day < days; day++) {
-            String date = null;
-            String id = start.minusDays(day).toString("yyyy:MM:dd");
-            try {
-                date = URLEncoder.encode(id, "utf-8");
-            } catch (UnsupportedEncodingException e) {
-                log.error("", e);
-            }
-            String params = "&start_time=" + date + "&end_time=" + date + "&page_index=1";
-            String url = prefix + params;
-
-            PageData pageData = new PageData();
-            pageData.setDate(id);
-            pageData.setUrl(url);
-            Request request = new Request(url);
-            request.putExtra(PageData.class.getSimpleName(), pageData);
-
-            spider.addRequest(request);
-        }
-
-        spider.run();
+        spiderLauncher.countPageData();
     }
 
     @Before
