@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.junit.Assert;
 import org.junit.Test;
 import us.codecraft.webmagic.Page;
@@ -21,6 +22,7 @@ import us.codecraft.webmagic.proxy.SimpleProxyProvider;
 import us.codecraft.webmagic.selector.Html;
 import us.codecraft.webmagic.utils.HttpConstant;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -169,6 +171,32 @@ public class CommonTests {
             }
         }
        log.info("test=={}",test);
+    }
+
+    @Test
+    public void testTime(){
+        String time=PageProcessorUtil.dataTxt("发布时间：2016-05-09");
+        log.info("time={}",time);
+        log.info("{}", PageProcessorUtil.dataTxt("2017-10-18 15:14"));
+    }
+
+    @Test
+    public void testFormatText() throws IOException {
+        HttpClientDownloader httpClientDownloader=new HttpClientDownloader();
+        Request request = new Request("http://eportal.energyahead.com/wps/portal/ebid/!ut/p/c5/hY3LdoIwEEC_xQ_wJGgCdRkRgjwKCGJg4wnWglBelofy9cWebrUzyztzL4jAtCXvLwlvL1XJvwADkXgkKywTX9QNjF0Mt9pm_-aKsmDYeOLhU44C9M_34dF7fgHhS_7rf3D4ZAgE71pVnEEIImmyLP8s5mqy-ObOsX20pBoCPmAQHb0M1pb5XVrjynZ8JW-902hB92zUtlt-zXmB6wDVXarRNI-LtAupnZWH2r2SRPbaYO2-7gjSo8PCQZIrMiiEOShRcwUeoMrvbUyN5c3Za_eQoyz-ZI3OhiIt6PpuW5wG2WYeJpnG1cWwOzX0NASumW4qRlTlyrogwk1kfxiU7HeCRHQdZZ0wL8um39pCHo35uhfVfOGNC_FmoLqXWLSOw1xOrBmoCwYvTnrFFZn9AIuHl4s!/dl3/d3/L0lDU0dabVppbW1BIS9JTFNBQ0l3a0FnUWlRQ0NLSkFJRVlrQWdUaVFDQ0JKQUlJbFNRQ0FKMkZEUS80QzFiOFVBZy83X0E5M0NBVDZKSzVMOTUwSVRMUlBPVDQzRzE3L2RldGFpbA!!/");
+        Map<String, Object> param = Maps.newHashMap();
+        param.put("documentId", "1977971");
+        request.setMethod(HttpConstant.Method.POST);
+        request.setRequestBody(HttpRequestBody.form(param, "UTF-8"));
+        Page page = httpClientDownloader.download(request, SiteUtil.get().toTask());
+        Element element = page.getHtml().getDocument().body();
+        Element formatContentHtml = element.select("#wptheme_pageArea").first();
+        String formatContent = PageProcessorUtil.formatElementsByWhitelist(formatContentHtml);
+        String textContent =PageProcessorUtil.extractTextByWhitelist(formatContentHtml);
+        String textContent1 =PageProcessorUtil.formatText(textContent);
+        log.info("formatContent =={}",formatContent );
+        log.info("textContent =={}",textContent );
+        log.info("textContent =={}",textContent1 );
     }
 
 

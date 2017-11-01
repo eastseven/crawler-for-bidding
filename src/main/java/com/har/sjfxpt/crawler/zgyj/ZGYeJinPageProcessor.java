@@ -36,11 +36,6 @@ public class ZGYeJinPageProcessor implements BasePageProcessor {
 
     final static String PAGE_PARAMS = "pageParams";
 
-    final static String KEY_URLS="mcc";
-
-    @Autowired
-    StringRedisTemplate stringRedisTemplate;
-
     @Override
     public void handlePaging(Page page) {
 
@@ -97,7 +92,6 @@ public class ZGYeJinPageProcessor implements BasePageProcessor {
             String title = a.select("td.txtLeft > a").text();
             String date = a.select("td:nth-child(2)").text();
             String url = urlParser(a.select("a").attr("onclick"));
-            long value=stringRedisTemplate.boundSetOps(KEY_URLS).add(url);
             if (StringUtils.isNotBlank(url)) {
                 ZGYeJinDataItem zgYeJinDataItem = new ZGYeJinDataItem(url);
                 zgYeJinDataItem.setTitle(title);
