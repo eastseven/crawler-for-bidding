@@ -58,7 +58,7 @@ public class ZGYeJinPageProcessorTests {
 
         Request[] requests = new Request[urls.length];
 
-        String date = new DateTime(new Date()).toString("yyyy-MM-dd");
+        String date=DateTime.now().toString("yyyy-MM-dd");
 
         for (int i = 0; i < urls.length; i++) {
             requests[i] = requestGenerator(urls[i], date, date);
@@ -70,7 +70,7 @@ public class ZGYeJinPageProcessorTests {
                 .addRequest(requests)
                 .addPipeline(zgYeJinPipeline)
                 .setDownloader(test)
-                .thread(8)
+                .thread(4)
                 .run();
     }
 

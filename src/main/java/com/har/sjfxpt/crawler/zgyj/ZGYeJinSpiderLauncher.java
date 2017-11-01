@@ -68,7 +68,7 @@ public class ZGYeJinSpiderLauncher extends BaseSpiderLauncher{
         Spider spider=Spider.create(zgYeJinPageProcessor)
                 .addRequest(requests)
                 .addPipeline(zgYeJinPipeline)
-                .thread(num*2);
+                .thread(2);
         spider.start();
         addSpider(spider);
     }
