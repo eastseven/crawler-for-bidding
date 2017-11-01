@@ -141,7 +141,7 @@ public class ZGShiYouPageProcessor implements BasePageProcessor {
                     if (StringUtils.isNotBlank(html)) {
                         zgShiYouDataItem.setHtml(html);
                         zgShiYouDataItem.setFormatContent(formatContent);
-                        zgShiYouDataItem.setTextContent(formatText(textContent));
+                        zgShiYouDataItem.setTextContent(PageProcessorUtil.formatText(textContent));
                     }
                     dataItems.add(zgShiYouDataItem);
                 }
@@ -151,19 +151,5 @@ public class ZGShiYouPageProcessor implements BasePageProcessor {
         return dataItems;
     }
 
-    public String formatText(String textContent) {
-        String[] removeText = {
-                "/wps/contenthandler/ebid/!ut/p/digest!mNxE8R0tr4bpN964Me4g1g/pm/oid:--portletwindowid--@oid:6_A95CAT6JK55Q50IHDU8Q6C1KO5",
-                "/wps/contenthandler/ebid/!ut/p/digest!mNxE8R0tr4bpN964Me4g1g/um/secure/currentuser/profile?expandRefs=true",
-                "首页 &gt;&gt; 公开招标公告 &gt;&gt; 详细信息",
-                "                                 "
-        };
-        for (int i = 0; i < removeText.length; i++) {
-            if (textContent.contains(removeText[i])) {
-                textContent = textContent.replace(removeText[i], "");
-            }
-        }
-        return textContent;
-    }
 
 }

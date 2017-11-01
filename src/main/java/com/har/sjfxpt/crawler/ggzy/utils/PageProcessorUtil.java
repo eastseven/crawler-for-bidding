@@ -41,18 +41,42 @@ public final class PageProcessorUtil {
         return formatContent;
     }
 
-    final static Pattern pattern = Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}");
+    final static Pattern yyyymmddhhmmPattern = Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}");
+    final static Pattern yyyymmddPattern = Pattern.compile("[0-9]{4}-[0-9]{2}-[0-9]{2}");
 
     /**
      * @return
      */
     public static String dataTxt(String date) {
-        Matcher matcher = pattern.matcher(date);
+        if (StringUtils.contains(date, "发布时间：")) {
+            date = StringUtils.remove(date, "发布时间：");
+        }
+
+        Matcher matcher = yyyymmddhhmmPattern.matcher(date);
         String dataStr = null;
         if (matcher.find()) {
             dataStr = matcher.group();
         }
 
+        matcher = yyyymmddPattern.matcher(date);
+        if (matcher.matches()) {
+            dataStr = matcher.group() + DateTime.now().toString(" HH:mm");
+        }
+
         return StringUtils.defaultString(dataStr, DateTime.now().toString("yyyy-MM-dd HH:mm"));
+    }
+
+    /**
+     *正文解析
+     */
+    public static String formatText(String textContent) {
+        String[] removeText = {
+                "/wps(.+?)    ",
+                "首页(.+?)详细信息",
+        };
+        for (int i = 0; i < removeText.length; i++) {
+           textContent=StringUtils.removeAll(textContent,removeText[i]);
+        }
+        return textContent;
     }
 }
