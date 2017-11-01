@@ -82,7 +82,7 @@ public class JinCaiWangDataItem {
         DateTime ct = new DateTime(this.getCreateTime());
         dto.setCreateTime(ct.toString("yyyyMMddHH"));
         if (StringUtils.isBlank(date)) {
-            dto.setDate(date);
+            dto.setDate(ct.toString("yyyy-MM-dd HH:mm"));
         }
         return dto;
     }
