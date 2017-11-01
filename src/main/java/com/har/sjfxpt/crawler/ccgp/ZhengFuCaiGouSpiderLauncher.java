@@ -3,10 +3,8 @@ package com.har.sjfxpt.crawler.ccgp;
 import com.har.sjfxpt.crawler.BaseSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.service.ProxyService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
@@ -15,7 +13,6 @@ import us.codecraft.webmagic.proxy.SimpleProxyProvider;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -118,19 +115,22 @@ public class ZhengFuCaiGouSpiderLauncher extends BaseSpiderLauncher {
 
     public void countPageData() {
         DateTime start = DateTime.now().minusDays(1);
+
+        /*
         List<PageData> pageDataList = pageDataRepository.findAll(new Sort(Sort.Direction.ASC, "date"));
         if (CollectionUtils.isEmpty(pageDataList)) {
             PageData first = pageDataList.get(0);
             start = new DateTime(first.getDate().replace(":", "-"));
-        }
+        }*/
+
+        start = new DateTime("2017-10-27").minusDays(1);
+        Spider spider = Spider.create(pageDataProcessor).setExitWhenComplete(true);
+        spider.setUUID("ccgp-page-data-" + start.toString(DATE_PATTERN));
 
         final int days = 90;
         for (int day = 0; day < days; day++) {
             String date = null;
             String id = start.minusDays(day).toString(DATE_PATTERN);
-
-            Spider spider = Spider.create(pageDataProcessor).setExitWhenComplete(true);
-            spider.setUUID("ccgp-page-data-" + id);
 
             try {
                 date = URLEncoder.encode(id, "utf-8");
@@ -147,9 +147,9 @@ public class ZhengFuCaiGouSpiderLauncher extends BaseSpiderLauncher {
             request.putExtra(PageData.class.getSimpleName(), pageData);
 
             spider.addRequest(request);
-            spider.start();
         }
 
+        spider.start();
     }
 
     String getUrl(String startDate, String endDate) {

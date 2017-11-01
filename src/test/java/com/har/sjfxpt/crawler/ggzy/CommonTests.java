@@ -25,8 +25,34 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.har.sjfxpt.crawler.petrochina.ZGShiYouPageProcessor.formUrl;
+
 @Slf4j
 public class CommonTests {
+
+    @Test
+    public void testPetroChina() throws Exception {
+        String id = "2324681";
+        Request request = new Request(formUrl);
+        Map<String, Object> param = Maps.newHashMap();
+        param.put("documentId", id);
+        log.info(">>> download id {}", id);
+
+        request.setMethod(HttpConstant.Method.POST);
+        request.setRequestBody(HttpRequestBody.form(param, "UTF-8"));
+        Page page = new HttpClientDownloader().download(request, SiteUtil.get().toTask());
+        String html = page.getHtml().getDocument().html();
+        Assert.assertNotNull(html);
+
+        Element element = page.getHtml().getDocument().body();
+        Assert.assertFalse(element.select("#wptheme_pageArea").isEmpty());
+
+        Element formatContentHtml = element.select("#wptheme_pageArea").first();
+        log.debug("\n{}", formatContentHtml.html());
+
+        String target = formatContentHtml.select("div").attr("id");
+        log.debug("{}", target);
+    }
 
     @Test
     public void testSourceCode() {

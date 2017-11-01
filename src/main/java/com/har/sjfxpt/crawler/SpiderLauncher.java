@@ -70,6 +70,9 @@ public class SpiderLauncher implements CommandLineRunner {
                 case "history-ccgp":
                     zhengFuCaiGouSpiderLauncher.history();
                     break;
+                case "page-ccgp":
+                    zhengFuCaiGouSpiderLauncher.countPageData();
+                    break;
                 case "start-jcw":
                     jinCaiWangSpiderLauncher.start();
                     break;
@@ -78,6 +81,7 @@ public class SpiderLauncher implements CommandLineRunner {
                     break;
                 case "history-zgyj":
                     zgYeJinSpiderLauncher.fetchHistory();
+                    break;
                 default:
                     break;
             }

@@ -1,12 +1,10 @@
 package com.har.sjfxpt.crawler.ggzy;
 
-import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.ggzy.service.ProxyService;
 import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import com.har.sjfxpt.crawler.zgyj.ZGYeJinPageProcessor;
 import com.har.sjfxpt.crawler.zgyj.ZGYeJinPipeline;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
@@ -16,18 +14,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.test.context.junit4.SpringRunner;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
-import us.codecraft.webmagic.model.HttpRequestBody;
 import us.codecraft.webmagic.proxy.SimpleProxyProvider;
-import us.codecraft.webmagic.utils.HttpConstant;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.Map;
 
 import static com.har.sjfxpt.crawler.zgyj.ZGYeJinSpiderLauncher.requestGenerator;
 
