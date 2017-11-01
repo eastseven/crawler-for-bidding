@@ -57,6 +57,7 @@ public class ZGYeJinDataItem {
 
     private String formatContent;
 
+    @Transient
     private String textContent;
 
     public DataItemDTO dto() {
@@ -66,8 +67,8 @@ public class ZGYeJinDataItem {
         dto.setSourceCode(SourceCode.ZGYJ.toString());
         DateTime ct = new DateTime(this.getCreateTime());
         dto.setCreateTime(ct.toString("yyyyMMddHH"));
-        if (StringUtils.isNotBlank(date)) {
-            dto.setDate(date);
+        if (StringUtils.isBlank(date)) {
+            dto.setDate(ct.toString("yyyy-MM-dd HH:mm"));
         }
         return dto;
     }
