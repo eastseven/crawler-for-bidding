@@ -86,8 +86,12 @@ public class DataItemService {
             }
 
             try {
-                String sourceCode = dataItem.getSourceCode();
                 String rowKey = getRowKey(dataItem);
+                if (rowKey.length() != 11) {
+                    throw new Exception(rowKey + " length not equal 11, data item id is " + dataItem.getId());
+                }
+
+                String sourceCode = dataItem.getSourceCode();
                 Put row = assemble(rowKey, dataItem);
 
                 String date = StringUtils.substringBefore(rowKey, ":");

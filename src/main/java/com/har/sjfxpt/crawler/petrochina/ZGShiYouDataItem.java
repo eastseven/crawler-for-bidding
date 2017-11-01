@@ -32,12 +32,12 @@ public class ZGShiYouDataItem {
 
     private String url;
 
-    private Date createTime=DateTime.now().toDate();
+    private Date createTime = DateTime.now().toDate();
 
     /**
      * 地区
      */
-    private String province="全国";
+    private String province = "全国";
 
     private String type;
 
@@ -58,20 +58,19 @@ public class ZGShiYouDataItem {
     @Transient
     private String html;
 
-    //    @Transient
     private String formatContent;
 
-    //    @Transient
+    @Transient
     private String textContent;
 
-    public DataItemDTO dto(){
-        DataItemDTO dto=new DataItemDTO();
-        BeanUtils.copyProperties(this,dto);
+    public DataItemDTO dto() {
+        DataItemDTO dto = new DataItemDTO();
+        BeanUtils.copyProperties(this, dto);
         dto.setSource(SourceCode.ZSY.getValue());
         dto.setSourceCode(SourceCode.ZSY.toString());
-        DateTime ct=new DateTime(this.getCreateTime());
+        DateTime ct = new DateTime(this.getCreateTime());
         dto.setCreateTime(ct.toString("yyyyMMddHH"));
-        if (StringUtils.isBlank(date)) {
+        if (StringUtils.isNotBlank(date)) {
             dto.setDate(date);
         }
         return dto;

@@ -66,7 +66,7 @@ public class ZGYeJinDataItem {
         dto.setSourceCode(SourceCode.ZGYJ.toString());
         DateTime ct = new DateTime(this.getCreateTime());
         dto.setCreateTime(ct.toString("yyyyMMddHH"));
-        if (StringUtils.isBlank(date)) {
+        if (StringUtils.isNotBlank(date)) {
             dto.setDate(date);
         }
         return dto;

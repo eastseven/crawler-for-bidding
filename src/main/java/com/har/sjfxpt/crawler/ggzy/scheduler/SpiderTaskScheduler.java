@@ -66,4 +66,6 @@ public class SpiderTaskScheduler {
             context.getBean(ZhengFuCaiGouSpiderLauncher.class).start();
         }
     }
+
+
 }
