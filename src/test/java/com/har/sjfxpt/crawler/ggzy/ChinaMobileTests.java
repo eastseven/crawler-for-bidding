@@ -4,8 +4,13 @@ import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobilePageProcessor;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobilePipeline;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
+import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -84,5 +89,20 @@ public class ChinaMobileTests {
                 .addRequest(request)
                 .addPipeline(pipeline)
                 .run();
+    }
+
+    @Test
+    public void testPage() throws Exception {
+        String url = "https://b2b.10086.cn/b2b/main/viewNoticeContent.html?noticeBean.id=400519";
+        Document document = Jsoup.connect(url).timeout(60000).userAgent(SiteUtil.get().getUserAgent()).get();
+
+        Element root = document.body().select("div#mobanDiv").first();
+        String formatContent = PageProcessorUtil.formatElementsByWhitelist(root);
+        String textContent = PageProcessorUtil.extractTextByWhitelist(root);
+
+        log.debug("\n{}", formatContent);
+        log.debug("\n{}", textContent);
+
+        Assert.assertNotNull(formatContent);
     }
 }
