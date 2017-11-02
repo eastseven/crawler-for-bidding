@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-@Profile({"prod"})
+@Profile({"test", "prod"})
 public class SpiderTaskScheduler {
 
     @Value("${app.fetch.current.day:false}")

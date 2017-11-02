@@ -58,6 +58,7 @@ public class ZGShiYouDataItem {
     @Transient
     private String html;
 
+    @Transient
     private String formatContent;
 
     @Transient

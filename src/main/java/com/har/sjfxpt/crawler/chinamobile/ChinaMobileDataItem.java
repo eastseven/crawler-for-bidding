@@ -51,6 +51,7 @@ public class ChinaMobileDataItem {
     @Transient
     private String html;
 
+    @Transient
     private String formatContent;
 
     @Transient
