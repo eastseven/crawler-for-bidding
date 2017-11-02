@@ -66,6 +66,8 @@ public class ChinaMobileDataItem {
         dto.setCreateTime(dt.toString("yyyyMMddHH"));
         if (StringUtils.isBlank(date)) {
             dto.setDate(dt.toString("yyyy-MM-dd HH:mm"));
+        } else if (date.length() == 10) {
+            dto.setDate(dt.toString("yyyy-MM-dd HH:mm"));
         }
         return dto;
     }
