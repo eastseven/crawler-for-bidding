@@ -116,13 +116,6 @@ public class ZhengFuCaiGouSpiderLauncher extends BaseSpiderLauncher {
     public void countPageData() {
         DateTime start = DateTime.now().minusDays(1);
 
-        /*
-        List<PageData> pageDataList = pageDataRepository.findAll(new Sort(Sort.Direction.ASC, "date"));
-        if (CollectionUtils.isEmpty(pageDataList)) {
-            PageData first = pageDataList.get(0);
-            start = new DateTime(first.getDate().replace(":", "-"));
-        }*/
-
         start = new DateTime("2017-10-27").minusDays(1);
         Spider spider = Spider.create(pageDataProcessor).setExitWhenComplete(true);
         spider.setUUID("ccgp-page-data-" + start.toString(DATE_PATTERN));
