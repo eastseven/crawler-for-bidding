@@ -96,7 +96,6 @@ public class DataItemService {
                     if (!exists) {
                         originalTable.put(row);
                         sourceCodeByDateCounter(date, dataItem);
-                        hourlyCounter(dataItem);
                         log.debug("save {} {}[mongo={}] to {}", sourceCode, rowKey, dataItem.getId(), DataItem.T_NAME_HTML);
                         counter++;
                     }
@@ -205,6 +204,8 @@ public class DataItemService {
             log.error("", e);
             log.error("sourceCodeByDateCounter count fail, {} mongo id {} ", dto.getSourceCode(), dto.getId());
         }
+
+        hourlyCounter(dto);
     }
 
     private void hourlyCounter(DataItemDTO dto) {
