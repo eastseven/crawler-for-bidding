@@ -9,7 +9,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
-import org.assertj.core.util.Lists;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -116,60 +115,6 @@ public class DataItemService {
         if (counter > 0) {
             log.info("{} {} hbase save {}", dataItemList.iterator().next().getSourceCode(), current, counter);
         }
-    }
-
-    private List<Put> assemble(List<DataItem> dataItemList) throws UnsupportedEncodingException {
-        List<Put> putList = Lists.newArrayList();
-
-        for (DataItem dataItem : dataItemList) {
-            String date = dataItem.getDate().replace("-", "") + ':';
-            String rowKey = date + dataItem.getId();
-
-            Put put = new Put(rowKey.getBytes());
-            put.addColumn(family, "url".getBytes(), StringUtils.defaultString(dataItem.getUrl(), "").getBytes(charsetName));
-            put.addColumn(family, "createTime".getBytes(), StringUtils.defaultString(new DateTime(dataItem.getCreateTime()).toString("yyyy-MM-dd HH:mm:ss"), "").getBytes(charsetName));
-            put.addColumn(family, "province".getBytes(), StringUtils.defaultString(dataItem.getProvince(), "").getBytes(charsetName));
-            put.addColumn(family, "source".getBytes(), StringUtils.defaultString(dataItem.getSource(), "全国公共资源交易平台").getBytes(charsetName));
-            put.addColumn(family, "businessType".getBytes(), StringUtils.defaultString(dataItem.getBusinessType(), "").getBytes(charsetName));
-            put.addColumn(family, "infoType".getBytes(), StringUtils.defaultString(dataItem.getInfoType(), "").getBytes(charsetName));
-            put.addColumn(family, "industry".getBytes(), StringUtils.defaultString(dataItem.getIndustry(), "").getBytes(charsetName));
-            put.addColumn(family, "date".getBytes(), StringUtils.defaultString(dataItem.getDate(), "").getBytes(charsetName));
-            put.addColumn(family, "title".getBytes(), StringUtils.defaultString(dataItem.getTitle(), "").getBytes(charsetName));
-            put.addColumn(family, "html".getBytes(), StringUtils.defaultString(dataItem.getHtml(), "").getBytes(charsetName));
-            put.addColumn(family, "formatContent".getBytes(), StringUtils.defaultString(dataItem.getFormatContent(), "").getBytes(charsetName));
-            put.addColumn(family, "textContent".getBytes(), StringUtils.defaultString(dataItem.getTextContent(), "").getBytes(charsetName));
-
-            putList.add(put);
-        }
-
-        return putList;
-    }
-
-    private List<Put> assembleWithGGZY(List<DataItemDTO> dataItemList) throws UnsupportedEncodingException {
-        List<Put> putList = Lists.newArrayList();
-        int counter = 1;
-        for (DataItemDTO dataItem : dataItemList) {
-
-            if (StringUtils.isBlank(dataItem.getFormatContent())) {
-                log.warn(">>> {} {} formatContent is blank", dataItem.getSourceCode(), dataItem.getId());
-                continue;
-            }
-
-            if (StringUtils.isBlank(dataItem.getTitle())) {
-                log.warn(">>> {} {} title is blank", dataItem.getSourceCode(), dataItem.getId());
-                continue;
-            }
-
-            String rowKey = getRowKey(dataItem);
-            putList.add(assemble(rowKey, dataItem));
-
-            if (counter == 1) {
-                log.info("rowKey {} put to table {}", rowKey, DataItem.T_NAME_HTML);
-            }
-            counter++;
-        }
-
-        return putList;
     }
 
     private String getRowKey(DataItemDTO dataItem) {
