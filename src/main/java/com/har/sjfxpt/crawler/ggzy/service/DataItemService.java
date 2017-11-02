@@ -151,11 +151,23 @@ public class DataItemService {
         }
 
         hourlyCounter(dto);
+        hourlyCounterBySourceCode(dto);
     }
 
     private void hourlyCounter(DataItemDTO dto) {
         try {
+            if (!DateTime.now().toString("yyyyMMddHH").equalsIgnoreCase(dto.getCreateTime())) return;
             redisTemplate.boundValueOps(dto.getCreateTime()).increment(1);
+        } catch (Exception e) {
+            log.error("", e);
+            log.error("hourlyCounter count fail, {} mongo id {}", dto.getSourceCode(), dto.getId());
+        }
+    }
+
+    private void hourlyCounterBySourceCode(DataItemDTO dto) {
+        try {
+            if (!DateTime.now().toString("yyyyMMddHH").equalsIgnoreCase(dto.getCreateTime())) return;
+            redisTemplate.boundValueOps(dto.getCreateTime() + ':' + dto.getSourceCode().toLowerCase()).increment(1);
         } catch (Exception e) {
             log.error("", e);
             log.error("hourlyCounter count fail, {} mongo id {}", dto.getSourceCode(), dto.getId());
