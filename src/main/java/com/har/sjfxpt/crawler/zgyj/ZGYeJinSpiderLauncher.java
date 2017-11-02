@@ -2,6 +2,7 @@ package com.har.sjfxpt.crawler.zgyj;
 
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.BaseSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +12,6 @@ import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.model.HttpRequestBody;
 import us.codecraft.webmagic.utils.HttpConstant;
 
-import java.util.Date;
 import java.util.Map;
 
 /**
@@ -19,7 +19,9 @@ import java.util.Map;
  */
 @Slf4j
 @Component
-public class ZGYeJinSpiderLauncher extends BaseSpiderLauncher{
+public class ZGYeJinSpiderLauncher extends BaseSpiderLauncher {
+
+    final String uuid = SourceCode.ZGYJ.toString().toLowerCase() + "-current";
 
     @Autowired
     ZGYeJinPageProcessor zgYeJinPageProcessor;
@@ -34,38 +36,43 @@ public class ZGYeJinSpiderLauncher extends BaseSpiderLauncher{
             "http://ec.mcc.com.cn/b2b/web/two/indexinfoAction.do?actionType=showMorePub&xxposition=zhongbgg"
     };
 
-    final int num =Runtime.getRuntime().availableProcessors();
+    final int num = Runtime.getRuntime().availableProcessors();
 
-    //爬去当日的数据
-    public void start(){
+    /**
+     * 爬去当日的数据
+     */
+    public void start() {
 
         Request[] requests = new Request[urls.length];
-
-        String date=new DateTime(new Date()).toString("yyyy-MM-dd");
+        String date = DateTime.now().toString("yyyy-MM-dd");
 
         for (int i = 0; i < urls.length; i++) {
-            requests[i] = requestGenerator(urls[i],date,date);
+            requests[i] = requestGenerator(urls[i], date, date);
         }
 
-        Spider spider=Spider.create(zgYeJinPageProcessor)
+        Spider spider = Spider.create(zgYeJinPageProcessor)
                 .addRequest(requests)
                 .addPipeline(zgYeJinPipeline)
+                .setUUID(uuid)
                 .thread(num);
-        spider.start();
         addSpider(spider);
+
+        start(uuid);
     }
 
-    //爬取13年至今的历史数据
-    public void fetchHistory(){
+    /**
+     * 爬取2013年至今的历史数据
+     */
+    public void fetchHistory() {
         Request[] requests = new Request[urls.length];
 
-        String date=DateTime.now().minusDays(1).toString("yyyy-MM-dd");
+        String date = DateTime.now().minusDays(1).toString("yyyy-MM-dd");
 
         for (int i = 0; i < urls.length; i++) {
-            requests[i] = requestGenerator(urls[i],"2013-01-01",date);
+            requests[i] = requestGenerator(urls[i], "2013-01-01", date);
         }
 
-        Spider spider=Spider.create(zgYeJinPageProcessor)
+        Spider spider = Spider.create(zgYeJinPageProcessor)
                 .addRequest(requests)
                 .addPipeline(zgYeJinPipeline)
                 .thread(2);
@@ -73,9 +80,7 @@ public class ZGYeJinSpiderLauncher extends BaseSpiderLauncher{
         addSpider(spider);
     }
 
-
-    //判断request
-    public final static Request requestGenerator(String url,String dateBegin,String dateEnd) {
+    public final static Request requestGenerator(String url, String dateBegin, String dateEnd) {
         Request request = new Request(url);
         Map<String, Object> params = Maps.newHashMap();
         if (url.contains("zbgg")) {

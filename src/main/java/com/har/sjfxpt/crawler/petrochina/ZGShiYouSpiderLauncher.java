@@ -2,6 +2,7 @@ package com.har.sjfxpt.crawler.petrochina;
 
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.BaseSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,9 @@ import java.util.Map;
 @Slf4j
 @Component
 public class ZGShiYouSpiderLauncher extends BaseSpiderLauncher {
+
+    private final String uuid = SourceCode.ZSY.toString().toLowerCase() + "-current";
+
     @Autowired
     ZGShiYouPageProcessor zgShiYouPageProcessor;
 
@@ -52,10 +56,11 @@ public class ZGShiYouSpiderLauncher extends BaseSpiderLauncher {
 
         Spider spider=Spider.create(zgShiYouPageProcessor)
                 .addPipeline(zgShiYouPipeline)
-                .addRequest(requests)
+                .addRequest(requests).setUUID(uuid)
                 .thread(num * 2);
-        spider.start();
+
         addSpider(spider);
+        start(uuid);
     }
 
     /**

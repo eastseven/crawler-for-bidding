@@ -12,8 +12,6 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
@@ -29,6 +27,8 @@ import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_
 
 /**
  * Created by Administrator on 2017/10/27.
+ *
+ * @author luofei
  */
 @Slf4j
 @Component
@@ -45,7 +45,7 @@ public class ZGYeJinPageProcessor implements BasePageProcessor {
             Elements pager = page.getHtml().getDocument().body().select("body > div.main_1 > div.rightbx > div.page > table > tbody > tr > td:nth-child(4)");
             String pageNum = pager.text();
             int num = Integer.parseInt(StringUtils.substringBefore(StringUtils.substringAfter(pageNum, "/ "), " 页"));
-            log.info("num=={}", num);
+            log.debug("num=={}", num);
             if (num > 1) {
                 for (int i = 2; i <= num; i++) {
                     Map<String, Object> params = Maps.newHashMap(pageParams);
@@ -54,7 +54,7 @@ public class ZGYeJinPageProcessor implements BasePageProcessor {
                     request.setMethod(HttpConstant.Method.POST);
                     request.setRequestBody(HttpRequestBody.form(params, "UTF-8"));
                     request.putExtra(PAGE_PARAMS, params);
-                    log.info("request=={}", request);
+                    log.debug("request=={}", request);
                     page.addTargetRequest(request);
                 }
             }
@@ -74,8 +74,8 @@ public class ZGYeJinPageProcessor implements BasePageProcessor {
         }
 
         List<ZGYeJinDataItem> dataItems = parseContent(elements);
-        String type= (String) pageParams.get("type");
-        log.debug("type=={}",type);
+        String type = (String) pageParams.get("type");
+        log.debug("type=={}", type);
         dataItems.forEach(dataItem -> dataItem.setType(type));
         if (!dataItems.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItems);
@@ -99,10 +99,10 @@ public class ZGYeJinPageProcessor implements BasePageProcessor {
                 zgYeJinDataItem.setUrl(url);
                 zgYeJinDataItem.setProvince(ProvinceUtil.get(title));
 
-                log.info("zgYeJinDataItem=={}", zgYeJinDataItem);
+                log.debug("zgYeJinDataItem=={}", zgYeJinDataItem);
 
                 try {
-                    log.info(">>> download {}", url);
+                    log.debug(">>> download {}", url);
                     Document document = Jsoup.connect(url).timeout(60000).userAgent(SiteUtil.get().getUserAgent()).get();
                     String html = document.html();
                     Element root = document.body().select("body > div.main-news").first();
@@ -113,7 +113,8 @@ public class ZGYeJinPageProcessor implements BasePageProcessor {
                     zgYeJinDataItem.setFormatContent(formatContent);
                     zgYeJinDataItem.setTextContent(textContent);
                 } catch (IOException e) {
-                    log.error("page download failed!", e);
+                    log.error("", e);
+                    log.error("page download failed!, {}", url);
                 }
                 dataItems.add(zgYeJinDataItem);
             }
@@ -136,7 +137,12 @@ public class ZGYeJinPageProcessor implements BasePageProcessor {
     }
 
 
-    //解析网页地址
+    /**
+     * 解析网页地址
+     *
+     * @param onclick
+     * @return
+     */
     public String urlParser(String onclick) {
         String function = StringUtils.substringBefore(onclick, "(");
         String parameter = StringUtils.substringBefore(StringUtils.substringAfter(onclick, "('"), "')");

@@ -129,7 +129,7 @@ public class ZGShiYouPageProcessor implements BasePageProcessor {
                     Map<String, Object> param = Maps.newHashMap();
 
                     param.put("documentId", id);
-                    log.info(">>> download id {}", id);
+                    log.debug(">>> download id {}", id);
                     request.setMethod(HttpConstant.Method.POST);
                     request.setRequestBody(HttpRequestBody.form(param, "UTF-8"));
                     Page page = httpClientDownloader.download(request, SiteUtil.get().toTask());
