@@ -12,6 +12,8 @@ import lombok.ToString;
 @Setter@Getter@ToString
 public class DataItemDTO {
 
+    public static final int ROW_KEY_LENGTH = 41;
+
     /**
      * hbase rowKey: yyyyMMdd:title
      */
@@ -29,7 +31,7 @@ public class DataItemDTO {
 
     private String source;
 
-    private String sourceCode = "GGZY";
+    private String sourceCode;
 
     /**
      * yyyy-MM-dd HH:mm
