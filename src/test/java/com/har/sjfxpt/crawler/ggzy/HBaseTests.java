@@ -1,5 +1,7 @@
 package com.har.sjfxpt.crawler.ggzy;
 
+import com.har.sjfxpt.crawler.ggzy.config.HBaseConfig;
+import com.har.sjfxpt.crawler.ggzy.model.DataItem;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
@@ -7,6 +9,8 @@ import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.NamespaceDescriptor;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.filter.FilterList;
+import org.apache.hadoop.hbase.filter.PrefixFilter;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.joda.time.DateTime;
 import org.junit.Assert;
@@ -16,9 +20,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Iterator;
 
 @Slf4j
 public class HBaseTests extends SpiderApplicationTests {
+
+    @Autowired
+    HBaseConfig hbaseConfig;
 
     @Autowired
     Configuration conf;
@@ -139,18 +147,42 @@ public class HBaseTests extends SpiderApplicationTests {
         Connection conn = null;
         Table table = null;
         try {
-            conn = ConnectionFactory.createConnection(conf);
-            table = conn.getTable(TableName.valueOf("", ""));
+            conn = ConnectionFactory.createConnection(hbaseConfig.get());
+            table = conn.getTable(TableName.valueOf(hbaseConfig.getNamespace(), DataItem.T_NAME_HTML));
 
             Scan scan = new Scan();
-            table.getScanner(scan);
+
+            FilterList filterList = new FilterList();
+
+            String prefix = DateTime.now().toString("yyyyMMdd");
+            filterList.addFilter(new PrefixFilter(Bytes.toBytes(prefix)));
+
+            scan.setFilter(filterList);
+            ResultScanner resultScanner = table.getScanner(scan);
+
+            Iterator<Result> iterator = resultScanner.iterator();
+            long counter = 0L;
+            while (iterator.hasNext()) counter++;
+
+            log.debug(">>> prefix {}, {}", prefix, counter);
 
             table.close();
             conn.close();
         } catch (Exception e) {
             log.error("", e);
         } finally {
+            if (table != null) try {
+                table.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
+            if (conn != null) try {
+                conn.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
+
 }
