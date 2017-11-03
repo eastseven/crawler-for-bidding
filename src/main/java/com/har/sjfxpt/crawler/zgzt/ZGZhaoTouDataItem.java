@@ -43,6 +43,16 @@ public class ZGZhaoTouDataItem {
     private String type;
 
     /**
+     * 专业
+     */
+    private String professional;
+
+    /**
+     * 平台
+     */
+    private String platform;
+
+    /**
      * 发布时间
      */
     @Indexed
@@ -56,7 +66,6 @@ public class ZGZhaoTouDataItem {
 
     private String formatContent;
 
-    private String textContent;
 
     public DataItemDTO dto() {
         DataItemDTO dto = new DataItemDTO();
