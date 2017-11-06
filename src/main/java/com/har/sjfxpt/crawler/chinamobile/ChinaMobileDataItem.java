@@ -51,6 +51,7 @@ public class ChinaMobileDataItem {
     @Transient
     private String html;
 
+    @Transient
     private String formatContent;
 
     @Transient
@@ -64,6 +65,8 @@ public class ChinaMobileDataItem {
         DateTime dt = new DateTime(this.getCreateTime());
         dto.setCreateTime(dt.toString("yyyyMMddHH"));
         if (StringUtils.isBlank(date)) {
+            dto.setDate(dt.toString("yyyy-MM-dd HH:mm"));
+        } else if (date.length() == 10) {
             dto.setDate(dt.toString("yyyy-MM-dd HH:mm"));
         }
         return dto;

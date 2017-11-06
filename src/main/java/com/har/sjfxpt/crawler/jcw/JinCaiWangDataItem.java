@@ -69,6 +69,7 @@ public class JinCaiWangDataItem {
     @Transient
     private String html;
 
+    @Transient
     private String formatContent;
 
     @Transient

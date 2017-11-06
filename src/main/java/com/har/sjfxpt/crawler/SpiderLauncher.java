@@ -39,14 +39,18 @@ public class SpiderLauncher implements CommandLineRunner {
     JinCaiWangSpiderLauncher jinCaiWangSpiderLauncher;
 
     @Autowired
-    ZGShiYouSpiderLauncher zgShiYouSpiderLauncher;
+    ZGShiYouSpiderLauncher zhongGuoShiYouSpiderLauncher;
+
+    @Autowired
+    ZGYeJinSpiderLauncher zhongGuoYeJinSpiderLauncher;
 
     public void info() {
         gongGongZiYuanSpiderLauncher.printInfo();
         chinaMobileSpiderLauncher.printInfo();
         zhengFuCaiGouSpiderLauncher.printInfo();
         jinCaiWangSpiderLauncher.printInfo();
-        zgShiYouSpiderLauncher.printInfo();
+        zhongGuoShiYouSpiderLauncher.printInfo();
+        zhongGuoYeJinSpiderLauncher.printInfo();
     }
 
     @Autowired
@@ -75,6 +79,9 @@ public class SpiderLauncher implements CommandLineRunner {
                 case "history-ccgp":
                     zhengFuCaiGouSpiderLauncher.history();
                     break;
+                case "page-ccgp":
+                    zhengFuCaiGouSpiderLauncher.countPageData();
+                    break;
                 case "start-jcw":
                     jinCaiWangSpiderLauncher.start();
                     break;
@@ -85,10 +92,10 @@ public class SpiderLauncher implements CommandLineRunner {
                     zgYeJinSpiderLauncher.fetchHistory();
                     break;
                 case "start-zsy":
-                    zgShiYouSpiderLauncher.start();
+                    zhongGuoShiYouSpiderLauncher.start();
                     break;
                 case "history-zsy":
-                    zgShiYouSpiderLauncher.fetchHistory();
+                    zhongGuoShiYouSpiderLauncher.fetchHistory();
                     break;
                 default:
                     break;

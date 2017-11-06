@@ -27,6 +27,8 @@ import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_
 
 /**
  * Created by Administrator on 2017/10/30.
+ *
+ * @author luofei
  */
 @Slf4j
 @Component
@@ -35,13 +37,13 @@ public class ZGShiYouPageProcessor implements BasePageProcessor {
     @Autowired
     StringRedisTemplate stringRedisTemplate;
 
-    HttpClientDownloader httpClientDownloader;
+    private HttpClientDownloader httpClientDownloader;
 
     final static String PAGE_PARAMS = "pageParams";
 
     final static String KEY_URLS = "petrochina";
 
-    final static String formUrl = "http://eportal.energyahead.com/wps/portal/ebid/!ut/p/c5/hY3LdoIwEEC_xQ_wJGgCdRkRgjwKCGJg4wnWglBelofy9cWebrUzyztzL4jAtCXvLwlvL1XJvwADkXgkKywTX9QNjF0Mt9pm_-aKsmDYeOLhU44C9M_34dF7fgHhS_7rf3D4ZAgE71pVnEEIImmyLP8s5mqy-ObOsX20pBoCPmAQHb0M1pb5XVrjynZ8JW-902hB92zUtlt-zXmB6wDVXarRNI-LtAupnZWH2r2SRPbaYO2-7gjSo8PCQZIrMiiEOShRcwUeoMrvbUyN5c3Za_eQoyz-ZI3OhiIt6PpuW5wG2WYeJpnG1cWwOzX0NASumW4qRlTlyrogwk1kfxiU7HeCRHQdZZ0wL8um39pCHo35uhfVfOGNC_FmoLqXWLSOw1xOrBmoCwYvTnrFFZn9AIuHl4s!/dl3/d3/L0lDU0dabVppbW1BIS9JTFNBQ0l3a0FnUWlRQ0NLSkFJRVlrQWdUaVFDQ0JKQUlJbFNRQ0FKMkZEUS80QzFiOFVBZy83X0E5M0NBVDZKSzVMOTUwSVRMUlBPVDQzRzE3L2RldGFpbA!!/";
+    public final static String formUrl = "http://eportal.energyahead.com/wps/portal/ebid/!ut/p/c5/hY3LdoIwEEC_xQ_wJGgCdRkRgjwKCGJg4wnWglBelofy9cWebrUzyztzL4jAtCXvLwlvL1XJvwADkXgkKywTX9QNjF0Mt9pm_-aKsmDYeOLhU44C9M_34dF7fgHhS_7rf3D4ZAgE71pVnEEIImmyLP8s5mqy-ObOsX20pBoCPmAQHb0M1pb5XVrjynZ8JW-902hB92zUtlt-zXmB6wDVXarRNI-LtAupnZWH2r2SRPbaYO2-7gjSo8PCQZIrMiiEOShRcwUeoMrvbUyN5c3Za_eQoyz-ZI3OhiIt6PpuW5wG2WYeJpnG1cWwOzX0NASumW4qRlTlyrogwk1kfxiU7HeCRHQdZZ0wL8um39pCHo35uhfVfOGNC_FmoLqXWLSOw1xOrBmoCwYvTnrFFZn9AIuHl4s!/dl3/d3/L0lDU0dabVppbW1BIS9JTFNBQ0l3a0FnUWlRQ0NLSkFJRVlrQWdUaVFDQ0JKQUlJbFNRQ0FKMkZEUS80QzFiOFVBZy83X0E5M0NBVDZKSzVMOTUwSVRMUlBPVDQzRzE3L2RldGFpbA!!/";
 
     @Override
     public void process(Page page) {
@@ -110,7 +112,6 @@ public class ZGShiYouPageProcessor implements BasePageProcessor {
                 String id = StringUtils.substringBetween(hrefId, "(", ")");
                 long value = stringRedisTemplate.boundSetOps(KEY_URLS).add(id);
                 if (value == 0L) {
-                    log.warn("{} is duplication", id);
                     continue;
                 } else {
                     String title = a.select("div.f-left > a").text();
@@ -128,7 +129,7 @@ public class ZGShiYouPageProcessor implements BasePageProcessor {
                     Map<String, Object> param = Maps.newHashMap();
 
                     param.put("documentId", id);
-                    log.info(">>> download id {}", id);
+                    log.debug(">>> download id {}", id);
                     request.setMethod(HttpConstant.Method.POST);
                     request.setRequestBody(HttpRequestBody.form(param, "UTF-8"));
                     Page page = httpClientDownloader.download(request, SiteUtil.get().toTask());

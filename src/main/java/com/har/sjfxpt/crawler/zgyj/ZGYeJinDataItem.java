@@ -55,8 +55,10 @@ public class ZGYeJinDataItem {
     @Transient
     private String html;
 
+    @Transient
     private String formatContent;
 
+    @Transient
     private String textContent;
 
     public DataItemDTO dto() {

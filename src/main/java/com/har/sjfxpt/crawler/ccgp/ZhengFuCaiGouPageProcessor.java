@@ -5,6 +5,7 @@ import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.util.Lists;
 import org.joda.time.DateTime;
@@ -55,7 +56,7 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
     public Site getSite() {
         simpleHttpClient = new SimpleHttpClient(SiteUtil.get().setTimeOut(60000));
         Site site = SiteUtil.get().setTimeOut(60000);
-        //site.setSleepTime(RandomUtils.nextInt(10, 30) * 1000);
+        site.setSleepTime(RandomUtils.nextInt(10, 30) * 1000);
         return site;
     }
 

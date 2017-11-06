@@ -9,7 +9,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
-import org.assertj.core.util.Lists;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -20,6 +19,8 @@ import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+
+import static com.har.sjfxpt.crawler.ggzy.model.DataItemDTO.ROW_KEY_LENGTH;
 
 /**
  * @author dongqi
@@ -79,15 +80,13 @@ public class DataItemService {
                 continue;
             }
 
-            if (StringUtils.isBlank(dataItem.getTextContent())) {
-                log.error("{} {} save to hbase fail, textContent is empty", dataItem.getSourceCode(), dataItem.getId());
-                redisTemplate.boundListOps("fetch_fail_url_" + dataItem.getSourceCode().toLowerCase()).leftPush(dataItem.getUrl());
-                continue;
-            }
-
             try {
-                String sourceCode = dataItem.getSourceCode();
                 String rowKey = getRowKey(dataItem);
+                if (rowKey.length() != ROW_KEY_LENGTH) {
+                    throw new Exception(rowKey + " length not equal " + ROW_KEY_LENGTH + ", data item id is " + dataItem.getId() + ", source " + dataItem.getSourceCode());
+                }
+
+                String sourceCode = dataItem.getSourceCode();
                 Put row = assemble(rowKey, dataItem);
 
                 String date = StringUtils.substringBefore(rowKey, ":");
@@ -95,7 +94,7 @@ public class DataItemService {
                     boolean exists = originalTable.exists(new Get(rowKey.getBytes()));
                     if (!exists) {
                         originalTable.put(row);
-                        redisTemplate.boundValueOps(date + ':' + sourceCode.toLowerCase()).increment(1L);
+                        sourceCodeByDateCounter(date, dataItem);
                         log.debug("save {} {}[mongo={}] to {}", sourceCode, rowKey, dataItem.getId(), DataItem.T_NAME_HTML);
                         counter++;
                     }
@@ -118,60 +117,6 @@ public class DataItemService {
         }
     }
 
-    private List<Put> assemble(List<DataItem> dataItemList) throws UnsupportedEncodingException {
-        List<Put> putList = Lists.newArrayList();
-
-        for (DataItem dataItem : dataItemList) {
-            String date = dataItem.getDate().replace("-", "") + ':';
-            String rowKey = date + dataItem.getId();
-
-            Put put = new Put(rowKey.getBytes());
-            put.addColumn(family, "url".getBytes(), StringUtils.defaultString(dataItem.getUrl(), "").getBytes(charsetName));
-            put.addColumn(family, "createTime".getBytes(), StringUtils.defaultString(new DateTime(dataItem.getCreateTime()).toString("yyyy-MM-dd HH:mm:ss"), "").getBytes(charsetName));
-            put.addColumn(family, "province".getBytes(), StringUtils.defaultString(dataItem.getProvince(), "").getBytes(charsetName));
-            put.addColumn(family, "source".getBytes(), StringUtils.defaultString(dataItem.getSource(), "全国公共资源交易平台").getBytes(charsetName));
-            put.addColumn(family, "businessType".getBytes(), StringUtils.defaultString(dataItem.getBusinessType(), "").getBytes(charsetName));
-            put.addColumn(family, "infoType".getBytes(), StringUtils.defaultString(dataItem.getInfoType(), "").getBytes(charsetName));
-            put.addColumn(family, "industry".getBytes(), StringUtils.defaultString(dataItem.getIndustry(), "").getBytes(charsetName));
-            put.addColumn(family, "date".getBytes(), StringUtils.defaultString(dataItem.getDate(), "").getBytes(charsetName));
-            put.addColumn(family, "title".getBytes(), StringUtils.defaultString(dataItem.getTitle(), "").getBytes(charsetName));
-            put.addColumn(family, "html".getBytes(), StringUtils.defaultString(dataItem.getHtml(), "").getBytes(charsetName));
-            put.addColumn(family, "formatContent".getBytes(), StringUtils.defaultString(dataItem.getFormatContent(), "").getBytes(charsetName));
-            put.addColumn(family, "textContent".getBytes(), StringUtils.defaultString(dataItem.getTextContent(), "").getBytes(charsetName));
-
-            putList.add(put);
-        }
-
-        return putList;
-    }
-
-    private List<Put> assembleWithGGZY(List<DataItemDTO> dataItemList) throws UnsupportedEncodingException {
-        List<Put> putList = Lists.newArrayList();
-        int counter = 1;
-        for (DataItemDTO dataItem : dataItemList) {
-
-            if (StringUtils.isBlank(dataItem.getFormatContent())) {
-                log.warn(">>> {} {} formatContent is blank", dataItem.getSourceCode(), dataItem.getId());
-                continue;
-            }
-
-            if (StringUtils.isBlank(dataItem.getTitle())) {
-                log.warn(">>> {} {} title is blank", dataItem.getSourceCode(), dataItem.getId());
-                continue;
-            }
-
-            String rowKey = getRowKey(dataItem);
-            putList.add(assemble(rowKey, dataItem));
-
-            if (counter == 1) {
-                log.info("rowKey {} put to table {}", rowKey, DataItem.T_NAME_HTML);
-            }
-            counter++;
-        }
-
-        return putList;
-    }
-
     private String getRowKey(DataItemDTO dataItem) {
         String date = StringUtils.substring(dataItem.getDate(), 0, 10).replace("-", "");
         String rowKey = date;
@@ -191,9 +136,41 @@ public class DataItemService {
         put.addColumn(family, "date".getBytes(), StringUtils.defaultString(dataItem.getDate(), "").getBytes(charsetName));
         put.addColumn(family, "create_time".getBytes(), StringUtils.defaultString(dataItem.getCreateTime(), "").getBytes(charsetName));
         put.addColumn(family, "formatContent".getBytes(), StringUtils.defaultString(dataItem.getFormatContent(), "").getBytes(charsetName));
-        put.addColumn(family, "textContent".getBytes(), StringUtils.defaultString(dataItem.getTextContent(), "").getBytes(charsetName));
+        //textContent 废弃
+        put.addColumn(family, "textContent".getBytes(), StringUtils.defaultString("", "").getBytes(charsetName));
 
         return put;
     }
 
+    private void sourceCodeByDateCounter(String date, DataItemDTO dto) {
+        try {
+            redisTemplate.boundValueOps(date + ':' + dto.getSourceCode().toLowerCase()).increment(1L);
+        } catch (Exception e) {
+            log.error("", e);
+            log.error("sourceCodeByDateCounter count fail, {} mongo id {} ", dto.getSourceCode(), dto.getId());
+        }
+
+        hourlyCounter(dto);
+        hourlyCounterBySourceCode(dto);
+    }
+
+    private void hourlyCounter(DataItemDTO dto) {
+        try {
+            if (!DateTime.now().toString("yyyyMMddHH").equalsIgnoreCase(dto.getCreateTime())) return;
+            redisTemplate.boundValueOps(dto.getCreateTime()).increment(1);
+        } catch (Exception e) {
+            log.error("", e);
+            log.error("hourlyCounter count fail, {} mongo id {}", dto.getSourceCode(), dto.getId());
+        }
+    }
+
+    private void hourlyCounterBySourceCode(DataItemDTO dto) {
+        try {
+            if (!DateTime.now().toString("yyyyMMddHH").equalsIgnoreCase(dto.getCreateTime())) return;
+            redisTemplate.boundValueOps(dto.getCreateTime() + ':' + dto.getSourceCode().toLowerCase()).increment(1);
+        } catch (Exception e) {
+            log.error("", e);
+            log.error("hourlyCounter count fail, {} mongo id {}", dto.getSourceCode(), dto.getId());
+        }
+    }
 }

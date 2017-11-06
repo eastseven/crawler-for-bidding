@@ -58,10 +58,10 @@ public class ZGShiYouDataItem {
     @Transient
     private String html;
 
-    //    @Transient
+    @Transient
     private String formatContent;
 
-    //    @Transient
+    @Transient
     private String textContent;
 
     public DataItemDTO dto(){

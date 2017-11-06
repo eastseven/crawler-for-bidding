@@ -129,7 +129,12 @@ public class ChinaMobilePageProcessor implements BasePageProcessor {
                 log.debug(">>> download {}", url);
                 Document document = Jsoup.connect(url).timeout(60000).userAgent(SiteUtil.get().getUserAgent()).get();
                 String html = document.html();
-                Element root = document.body().select("div#container").first();
+                Element root = null;
+                if (!document.body().select("div#mobanDiv").isEmpty()) {
+                    root = document.body().select("div#mobanDiv").first();
+                } else {
+                    root = document.body().select("div#container table").first();
+                }
                 String formatContent = PageProcessorUtil.formatElementsByWhitelist(root);
                 String textContent = PageProcessorUtil.extractTextByWhitelist(root);
                 dataItem.setHtml(html);
