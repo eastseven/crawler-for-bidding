@@ -71,7 +71,7 @@ public class ZGZhaoTouDataItem {
         DataItemDTO dto = new DataItemDTO();
         BeanUtils.copyProperties(this, dto);
         dto.setSource(SourceCode.ZGZT.getValue());
-        dto.setSourceCode(SourceCode.ZGYJ.toString());
+        dto.setSourceCode(SourceCode.ZGZT.toString());
         DateTime ct = new DateTime(this.getCreateTime());
         dto.setCreateTime(ct.toString("yyyyMMddHH"));
         if (StringUtils.isBlank(date)) {

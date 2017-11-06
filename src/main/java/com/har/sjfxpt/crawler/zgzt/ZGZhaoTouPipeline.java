@@ -36,9 +36,9 @@ public class ZGZhaoTouPipeline implements Pipeline{
         }else {
             zgZhaoTouDataItemRepository.save(dataItemList);
             log.info("zhongguozhaotou save {} to mongodb",dataItemList.size());
-//
-////            List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
-////            dataItemService.save2BidNewsOriginalTable(dtoList);
+
+            List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
+            dataItemService.save2BidNewsOriginalTable(dtoList);
         }
     }
 }

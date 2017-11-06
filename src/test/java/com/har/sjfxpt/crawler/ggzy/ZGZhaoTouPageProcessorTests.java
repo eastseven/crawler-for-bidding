@@ -50,7 +50,7 @@ public class ZGZhaoTouPageProcessorTests {
 
         Map<String, Object> params = Maps.newHashMap();
 
-        if(type.equals("招标项目")){
+        if(type.equals("招标项目")||type.equals("中标公告")||type.equals("开标记录")||type.equals("评标公示")){
             params.put("searchName", "");
             params.put("searchArea", "");
             params.put("searchIndustry", "");
@@ -80,8 +80,6 @@ public class ZGZhaoTouPageProcessorTests {
             params.put("pageNo", 1);
             params.put("row", 15);
         }
-
-
         request.setMethod(HttpConstant.Method.POST);
         request.setRequestBody(HttpRequestBody.form(params, "UTF-8"));
         request.putExtra("pageParams", params);
@@ -93,11 +91,16 @@ public class ZGZhaoTouPageProcessorTests {
 
         String url = "http://www.cebpubservice.com/ctpsp_iiss/searchbusinesstypebeforedooraction/getStringMethod.do";
 
-        Request request = requestGenerator(url, "招标项目");
-        Request request1 = requestGenerator(url, "招标公告");
+        Request request1 = requestGenerator(url, "招标项目");
+        Request request2 = requestGenerator(url, "招标公告");
+        Request request3 = requestGenerator(url, "中标公告");
+        Request request4 = requestGenerator(url, "开标记录");
+        Request request5 = requestGenerator(url, "评标公示");
+
+        Request[] requests={request1,request2,request3,request4,request5};
 
         Spider.create(zgZhaoTouPageProcessor)
-                .addRequest(request1)
+                .addRequest(requests)
                 .addPipeline(zgZhaoTouPipeline)
                 .thread(4)
                 .run();
