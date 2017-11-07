@@ -136,6 +136,8 @@ public class DataItemService {
         put.addColumn(family, "date".getBytes(), StringUtils.defaultString(dataItem.getDate(), "").getBytes(charsetName));
         put.addColumn(family, "create_time".getBytes(), StringUtils.defaultString(dataItem.getCreateTime(), "").getBytes(charsetName));
         put.addColumn(family, "formatContent".getBytes(), StringUtils.defaultString(dataItem.getFormatContent(), "").getBytes(charsetName));
+        put.addColumn(family, "purchaser".getBytes(), StringUtils.defaultString(dataItem.getPurchaser(), "").getBytes(charsetName));
+
         //textContent 废弃
         put.addColumn(family, "textContent".getBytes(), StringUtils.defaultString("", "").getBytes(charsetName));
 

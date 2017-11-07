@@ -46,4 +46,9 @@ public class DataItemDTO {
     private String formatContent;
 
     private String textContent;
+
+    /**
+     * 采购单位名称，甲方
+     */
+    private String purchaser;
 }
