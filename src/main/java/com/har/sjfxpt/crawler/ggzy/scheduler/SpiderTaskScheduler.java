@@ -7,6 +7,7 @@ import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
 import com.har.sjfxpt.crawler.jcw.JinCaiWangSpiderLauncher;
 import com.har.sjfxpt.crawler.petrochina.ZGShiYouSpiderLauncher;
 import com.har.sjfxpt.crawler.zgyj.ZGYeJinSpiderLauncher;
+import com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingLauncher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -89,6 +90,17 @@ public class SpiderTaskScheduler {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.ZGYJ);
             context.getBean(ZGYeJinSpiderLauncher.class).start();
+        }
+    }
+
+    /**
+     * 中国招投标
+     */
+    @Scheduled(initialDelay = 22001, fixedRate = 25 * 60 * 1000)
+    public void fetchZGZT() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.ZGZT);
+            context.getBean(ChinaTenderingAndBiddingLauncher.class).start();
         }
     }
 }
