@@ -270,7 +270,7 @@ public class ZGZhaoTouPageProcessor implements BasePageProcessor {
                     }
 
                 } catch (Exception e) {
-                    log.error("The json data is empty");
+                    log.debug("The json data is empty, {}", page1);
                 }
 
             }
@@ -319,7 +319,7 @@ public class ZGZhaoTouPageProcessor implements BasePageProcessor {
                     }
 
                 } catch (Exception e) {
-                    log.warn("The json data is empty");
+                    log.debug("The json data is empty");
                 }
             }
 
@@ -361,7 +361,7 @@ public class ZGZhaoTouPageProcessor implements BasePageProcessor {
                     }
 
                 } catch (Exception e) {
-                    log.error("The json data is empty");
+                    log.debug("The json data is empty");
                 }
             }
 
