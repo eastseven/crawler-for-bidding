@@ -1,6 +1,8 @@
 package com.har.sjfxpt.crawler.ggzy.service;
 
+import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.ggzy.config.HBaseConfig;
+import com.har.sjfxpt.crawler.ggzy.config.KeyWordsProperties;
 import com.har.sjfxpt.crawler.ggzy.model.DataItem;
 import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +21,8 @@ import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.har.sjfxpt.crawler.ggzy.model.DataItemDTO.ROW_KEY_LENGTH;
 
@@ -28,6 +32,9 @@ import static com.har.sjfxpt.crawler.ggzy.model.DataItemDTO.ROW_KEY_LENGTH;
 @Slf4j
 @Service
 public class DataItemService {
+
+    @Autowired
+    KeyWordsProperties keyWordsProperties;
 
     @Autowired
     StringRedisTemplate redisTemplate;
@@ -43,6 +50,8 @@ public class DataItemService {
     private Table originalTable;
     private Table historyTable;
 
+    private Map<String, String[]> keyWordsMap = Maps.newHashMap();
+
     @PostConstruct
     public void init() {
         try {
@@ -52,6 +61,9 @@ public class DataItemService {
         } catch (Exception e) {
             log.error("", e);
         }
+
+        keyWordsMap = keyWordsProperties.getCategories().stream()
+                .collect(Collectors.toMap(line -> line.split(",")[0], line -> line.split(",")));
     }
 
     @PreDestroy
@@ -127,16 +139,17 @@ public class DataItemService {
 
     private Put assemble(String rowKey, DataItemDTO dataItem) throws UnsupportedEncodingException {
         Put put = new Put(rowKey.getBytes());
-        put.addColumn(family, "url".getBytes(), StringUtils.defaultString(dataItem.getUrl(), "").getBytes(charsetName));
-        put.addColumn(family, "title".getBytes(), StringUtils.defaultString(dataItem.getTitle(), "").getBytes(charsetName));
-        put.addColumn(family, "province".getBytes(), StringUtils.defaultString(dataItem.getProvince(), "全国").getBytes(charsetName));
-        put.addColumn(family, "type".getBytes(), StringUtils.defaultString(dataItem.getType(), "").getBytes(charsetName));
-        put.addColumn(family, "source".getBytes(), StringUtils.defaultString(dataItem.getSource(), "其他").getBytes(charsetName));
-        put.addColumn(family, "sourceCode".getBytes(), StringUtils.defaultString(dataItem.getSourceCode(), "UNKNOWN").getBytes(charsetName));
-        put.addColumn(family, "date".getBytes(), StringUtils.defaultString(dataItem.getDate(), "").getBytes(charsetName));
-        put.addColumn(family, "create_time".getBytes(), StringUtils.defaultString(dataItem.getCreateTime(), "").getBytes(charsetName));
+        put.addColumn(family, "url".getBytes(),           StringUtils.defaultString(dataItem.getUrl(), "").getBytes(charsetName));
+        put.addColumn(family, "title".getBytes(),         StringUtils.defaultString(dataItem.getTitle(), "").getBytes(charsetName));
+        put.addColumn(family, "province".getBytes(),      StringUtils.defaultString(dataItem.getProvince(), "全国").getBytes(charsetName));
+        put.addColumn(family, "type".getBytes(),          StringUtils.defaultString(dataItem.getType(), "").getBytes(charsetName));
+        put.addColumn(family, "source".getBytes(),        StringUtils.defaultString(dataItem.getSource(), "其他").getBytes(charsetName));
+        put.addColumn(family, "sourceCode".getBytes(),    StringUtils.defaultString(dataItem.getSourceCode(), "UNKNOWN").getBytes(charsetName));
+        put.addColumn(family, "date".getBytes(),          StringUtils.defaultString(dataItem.getDate(), "").getBytes(charsetName));
+        put.addColumn(family, "create_time".getBytes(),   StringUtils.defaultString(dataItem.getCreateTime(), "").getBytes(charsetName));
         put.addColumn(family, "formatContent".getBytes(), StringUtils.defaultString(dataItem.getFormatContent(), "").getBytes(charsetName));
-        put.addColumn(family, "purchaser".getBytes(), StringUtils.defaultString(dataItem.getPurchaser(), "").getBytes(charsetName));
+        put.addColumn(family, "purchaser".getBytes(),     StringUtils.defaultString(dataItem.getPurchaser(), "").getBytes(charsetName));
+        put.addColumn(family, "project_name".getBytes(),  StringUtils.defaultString(dataItem.getProjectName(), "").getBytes(charsetName));
 
         //textContent 废弃
         put.addColumn(family, "textContent".getBytes(), StringUtils.defaultString("", "").getBytes(charsetName));
@@ -144,6 +157,7 @@ public class DataItemService {
         return put;
     }
 
+    @Deprecated
     private void sourceCodeByDateCounter(String date, DataItemDTO dto) {
         try {
             redisTemplate.boundValueOps(date + ':' + dto.getSourceCode().toLowerCase()).increment(1L);
@@ -174,5 +188,34 @@ public class DataItemService {
             log.error("", e);
             log.error("hourlyCounter count fail, {} mongo id {}", dto.getSourceCode(), dto.getId());
         }
+    }
+
+    public String mark(String source) {
+        try {
+
+        } catch (Exception e) {
+            log.error("", e);
+            log.error("");
+        }
+        Map<Integer, String> map = Maps.newHashMap();
+        for (String key : keyWordsMap.keySet()) {
+            String[] words = keyWordsMap.get(key);
+            Integer score = 0;
+            for (String word : words) {
+                if (source.contains(StringUtils.trim(word))) score++;
+            }
+
+            if (!map.containsKey(score)) {
+                map.put(score, key);
+            } else {
+                String value = map.get(score) + ',' + key;
+                map.put(score, value);
+            }
+        }
+
+        Integer key = map.keySet().stream().max((a, b) -> Integer.compare(a, b)).get();
+        if (key > 0) return map.get(key);
+
+        return "其他";
     }
 }
