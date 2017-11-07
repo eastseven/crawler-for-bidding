@@ -9,9 +9,9 @@ spring:
     mongodb:
       uri: mongodb://business:business123@192.168.3.95:27017/business
   redis:
-      host: 192.168.3.83
+      host: 192.168.3.108
       port: 6379
-      password: har123
+      password: 123456
       database: 14
 
 hbase.zookeeper.quorum: s94,s95,s96
