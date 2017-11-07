@@ -56,7 +56,8 @@ public class ZGShiYouSpiderLauncher extends BaseSpiderLauncher {
 
         Spider spider=Spider.create(zgShiYouPageProcessor)
                 .addPipeline(zgShiYouPipeline)
-                .addRequest(requests).setUUID(uuid)
+                .addRequest(requests)
+                .setUUID(uuid)
                 .thread(num * 2);
 
         addSpider(spider);

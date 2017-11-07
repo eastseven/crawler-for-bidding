@@ -111,7 +111,7 @@ public class ZGZhaoTouPageProcessorTests {
     }
 
 
-    @Value("${app.proxy.pool.formTemplate}")
+    @Value("${app.html.template.table}")
     String formTemplate;
 
     @Test
@@ -138,6 +138,5 @@ public class ZGZhaoTouPageProcessorTests {
         List<ChinaTenderingAndBiddingAnnouncement.ObjectBean.TenderBulletinBean> tenderBulletin=data1.getObject().getTenderBulletin();
 
     }
-
 
 }
