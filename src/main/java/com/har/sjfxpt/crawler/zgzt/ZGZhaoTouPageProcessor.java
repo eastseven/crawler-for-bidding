@@ -185,7 +185,6 @@ public class ZGZhaoTouPageProcessor implements BasePageProcessor {
                         test = StringUtils.replace(test, "{" + entry.getKey() + "}", entry.getValue());
                     }
                 }
-                log.debug("test=={}", test);
                 if (StringUtils.isNotBlank(test)) {
                     zgZhaoTouDataItem.setHtml(test);
                     zgZhaoTouDataItem.setFormatContent(test);

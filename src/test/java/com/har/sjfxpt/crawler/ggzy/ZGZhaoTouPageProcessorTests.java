@@ -30,6 +30,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingLanucher.requestGenerator;
+
 /**
  * Created by Administrator on 2017/11/1.
  */
@@ -44,60 +46,18 @@ public class ZGZhaoTouPageProcessorTests {
     @Autowired
     ZGZhaoTouPipeline zgZhaoTouPipeline;
 
-    public Request requestGenerator(String url, String type) {
-
-        Request request = new Request(url);
-
-        Map<String, Object> params = Maps.newHashMap();
-
-        if(type.equals("招标项目")||type.equals("中标公告")||type.equals("开标记录")||type.equals("评标公示")){
-            params.put("searchName", "");
-            params.put("searchArea", "");
-            params.put("searchIndustry", "");
-            params.put("centerPlat", "");
-            params.put("businessType", type);
-            params.put("searchTimeStart", "");
-            params.put("searchTimeStop", "");
-            params.put("timeTypeParam", "今日");
-            params.put("bulletinIssnTime", "");
-            params.put("bulletinIssnTimeStart", "");
-            params.put("bulletinIssnTimeStop", "");
-            params.put("pageNo", 1);
-            params.put("row", 15);
-        }
-        if(type.equals("招标公告")){
-            params.put("searchName", "");
-            params.put("searchArea", "");
-            params.put("searchIndustry", "");
-            params.put("centerPlat", "");
-            params.put("businessType", type);
-            params.put("searchTimeStart", "");
-            params.put("searchTimeStop", "");
-            params.put("timeTypeParam", "");
-            params.put("bulletinIssnTime", "今日");
-            params.put("bulletinIssnTimeStart", "");
-            params.put("bulletinIssnTimeStop", "");
-            params.put("pageNo", 1);
-            params.put("row", 15);
-        }
-        request.setMethod(HttpConstant.Method.POST);
-        request.setRequestBody(HttpRequestBody.form(params, "UTF-8"));
-        request.putExtra("pageParams", params);
-        return request;
-    }
-
     @Test
     public void testZGZhaoTouPageProcessor() {
 
         String url = "http://www.cebpubservice.com/ctpsp_iiss/searchbusinesstypebeforedooraction/getStringMethod.do";
 
-        Request request1 = requestGenerator(url, "招标项目");
-        Request request2 = requestGenerator(url, "招标公告");
-        Request request3 = requestGenerator(url, "中标公告");
-        Request request4 = requestGenerator(url, "开标记录");
-        Request request5 = requestGenerator(url, "评标公示");
-
-        Request[] requests={request1,request2,request3,request4,request5};
+        Request[] requests={
+                requestGenerator(url, "招标项目"),
+                requestGenerator(url, "招标公告"),
+                requestGenerator(url, "中标公告"),
+                requestGenerator(url, "开标记录"),
+                requestGenerator(url, "评标公示")
+        };
 
         Spider.create(zgZhaoTouPageProcessor)
                 .addRequest(requests)
