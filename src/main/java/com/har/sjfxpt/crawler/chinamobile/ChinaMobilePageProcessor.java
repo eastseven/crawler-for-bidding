@@ -114,6 +114,7 @@ public class ChinaMobilePageProcessor implements BasePageProcessor {
             if (StringUtils.isBlank(title)) {
                 title = element.select("td").get(2).text();
             }
+            String projectName = StringUtils.substringBefore(title, "_");
 
             String date = element.select("td").get(3).text();
             date = new DateTime(date).toString(YYYYMMDD);
@@ -121,6 +122,7 @@ public class ChinaMobilePageProcessor implements BasePageProcessor {
             ChinaMobileDataItem dataItem = new ChinaMobileDataItem(url);
             dataItem.setDate(date);
             dataItem.setTitle(title);
+            dataItem.setProjectName(StringUtils.defaultString(projectName, ""));
             dataItem.setType(type);
             dataItem.setPurchaser(purchaser);
             dataItem.setProvince(ProvinceUtil.get(purchaser + title));

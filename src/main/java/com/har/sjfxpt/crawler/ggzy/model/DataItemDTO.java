@@ -49,6 +49,13 @@ public class DataItemDTO {
 
     /**
      * 采购单位名称，甲方
+     * 中国政府采购网
      */
     private String purchaser;
+
+    /**
+     * 项目名称，title 下划线前面的值
+     * 中国移动
+     */
+    private String projectName;
 }

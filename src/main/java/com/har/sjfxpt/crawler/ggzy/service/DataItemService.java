@@ -127,16 +127,17 @@ public class DataItemService {
 
     private Put assemble(String rowKey, DataItemDTO dataItem) throws UnsupportedEncodingException {
         Put put = new Put(rowKey.getBytes());
-        put.addColumn(family, "url".getBytes(), StringUtils.defaultString(dataItem.getUrl(), "").getBytes(charsetName));
-        put.addColumn(family, "title".getBytes(), StringUtils.defaultString(dataItem.getTitle(), "").getBytes(charsetName));
-        put.addColumn(family, "province".getBytes(), StringUtils.defaultString(dataItem.getProvince(), "全国").getBytes(charsetName));
-        put.addColumn(family, "type".getBytes(), StringUtils.defaultString(dataItem.getType(), "").getBytes(charsetName));
-        put.addColumn(family, "source".getBytes(), StringUtils.defaultString(dataItem.getSource(), "其他").getBytes(charsetName));
-        put.addColumn(family, "sourceCode".getBytes(), StringUtils.defaultString(dataItem.getSourceCode(), "UNKNOWN").getBytes(charsetName));
-        put.addColumn(family, "date".getBytes(), StringUtils.defaultString(dataItem.getDate(), "").getBytes(charsetName));
-        put.addColumn(family, "create_time".getBytes(), StringUtils.defaultString(dataItem.getCreateTime(), "").getBytes(charsetName));
+        put.addColumn(family, "url".getBytes(),           StringUtils.defaultString(dataItem.getUrl(), "").getBytes(charsetName));
+        put.addColumn(family, "title".getBytes(),         StringUtils.defaultString(dataItem.getTitle(), "").getBytes(charsetName));
+        put.addColumn(family, "province".getBytes(),      StringUtils.defaultString(dataItem.getProvince(), "全国").getBytes(charsetName));
+        put.addColumn(family, "type".getBytes(),          StringUtils.defaultString(dataItem.getType(), "").getBytes(charsetName));
+        put.addColumn(family, "source".getBytes(),        StringUtils.defaultString(dataItem.getSource(), "其他").getBytes(charsetName));
+        put.addColumn(family, "sourceCode".getBytes(),    StringUtils.defaultString(dataItem.getSourceCode(), "UNKNOWN").getBytes(charsetName));
+        put.addColumn(family, "date".getBytes(),          StringUtils.defaultString(dataItem.getDate(), "").getBytes(charsetName));
+        put.addColumn(family, "create_time".getBytes(),   StringUtils.defaultString(dataItem.getCreateTime(), "").getBytes(charsetName));
         put.addColumn(family, "formatContent".getBytes(), StringUtils.defaultString(dataItem.getFormatContent(), "").getBytes(charsetName));
-        put.addColumn(family, "purchaser".getBytes(), StringUtils.defaultString(dataItem.getPurchaser(), "").getBytes(charsetName));
+        put.addColumn(family, "purchaser".getBytes(),     StringUtils.defaultString(dataItem.getPurchaser(), "").getBytes(charsetName));
+        put.addColumn(family, "project_name".getBytes(),  StringUtils.defaultString(dataItem.getProjectName(), "").getBytes(charsetName));
 
         //textContent 废弃
         put.addColumn(family, "textContent".getBytes(), StringUtils.defaultString("", "").getBytes(charsetName));

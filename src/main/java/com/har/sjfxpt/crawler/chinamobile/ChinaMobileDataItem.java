@@ -57,6 +57,8 @@ public class ChinaMobileDataItem {
     @Transient
     private String textContent;
 
+    private String projectName;
+
     public DataItemDTO dto() {
         DataItemDTO dto = new DataItemDTO();
         BeanUtils.copyProperties(this, dto);
