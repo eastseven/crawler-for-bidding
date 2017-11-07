@@ -6,7 +6,7 @@ import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
 import com.har.sjfxpt.crawler.jcw.JinCaiWangSpiderLauncher;
 import com.har.sjfxpt.crawler.petrochina.ZGShiYouSpiderLauncher;
 import com.har.sjfxpt.crawler.zgyj.ZGYeJinSpiderLauncher;
-import com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingLanucher;
+import com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingLauncher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -46,7 +46,7 @@ public class SpiderLauncher implements CommandLineRunner {
     ZGYeJinSpiderLauncher zhongGuoYeJinSpiderLauncher;
 
     @Autowired
-    ChinaTenderingAndBiddingLanucher chinaTenderingAndBiddingLanucher;
+    ChinaTenderingAndBiddingLauncher chinaTenderingAndBiddingLauncher;
 
     public void info() {
         gongGongZiYuanSpiderLauncher.printInfo();
@@ -55,11 +55,8 @@ public class SpiderLauncher implements CommandLineRunner {
         jinCaiWangSpiderLauncher.printInfo();
         zhongGuoShiYouSpiderLauncher.printInfo();
         zhongGuoYeJinSpiderLauncher.printInfo();
-        chinaTenderingAndBiddingLanucher.printInfo();
+        chinaTenderingAndBiddingLauncher.printInfo();
     }
-
-    @Autowired
-    ZGYeJinSpiderLauncher zgYeJinSpiderLauncher;
 
     @Override
     public void run(String... args) throws Exception {
@@ -91,10 +88,10 @@ public class SpiderLauncher implements CommandLineRunner {
                     jinCaiWangSpiderLauncher.start();
                     break;
                 case "start-zgyj":
-                    zgYeJinSpiderLauncher.start();
+                    zhongGuoYeJinSpiderLauncher.start();
                     break;
                 case "history-zgyj":
-                    zgYeJinSpiderLauncher.fetchHistory();
+                    zhongGuoYeJinSpiderLauncher.fetchHistory();
                     break;
                 case "start-zsy":
                     zhongGuoShiYouSpiderLauncher.start();
@@ -103,7 +100,7 @@ public class SpiderLauncher implements CommandLineRunner {
                     zhongGuoShiYouSpiderLauncher.fetchHistory();
                     break;
                 case "start-zgzt":
-                    chinaTenderingAndBiddingLanucher.start();
+                    chinaTenderingAndBiddingLauncher.start();
                     break;
                 default:
                     break;

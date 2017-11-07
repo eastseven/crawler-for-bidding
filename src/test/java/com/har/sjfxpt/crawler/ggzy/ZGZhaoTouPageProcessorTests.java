@@ -1,9 +1,7 @@
 package com.har.sjfxpt.crawler.ggzy;
 
 import com.alibaba.fastjson.JSONObject;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingAnnouncement;
 import com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingContent;
@@ -11,8 +9,6 @@ import com.har.sjfxpt.crawler.zgzt.ZGZhaoTouPageProcessor;
 import com.har.sjfxpt.crawler.zgzt.ZGZhaoTouPipeline;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Element;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingLanucher.requestGenerator;
+import static com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingLauncher.requestGenerator;
 
 /**
  * Created by Administrator on 2017/11/1.

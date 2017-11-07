@@ -122,7 +122,7 @@ public class ZGShiYouPageProcessor implements BasePageProcessor {
                     ZGShiYouDataItem zgShiYouDataItem = new ZGShiYouDataItem(id);
                     zgShiYouDataItem.setTitle(title);
                     zgShiYouDataItem.setDate(date);
-                    zgShiYouDataItem.setTenderer(tenderer);
+                    zgShiYouDataItem.setTenderer(StringUtils.trim(tenderer));
                     zgShiYouDataItem.setProvince(ProvinceUtil.get(title));
 
                     Request request = new Request(formUrl);

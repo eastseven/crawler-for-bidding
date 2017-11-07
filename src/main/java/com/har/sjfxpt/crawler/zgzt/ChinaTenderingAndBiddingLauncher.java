@@ -18,7 +18,7 @@ import java.util.Map;
  */
 @Slf4j
 @Component
-public class ChinaTenderingAndBiddingLanucher extends BaseSpiderLauncher{
+public class ChinaTenderingAndBiddingLauncher extends BaseSpiderLauncher{
 
     final String uuid= SourceCode.ZGZT.toString().toLowerCase()+"-current";
 

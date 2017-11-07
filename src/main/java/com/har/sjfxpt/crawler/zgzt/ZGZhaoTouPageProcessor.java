@@ -31,13 +31,13 @@ import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_
 @Component
 public class ZGZhaoTouPageProcessor implements BasePageProcessor {
 
-    @Value("${app.proxy.pool.formTemplate}")
+    @Value("${app.html.template.table}")
     String formTemplate;
 
-    @Value("${app.proxy.pool.formTemplateAnnouncement}")
+    @Value("${app.html.template.announcement}")
     String formTemplateAnnouncement;
 
-    @Value("${app.proxy.pool.formTemplateBidOpen}")
+    @Value("${app.html.template.bidOpen}")
     String formTemplateBidOpen;
 
     HttpClientDownloader httpClientDownloader;
