@@ -6,6 +6,7 @@ import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
 import com.har.sjfxpt.crawler.jcw.JinCaiWangSpiderLauncher;
 import com.har.sjfxpt.crawler.petrochina.ZGShiYouSpiderLauncher;
 import com.har.sjfxpt.crawler.zgyj.ZGYeJinSpiderLauncher;
+import com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingLanucher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -44,6 +45,9 @@ public class SpiderLauncher implements CommandLineRunner {
     @Autowired
     ZGYeJinSpiderLauncher zhongGuoYeJinSpiderLauncher;
 
+    @Autowired
+    ChinaTenderingAndBiddingLanucher chinaTenderingAndBiddingLanucher;
+
     public void info() {
         gongGongZiYuanSpiderLauncher.printInfo();
         chinaMobileSpiderLauncher.printInfo();
@@ -51,6 +55,7 @@ public class SpiderLauncher implements CommandLineRunner {
         jinCaiWangSpiderLauncher.printInfo();
         zhongGuoShiYouSpiderLauncher.printInfo();
         zhongGuoYeJinSpiderLauncher.printInfo();
+        chinaTenderingAndBiddingLanucher.printInfo();
     }
 
     @Autowired
@@ -96,6 +101,9 @@ public class SpiderLauncher implements CommandLineRunner {
                     break;
                 case "history-zsy":
                     zhongGuoShiYouSpiderLauncher.fetchHistory();
+                    break;
+                case "start-zgzt":
+                    chinaTenderingAndBiddingLanucher.start();
                     break;
                 default:
                     break;
