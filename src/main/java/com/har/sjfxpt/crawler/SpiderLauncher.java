@@ -1,8 +1,10 @@
 package com.har.sjfxpt.crawler;
 
 import com.har.sjfxpt.crawler.ccgp.ZhengFuCaiGouSpiderLauncher;
+import com.har.sjfxpt.crawler.ccgp.ccgpsc.CCGPSiChuanSpiderLauncher;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
+import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanSpiderLauncher;
 import com.har.sjfxpt.crawler.jcw.JinCaiWangSpiderLauncher;
 import com.har.sjfxpt.crawler.petrochina.ZGShiYouSpiderLauncher;
 import com.har.sjfxpt.crawler.zgyj.ZGYeJinSpiderLauncher;
@@ -48,6 +50,12 @@ public class SpiderLauncher implements CommandLineRunner {
     @Autowired
     ChinaTenderingAndBiddingLauncher chinaTenderingAndBiddingLauncher;
 
+    @Autowired
+    CCGPHaiNanSpiderLauncher CCGPHaiNanSpiderLauncher;
+
+    @Autowired
+    CCGPSiChuanSpiderLauncher ccgpSiChuanSpiderLauncher;
+
     public void info() {
         gongGongZiYuanSpiderLauncher.printInfo();
         chinaMobileSpiderLauncher.printInfo();
@@ -56,6 +64,8 @@ public class SpiderLauncher implements CommandLineRunner {
         zhongGuoShiYouSpiderLauncher.printInfo();
         zhongGuoYeJinSpiderLauncher.printInfo();
         chinaTenderingAndBiddingLauncher.printInfo();
+        CCGPHaiNanSpiderLauncher.printInfo();
+        ccgpSiChuanSpiderLauncher.printInfo();
     }
 
     @Override
@@ -101,6 +111,12 @@ public class SpiderLauncher implements CommandLineRunner {
                     break;
                 case "start-zgzt":
                     chinaTenderingAndBiddingLauncher.start();
+                    break;
+                case "start-ccgphn":
+                    CCGPHaiNanSpiderLauncher.start();
+                    break;
+                case "start-ccgpsc":
+                    ccgpSiChuanSpiderLauncher.start();
                     break;
                 default:
                     break;

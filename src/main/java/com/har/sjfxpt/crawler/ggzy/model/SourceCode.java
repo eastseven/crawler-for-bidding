@@ -11,7 +11,9 @@ public enum SourceCode {
     JC("金采网"),
     ZGYJ("中国冶金科工"),
     ZSY("中国石油"),
-    ZGZT("中国招投标");
+    ZGZT("中国招投标"),
+    CCGPHN("海南政府采购"),
+    CCGPSC("四川政府采购");
 
 
     private String value;
