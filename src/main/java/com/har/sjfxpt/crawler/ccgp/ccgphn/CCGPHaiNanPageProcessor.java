@@ -37,7 +37,7 @@ public class CCGPHaiNanPageProcessor implements BasePageProcessor {
             int pageNum = Integer.parseInt(StringUtils.substringBetween(test, "总共", "页"));
             for (int i = 2; i <= pageNum; i++) {
                 String targetUrl = StringUtils.replace(url, "currentPage=1", "currentPage=" + i);
-                page.addTargetRequest(targetUrl);
+                page.addTargetRequest(new Request(targetUrl));
             }
         }
     }
@@ -49,7 +49,7 @@ public class CCGPHaiNanPageProcessor implements BasePageProcessor {
             log.error("fetch error, elements is empty");
             return;
         }
-        List<CCGPHaiNanModel> dataItems = parseContent(elements);
+        List<CCGPHaiNanDataItem> dataItems = parseContent(elements);
         if (!dataItems.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItems);
         } else {
@@ -59,7 +59,7 @@ public class CCGPHaiNanPageProcessor implements BasePageProcessor {
 
     @Override
     public List parseContent(Elements items) {
-        List<CCGPHaiNanModel> dataItems = Lists.newArrayList();
+        List<CCGPHaiNanDataItem> dataItems = Lists.newArrayList();
         for (Element a : items) {
             Elements element = a.select("em>a");
             Elements type = a.select("span>tt");
@@ -71,12 +71,12 @@ public class CCGPHaiNanPageProcessor implements BasePageProcessor {
             String url = element.attr("href");
             String title = element.text();
             String projectName = StringUtils.substringBeforeLast(title, "-");
-            CCGPHaiNanModel CCGPHaiNanModel = new CCGPHaiNanModel(url);
-            CCGPHaiNanModel.setType(typeTxt);
-            CCGPHaiNanModel.setUrl("http://www.ccgp-hainan.gov.cn" + url);
-            CCGPHaiNanModel.setTitle(title);
-            CCGPHaiNanModel.setDate(date);
-            CCGPHaiNanModel.setProjectName(StringUtils.defaultString(projectName, ""));
+            CCGPHaiNanDataItem CCGPHaiNanDataItem = new CCGPHaiNanDataItem(url);
+            CCGPHaiNanDataItem.setType(typeTxt);
+            CCGPHaiNanDataItem.setUrl("http://www.ccgp-hainan.gov.cn" + url);
+            CCGPHaiNanDataItem.setTitle(title);
+            CCGPHaiNanDataItem.setDate(date);
+            CCGPHaiNanDataItem.setProjectName(StringUtils.defaultString(projectName, ""));
 
             Request request = new Request("http://www.ccgp-hainan.gov.cn" + url);
             Page page = httpClientDownloader.download(request, SiteUtil.get().toTask());
@@ -86,16 +86,16 @@ public class CCGPHaiNanPageProcessor implements BasePageProcessor {
             String tenderer = StringUtils.substringBetween(source.text(), "信息来源：", " 公告类型：");
             String dateDetail = StringUtils.substringAfter(source.text(), "发表时间：");
             if (StringUtils.isNotBlank(dateDetail)) {
-                CCGPHaiNanModel.setDate(dateDetail);
+                CCGPHaiNanDataItem.setDate(dateDetail);
             }
-            CCGPHaiNanModel.setPurchaser(tenderer);
+            CCGPHaiNanDataItem.setPurchaser(tenderer);
             Element formatContentHtml = element1.select("body > div.neibox > div.neibox02 > div.box > div > div.nei03_02").first();
             String formatContent = PageProcessorUtil.formatElementsByWhitelist(formatContentHtml);
             if (StringUtils.isNotBlank(html)) {
-                CCGPHaiNanModel.setHtml(html);
-                CCGPHaiNanModel.setFormatContent(formatContent);
+                CCGPHaiNanDataItem.setHtml(html);
+                CCGPHaiNanDataItem.setFormatContent(formatContent);
             }
-            dataItems.add(CCGPHaiNanModel);
+            dataItems.add(CCGPHaiNanDataItem);
         }
         return dataItems;
     }

@@ -31,7 +31,7 @@ public class CCGPHaiNanPipeline implements Pipeline {
 
     @Override
     public void process(ResultItems resultItems, Task task) {
-        List<CCGPHaiNanModel> dataItemList = resultItems.get(KEY_DATA_ITEMS);
+        List<CCGPHaiNanDataItem> dataItemList = resultItems.get(KEY_DATA_ITEMS);
         if (CollectionUtils.isEmpty(dataItemList)) {
             log.warn("{} save nothing", SourceCode.CCGPHN);
         } else {

@@ -24,9 +24,9 @@ import java.util.Date;
 @AllArgsConstructor
 //@ToString
 @Document(collection = "data_item_ccgp_hn")
-public class CCGPHaiNanModel {
+public class CCGPHaiNanDataItem {
 
-    public CCGPHaiNanModel(String url) {
+    public CCGPHaiNanDataItem(String url) {
         this.id = DigestUtils.md5Hex(url);
     }
 
