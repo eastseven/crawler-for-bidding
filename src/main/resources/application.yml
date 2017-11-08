@@ -2,6 +2,7 @@ logging:
   level:
     com.har.sjfxpt.crawler: info
     us.codecraft.webmagic.downloader: error
+  file: target/a.log
 
 spring:
   data:
