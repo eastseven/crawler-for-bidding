@@ -1,8 +1,9 @@
 package com.har.sjfxpt.crawler.ggzy;
 
-import com.har.sjfxpt.crawler.ggzy.pipeline.HaiNanPipeline;
-import com.har.sjfxpt.crawler.ggzy.processor.HaiNanPageProcessor;
+import com.har.sjfxpt.crawler.ccgp.ccgphn.HaiNanPipeline;
+import com.har.sjfxpt.crawler.ccgp.ccgphn.HaiNanPageProcessor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,7 +21,7 @@ import java.util.Date;
 @Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class HaiNanPageProcessorTests {
+public class CCGPHaiNanPageProcessorTests {
 
     @Autowired
     HaiNanPageProcessor haiNanPageProcessor;
@@ -42,4 +43,16 @@ public class HaiNanPageProcessorTests {
                 .thread(4)
                 .run();
     }
+
+    @Test
+    public void testString(){
+        String txt="四川恒鑫工程管理咨询有限公司关于码头租赁项目合同公示";
+
+        String projectName= StringUtils.substringBeforeLast(txt,"-");
+
+        String project=StringUtils.defaultString(projectName,"");
+
+        log.debug("project=={}",project);
+    }
+
 }

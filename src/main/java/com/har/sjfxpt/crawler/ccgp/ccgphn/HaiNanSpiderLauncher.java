@@ -1,9 +1,7 @@
-package com.har.sjfxpt.crawler.ggzy;
+package com.har.sjfxpt.crawler.ccgp.ccgphn;
 
 import com.har.sjfxpt.crawler.BaseSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
-import com.har.sjfxpt.crawler.ggzy.pipeline.HaiNanPipeline;
-import com.har.sjfxpt.crawler.ggzy.processor.HaiNanPageProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +16,9 @@ import java.util.Date;
  */
 @Slf4j
 @Component
-public class HaiNanSpiderLauncher extends BaseSpiderLauncher{
+public class HaiNanSpiderLauncher extends BaseSpiderLauncher {
 
-    private final String uuid= SourceCode.CCGPHN.toString().toLowerCase()+"-current";
+    private final String uuid = SourceCode.CCGPHN.toString().toLowerCase() + "-current";
 
     @Autowired
     HaiNanPageProcessor haiNanPageProcessor;
@@ -28,19 +26,19 @@ public class HaiNanSpiderLauncher extends BaseSpiderLauncher{
     @Autowired
     HaiNanPipeline haiNanPipeline;
 
-    final int num=Runtime.getRuntime().availableProcessors();
+    final int num = Runtime.getRuntime().availableProcessors();
 
     /**
-     * 爬去当日数据
+     * 爬取当日数据
      */
-    public void start(){
+    public void start() {
         String date = new DateTime(new Date()).toString("yyyy-MM-dd");
 
         String url = "http://www.ccgp-hainan.gov.cn/cgw/cgw_list.jsp?currentPage=1&begindate=" + date + "&enddate=" + date + "&title=&bid_type=&proj_number=&zone=";
 
         Request request = new Request(url);
 
-        Spider spider=Spider.create(haiNanPageProcessor)
+        Spider spider = Spider.create(haiNanPageProcessor)
                 .addRequest(request)
                 .addPipeline(haiNanPipeline)
                 .setUUID(uuid)

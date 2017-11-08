@@ -1,5 +1,7 @@
-package com.har.sjfxpt.crawler.ggzy.model;
+package com.har.sjfxpt.crawler.ccgp.ccgphn;
 
+import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
+import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
 import lombok.Data;
 import lombok.ToString;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -20,8 +22,6 @@ import java.util.Date;
 @ToString
 @Document(collection = "data_item_ccgp_hn")
 public class HaiNanModel {
-
-
 
     public HaiNanModel(String url) {
         this.id = DigestUtils.md5Hex(url);
@@ -45,6 +45,12 @@ public class HaiNanModel {
      * 投标人
      */
     private String purchaser;
+
+
+    /**
+     * 项目名称，title 下划线前面的值
+     */
+    private String projectName;
 
     /**
      * 发布时间

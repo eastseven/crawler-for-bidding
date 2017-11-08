@@ -1,6 +1,6 @@
-package com.har.sjfxpt.crawler.ggzy.repository;
+package com.har.sjfxpt.crawler.ccgp.ccgphn;
 
-import com.har.sjfxpt.crawler.ggzy.model.HaiNanModel;
+import com.har.sjfxpt.crawler.ccgp.ccgphn.HaiNanModel;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 /**

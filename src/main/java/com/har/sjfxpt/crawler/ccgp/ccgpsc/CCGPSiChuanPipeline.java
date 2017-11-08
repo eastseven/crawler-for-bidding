@@ -1,9 +1,7 @@
-package com.har.sjfxpt.crawler.ggzy.pipeline;
+package com.har.sjfxpt.crawler.ccgp.ccgpsc;
 
 import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
-import com.har.sjfxpt.crawler.ggzy.model.HaiNanModel;
 import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
-import com.har.sjfxpt.crawler.ggzy.repository.HaiNanPageDataRepository;
 import com.har.sjfxpt.crawler.ggzy.service.DataItemService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,28 +17,28 @@ import java.util.stream.Collectors;
 import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
 
 /**
- * Created by Administrator on 2017/11/7.
+ * Created by Administrator on 2017/11/8.
  */
 @Slf4j
 @Component
-public class HaiNanPipeline implements Pipeline {
+public class CCGPSiChuanPipeline implements Pipeline{
 
     @Autowired
-    HaiNanPageDataRepository haiNanPageDataRepository;
+    CCGPSiChuanPageDataRepository ccgpSiChuanPageDataRepository;
 
     @Autowired
     DataItemService dataItemService;
 
     @Override
     public void process(ResultItems resultItems, Task task) {
-        List<HaiNanModel> dataItemList = resultItems.get(KEY_DATA_ITEMS);
-        if (CollectionUtils.isEmpty(dataItemList)) {
-            log.warn("{} save nothing", SourceCode.CCGPHN);
+        List<CCGPSiChuanDataItem> dataItems=resultItems.get(KEY_DATA_ITEMS);
+        if(CollectionUtils.isEmpty(dataItems)){
+            log.warn("{} save nothing", SourceCode.CCGPSC);
         }else {
-            haiNanPageDataRepository.save(dataItemList);
-            log.info("{} save {} to mongodb", SourceCode.CCGPHN, dataItemList.size());
+            ccgpSiChuanPageDataRepository.save(dataItems);
+            log.info("{} save {} to mongodb", SourceCode.CCGPSC, dataItems.size());
 
-            List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
+            List<DataItemDTO> dtoList = dataItems.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
             dataItemService.save2BidNewsOriginalTable(dtoList);
         }
     }

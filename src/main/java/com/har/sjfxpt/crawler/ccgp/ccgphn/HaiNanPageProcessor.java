@@ -1,7 +1,7 @@
-package com.har.sjfxpt.crawler.ggzy.processor;
+package com.har.sjfxpt.crawler.ccgp.ccgphn;
 
 import com.google.common.collect.Lists;
-import com.har.sjfxpt.crawler.ggzy.model.HaiNanModel;
+import com.har.sjfxpt.crawler.ggzy.processor.BasePageProcessor;
 import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -38,8 +38,8 @@ public class HaiNanPageProcessor implements BasePageProcessor {
             int pageNum = Integer.parseInt(StringUtils.substringBetween(test, "总共", "页"));
             log.debug("pageNum=={}", pageNum);
             for (int i = 2; i <= pageNum; i++) {
-                String urlTarget = StringUtils.replace(url, "currentPage=1", "currentPage=" + i);
-                page.addTargetRequest(urlTarget);
+                String targetUrl = StringUtils.replace(url, "currentPage=1", "currentPage=" + i);
+                page.addTargetRequest(targetUrl);
             }
         }
     }
@@ -72,11 +72,13 @@ public class HaiNanPageProcessor implements BasePageProcessor {
             }
             String url = element.attr("href");
             String title = element.text();
+            String projectName= StringUtils.substringBeforeLast(title,"-");
             HaiNanModel haiNanModel = new HaiNanModel(url);
             haiNanModel.setType(typeTxt);
             haiNanModel.setUrl("http://www.ccgp-hainan.gov.cn" + url);
             haiNanModel.setTitle(title);
             haiNanModel.setDate(date);
+            haiNanModel.setProjectName(StringUtils.defaultString(projectName,""));
 
             log.debug("url=={}", url);
             Request request = new Request("http://www.ccgp-hainan.gov.cn" + url);
