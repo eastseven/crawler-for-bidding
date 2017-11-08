@@ -9,7 +9,7 @@ import org.springframework.beans.BeanUtils;
 
 @Getter
 @Setter
-@ToString
+@ToString@Deprecated
 public class GongGongZiYuanModel {
 
     public GongGongZiYuanModel(DataItem dataItem) {

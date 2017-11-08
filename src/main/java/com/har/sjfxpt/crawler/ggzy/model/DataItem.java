@@ -71,6 +71,7 @@ public class DataItem {
     public DataItemDTO dto() {
         DataItemDTO dto = new DataItemDTO();
         BeanUtils.copyProperties(this, dto);
+        dto.setOriginalIndustryCategory(StringUtils.defaultString(this.industry, ""));
         dto.setCreateTime(new DateTime(this.getCreateTime()).toString("yyyyMMddHH"));
         if (StringUtils.isNotBlank(pubDate)) {
             dto.setDate(pubDate);
