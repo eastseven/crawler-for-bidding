@@ -29,7 +29,7 @@ public class CCGPSiChuanSpiderLauncher extends BaseSpiderLauncher {
     final int num=Runtime.getRuntime().availableProcessors();
 
     /**
-     * 爬取当日数据
+     * 爬取全部数据
      */
     public void start() {
 

@@ -1,7 +1,7 @@
 package com.har.sjfxpt.crawler.ggzy;
 
-import com.har.sjfxpt.crawler.ccgp.ccgphn.HaiNanPipeline;
-import com.har.sjfxpt.crawler.ccgp.ccgphn.HaiNanPageProcessor;
+import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanPipeline;
+import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanPageProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -21,13 +21,13 @@ import java.util.Date;
 @Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class CCGPHaiNanPageProcessorTests {
+public class CCGPCCGPHaiNanPageProcessorTests {
 
     @Autowired
-    HaiNanPageProcessor haiNanPageProcessor;
+    CCGPHaiNanPageProcessor CCGPHaiNanPageProcessor;
 
     @Autowired
-    HaiNanPipeline haiNanPipeline;
+    CCGPHaiNanPipeline CCGPHaiNanPipeline;
 
     @Test
     public void testHaiNanPageProcessor() {
@@ -37,9 +37,9 @@ public class CCGPHaiNanPageProcessorTests {
 
         Request request = new Request(url);
 
-        Spider.create(haiNanPageProcessor)
+        Spider.create(CCGPHaiNanPageProcessor)
                 .addRequest(request)
-                .addPipeline(haiNanPipeline)
+                .addPipeline(CCGPHaiNanPipeline)
                 .thread(4)
                 .run();
     }

@@ -21,21 +21,21 @@ import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_
  */
 @Slf4j
 @Component
-public class HaiNanPipeline implements Pipeline {
+public class CCGPHaiNanPipeline implements Pipeline {
 
     @Autowired
-    HaiNanPageDataRepository haiNanPageDataRepository;
+    CCGPHaiNanPageDataRepository CCGPHaiNanPageDataRepository;
 
     @Autowired
     DataItemService dataItemService;
 
     @Override
     public void process(ResultItems resultItems, Task task) {
-        List<HaiNanModel> dataItemList = resultItems.get(KEY_DATA_ITEMS);
+        List<CCGPHaiNanModel> dataItemList = resultItems.get(KEY_DATA_ITEMS);
         if (CollectionUtils.isEmpty(dataItemList)) {
             log.warn("{} save nothing", SourceCode.CCGPHN);
         }else {
-            haiNanPageDataRepository.save(dataItemList);
+            CCGPHaiNanPageDataRepository.save(dataItemList);
             log.info("{} save {} to mongodb", SourceCode.CCGPHN, dataItemList.size());
 
             List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());

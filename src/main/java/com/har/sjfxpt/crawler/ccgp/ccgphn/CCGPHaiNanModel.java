@@ -21,9 +21,9 @@ import java.util.Date;
 @Data
 @ToString
 @Document(collection = "data_item_ccgp_hn")
-public class HaiNanModel {
+public class CCGPHaiNanModel {
 
-    public HaiNanModel(String url) {
+    public CCGPHaiNanModel(String url) {
         this.id = DigestUtils.md5Hex(url);
     }
 

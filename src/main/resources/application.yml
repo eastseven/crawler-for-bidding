@@ -1,6 +1,6 @@
 logging:
   level:
-    com.har.sjfxpt.crawler: debug
+    com.har.sjfxpt.crawler: info
     us.codecraft.webmagic.downloader: error
 
 spring:

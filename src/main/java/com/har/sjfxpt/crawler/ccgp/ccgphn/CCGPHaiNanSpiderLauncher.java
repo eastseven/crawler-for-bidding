@@ -16,15 +16,15 @@ import java.util.Date;
  */
 @Slf4j
 @Component
-public class HaiNanSpiderLauncher extends BaseSpiderLauncher {
+public class CCGPHaiNanSpiderLauncher extends BaseSpiderLauncher {
 
     private final String uuid = SourceCode.CCGPHN.toString().toLowerCase() + "-current";
 
     @Autowired
-    HaiNanPageProcessor haiNanPageProcessor;
+    CCGPHaiNanPageProcessor CCGPHaiNanPageProcessor;
 
     @Autowired
-    HaiNanPipeline haiNanPipeline;
+    CCGPHaiNanPipeline CCGPHaiNanPipeline;
 
     final int num = Runtime.getRuntime().availableProcessors();
 
@@ -38,9 +38,9 @@ public class HaiNanSpiderLauncher extends BaseSpiderLauncher {
 
         Request request = new Request(url);
 
-        Spider spider = Spider.create(haiNanPageProcessor)
+        Spider spider = Spider.create(CCGPHaiNanPageProcessor)
                 .addRequest(request)
-                .addPipeline(haiNanPipeline)
+                .addPipeline(CCGPHaiNanPipeline)
                 .setUUID(uuid)
                 .thread(num);
         addSpider(spider);

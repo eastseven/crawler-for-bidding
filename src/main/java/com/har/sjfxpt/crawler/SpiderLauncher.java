@@ -4,7 +4,7 @@ import com.har.sjfxpt.crawler.ccgp.ZhengFuCaiGouSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgpsc.CCGPSiChuanSpiderLauncher;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
-import com.har.sjfxpt.crawler.ccgp.ccgphn.HaiNanSpiderLauncher;
+import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanSpiderLauncher;
 import com.har.sjfxpt.crawler.jcw.JinCaiWangSpiderLauncher;
 import com.har.sjfxpt.crawler.petrochina.ZGShiYouSpiderLauncher;
 import com.har.sjfxpt.crawler.zgyj.ZGYeJinSpiderLauncher;
@@ -51,7 +51,7 @@ public class SpiderLauncher implements CommandLineRunner {
     ChinaTenderingAndBiddingLauncher chinaTenderingAndBiddingLauncher;
 
     @Autowired
-    HaiNanSpiderLauncher haiNanSpiderLauncher;
+    CCGPHaiNanSpiderLauncher CCGPHaiNanSpiderLauncher;
 
     @Autowired
     CCGPSiChuanSpiderLauncher ccgpSiChuanSpiderLauncher;
@@ -64,7 +64,7 @@ public class SpiderLauncher implements CommandLineRunner {
         zhongGuoShiYouSpiderLauncher.printInfo();
         zhongGuoYeJinSpiderLauncher.printInfo();
         chinaTenderingAndBiddingLauncher.printInfo();
-        haiNanSpiderLauncher.printInfo();
+        CCGPHaiNanSpiderLauncher.printInfo();
         ccgpSiChuanSpiderLauncher.printInfo();
     }
 
@@ -113,7 +113,7 @@ public class SpiderLauncher implements CommandLineRunner {
                     chinaTenderingAndBiddingLauncher.start();
                     break;
                 case "start-ccgphn":
-                    haiNanSpiderLauncher.start();
+                    CCGPHaiNanSpiderLauncher.start();
                     break;
                 case "start-ccgpsc":
                     ccgpSiChuanSpiderLauncher.start();
