@@ -1,4 +1,4 @@
-package com.har.sjfxpt.crawler.zgyj;
+package com.har.sjfxpt.crawler.yibiao;
 
 import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
 import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
@@ -16,16 +16,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Date;
 
 /**
- * Created by Administrator on 2017/10/27.
- * @author luofei
+ * Created by Administrator on 2017/11/9.
  */
 @Data
 @ToString
-@Document(collection = "data_item_mcc")
-public class ZGYeJinDataItem {
+@Document(collection = "data_item_yi_biao_wang")
+public class YiBiaoDataItem {
 
-
-    public ZGYeJinDataItem(String url) {
+    public YiBiaoDataItem(String url) {
         this.id = DigestUtils.md5Hex(url);
     }
 
@@ -34,14 +32,19 @@ public class ZGYeJinDataItem {
 
     private String url;
 
-    private Date createTime = new Date();
+    private Date createTime = DateTime.now().toDate();
 
     /**
      * 地区
      */
-    private String province = "全国";
+    private String province;
 
     private String type;
+
+    /**
+     * 行业
+     */
+    private String industry;
 
     /**
      * 发布时间
@@ -52,25 +55,15 @@ public class ZGYeJinDataItem {
     @Indexed
     private String title;
 
-    /**
-     * 项目名称，title 下划线前面的值
-     */
-    private String projectName;
 
-    @Transient
-    private String html;
-
-    @Transient
     private String formatContent;
 
-    @Transient
-    private String textContent;
 
     public DataItemDTO dto() {
         DataItemDTO dto = new DataItemDTO();
         BeanUtils.copyProperties(this, dto);
-        dto.setSource(SourceCode.ZGYJ.getValue());
-        dto.setSourceCode(SourceCode.ZGYJ.toString());
+        dto.setSource(SourceCode.YIBIAO.getValue());
+        dto.setSourceCode(SourceCode.YIBIAO.toString());
         DateTime ct = new DateTime(this.getCreateTime());
         dto.setCreateTime(ct.toString("yyyyMMddHH"));
         if (StringUtils.isBlank(date)) {
@@ -78,5 +71,6 @@ public class ZGYeJinDataItem {
         }
         return dto;
     }
+
 
 }

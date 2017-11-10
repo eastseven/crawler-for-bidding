@@ -90,7 +90,6 @@ public class ZGShiYouPageProcessor implements BasePageProcessor {
             log.error("fetch error, elements is empty");
             return;
         }
-
         List<ZGShiYouDataItem> dataItems = parseContent(elements);
         String type = (String) pageParams.get("type");
         dataItems.forEach(dataItem -> dataItem.setType(type));

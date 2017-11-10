@@ -95,6 +95,13 @@ public class ZGYeJinPageProcessor implements BasePageProcessor {
             if (StringUtils.isNotBlank(url)) {
                 ZGYeJinDataItem zgYeJinDataItem = new ZGYeJinDataItem(url);
                 zgYeJinDataItem.setTitle(title);
+
+                if(StringUtils.contains(title,"资格预审：")){
+                    zgYeJinDataItem.setProjectName(StringUtils.substringAfter(title,"资格预审："));
+                }
+                if(StringUtils.contains(title,"招标公告：")){
+                    zgYeJinDataItem.setProjectName(StringUtils.substringAfter(title,"招标公告："));
+                }
                 zgYeJinDataItem.setDate(date);
                 zgYeJinDataItem.setUrl(url);
                 zgYeJinDataItem.setProvince(ProvinceUtil.get(title));

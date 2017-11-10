@@ -7,6 +7,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.safety.Whitelist;
 
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -51,6 +52,9 @@ public final class PageProcessorUtil {
         if (StringUtils.contains(date, "发布时间：")) {
             date = StringUtils.remove(date, "发布时间：");
         }
+        if (StringUtils.contains(date, "发布：")) {
+            date = StringUtils.remove(date, "发布：");
+        }
 
         Matcher matcher = yyyymmddhhmmPattern.matcher(date);
         String dataStr = null;
@@ -67,7 +71,7 @@ public final class PageProcessorUtil {
     }
 
     /**
-     *正文解析
+     * 正文解析
      */
     public static String formatText(String textContent) {
         String[] removeText = {
@@ -75,8 +79,34 @@ public final class PageProcessorUtil {
                 "首页(.+?)详细信息",
         };
         for (int i = 0; i < removeText.length; i++) {
-           textContent=StringUtils.removeAll(textContent,removeText[i]);
+            textContent = StringUtils.removeAll(textContent, removeText[i]);
         }
         return textContent;
+    }
+
+    /**
+     * 时间比较
+     */
+    public static boolean timeCompare(String date) {
+
+        String dataStr = null;
+
+        Matcher matcher = yyyymmddPattern.matcher(date);
+
+        if (matcher.find()) {
+            dataStr = matcher.group();
+        }
+        if (StringUtils.isNotBlank(dataStr)) {
+            DateTime dateTime = new DateTime(dataStr);
+
+            DateTime dateTime1=new DateTime(new DateTime(new Date()).toString("yyyy-MM-dd"));
+
+            if(dateTime.isBefore(dateTime1)){
+                return true;
+            }else {
+                return false;
+            }
+        }
+        return false;
     }
 }
