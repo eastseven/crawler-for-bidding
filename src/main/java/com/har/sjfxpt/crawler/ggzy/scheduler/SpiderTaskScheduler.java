@@ -8,6 +8,7 @@ import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
 import com.har.sjfxpt.crawler.jcw.JinCaiWangSpiderLauncher;
 import com.har.sjfxpt.crawler.petrochina.ZGShiYouSpiderLauncher;
+import com.har.sjfxpt.crawler.yibiao.YiBiaoSpiderLauncher;
 import com.har.sjfxpt.crawler.zgyj.ZGYeJinSpiderLauncher;
 import com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingLauncher;
 import lombok.extern.slf4j.Slf4j;
@@ -131,4 +132,16 @@ public class SpiderTaskScheduler {
             context.getBean(CCGPSiChuanSpiderLauncher.class).start();
         }
     }
+
+    /**
+     *一标网
+     */
+    @Scheduled(initialDelay = 21000, fixedRate = 25 * 60 * 1000)
+    public void fetchYiBiao(){
+        if(flag){
+            log.info(">>> start fetch {}", SourceCode.YIBIAO);
+            context.getBean(YiBiaoSpiderLauncher.class).start();
+        }
+    }
+
 }
