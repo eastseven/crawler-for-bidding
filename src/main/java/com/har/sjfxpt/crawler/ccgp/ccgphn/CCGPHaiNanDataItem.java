@@ -2,8 +2,7 @@ package com.har.sjfxpt.crawler.ccgp.ccgphn;
 
 import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
 import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
-import lombok.Data;
-import lombok.ToString;
+import lombok.*;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -18,12 +17,16 @@ import java.util.Date;
 /**
  * Created by Administrator on 2017/11/7.
  */
-@Data
-@ToString
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+//@ToString
 @Document(collection = "data_item_ccgp_hn")
-public class CCGPHaiNanModel {
+public class CCGPHaiNanDataItem {
 
-    public CCGPHaiNanModel(String url) {
+    public CCGPHaiNanDataItem(String url) {
         this.id = DigestUtils.md5Hex(url);
     }
 
@@ -32,12 +35,12 @@ public class CCGPHaiNanModel {
 
     private String url;
 
-    private Date createTime= DateTime.now().toDate();
+    private Date createTime = DateTime.now().toDate();
 
     /**
      * 地区
      */
-    private String province="海南";
+    private String province = "海南";
 
     private String type;
 
@@ -64,16 +67,14 @@ public class CCGPHaiNanModel {
     @Transient
     private String html;
 
-//    @Transient
     private String formatContent;
 
-
-    public DataItemDTO dto(){
-        DataItemDTO dto=new DataItemDTO();
-        BeanUtils.copyProperties(this,dto);
+    public DataItemDTO dto() {
+        DataItemDTO dto = new DataItemDTO();
+        BeanUtils.copyProperties(this, dto);
         dto.setSource(SourceCode.CCGPHN.getValue());
         dto.setSourceCode(SourceCode.CCGPHN.toString());
-        DateTime ct=new DateTime(this.getCreateTime());
+        DateTime ct = new DateTime(this.getCreateTime());
         dto.setCreateTime(ct.toString("yyyyMMddHH"));
         if (StringUtils.isBlank(date)) {
             dto.setDate(ct.toString("yyyy-MM-dd HH:mm"));

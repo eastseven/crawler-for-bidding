@@ -111,7 +111,7 @@ public class CCGPSiChuanPageProcessor implements BasePageProcessor {
             long value = stringRedisTemplate.boundSetOps(KEY_URLS).add(href);
             if (value == 0L) {
                 //重复数据
-                log.warn("{} is duplication", href);
+                log.debug("{} is duplication", href);
             } else {
                 Request request = new Request(href);
                 Page page = httpClientDownloader.download(request, SiteUtil.get().toTask());

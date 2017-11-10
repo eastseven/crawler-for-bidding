@@ -1,6 +1,8 @@
 package com.har.sjfxpt.crawler.ggzy.scheduler;
 
 import com.har.sjfxpt.crawler.ccgp.ZhengFuCaiGouSpiderLauncher;
+import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanSpiderLauncher;
+import com.har.sjfxpt.crawler.ccgp.ccgpsc.CCGPSiChuanSpiderLauncher;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
@@ -32,6 +34,7 @@ public class SpiderTaskScheduler {
 
     /**
      * 启动后10秒执行，5分钟一次
+     * 公共资源
      */
     @Scheduled(initialDelay = 10000, fixedRate = 5 * 60 * 1000)
     public void fetchGGZY() {
@@ -63,6 +66,9 @@ public class SpiderTaskScheduler {
         }
     }
 
+    /**
+     * 中国政府采购网
+     */
     @Scheduled(initialDelay = 20000, fixedRate = 15 * 60 * 1000)
     public void fetchCCGP() {
         if (flag) {
@@ -101,6 +107,28 @@ public class SpiderTaskScheduler {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.ZGZT);
             context.getBean(ChinaTenderingAndBiddingLauncher.class).start();
+        }
+    }
+
+    /**
+     * 海南政府采购网
+     */
+    @Scheduled(initialDelay = 23000, fixedRate = 23 * 60 * 1000)
+    public void fetchCCGP4HaiNan() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.CCGPHN);
+            context.getBean(CCGPHaiNanSpiderLauncher.class).start();
+        }
+    }
+
+    /**
+     * 四川政府采购网
+     */
+    @Scheduled(initialDelay = 24000, fixedRate = 12 * 60 * 60 * 1000)
+    public void fetchCCGP4SiChuan() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.CCGPSC);
+            context.getBean(CCGPSiChuanSpiderLauncher.class).start();
         }
     }
 }

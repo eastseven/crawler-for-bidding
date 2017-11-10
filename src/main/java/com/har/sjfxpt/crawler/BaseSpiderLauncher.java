@@ -54,6 +54,8 @@ public class BaseSpiderLauncher implements DisposableBean, Runnable {
         log.info("prepare start {}, current spider size {}", uuid, spiderMap.size());
         Spider spider = spiderMap.get(uuid);
         if (spider != null) {
+            if (spider.getStatus().equals(Spider.Status.Running)) return;
+
             spider.start();
         }
     }

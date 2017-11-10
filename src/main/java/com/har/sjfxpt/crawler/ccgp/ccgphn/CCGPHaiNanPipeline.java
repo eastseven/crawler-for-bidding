@@ -24,18 +24,18 @@ import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_
 public class CCGPHaiNanPipeline implements Pipeline {
 
     @Autowired
-    CCGPHaiNanPageDataRepository CCGPHaiNanPageDataRepository;
+    CCGPHaiNanPageDataRepository repository;
 
     @Autowired
     DataItemService dataItemService;
 
     @Override
     public void process(ResultItems resultItems, Task task) {
-        List<CCGPHaiNanModel> dataItemList = resultItems.get(KEY_DATA_ITEMS);
+        List<CCGPHaiNanDataItem> dataItemList = resultItems.get(KEY_DATA_ITEMS);
         if (CollectionUtils.isEmpty(dataItemList)) {
             log.warn("{} save nothing", SourceCode.CCGPHN);
-        }else {
-            CCGPHaiNanPageDataRepository.save(dataItemList);
+        } else {
+            repository.save(dataItemList);
             log.info("{} save {} to mongodb", SourceCode.CCGPHN, dataItemList.size());
 
             List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());

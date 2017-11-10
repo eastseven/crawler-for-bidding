@@ -1,7 +1,7 @@
 package com.har.sjfxpt.crawler.ggzy;
 
-import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanPipeline;
 import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanPageProcessor;
+import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanPipeline;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -10,8 +10,8 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.Request;
+import us.codecraft.webmagic.Spider;
 
 import java.util.Date;
 
@@ -39,7 +39,7 @@ public class CCGPCCGPHaiNanPageProcessorTests {
 
         Spider.create(CCGPHaiNanPageProcessor)
                 .addRequest(request)
-                .addPipeline(CCGPHaiNanPipeline)
+                //.addPipeline(CCGPHaiNanPipeline)
                 .thread(4)
                 .run();
     }

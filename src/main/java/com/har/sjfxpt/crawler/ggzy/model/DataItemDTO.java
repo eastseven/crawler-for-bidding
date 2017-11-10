@@ -58,4 +58,13 @@ public class DataItemDTO {
      * 中国移动
      */
     private String projectName;
+
+    /**
+     * 行业分类
+     * 通过配置文件中的关键字匹配，计算出的值
+     * 汉字，以英文逗号分隔
+     */
+    private String industryCategory;
+
+    private String originalIndustryCategory;
 }

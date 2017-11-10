@@ -5,6 +5,7 @@ import com.har.sjfxpt.crawler.ggzy.config.HBaseConfig;
 import com.har.sjfxpt.crawler.ggzy.config.KeyWordsProperties;
 import com.har.sjfxpt.crawler.ggzy.model.DataItem;
 import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
+import com.huaban.analysis.jieba.JiebaSegmenter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections.CollectionUtils;
@@ -12,6 +13,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
 import org.joda.time.DateTime;
+import org.jsoup.Jsoup;
+import org.jsoup.safety.Whitelist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -51,6 +54,7 @@ public class DataItemService {
     private Table historyTable;
 
     private Map<String, String[]> keyWordsMap = Maps.newHashMap();
+    private JiebaSegmenter segmenter;
 
     @PostConstruct
     public void init() {
@@ -61,6 +65,8 @@ public class DataItemService {
         } catch (Exception e) {
             log.error("", e);
         }
+
+        segmenter = new JiebaSegmenter();
 
         keyWordsMap = keyWordsProperties.getCategories().stream()
                 .collect(Collectors.toMap(line -> line.split(",")[0], line -> line.split(",")));
@@ -92,6 +98,9 @@ public class DataItemService {
                 continue;
             }
 
+            //计算 行业分类
+            //setIndustryCategory(dataItem);
+
             try {
                 String rowKey = getRowKey(dataItem);
                 if (rowKey.length() != ROW_KEY_LENGTH) {
@@ -106,7 +115,6 @@ public class DataItemService {
                     boolean exists = originalTable.exists(new Get(rowKey.getBytes()));
                     if (!exists) {
                         originalTable.put(row);
-                        sourceCodeByDateCounter(date, dataItem);
                         log.debug("save {} {}[mongo={}] to {}", sourceCode, rowKey, dataItem.getId(), DataItem.T_NAME_HTML);
                         counter++;
                     }
@@ -129,27 +137,54 @@ public class DataItemService {
         }
     }
 
+    /**
+     * 将title及textContent
+     * 先分词，再匹配行业关键字，找出对应的行业分类
+     * @param dataItem
+     * @return dataItem.industryCategory 以逗号结尾的行业分类
+     */
+    public DataItemDTO setIndustryCategory(DataItemDTO dataItem) {
+        dataItem.setTextContent(Jsoup.clean(dataItem.getFormatContent(), Whitelist.none()));
+        String text = dataItem.getTitle() + ',' + dataItem.getTextContent();
+        String words = segmenter.sentenceProcess(text).stream()
+                .filter(word -> StringUtils.isNotBlank(word) && word.length() > 1)
+                .map(word -> StringUtils.trim(word))
+                .collect(Collectors.joining(","));
+        String industryCategory = mark(words);
+        dataItem.setIndustryCategory(industryCategory);
+
+        return dataItem;
+    }
+
+    /**
+     * 生成hbase row key
+     * @param dataItem
+     * @return rowKey 格式 yyyyMMdd:md5(title)
+     */
     private String getRowKey(DataItemDTO dataItem) {
         String date = StringUtils.substring(dataItem.getDate(), 0, 10).replace("-", "");
-        String rowKey = date;
-        rowKey += ':' + DigestUtils.md5Hex(StringUtils.trim(dataItem.getTitle()));
+        return getRowKey(date, dataItem.getTitle());
+    }
 
-        return rowKey;
+    private String getRowKey(String date, String title) {
+        return String.join(":", date, DigestUtils.md5Hex(StringUtils.trim(title)));
     }
 
     private Put assemble(String rowKey, DataItemDTO dataItem) throws UnsupportedEncodingException {
         Put put = new Put(rowKey.getBytes());
-        put.addColumn(family, "url".getBytes(),           StringUtils.defaultString(dataItem.getUrl(), "").getBytes(charsetName));
-        put.addColumn(family, "title".getBytes(),         StringUtils.defaultString(dataItem.getTitle(), "").getBytes(charsetName));
-        put.addColumn(family, "province".getBytes(),      StringUtils.defaultString(dataItem.getProvince(), "全国").getBytes(charsetName));
-        put.addColumn(family, "type".getBytes(),          StringUtils.defaultString(dataItem.getType(), "").getBytes(charsetName));
-        put.addColumn(family, "source".getBytes(),        StringUtils.defaultString(dataItem.getSource(), "其他").getBytes(charsetName));
-        put.addColumn(family, "sourceCode".getBytes(),    StringUtils.defaultString(dataItem.getSourceCode(), "UNKNOWN").getBytes(charsetName));
-        put.addColumn(family, "date".getBytes(),          StringUtils.defaultString(dataItem.getDate(), "").getBytes(charsetName));
-        put.addColumn(family, "create_time".getBytes(),   StringUtils.defaultString(dataItem.getCreateTime(), "").getBytes(charsetName));
-        put.addColumn(family, "formatContent".getBytes(), StringUtils.defaultString(dataItem.getFormatContent(), "").getBytes(charsetName));
-        put.addColumn(family, "purchaser".getBytes(),     StringUtils.defaultString(dataItem.getPurchaser(), "").getBytes(charsetName));
-        put.addColumn(family, "project_name".getBytes(),  StringUtils.defaultString(dataItem.getProjectName(), "").getBytes(charsetName));
+        put.addColumn(family, "url".getBytes(),                StringUtils.defaultString(dataItem.getUrl(), "").getBytes(charsetName));
+        put.addColumn(family, "title".getBytes(),              StringUtils.defaultString(dataItem.getTitle(), "").getBytes(charsetName));
+        put.addColumn(family, "province".getBytes(),           StringUtils.defaultString(dataItem.getProvince(), "全国").getBytes(charsetName));
+        put.addColumn(family, "type".getBytes(),               StringUtils.defaultString(dataItem.getType(), "").getBytes(charsetName));
+        put.addColumn(family, "source".getBytes(),             StringUtils.defaultString(dataItem.getSource(), "其他").getBytes(charsetName));
+        put.addColumn(family, "sourceCode".getBytes(),         StringUtils.defaultString(dataItem.getSourceCode(), "UNKNOWN").getBytes(charsetName));
+        put.addColumn(family, "date".getBytes(),               StringUtils.defaultString(dataItem.getDate(), "").getBytes(charsetName));
+        put.addColumn(family, "create_time".getBytes(),        StringUtils.defaultString(dataItem.getCreateTime(), "").getBytes(charsetName));
+        put.addColumn(family, "formatContent".getBytes(),      StringUtils.defaultString(dataItem.getFormatContent(), "").getBytes(charsetName));
+        put.addColumn(family, "purchaser".getBytes(),          StringUtils.defaultString(dataItem.getPurchaser(), "").getBytes(charsetName));
+        put.addColumn(family, "project_name".getBytes(),       StringUtils.defaultString(dataItem.getProjectName(), "").getBytes(charsetName));
+
+        put.addColumn(family, "original_industry_category".getBytes(),  StringUtils.defaultString(dataItem.getOriginalIndustryCategory(), "").getBytes(charsetName));
 
         //textContent 废弃
         put.addColumn(family, "textContent".getBytes(), StringUtils.defaultString("", "").getBytes(charsetName));
@@ -190,31 +225,39 @@ public class DataItemService {
         }
     }
 
-    public String mark(String source) {
+    /**
+     * 打分
+     * @param sources
+     * @return
+     */
+    public String mark(String... sources) {
         try {
+            Map<Integer, String> map = Maps.newHashMap();
+            for (String industryCategoryLabel : keyWordsMap.keySet()) {
+                String[] industryCategoryKeyWords = keyWordsMap.get(industryCategoryLabel);
+                Integer score = 0;
+                for (String keyWords : industryCategoryKeyWords) {
+                    for (String source : sources) {
+                        if (StringUtils.isBlank(source)) continue;
+                        if (source.contains(StringUtils.trim(keyWords))) score++;
+                    }
+                }
+
+                if (!map.containsKey(score)) {
+                    map.put(score, industryCategoryLabel);
+                } else {
+                    String value = String.join(",", map.get(score), industryCategoryLabel);
+                    map.put(score, value);
+                }
+            }
+
+            Integer key = map.keySet().stream().max((a, b) -> Integer.compare(a, b)).get();
+            if (key > 0) return map.get(key);
 
         } catch (Exception e) {
             log.error("", e);
             log.error("");
         }
-        Map<Integer, String> map = Maps.newHashMap();
-        for (String key : keyWordsMap.keySet()) {
-            String[] words = keyWordsMap.get(key);
-            Integer score = 0;
-            for (String word : words) {
-                if (source.contains(StringUtils.trim(word))) score++;
-            }
-
-            if (!map.containsKey(score)) {
-                map.put(score, key);
-            } else {
-                String value = map.get(score) + ',' + key;
-                map.put(score, value);
-            }
-        }
-
-        Integer key = map.keySet().stream().max((a, b) -> Integer.compare(a, b)).get();
-        if (key > 0) return map.get(key);
 
         return "其他";
     }
