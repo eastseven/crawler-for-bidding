@@ -21,7 +21,7 @@ import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_
  */
 @Slf4j
 @Component
-public class YiBiaoPipeline implements Pipeline{
+public class YiBiaoPipeline implements Pipeline {
 
     @Autowired
     YiBiaoDataItemRepository yiBiaoDataItemRepository;

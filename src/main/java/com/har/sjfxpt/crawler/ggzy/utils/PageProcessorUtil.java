@@ -1,5 +1,6 @@
 package com.har.sjfxpt.crawler.ggzy.utils;
 
+import com.har.sjfxpt.crawler.ggzy.model.BiddingInfoType;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -99,14 +100,38 @@ public final class PageProcessorUtil {
         if (StringUtils.isNotBlank(dataStr)) {
             DateTime dateTime = new DateTime(dataStr);
 
-            DateTime dateTime1=new DateTime(new DateTime(new Date()).toString("yyyy-MM-dd"));
+            DateTime dateTime1 = new DateTime(new DateTime(new Date()).toString("yyyy-MM-dd"));
 
-            if(dateTime.isBefore(dateTime1)){
+            if (dateTime.isBefore(dateTime1)) {
                 return true;
-            }else {
+            } else {
                 return false;
             }
         }
         return false;
     }
+
+    /**
+     * 招标类型判断
+     */
+    public static String type(String title) {
+        if (title.contains(BiddingInfoType.YAO_BIAO.getValue())
+                || title.contains(BiddingInfoType.XUN_JIA.getValue())
+                || title.contains(BiddingInfoType.JING_TAN.getValue())
+                || title.contains(BiddingInfoType.DAN_YI.getValue())
+                || title.contains(BiddingInfoType.JING_JIA.getValue())) {
+            return BiddingInfoType.ZHAO_BIAO.getValue();
+        }
+        if (title.contains(BiddingInfoType.BIAN_GENG.getValue())) {
+            return BiddingInfoType.BIAN_GENG.getValue();
+        }
+        if (title.contains(BiddingInfoType.ZHONG_BIAO.getValue())) {
+            return BiddingInfoType.ZHONG_BIAO.getValue();
+        }
+        if (title.contains(BiddingInfoType.FEI_BIAO.getValue())) {
+            return BiddingInfoType.FEI_BIAO.getValue();
+        }
+        return null;
+    }
+
 }

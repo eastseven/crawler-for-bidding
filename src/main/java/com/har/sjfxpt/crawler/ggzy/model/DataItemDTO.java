@@ -67,4 +67,5 @@ public class DataItemDTO {
     private String industryCategory;
 
     private String originalIndustryCategory;
+
 }

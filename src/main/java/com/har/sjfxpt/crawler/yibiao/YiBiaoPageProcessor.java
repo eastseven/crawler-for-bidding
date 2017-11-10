@@ -16,7 +16,6 @@ import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
 
 import java.util.List;
-import java.util.regex.Pattern;
 
 import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
 
@@ -83,11 +82,14 @@ public class YiBiaoPageProcessor implements BasePageProcessor {
             if (PageProcessorUtil.timeCompare(yiBiaoDataItem.getDate())) {
                 log.warn("{} is not on the same day", href);
             } else {
-                yiBiaoDataItem.setIndustry(industry);
+                yiBiaoDataItem.setOriginalIndustryCategory(industry);
                 yiBiaoDataItem.setTitle(title);
                 yiBiaoDataItem.setProvince(ProvinceUtil.get(province));
-                yiBiaoDataItem.setType(type);
-
+                if(StringUtils.isNotBlank(PageProcessorUtil.type(title))){
+                    yiBiaoDataItem.setType(PageProcessorUtil.type(title));
+                }else {
+                    yiBiaoDataItem.setType(type);
+                }
                 Request request = new Request(href);
                 Page page = httpClientDownloader.download(request, SiteUtil.get().toTask());
                 try {

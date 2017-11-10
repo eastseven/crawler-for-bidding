@@ -44,7 +44,7 @@ public class YiBiaoDataItem {
     /**
      * 行业
      */
-    private String industry;
+    private String originalIndustryCategory;
 
     /**
      * 发布时间
