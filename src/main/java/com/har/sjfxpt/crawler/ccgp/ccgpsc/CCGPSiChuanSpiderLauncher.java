@@ -18,7 +18,7 @@ import java.util.Map;
 @Component
 public class CCGPSiChuanSpiderLauncher extends BaseSpiderLauncher {
 
-    private final String uuid= SourceCode.CCGPHN.toString().toLowerCase()+"-current";
+    private final String uuid = SourceCode.CCGPSC.toString().toLowerCase() + "-current";
 
     @Autowired
     CCGPSiChuanPageProcessor ccgpSiChuanPageProcessor;
@@ -26,7 +26,7 @@ public class CCGPSiChuanSpiderLauncher extends BaseSpiderLauncher {
     @Autowired
     CCGPSiChuanPipeline ccgpSiChuanPipeline;
 
-    final int num=Runtime.getRuntime().availableProcessors();
+    final int num = Runtime.getRuntime().availableProcessors();
 
     /**
      * 爬取全部数据
@@ -63,6 +63,5 @@ public class CCGPSiChuanSpiderLauncher extends BaseSpiderLauncher {
         addSpider(spider);
         start(uuid);
     }
-
 
 }
