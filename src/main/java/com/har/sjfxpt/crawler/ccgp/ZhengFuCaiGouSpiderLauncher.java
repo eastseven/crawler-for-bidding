@@ -4,10 +4,12 @@ import com.har.sjfxpt.crawler.BaseSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.service.ProxyService;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
+import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.proxy.SimpleProxyProvider;
 
 import java.io.UnsupportedEncodingException;
@@ -55,6 +57,7 @@ public class ZhengFuCaiGouSpiderLauncher extends BaseSpiderLauncher {
     final String uuid_history = "ccgp-history";
 
     final String DATE_PATTERN = "yyyy:MM:dd";
+    final String DATE_PATTERN_FOR_ID = "yyyyMMdd";
 
     public void init() {
         cleanSpider(uuid);
@@ -103,8 +106,10 @@ public class ZhengFuCaiGouSpiderLauncher extends BaseSpiderLauncher {
         log.info(">>> ccgp history fetch start {} to {}", start, end);
 
         Spider historySpider = Spider.create(pageProcessor).addPipeline(pipeline);
-        //historySpider.setExecutorService(executorService);
-        historySpider.thread(1);
+        downloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
+        historySpider.setDownloader(downloader);
+
+
         historySpider.setUUID(uuid_history);
         historySpider.addRequest(new Request(getUrl(start, end)));
 
@@ -113,17 +118,23 @@ public class ZhengFuCaiGouSpiderLauncher extends BaseSpiderLauncher {
         return historySpider;
     }
 
-    public void countPageData() {
-        DateTime start = DateTime.now().minusDays(1);
-
-        start = new DateTime("2017-10-27").minusDays(1);
+    /**
+     * 2013-01-01 to now
+     */
+    public Spider countPageData() {
+        HttpClientDownloader downloader = new HttpClientDownloader();
+        downloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
         Spider spider = Spider.create(pageDataProcessor).setExitWhenComplete(true);
-        spider.setUUID("ccgp-page-data-" + start.toString(DATE_PATTERN));
+        spider.setDownloader(downloader).thread(Runtime.getRuntime().availableProcessors() * 2);
 
-        final int days = 90;
+        DateTime start = new DateTime("2013-01-01");
+        DateTime end = DateTime.now();
+        Duration duration = new Duration(start, end);
+
+        final int days = (int) duration.getStandardDays();
         for (int day = 0; day < days; day++) {
             String date = null;
-            String id = start.minusDays(day).toString(DATE_PATTERN);
+            String id = start.plusDays(day).toString(DATE_PATTERN);
 
             try {
                 date = URLEncoder.encode(id, "utf-8");
@@ -134,6 +145,7 @@ public class ZhengFuCaiGouSpiderLauncher extends BaseSpiderLauncher {
             String url = URL_PREFIX + params;
 
             PageData pageData = new PageData();
+            pageData.setDateLong(Long.parseLong(start.minusDays(day).toString(DATE_PATTERN_FOR_ID)));
             pageData.setDate(id);
             pageData.setUrl(url);
             Request request = new Request(url);
@@ -142,7 +154,7 @@ public class ZhengFuCaiGouSpiderLauncher extends BaseSpiderLauncher {
             spider.addRequest(request);
         }
 
-        spider.start();
+        return spider;
     }
 
     String getUrl(String startDate, String endDate) {

@@ -3,6 +3,7 @@ package com.har.sjfxpt.crawler.ccgp;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.io.Serializable;
 
@@ -12,6 +13,9 @@ public class PageData implements Serializable {
 
     @Id
     private String date;
+
+    @Field("date_long")
+    private long dateLong;
 
     private int page;
 

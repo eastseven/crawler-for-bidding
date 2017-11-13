@@ -1,10 +1,10 @@
 package com.har.sjfxpt.crawler;
 
 import com.har.sjfxpt.crawler.ccgp.ZhengFuCaiGouSpiderLauncher;
+import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgpsc.CCGPSiChuanSpiderLauncher;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
-import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanSpiderLauncher;
 import com.har.sjfxpt.crawler.jcw.JinCaiWangSpiderLauncher;
 import com.har.sjfxpt.crawler.petrochina.ZGShiYouSpiderLauncher;
 import com.har.sjfxpt.crawler.yibiao.YiBiaoSpiderLauncher;
@@ -97,7 +97,7 @@ public class SpiderLauncher implements CommandLineRunner {
                     zhengFuCaiGouSpiderLauncher.history();
                     break;
                 case "page-ccgp":
-                    zhengFuCaiGouSpiderLauncher.countPageData();
+                    zhengFuCaiGouSpiderLauncher.countPageData().start();
                     break;
                 case "start-jcw":
                     jinCaiWangSpiderLauncher.start();

@@ -19,7 +19,7 @@ public class ZhengFuCaiGouDownloader extends HttpClientDownloader {
     @Override
     public Page download(Request request, Task task) {
         Page page = super.download(request, task);
-        boolean bln = page.getHtml().getDocument().title().equalsIgnoreCase("安全验证");
+        boolean bln = page.getHtml() == null || page.getHtml().getDocument().title().equalsIgnoreCase("安全验证");
         if (bln) {
             onError(request);
             log.error(">>> ccgp detect {}", request.getUrl());
