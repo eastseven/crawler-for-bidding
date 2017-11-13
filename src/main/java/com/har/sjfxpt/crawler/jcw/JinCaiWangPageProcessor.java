@@ -135,6 +135,9 @@ public class JinCaiWangPageProcessor implements BasePageProcessor {
                         jinCaiWangDataItem.setCategory(StringUtils.substringAfter(text[i], ":"));
                     }
                 }
+                if(StringUtils.isNotBlank(jinCaiWangDataItem.getPurchaseWay())){
+                    jinCaiWangDataItem.setType(jinCaiWangDataItem.getPurchaseWay());
+                }
 
                 try {
                     Document document = Jsoup.connect(href).timeout(60000).userAgent(SiteUtil.get().getUserAgent()).get();

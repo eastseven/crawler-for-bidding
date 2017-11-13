@@ -80,14 +80,14 @@ public class YiBiaoPageProcessor implements BasePageProcessor {
             yiBiaoDataItem.setDate(PageProcessorUtil.dataTxt(date));
 
             if (PageProcessorUtil.timeCompare(yiBiaoDataItem.getDate())) {
-                log.warn("{} is not on the same day", href);
+                log.debug("{} is not on the same day", href);
             } else {
                 yiBiaoDataItem.setOriginalIndustryCategory(industry);
                 yiBiaoDataItem.setTitle(title);
                 yiBiaoDataItem.setProvince(ProvinceUtil.get(province));
-                if(StringUtils.isNotBlank(PageProcessorUtil.type(title))){
+                if (StringUtils.isNotBlank(PageProcessorUtil.type(title))) {
                     yiBiaoDataItem.setType(PageProcessorUtil.type(title));
-                }else {
+                } else {
                     yiBiaoDataItem.setType(type);
                 }
                 Request request = new Request(href);
@@ -95,11 +95,11 @@ public class YiBiaoPageProcessor implements BasePageProcessor {
                 try {
                     Elements elements = page.getHtml().getDocument().body().select("body > div.g-doc > div.g-bd > div.g-lit-mn.f-fl");
                     String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
-                    if (StringUtils.isNotBlank(formatContent) && !StringUtils.containsIgnoreCase(formatContent, "&lt;")&& !StringUtils.containsIgnoreCase(formatContent, "&gt;")) {
+                    if (StringUtils.isNotBlank(formatContent) && !StringUtils.containsIgnoreCase(formatContent, "&lt;") && !StringUtils.containsIgnoreCase(formatContent, "&gt;")) {
                         yiBiaoDataItem.setFormatContent(formatContent);
                         dataItems.add(yiBiaoDataItem);
-                    }else {
-                        log.warn("{} is wrong page",href);
+                    } else {
+                        log.warn("{} is wrong page", href);
                     }
                 } catch (Exception e) {
                     log.warn("{} Download failed", href);
