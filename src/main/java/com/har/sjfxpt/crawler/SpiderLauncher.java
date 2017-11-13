@@ -94,7 +94,7 @@ public class SpiderLauncher implements CommandLineRunner {
                     zhengFuCaiGouSpiderLauncher.start();
                     break;
                 case "history-ccgp":
-                    zhengFuCaiGouSpiderLauncher.history();
+                    zhengFuCaiGouSpiderLauncher.history().start();
                     break;
                 case "page-ccgp":
                     zhengFuCaiGouSpiderLauncher.countPageData().start();

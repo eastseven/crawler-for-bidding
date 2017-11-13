@@ -43,6 +43,6 @@ public class PageDataProcessor implements PageProcessor {
 
     @Override
     public Site getSite() {
-        return SiteUtil.get().setSleepTime(RandomUtils.nextInt(8, 12) * 1000);
+        return SiteUtil.get().setSleepTime(RandomUtils.nextInt(10, 20) * 1000);
     }
 }

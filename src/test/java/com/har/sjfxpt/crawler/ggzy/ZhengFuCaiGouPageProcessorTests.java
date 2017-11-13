@@ -5,12 +5,15 @@ import com.har.sjfxpt.crawler.ggzy.service.ProxyService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
 import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
@@ -24,10 +27,13 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
+import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanUtil.YYYYMMDD;
+
 @Slf4j
 public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
 
-    @Autowired ZhengFuCaiGouSpiderLauncher spiderLauncher;
+    @Autowired
+    ZhengFuCaiGouSpiderLauncher spiderLauncher;
 
     @Autowired
     ZhengFuCaiGouPageProcessor pageProcessor;
@@ -87,10 +93,22 @@ public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
 
     @Test
     public void testFetchPageData() {
-        List<PageData> pageDataList = pageDataRepository.findAll(new Sort(Sort.Direction.ASC, "date"));
-        //Assert.assertFalse(pageDataList.isEmpty());
+        Page<PageData> pageDataList = pageDataRepository.findAll(new PageRequest(0, 10, Sort.Direction.ASC, "date"));
+        Assert.assertTrue(pageDataList.hasContent());
+        pageDataList.forEach(System.out::println);
 
-        spiderLauncher.countPageData().run();
+        DateTime start = new DateTime("2013-01-01");
+        DateTime end = DateTime.now();
+        Duration duration = new Duration(start, end);
+
+        for (int day = 0; day < duration.toStandardDays().getDays(); day++) {
+            String date = start.plusDays(day).toString(YYYYMMDD).replace("-", ":");
+
+            boolean exists = pageDataRepository.exists(date);
+            if (!exists) {
+                log.warn(">>> {}", date);
+            }
+        }
     }
 
     @Before
@@ -109,6 +127,20 @@ public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
 
         } catch (IOException e) {
             log.error("", e);
+        }
+    }
+
+    @Test
+    public void fixPageData() {
+        PageRequest request = new PageRequest(0, 10);
+        Page<PageData> pager = pageDataRepository.findAll(request);
+        Assert.assertTrue(pager.hasContent());
+
+        for (int page = 0; page < pager.getTotalPages(); page++) {
+            Page<PageData> p = pageDataRepository.findAll(new PageRequest(page, 10));
+            p.forEach(pageData -> pageData.setDateLong(Long.parseLong(pageData.getDate().replace(":", ""))));
+            pageDataRepository.save(p);
+            log.debug("fix {}, {}", page, p.getSize());
         }
     }
 }

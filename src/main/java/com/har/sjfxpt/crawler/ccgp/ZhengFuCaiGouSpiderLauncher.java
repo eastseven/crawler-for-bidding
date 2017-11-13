@@ -6,6 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
@@ -98,23 +101,21 @@ public class ZhengFuCaiGouSpiderLauncher extends BaseSpiderLauncher {
     }
 
     public Spider history() {
-        //cleanSpider(uuid_history);
+        Page<PageData> page = pageDataRepository.findAll(new PageRequest(0, 5, Sort.Direction.ASC, "date"));
+        Spider historySpider = getHistorySpider();
+        if (page.hasContent()) {
+            page.forEach(pageData -> historySpider.addRequest(new Request(getUrl(pageData.getDate(), pageData.getDate()))));
+            historySpider.setUUID(uuid_history);
+        }
 
-        DateTime df = new DateTime("2017-04-01");
-        String end = df.toString(DATE_PATTERN);
-        String start = end;//df.minusMonths(3).toString(DATE_PATTERN);
-        log.info(">>> ccgp history fetch start {} to {}", start, end);
+        return historySpider;
+    }
 
+    public Spider getHistorySpider() {
         Spider historySpider = Spider.create(pageProcessor).addPipeline(pipeline);
         downloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
         historySpider.setDownloader(downloader);
-
-
-        historySpider.setUUID(uuid_history);
-        historySpider.addRequest(new Request(getUrl(start, end)));
-
-        historySpider.start();
-
+        historySpider.thread(proxyService.getAliyunProxies().length);
         return historySpider;
     }
 
@@ -133,9 +134,14 @@ public class ZhengFuCaiGouSpiderLauncher extends BaseSpiderLauncher {
 
         final int days = (int) duration.getStandardDays();
         for (int day = 0; day < days; day++) {
-            String date = null;
             String id = start.plusDays(day).toString(DATE_PATTERN);
 
+            if (pageDataRepository.exists(id)) {
+                log.warn(">>> {} exists", id);
+                continue;
+            }
+
+            String date = null;
             try {
                 date = URLEncoder.encode(id, "utf-8");
             } catch (UnsupportedEncodingException e) {
@@ -145,7 +151,36 @@ public class ZhengFuCaiGouSpiderLauncher extends BaseSpiderLauncher {
             String url = URL_PREFIX + params;
 
             PageData pageData = new PageData();
-            pageData.setDateLong(Long.parseLong(start.minusDays(day).toString(DATE_PATTERN_FOR_ID)));
+            pageData.setDateLong(Long.parseLong(id.replace(":", "")));
+            pageData.setDate(id);
+            pageData.setUrl(url);
+            Request request = new Request(url);
+            request.putExtra(PageData.class.getSimpleName(), pageData);
+
+            spider.addRequest(request);
+        }
+
+        return spider;
+    }
+
+    public Spider countPageData(String... dateArray) {
+        HttpClientDownloader downloader = new HttpClientDownloader();
+        downloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
+        Spider spider = Spider.create(pageDataProcessor).setExitWhenComplete(true);
+        spider.setDownloader(downloader).thread(Runtime.getRuntime().availableProcessors() * 2);
+
+        for (String id : dateArray) {
+            String date = null;
+            try {
+                date = URLEncoder.encode(id, "utf-8");
+            } catch (UnsupportedEncodingException e) {
+                log.error("", e);
+            }
+            String params = "&start_time=" + date + "&end_time=" + date + "&page_index=1";
+            String url = URL_PREFIX + params;
+
+            PageData pageData = new PageData();
+            pageData.setDateLong(Long.parseLong(id.replace(":", "")));
             pageData.setDate(id);
             pageData.setUrl(url);
             Request request = new Request(url);
