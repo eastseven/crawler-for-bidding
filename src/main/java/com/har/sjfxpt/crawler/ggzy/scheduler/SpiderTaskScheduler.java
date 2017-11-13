@@ -8,6 +8,7 @@ import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
 import com.har.sjfxpt.crawler.jcw.JinCaiWangSpiderLauncher;
 import com.har.sjfxpt.crawler.petrochina.ZGShiYouSpiderLauncher;
+import com.har.sjfxpt.crawler.suning.SuNingSpiderLauncher;
 import com.har.sjfxpt.crawler.yibiao.YiBiaoSpiderLauncher;
 import com.har.sjfxpt.crawler.zgyj.ZGYeJinSpiderLauncher;
 import com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingLauncher;
@@ -134,14 +135,25 @@ public class SpiderTaskScheduler {
     }
 
     /**
-     *一标网
+     * 一标网
      */
     @Scheduled(initialDelay = 21000, fixedRate = 25 * 60 * 1000)
-    public void fetchYiBiao(){
-        if(flag){
+    public void fetchYiBiao() {
+        if (flag) {
             log.info(">>> start fetch {}", SourceCode.YIBIAO);
             context.getBean(YiBiaoSpiderLauncher.class).start();
         }
     }
 
+
+    /**
+     * 苏宁招标
+     */
+    @Scheduled(initialDelay = 2400, fixedRate = 12 * 60 * 60 * 1000)
+    public void fetchSuNing() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.SUNING);
+            context.getBean(SuNingSpiderLauncher.class).start();
+        }
+    }
 }
