@@ -126,7 +126,7 @@ public class SpiderTaskScheduler {
     /**
      * 四川政府采购网
      */
-    @Scheduled(initialDelay = 24000, fixedRate = 12 * 60 * 60 * 1000)
+    @Scheduled(initialDelay = 24000, fixedRate = 6 * 60 * 60 * 1000)
     public void fetchCCGP4SiChuan() {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.CCGPSC);
@@ -149,7 +149,7 @@ public class SpiderTaskScheduler {
     /**
      * 苏宁招标
      */
-    @Scheduled(initialDelay = 2400, fixedRate = 12 * 60 * 60 * 1000)
+    @Scheduled(initialDelay = 2400, fixedRate = 6 * 60 * 60 * 1000)
     public void fetchSuNing() {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.SUNING);
