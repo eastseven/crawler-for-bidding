@@ -48,11 +48,11 @@ public class ZGZhaoTouPageProcessorTests {
         String url = "http://www.cebpubservice.com/ctpsp_iiss/searchbusinesstypebeforedooraction/getStringMethod.do";
 
         Request[] requests={
-                requestGenerator(url, "招标项目"),
-                requestGenerator(url, "招标公告"),
-                requestGenerator(url, "中标公告"),
-                requestGenerator(url, "开标记录"),
-                requestGenerator(url, "评标公示")
+                requestGenerator(url, "招标项目",""),
+                requestGenerator(url, "招标公告",""),
+                requestGenerator(url, "中标公告",""),
+                requestGenerator(url, "开标记录",""),
+                requestGenerator(url, "评标公示","")
         };
 
         Spider.create(zgZhaoTouPageProcessor)

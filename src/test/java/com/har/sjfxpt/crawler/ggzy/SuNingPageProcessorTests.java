@@ -42,9 +42,7 @@ public class SuNingPageProcessorTests {
 
         Map<String, Object> params = Maps.newHashMap();
 
-        params.put("issue.msgType", "m2");
-        params.put("issue.updateStartDate", DateTime.now().toString("yyyy-MM-dd"));
-        params.put("issue.updateEndDate", DateTime.now().toString("yyyy-MM-dd"));
+        params.put("issue.msgType", "m1");
         params.put("pageNum", "1");
 
         request.setMethod(HttpConstant.Method.POST);
@@ -55,7 +53,7 @@ public class SuNingPageProcessorTests {
 
         Spider.create(suNingPageProcessor)
                 .addRequest(request)
-                .addPipeline(suNingPipeline)
+//                .addPipeline(suNingPipeline)
                 .run();
     }
 

@@ -48,4 +48,23 @@ public class CCGPHaiNanSpiderLauncher extends BaseSpiderLauncher {
         addSpider(spider);
         start(uuid);
     }
+
+    /**
+     * 爬取历史
+     */
+    public void fetchHistory(){
+        String url="http://www.ccgp-hainan.gov.cn/cgw/cgw_list.jsp?currentPage=1&begindate=&enddate=&title=&bid_type=&proj_number=&zone=";
+
+        Request request = new Request(url);
+
+        cleanSpider(uuid);
+
+        Spider spider = Spider.create(CCGPHaiNanPageProcessor)
+                .addRequest(request)
+                .addPipeline(CCGPHaiNanPipeline)
+                .setUUID(uuid)
+                .thread(num);
+        addSpider(spider);
+        start(uuid);
+    }
 }

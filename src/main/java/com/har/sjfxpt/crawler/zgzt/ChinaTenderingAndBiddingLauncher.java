@@ -37,11 +37,34 @@ public class ChinaTenderingAndBiddingLauncher extends BaseSpiderLauncher{
         String url = "http://www.cebpubservice.com/ctpsp_iiss/searchbusinesstypebeforedooraction/getStringMethod.do";
 
         Request[] requests={
-                requestGenerator(url, "招标项目"),
-                requestGenerator(url, "招标公告"),
-                requestGenerator(url, "中标公告"),
-                requestGenerator(url, "开标记录"),
-                requestGenerator(url, "评标公示")
+                requestGenerator(url, "招标项目","今日"),
+                requestGenerator(url, "招标公告","今日"),
+                requestGenerator(url, "中标公告","今日"),
+                requestGenerator(url, "开标记录","今日"),
+                requestGenerator(url, "评标公示","今日")
+        };
+
+        Spider spider=Spider.create(zgZhaoTouPageProcessor)
+                .addRequest(requests)
+                .addPipeline(zgZhaoTouPipeline)
+                .setUUID(uuid)
+                .thread(num);
+        addSpider(spider);
+        start(uuid);
+    }
+
+    /**
+     * 爬取历史
+     */
+    public void fetchHistory(){
+        String url = "http://www.cebpubservice.com/ctpsp_iiss/searchbusinesstypebeforedooraction/getStringMethod.do";
+
+        Request[] requests={
+                requestGenerator(url, "招标项目",""),
+                requestGenerator(url, "招标公告",""),
+                requestGenerator(url, "中标公告",""),
+                requestGenerator(url, "开标记录",""),
+                requestGenerator(url, "评标公示","")
         };
 
         Spider spider=Spider.create(zgZhaoTouPageProcessor)
@@ -54,7 +77,7 @@ public class ChinaTenderingAndBiddingLauncher extends BaseSpiderLauncher{
     }
 
 
-    public static Request requestGenerator(String url, String type) {
+    public static Request requestGenerator(String url, String type,String date) {
 
         Request request = new Request(url);
 
@@ -68,7 +91,7 @@ public class ChinaTenderingAndBiddingLauncher extends BaseSpiderLauncher{
             params.put("businessType", type);
             params.put("searchTimeStart", "");
             params.put("searchTimeStop", "");
-            params.put("timeTypeParam", "今日");
+            params.put("timeTypeParam", date);
             params.put("bulletinIssnTime", "");
             params.put("bulletinIssnTimeStart", "");
             params.put("bulletinIssnTimeStop", "");

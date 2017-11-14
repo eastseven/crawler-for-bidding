@@ -46,16 +46,24 @@ public class SuNingPageProcessor implements BasePageProcessor {
 
         if (pageNum == 1) {
             Elements elements = element.select("#idFrmMain > div.it-content.clearfix > div.left-box > div:nth-child(3) > div.listcontent > div > div > a");
-            int pageSize = elements.size() - 1;
-            log.debug("pageSize=={}", pageSize);
-            if (pageSize > 1) {
-                for (int i = 2; i <= pageSize; i++) {
-                    pageParams.put("pageNum", i + "");
-                    Request request = new Request(url);
-                    request.setMethod(HttpConstant.Method.POST);
-                    request.setRequestBody(HttpRequestBody.form(pageParams, "UTF-8"));
-                    request.putExtra(PAGE_PARAMS, pageParams);
-                    page.addTargetRequest(request);
+            int pageSize = 0;
+            for (Element a : elements) {
+                if (a.text().contains("下一页")) {
+                    pageSize = Integer.parseInt(a.previousElementSibling().text());
+                }
+            }
+
+            if (pageSize != 0) {
+                log.debug("pageSize=={}", pageSize);
+                if (pageSize > 1) {
+                    for (int i = 2; i <= pageSize; i++) {
+                        pageParams.put("pageNum", i + "");
+                        Request request = new Request(url);
+                        request.setMethod(HttpConstant.Method.POST);
+                        request.setRequestBody(HttpRequestBody.form(pageParams, "UTF-8"));
+                        request.putExtra(PAGE_PARAMS, pageParams);
+                        page.addTargetRequest(request);
+                    }
                 }
             }
         }
@@ -70,12 +78,12 @@ public class SuNingPageProcessor implements BasePageProcessor {
             return;
         }
         List<SuNingDataItem> dataItems = parseContent(elements);
-        String typeNum= (String) pageParams.get("issue.msgType");
-        if(typeNum.equals("m2")||typeNum.equals("m1")){
-            dataItems.forEach(dataItem ->dataItem.setType("招标"));
+        String typeNum = (String) pageParams.get("issue.msgType");
+        if (typeNum.equals("m2") || typeNum.equals("m1")) {
+            dataItems.forEach(dataItem -> dataItem.setType("招标"));
         }
-        if(typeNum.equals("m3")){
-            dataItems.forEach(dataItem ->dataItem.setType("中标"));
+        if (typeNum.equals("m3")) {
+            dataItems.forEach(dataItem -> dataItem.setType("中标"));
         }
         if (!dataItems.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItems);
@@ -102,8 +110,8 @@ public class SuNingPageProcessor implements BasePageProcessor {
             Page page = httpClientDownloader.download(request, SiteUtil.get().toTask());
             Element element = page.getHtml().getDocument().body();
             Element formatContentHtml = element.select("#idFrmMain > div > div.left-box > div.bcborder > div.txtcontent").first();
-            if(formatContentHtml.text().contains("招标人：")){
-                suNingDataItem.setPurchaser(StringUtils.substringBetween(formatContentHtml.text(),"招标人："," "));
+            if (formatContentHtml.text().contains("招标人：")) {
+                suNingDataItem.setPurchaser(StringUtils.substringBetween(formatContentHtml.text(), "招标人：", " "));
             }
             String dateDetail = PageProcessorUtil.dataTxt(formatContentHtml.select("p").text());
             if (StringUtils.isNotBlank(dateDetail)) {

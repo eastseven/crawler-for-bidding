@@ -31,6 +31,26 @@ public class YiBiaoSpiderLauncher extends BaseSpiderLauncher {
 
         String url = "http://www.1-biao.com/data/AjaxTender.aspx?0.06563536587854646&hidtypeID=&hidIndustryID=&hidProvince=&hidCity=&hidPrice=&txtPrice1=&txtPrice2=&hidDate=1&hidPape=1&keyword=";
 
+        cleanSpider(uuid);
+
+        Spider spider = Spider.create(yiBiaoPageProcessor)
+                .addPipeline(yiBiaoPipeline)
+                .addUrl(url)
+                .setUUID(uuid)
+                .thread(num);
+        addSpider(spider);
+        start(uuid);
+    }
+
+    /**
+     * 爬取历史
+     */
+    public void fetchHistory() {
+
+        String url = "http://www.1-biao.com/data/AjaxTender.aspx?0.6114711952779264&hidtypeID=&hidIndustryID=&hidProvince=&hidCity=&hidPrice=&txtPrice1=&txtPrice2=&hidDate=0&hidPape=2&keyword=";
+
+        cleanSpider(uuid);
+
         Spider spider = Spider.create(yiBiaoPageProcessor)
                 .addPipeline(yiBiaoPipeline)
                 .addUrl(url)

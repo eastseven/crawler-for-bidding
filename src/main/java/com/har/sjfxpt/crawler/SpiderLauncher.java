@@ -122,8 +122,14 @@ public class SpiderLauncher implements CommandLineRunner {
                 case "start-zgzt":
                     chinaTenderingAndBiddingLauncher.start();
                     break;
+                case "history-zgzt":
+                    chinaTenderingAndBiddingLauncher.fetchHistory();
+                    break;
                 case "start-ccgphn":
                     CCGPHaiNanSpiderLauncher.start();
+                    break;
+                case "history-ccgphn":
+                    CCGPHaiNanSpiderLauncher.fetchHistory();
                     break;
                 case "start-ccgpsc":
                     ccgpSiChuanSpiderLauncher.start();
@@ -131,8 +137,14 @@ public class SpiderLauncher implements CommandLineRunner {
                 case "start-yibiao":
                     yiBiaoSpiderLauncher.start();
                     break;
+                case "history-yibiao":
+                    yiBiaoSpiderLauncher.fetchHistory();
+                    break;
                 case "start-suning":
                     suNingSpiderLauncher.start();
+                    break;
+                case "history-suning":
+                    suNingSpiderLauncher.fetchHistory();
                     break;
                 default:
                     break;
