@@ -56,12 +56,23 @@ public class YiBiaoPageProcessor implements BasePageProcessor {
             log.error("fetch error, elements is empty");
             return;
         }
-        List<YiBiaoDataItem> dataItems = parseContent(elements);
-        if (!dataItems.isEmpty()) {
-            page.putField(KEY_DATA_ITEMS, dataItems);
-        } else {
-            log.warn("fetch {} no data", page.getUrl().get());
+        String url=page.getUrl().toString();
+        if(url.contains("0.06563536587854646")){
+            List<YiBiaoDataItem> dataItems = parseContent(elements);
+            if (!dataItems.isEmpty()) {
+                page.putField(KEY_DATA_ITEMS, dataItems);
+            } else {
+                log.warn("fetch {} no data", page.getUrl().get());
+            }
+        }else {
+            List<YiBiaoDataItem> dataItems = parseContent(elements,url);
+            if (!dataItems.isEmpty()) {
+                page.putField(KEY_DATA_ITEMS, dataItems);
+            } else {
+                log.warn("fetch {} no data", page.getUrl().get());
+            }
         }
+
     }
 
     @Override
@@ -122,5 +133,47 @@ public class YiBiaoPageProcessor implements BasePageProcessor {
     public Site getSite() {
         httpClientDownloader = new HttpClientDownloader();
         return SiteUtil.get();
+    }
+
+    public List parseContent(Elements items, String url) {
+        log.debug("url=={}",url);
+        List<YiBiaoDataItem> dataItems = Lists.newArrayList();
+        for (Element a : items) {
+            String href = a.select("dt > a").attr("href");
+            String date = a.select("dt > span").text();
+            String title = a.select("dt > a").text();
+            String province = a.select("dd > span.am-u-lg-4 > a").text();
+            String industry = a.select("dd > span.am-u-lg-7 > a").text();
+            String type = StringUtils.substringBetween(title, "[", "]");
+            href = "http://www.1-biao.com/data/" + href;
+            YiBiaoDataItem yiBiaoDataItem = new YiBiaoDataItem(href);
+            yiBiaoDataItem.setUrl(href);
+            yiBiaoDataItem.setDate(PageProcessorUtil.dataTxt(date));
+
+            yiBiaoDataItem.setOriginalIndustryCategory(industry);
+            yiBiaoDataItem.setTitle(title);
+            yiBiaoDataItem.setProvince(ProvinceUtil.get(province));
+            if (StringUtils.isNotBlank(PageProcessorUtil.type(title))) {
+                yiBiaoDataItem.setType(PageProcessorUtil.type(title));
+            } else {
+                yiBiaoDataItem.setType(type);
+            }
+            Request request = new Request(href);
+            Page page = httpClientDownloader.download(request, SiteUtil.get().toTask());
+            try {
+                Elements elements = page.getHtml().getDocument().body().select("body > div.g-doc > div.g-bd > div.g-lit-mn.f-fl");
+                String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
+                if (StringUtils.isNotBlank(formatContent)) {
+                    yiBiaoDataItem.setFormatContent(formatContent);
+                    dataItems.add(yiBiaoDataItem);
+                } else {
+                    log.warn("{} is wrong page", href);
+                }
+            } catch (Exception e) {
+                log.warn("{} Download failed", href);
+            }
+
+        }
+        return dataItems;
     }
 }

@@ -57,14 +57,8 @@ public class ZGYeJinDataItem {
      */
     private String projectName;
 
-    @Transient
-    private String html;
 
-    @Transient
     private String formatContent;
-
-    @Transient
-    private String textContent;
 
     public DataItemDTO dto() {
         DataItemDTO dto = new DataItemDTO();

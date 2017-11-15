@@ -3,13 +3,16 @@ package com.har.sjfxpt.crawler.zgyj;
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.BaseSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
+import com.har.sjfxpt.crawler.ggzy.service.ProxyService;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
+import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.model.HttpRequestBody;
+import us.codecraft.webmagic.proxy.SimpleProxyProvider;
 import us.codecraft.webmagic.utils.HttpConstant;
 
 import java.util.Map;
@@ -29,6 +32,12 @@ public class ZGYeJinSpiderLauncher extends BaseSpiderLauncher {
     @Autowired
     ZGYeJinPipeline zgYeJinPipeline;
 
+    @Autowired
+    HttpClientDownloader downloader;
+
+    @Autowired
+    ProxyService proxyService;
+
     String[] urls = {
             "http://ec.mcc.com.cn/b2b/web/two/indexinfoAction.do?actionType=showMoreZbs&xxposition=zbgg",
             "http://ec.mcc.com.cn/b2b/web/two/indexinfoAction.do?actionType=showMoreCgxx&xxposition=cgxx",
@@ -42,7 +51,6 @@ public class ZGYeJinSpiderLauncher extends BaseSpiderLauncher {
      * 爬去当日的数据
      */
     public void start() {
-
         Request[] requests = new Request[urls.length];
         String date = DateTime.now().toString("yyyy-MM-dd");
 
@@ -72,9 +80,12 @@ public class ZGYeJinSpiderLauncher extends BaseSpiderLauncher {
             requests[i] = requestGenerator(urls[i], "2013-01-01", date);
         }
 
+        downloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
+
         Spider spider = Spider.create(zgYeJinPageProcessor)
                 .addRequest(requests)
                 .addPipeline(zgYeJinPipeline)
+                .setDownloader(downloader)
                 .thread(2);
         spider.start();
         addSpider(spider);

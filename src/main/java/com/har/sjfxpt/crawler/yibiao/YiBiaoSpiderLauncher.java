@@ -47,7 +47,7 @@ public class YiBiaoSpiderLauncher extends BaseSpiderLauncher {
      */
     public void fetchHistory() {
 
-        String url = "http://www.1-biao.com/data/AjaxTender.aspx?0.6114711952779264&hidtypeID=&hidIndustryID=&hidProvince=&hidCity=&hidPrice=&txtPrice1=&txtPrice2=&hidDate=0&hidPape=2&keyword=";
+        String url = "http://www.1-biao.com/data/AjaxTender.aspx?0.021667867299427268&hidtypeID=&hidIndustryID=&hidProvince=&hidCity=&hidPrice=&txtPrice1=&txtPrice2=&hidDate=4&hidPape=1&keyword=";
 
         cleanSpider(uuid);
 

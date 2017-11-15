@@ -96,11 +96,11 @@ public class ZGYeJinPageProcessor implements BasePageProcessor {
                 ZGYeJinDataItem zgYeJinDataItem = new ZGYeJinDataItem(url);
                 zgYeJinDataItem.setTitle(title);
 
-                if(StringUtils.contains(title,"资格预审：")){
-                    zgYeJinDataItem.setProjectName(StringUtils.substringAfter(title,"资格预审："));
+                if (StringUtils.contains(title, "资格预审：")) {
+                    zgYeJinDataItem.setProjectName(StringUtils.substringAfter(title, "资格预审："));
                 }
-                if(StringUtils.contains(title,"招标公告：")){
-                    zgYeJinDataItem.setProjectName(StringUtils.substringAfter(title,"招标公告："));
+                if (StringUtils.contains(title, "招标公告：")) {
+                    zgYeJinDataItem.setProjectName(StringUtils.substringAfter(title, "招标公告："));
                 }
                 zgYeJinDataItem.setDate(date);
                 zgYeJinDataItem.setUrl(url);
@@ -114,11 +114,8 @@ public class ZGYeJinPageProcessor implements BasePageProcessor {
                     String html = document.html();
                     Element root = document.body().select("body > div.main-news").first();
                     String formatContent = PageProcessorUtil.formatElementsByWhitelist(root);
-                    String textContent = PageProcessorUtil.extractTextByWhitelist(root);
 
-                    zgYeJinDataItem.setHtml(html);
                     zgYeJinDataItem.setFormatContent(formatContent);
-                    zgYeJinDataItem.setTextContent(textContent);
                 } catch (IOException e) {
                     log.error("", e);
                     log.error("page download failed!, {}", url);

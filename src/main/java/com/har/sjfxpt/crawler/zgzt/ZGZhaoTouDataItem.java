@@ -23,7 +23,6 @@ import java.util.Date;
 @Document(collection = "data_item_ctba")
 public class ZGZhaoTouDataItem {
 
-
     public ZGZhaoTouDataItem(String url) {
         this.id = DigestUtils.md5Hex(url);
     }

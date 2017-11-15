@@ -67,7 +67,7 @@ public class ChinaMobileSpiderLauncher extends BaseSpiderLauncher {
     public void fetchHistory() {
         DateTime df = DateTime.now().minusDays(1);
         String endDate = df.toString(YYYYMMDD);
-        String startDate = df.minusMonths(6).toString(YYYYMMDD);
+        String startDate = df.minusYears(5).toString(YYYYMMDD);
 
         final int num = Runtime.getRuntime().availableProcessors();
         for (int type : types) {
