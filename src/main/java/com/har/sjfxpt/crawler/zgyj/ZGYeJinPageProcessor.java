@@ -3,6 +3,7 @@ package com.har.sjfxpt.crawler.zgyj;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.ggzy.processor.BasePageProcessor;
+import com.har.sjfxpt.crawler.ggzy.service.ProxyService;
 import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.ProvinceUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
@@ -12,11 +13,14 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
+import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.model.HttpRequestBody;
+import us.codecraft.webmagic.proxy.SimpleProxyProvider;
 import us.codecraft.webmagic.utils.HttpConstant;
 
 import java.io.IOException;
@@ -35,6 +39,12 @@ import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_
 public class ZGYeJinPageProcessor implements BasePageProcessor {
 
     final static String PAGE_PARAMS = "pageParams";
+
+    @Autowired
+    HttpClientDownloader downloader;
+
+    @Autowired
+    ProxyService proxyService;
 
     @Override
     public void handlePaging(Page page) {
@@ -108,18 +118,12 @@ public class ZGYeJinPageProcessor implements BasePageProcessor {
 
                 log.debug("zgYeJinDataItem=={}", zgYeJinDataItem);
 
-                try {
-                    log.debug(">>> download {}", url);
-                    Document document = Jsoup.connect(url).timeout(60000).userAgent(SiteUtil.get().getUserAgent()).get();
-                    String html = document.html();
-                    Element root = document.body().select("body > div.main-news").first();
-                    String formatContent = PageProcessorUtil.formatElementsByWhitelist(root);
+                log.debug(">>> download {}", url);
+                downloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
+                Element root =downloader.download(url).getDocument().body().select("body > div.main-news").first();
+                String formatContent = PageProcessorUtil.formatElementsByWhitelist(root);
 
-                    zgYeJinDataItem.setFormatContent(formatContent);
-                } catch (IOException e) {
-                    log.error("", e);
-                    log.error("page download failed!, {}", url);
-                }
+                zgYeJinDataItem.setFormatContent(formatContent);
                 dataItems.add(zgYeJinDataItem);
             }
         }

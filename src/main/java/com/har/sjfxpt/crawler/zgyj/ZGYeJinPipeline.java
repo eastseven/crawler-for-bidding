@@ -36,8 +36,8 @@ public class ZGYeJinPipeline implements Pipeline{
             zgYeJinDataItemRepository.save(dataItemList);
             log.info("zhongguoyejin save {} to mongodb",dataItemList.size());
 
-//            List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
-//            dataItemService.save2BidNewsOriginalTable(dtoList);
+            List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
+            dataItemService.save2BidNewsOriginalTable(dtoList);
         }
     }
 }
