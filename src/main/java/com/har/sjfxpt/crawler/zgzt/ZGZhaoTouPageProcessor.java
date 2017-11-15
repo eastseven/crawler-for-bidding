@@ -133,6 +133,30 @@ public class ZGZhaoTouPageProcessor implements BasePageProcessor {
         return page;
     }
 
+
+    public String businessKeyWord(String type) {
+        String businessKeyWord = null;
+        switch (type) {
+            case "招标项目":
+                businessKeyWord = "tenderProject";
+                break;
+            case "招标公告":
+                businessKeyWord = "tenderBulletin";
+                break;
+            case "中标公告":
+                businessKeyWord = "winBidBulletin";
+                break;
+            case "开标记录":
+                businessKeyWord = "openBidRecord";
+                break;
+            case "评标公示":
+                businessKeyWord = "winCandidateBulletin";
+                break;
+        }
+        return businessKeyWord;
+    }
+
+
     public List parseContent(Page page) {
         Map<String, Object> PageParams = (Map<String, Object>) page.getRequest().getExtras().get(PAGE_PARAMS);
 
@@ -141,10 +165,10 @@ public class ZGZhaoTouPageProcessor implements BasePageProcessor {
         List<ZGZhaoTouDataItem> dataItems = Lists.newArrayList();
         for (ChinaTenderingAndBidding.ObjectBean.ReturnlistBean row : lists) {
             String type = (String) PageParams.get("businessType");
-            String id = row.getTenderProjectCode();
+            String id = row.getSchemaVersion() + businessKeyWord(type) + row.getTenderProjectCode();
             long value = stringRedisTemplate.boundSetOps(KEY_URLS).add(id);
             if (value == 0L) {
-                log.warn("{} is duplication", id);
+                log.warn("{} is duplication", value);
                 continue;
             } else {
                 String title = row.getBusinessObjectName();
