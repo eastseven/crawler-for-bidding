@@ -12,6 +12,7 @@ import us.codecraft.webmagic.model.HttpRequestBody;
 import us.codecraft.webmagic.utils.HttpConstant;
 
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Created by Administrator on 2017/11/7.
@@ -27,6 +28,9 @@ public class ChinaTenderingAndBiddingLauncher extends BaseSpiderLauncher{
 
     @Autowired
     ZGZhaoTouPipeline zgZhaoTouPipeline;
+
+    @Autowired
+    ExecutorService executorService;
 
     final int num=Runtime.getRuntime().availableProcessors();
 
@@ -70,6 +74,7 @@ public class ChinaTenderingAndBiddingLauncher extends BaseSpiderLauncher{
         Spider spider=Spider.create(zgZhaoTouPageProcessor)
                 .addRequest(requests)
                 .addPipeline(zgZhaoTouPipeline)
+                .setExecutorService(executorService)
                 .setUUID(uuid)
                 .thread(num);
         addSpider(spider);
