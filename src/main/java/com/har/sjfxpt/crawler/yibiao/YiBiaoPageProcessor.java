@@ -170,6 +170,7 @@ public class YiBiaoPageProcessor implements BasePageProcessor {
                     log.warn("{} is wrong page", href);
                 }
             } catch (Exception e) {
+                log.warn("e=={}",e);
                 log.warn("{} Download failed", href);
             }
 

@@ -19,9 +19,9 @@ import java.util.concurrent.ExecutorService;
  */
 @Slf4j
 @Component
-public class ChinaTenderingAndBiddingLauncher extends BaseSpiderLauncher{
+public class ChinaTenderingAndBiddingLauncher extends BaseSpiderLauncher {
 
-    final String uuid= SourceCode.ZGZT.toString().toLowerCase()+"-current";
+    final String uuid = SourceCode.ZGZT.toString().toLowerCase() + "-current";
 
     @Autowired
     ZGZhaoTouPageProcessor zgZhaoTouPageProcessor;
@@ -32,25 +32,26 @@ public class ChinaTenderingAndBiddingLauncher extends BaseSpiderLauncher{
     @Autowired
     ExecutorService executorService;
 
-    final int num=Runtime.getRuntime().availableProcessors();
+    final int num = Runtime.getRuntime().availableProcessors();
 
     /**
      * 爬取当日数据
      */
-    public void start(){
+    public void start() {
         String url = "http://www.cebpubservice.com/ctpsp_iiss/searchbusinesstypebeforedooraction/getStringMethod.do";
 
-        Request[] requests={
-                requestGenerator(url, "招标项目","今日"),
-                requestGenerator(url, "招标公告","今日"),
-                requestGenerator(url, "中标公告","今日"),
-                requestGenerator(url, "开标记录","今日"),
-                requestGenerator(url, "评标公示","今日")
+        Request[] requests = {
+                requestGenerator(url, "招标项目", "今日"),
+                requestGenerator(url, "招标公告", "今日"),
+                requestGenerator(url, "中标公告", "今日"),
+                requestGenerator(url, "开标记录", "今日"),
+                requestGenerator(url, "评标公示", "今日")
         };
 
-        Spider spider=Spider.create(zgZhaoTouPageProcessor)
+        Spider spider = Spider.create(zgZhaoTouPageProcessor)
                 .addRequest(requests)
                 .addPipeline(zgZhaoTouPipeline)
+                .setExecutorService(executorService)
                 .setUUID(uuid)
                 .thread(num);
         addSpider(spider);
@@ -60,18 +61,17 @@ public class ChinaTenderingAndBiddingLauncher extends BaseSpiderLauncher{
     /**
      * 爬取历史
      */
-    public void fetchHistory(){
+    public void fetchHistory() {
         String url = "http://www.cebpubservice.com/ctpsp_iiss/searchbusinesstypebeforedooraction/getStringMethod.do";
 
-        Request[] requests={
-                requestGenerator(url, "招标项目",""),
-                requestGenerator(url, "招标公告",""),
-                requestGenerator(url, "中标公告",""),
-                requestGenerator(url, "开标记录",""),
-                requestGenerator(url, "评标公示","")
+        Request[] requests = {
+                requestGenerator(url, "招标项目", ""),
+                requestGenerator(url, "招标公告", ""),
+                requestGenerator(url, "中标公告", ""),
+                requestGenerator(url, "开标记录", ""),
+                requestGenerator(url, "评标公示", "")
         };
-
-        Spider spider=Spider.create(zgZhaoTouPageProcessor)
+        Spider spider = Spider.create(zgZhaoTouPageProcessor)
                 .addRequest(requests)
                 .addPipeline(zgZhaoTouPipeline)
                 .setExecutorService(executorService)
@@ -82,13 +82,13 @@ public class ChinaTenderingAndBiddingLauncher extends BaseSpiderLauncher{
     }
 
 
-    public static Request requestGenerator(String url, String type,String date) {
+    public static Request requestGenerator(String url, String type, String date) {
 
         Request request = new Request(url);
 
         Map<String, Object> params = Maps.newHashMap();
 
-        if(type.equals("招标项目")||type.equals("中标公告")||type.equals("开标记录")||type.equals("评标公示")){
+        if (type.equals("招标项目") || type.equals("中标公告") || type.equals("开标记录") || type.equals("评标公示")) {
             params.put("searchName", "");
             params.put("searchArea", "");
             params.put("searchIndustry", "");
@@ -103,7 +103,7 @@ public class ChinaTenderingAndBiddingLauncher extends BaseSpiderLauncher{
             params.put("pageNo", 1);
             params.put("row", 15);
         }
-        if(type.equals("招标公告")){
+        if (type.equals("招标公告")) {
             params.put("searchName", "");
             params.put("searchArea", "");
             params.put("searchIndustry", "");

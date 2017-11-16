@@ -12,15 +12,15 @@ spring:
       host: 192.168.3.108
       port: 6379
       password: 123456
-      database: 6
+      database: 4
 
-hbase.zookeeper.quorum: s97,s98,s99
 #hbase.zookeeper.quorum: 192.168.50.215
-hbase.table.clean: false
-hbase.table.namespace: bid_news_test
-#hbase.zookeeper.quorum: s94,s95,s96
+#hbase.zookeeper.quorum: s97,s98,s99
 #hbase.table.clean: false
-#hbase.table.namespace: bid_news
+#hbase.table.namespace: bid_news_test
+hbase.zookeeper.quorum: s94,s95,s96
+hbase.table.clean: false
+hbase.table.namespace: bid_news
 
 app.fetch.current.day: false
 app.industry.categories:
