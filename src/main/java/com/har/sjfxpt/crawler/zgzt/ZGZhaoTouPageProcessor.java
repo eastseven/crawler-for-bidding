@@ -85,7 +85,6 @@ public class ZGZhaoTouPageProcessor implements BasePageProcessor {
                 request.putExtra(PAGE_PARAMS, PageParams);
                 page.addTargetRequest(request);
             }
-
         }
     }
 
@@ -168,7 +167,7 @@ public class ZGZhaoTouPageProcessor implements BasePageProcessor {
             String id = row.getSchemaVersion() + businessKeyWord(type) + row.getTenderProjectCode();
             long value = stringRedisTemplate.boundSetOps(KEY_URLS).add(id);
             if (value == 0L) {
-                log.warn("{} is duplication", value);
+                log.warn("{} is duplication", id);
                 continue;
             } else {
                 String title = row.getBusinessObjectName();

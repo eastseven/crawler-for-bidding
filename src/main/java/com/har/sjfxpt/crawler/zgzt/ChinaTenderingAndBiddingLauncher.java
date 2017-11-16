@@ -112,7 +112,7 @@ public class ChinaTenderingAndBiddingLauncher extends BaseSpiderLauncher{
             params.put("searchTimeStart", "");
             params.put("searchTimeStop", "");
             params.put("timeTypeParam", "");
-            params.put("bulletinIssnTime", "今日");
+            params.put("bulletinIssnTime", date);
             params.put("bulletinIssnTimeStart", "");
             params.put("bulletinIssnTimeStop", "");
             params.put("pageNo", 1);
