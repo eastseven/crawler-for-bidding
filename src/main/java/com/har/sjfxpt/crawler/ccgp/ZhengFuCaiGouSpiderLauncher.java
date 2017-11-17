@@ -1,6 +1,7 @@
 package com.har.sjfxpt.crawler.ccgp;
 
 import com.har.sjfxpt.crawler.BaseSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
 import com.har.sjfxpt.crawler.ggzy.service.ProxyService;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
@@ -101,13 +102,21 @@ public class ZhengFuCaiGouSpiderLauncher extends BaseSpiderLauncher {
     }
 
     public Spider history() {
-        Page<PageData> page = pageDataRepository.findAll(new PageRequest(0, 5, Sort.Direction.ASC, "date"));
+        cleanSpider(uuid_history);
+
+        Sort sort = new Sort(Sort.Direction.ASC, "date");
+        int size = (int) pageDataRepository.count();
+        Page<PageData> page = pageDataRepository.findAll(new PageRequest(0, size, Sort.Direction.ASC, "date"));
         Spider historySpider = getHistorySpider();
         if (page.hasContent()) {
-            page.forEach(pageData -> historySpider.addRequest(new Request(getUrl(pageData.getDate(), pageData.getDate()))));
+            page.forEach(pageData -> {
+                historySpider.addRequest(new Request(getUrl(pageData.getDate(), pageData.getDate())));
+                log.info(">>> {} history fetch, add date {}", SourceCode.CCGP, pageData.getDateLong());
+            });
             historySpider.setUUID(uuid_history);
         }
 
+        addSpider(historySpider);
         return historySpider;
     }
 
