@@ -50,7 +50,7 @@ public class YiBiaoSpiderLauncher extends BaseSpiderLauncher {
     }
 
     /**
-     * 安省爬取历史
+     * 按省爬取历史
      */
     public void fetchHistory() {
 

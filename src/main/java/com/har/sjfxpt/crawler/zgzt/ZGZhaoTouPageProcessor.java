@@ -128,7 +128,7 @@ public class ZGZhaoTouPageProcessor implements BasePageProcessor {
         param.put("tenderProjectCode", row.getTenderProjectCode());
         request.setMethod(HttpConstant.Method.POST);
         request.setRequestBody(HttpRequestBody.form(param, "UTF-8"));
-        Page page = httpClientDownloader.download(request, SiteUtil.get().toTask());
+        Page page = httpClientDownloader.download(request, SiteUtil.get().setTimeOut(30000).toTask());
         return page;
     }
 

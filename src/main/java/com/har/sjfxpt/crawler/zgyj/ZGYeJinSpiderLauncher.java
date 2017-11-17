@@ -16,6 +16,7 @@ import us.codecraft.webmagic.proxy.SimpleProxyProvider;
 import us.codecraft.webmagic.utils.HttpConstant;
 
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 /**
  * Created by Administrator on 2017/10/30.
@@ -34,6 +35,9 @@ public class ZGYeJinSpiderLauncher extends BaseSpiderLauncher {
 
     @Autowired
     HttpClientDownloader downloader;
+
+    @Autowired
+    ExecutorService executorService;
 
     @Autowired
     ProxyService proxyService;
@@ -61,6 +65,7 @@ public class ZGYeJinSpiderLauncher extends BaseSpiderLauncher {
         Spider spider = Spider.create(zgYeJinPageProcessor)
                 .addRequest(requests)
                 .addPipeline(zgYeJinPipeline)
+                .setExecutorService(executorService)
                 .setUUID(uuid)
                 .thread(num);
         addSpider(spider);

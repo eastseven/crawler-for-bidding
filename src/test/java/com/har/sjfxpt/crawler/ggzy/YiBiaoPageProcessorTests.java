@@ -1,17 +1,22 @@
 package com.har.sjfxpt.crawler.ggzy;
 
+import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
+import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import com.har.sjfxpt.crawler.yibiao.YiBiaoPageProcessor;
 import com.har.sjfxpt.crawler.yibiao.YiBiaoPipeline;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
+import org.jsoup.select.Elements;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.test.context.junit4.SpringRunner;
+import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
+import us.codecraft.webmagic.downloader.HttpClientDownloader;
 
 import java.util.Date;
 import java.util.regex.Matcher;
@@ -117,6 +122,18 @@ public class YiBiaoPageProcessorTests {
     @Scheduled(fixedDelay = 2000)
     public void scheduledTest(){
         log.debug("date=={}",new DateTime(new Date()).toString("HH:mm:ss"));
+    }
+
+
+    @Test
+    public void testFormatContent(){
+        HttpClientDownloader httpClientDownloader=new HttpClientDownloader();
+        Request request=new Request("http://www.1-biao.com/data/T2944913.html");
+        Page page=httpClientDownloader.download(request, SiteUtil.get().toTask());
+        Elements elements=page.getHtml().getDocument().body().select("body > div.g-doc > div.g-bd > div.g-lit-mn.f-fl");
+        log.info("elements=={}",elements);
+        String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
+        log.info("formatContent=={}",formatContent);
     }
 
 

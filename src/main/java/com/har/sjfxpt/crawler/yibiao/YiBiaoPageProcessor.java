@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
@@ -29,6 +30,9 @@ public class YiBiaoPageProcessor implements BasePageProcessor {
     HttpClientDownloader httpClientDownloader;
 
     final static int ARTICLE_NUM = 50;
+
+    @Autowired
+    HttpClientDownloader httpClientDownloader1;
 
     @Override
     public void handlePaging(Page page) {
@@ -56,16 +60,16 @@ public class YiBiaoPageProcessor implements BasePageProcessor {
             log.error("fetch error, elements is empty");
             return;
         }
-        String url=page.getUrl().toString();
-        if(url.contains("0.06563536587854646")){
+        String url = page.getUrl().toString();
+        if (url.contains("0.06563536587854646")) {
             List<YiBiaoDataItem> dataItems = parseContent(elements);
             if (!dataItems.isEmpty()) {
                 page.putField(KEY_DATA_ITEMS, dataItems);
             } else {
                 log.warn("fetch {} no data", page.getUrl().get());
             }
-        }else {
-            List<YiBiaoDataItem> dataItems = parseContent(elements,url);
+        } else {
+            List<YiBiaoDataItem> dataItems = parseContent(elements, url);
             if (!dataItems.isEmpty()) {
                 page.putField(KEY_DATA_ITEMS, dataItems);
             } else {
@@ -102,7 +106,7 @@ public class YiBiaoPageProcessor implements BasePageProcessor {
                     yiBiaoDataItem.setType(type);
                 }
                 Request request = new Request(href);
-                Page page = httpClientDownloader.download(request, SiteUtil.get().toTask());
+                Page page = httpClientDownloader.download(request, SiteUtil.get().setTimeOut(60000).toTask());
                 try {
                     Elements elements = page.getHtml().getDocument().body().select("body > div.g-doc > div.g-bd > div.g-lit-mn.f-fl");
                     String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
@@ -136,7 +140,7 @@ public class YiBiaoPageProcessor implements BasePageProcessor {
     }
 
     public List parseContent(Elements items, String url) {
-        log.debug("url=={}",url);
+        log.debug("url=={}", url);
         List<YiBiaoDataItem> dataItems = Lists.newArrayList();
         for (Element a : items) {
             String href = a.select("dt > a").attr("href");
@@ -159,21 +163,16 @@ public class YiBiaoPageProcessor implements BasePageProcessor {
                 yiBiaoDataItem.setType(type);
             }
             Request request = new Request(href);
-            Page page = httpClientDownloader.download(request, SiteUtil.get().toTask());
-            try {
-                Elements elements = page.getHtml().getDocument().body().select("body > div.g-doc > div.g-bd > div.g-lit-mn.f-fl");
-                String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
-                if (StringUtils.isNotBlank(formatContent)) {
-                    yiBiaoDataItem.setFormatContent(formatContent);
-                    dataItems.add(yiBiaoDataItem);
-                } else {
-                    log.warn("{} is wrong page", href);
-                }
-            } catch (Exception e) {
-                log.warn("e=={}",e);
-                log.warn("{} Download failed", href);
+            Page page = httpClientDownloader1.download(request, SiteUtil.get().setTimeOut(30000).toTask());
+            Elements elements = page.getHtml().getDocument().body().select("body > div.g-doc > div.g-bd > div.g-lit-mn.f-fl");
+            String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
+            if (StringUtils.isNotBlank(formatContent)) {
+                yiBiaoDataItem.setFormatContent(formatContent);
+                dataItems.add(yiBiaoDataItem);
+            } else {
+                log.warn("history {} is wrong page", href);
+                log.warn("formatContent=={}", formatContent);
             }
-
         }
         return dataItems;
     }

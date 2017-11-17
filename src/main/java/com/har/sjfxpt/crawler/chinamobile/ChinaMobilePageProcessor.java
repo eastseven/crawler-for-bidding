@@ -13,10 +13,12 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
+import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.model.HttpRequestBody;
 import us.codecraft.webmagic.utils.HttpConstant;
 
@@ -37,6 +39,9 @@ public class ChinaMobilePageProcessor implements BasePageProcessor {
     final static String PAGE_PARAMS = "pageParams";
 
     final static String URL = "https://b2b.10086.cn/b2b/main/viewNoticeContent.html?noticeBean.id=";
+
+    @Autowired
+    HttpClientDownloader httpClientDownloader;
 
     @Override
     public void process(Page page) {
@@ -129,7 +134,7 @@ public class ChinaMobilePageProcessor implements BasePageProcessor {
 
             try {
                 log.debug(">>> download {}", url);
-                Document document = Jsoup.connect(url).timeout(60000).userAgent(SiteUtil.get().getUserAgent()).get();
+                Document document =httpClientDownloader.download(new Request(url),SiteUtil.get().setTimeOut(60000).toTask()).getHtml().getDocument();
                 String html = document.html();
                 Element root = null;
                 if (!document.body().select("div#mobanDiv").isEmpty()) {
@@ -142,8 +147,6 @@ public class ChinaMobilePageProcessor implements BasePageProcessor {
                 dataItem.setHtml(html);
                 dataItem.setFormatContent(formatContent);
                 dataItem.setTextContent(textContent);
-            } catch (IOException e) {
-                log.error("", e);
             } finally {
                 dataItem.setDownload(StringUtils.isNotBlank(dataItem.getFormatContent()));
             }
