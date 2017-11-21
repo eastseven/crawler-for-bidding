@@ -38,6 +38,8 @@ public class CCGPHaiNanSpiderLauncher extends BaseSpiderLauncher {
 
         Request request = new Request(url);
 
+        cleanSpider(uuid);
+
         Spider spider = Spider.create(CCGPHaiNanPageProcessor)
                 .addRequest(request)
                 .addPipeline(CCGPHaiNanPipeline)

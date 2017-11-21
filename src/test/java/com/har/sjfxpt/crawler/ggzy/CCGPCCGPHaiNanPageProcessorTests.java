@@ -39,20 +39,20 @@ public class CCGPCCGPHaiNanPageProcessorTests {
 
         Spider.create(CCGPHaiNanPageProcessor)
                 .addRequest(request)
-                //.addPipeline(CCGPHaiNanPipeline)
+                .addPipeline(CCGPHaiNanPipeline)
                 .thread(4)
                 .run();
     }
 
     @Test
-    public void testString(){
-        String txt="四川恒鑫工程管理咨询有限公司关于码头租赁项目合同公示";
+    public void testString() {
+        String txt = "四川恒鑫工程管理咨询有限公司关于码头租赁项目合同公示";
 
-        String projectName= StringUtils.substringBeforeLast(txt,"-");
+        String projectName = StringUtils.substringBeforeLast(txt, "-");
 
-        String project=StringUtils.defaultString(projectName,"");
+        String project = StringUtils.defaultString(projectName, "");
 
-        log.debug("project=={}",project);
+        log.debug("project=={}", project);
     }
 
 }
