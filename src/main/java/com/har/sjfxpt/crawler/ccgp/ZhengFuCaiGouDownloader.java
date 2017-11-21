@@ -16,16 +16,18 @@ public class ZhengFuCaiGouDownloader extends HttpClientDownloader {
     @Autowired
     StringRedisTemplate redisTemplate;
 
+    final String key = "ccgp_history_fail_urls";
+
     @Override
     public Page download(Request request, Task task) {
         Page page = super.download(request, task);
-        boolean bln = page.getHtml().getDocument().title().equalsIgnoreCase("安全验证");
-        if (bln) {
-            onError(request);
-            log.error(">>> ccgp detect {}", request.getUrl());
-            return Page.fail().setSkip(true);
-        }
+        log.debug(">>> {}, {}", request.getUrl(), page == null);
         return page;
     }
 
+    @Override
+    protected void onError(Request request) {
+        redisTemplate.boundSetOps(key).add(request.getUrl());
+        super.onError(request);
+    }
 }

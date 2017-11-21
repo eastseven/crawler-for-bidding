@@ -8,6 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
+import org.joda.time.Period;
+import org.joda.time.PeriodType;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -28,6 +31,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanUtil.YYYYMMDD;
 import static com.har.sjfxpt.crawler.petrochina.ZGShiYouPageProcessor.formUrl;
 
 @Slf4j
@@ -233,5 +237,16 @@ public class CommonTests {
         log.info("textContent =={}", textContent1);
     }
 
+    @Test
+    public void testCCGPDate() {
+        DateTime end = DateTime.now();
+        DateTime start = new DateTime("2013-01-01");
+        Duration duration = new Duration(start, end);
+        log.debug("{} to {}, total days {}", start.toString(YYYYMMDD), end.toString(YYYYMMDD), duration.getStandardDays());
 
+        log.debug("weeks={}\tmonths={}\tyears={}",
+                new Period(start, end, PeriodType.weeks()).getWeeks(),
+                new Period(start, end, PeriodType.months()).getMonths(),
+                new Period(start, end, PeriodType.years()).getYears());
+    }
 }

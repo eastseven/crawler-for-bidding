@@ -107,6 +107,9 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
     }
 
     private ZhengFuCaiGouDataItem download(ZhengFuCaiGouDataItem dataItem) throws IOException {
+        if (simpleHttpClient == null) {
+            simpleHttpClient = new SimpleHttpClient(SiteUtil.get().setTimeOut(60000));
+        }
         Document document = simpleHttpClient.get(dataItem.getUrl()).getHtml().getDocument();
         if (StringUtils.equalsAnyIgnoreCase(document.title(), "安全验证")) {
             log.warn("ccgp verification {}", dataItem.getUrl());
@@ -151,7 +154,7 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
             ZhengFuCaiGouDataItem dataItem = ZhengFuCaiGouDataItem.builder()
                     .id(id).url(href).title(title)
                     .build();
-
+            log.debug("href=={}", dataItem.getUrl());
             String text = element.select("span").text();
             String[] lines = text.split("\\|");
             String pubDate = null, purchaser = null, purchaserAgent = null;

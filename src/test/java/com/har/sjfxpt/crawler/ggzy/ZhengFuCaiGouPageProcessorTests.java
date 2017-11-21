@@ -8,19 +8,21 @@ import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
+import org.joda.time.Duration;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
+import us.codecraft.webmagic.proxy.SimpleProxyProvider;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +33,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
-import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
+import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanUtil.YYYYMMDD;
 
 @Slf4j
 public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
@@ -97,10 +99,22 @@ public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
 
     @Test
     public void testFetchPageData() {
-        List<PageData> pageDataList = pageDataRepository.findAll(new Sort(Sort.Direction.ASC, "date"));
-        Assert.assertFalse(pageDataList.isEmpty());
+        Page<PageData> pageDataList = pageDataRepository.findAll(new PageRequest(0, 10, Sort.Direction.ASC, "date"));
+        Assert.assertTrue(pageDataList.hasContent());
+        pageDataList.forEach(System.out::println);
 
-        spiderLauncher.countPageData();
+        DateTime start = new DateTime("2013-01-01");
+        DateTime end = DateTime.now();
+        Duration duration = new Duration(start, end);
+
+        for (int day = 0; day < duration.toStandardDays().getDays(); day++) {
+            String date = start.plusDays(day).toString(YYYYMMDD).replace("-", ":");
+
+            boolean exists = pageDataRepository.exists(date);
+            if (!exists) {
+                log.warn(">>> {}", date);
+            }
+        }
     }
 
     //    @Before
@@ -122,12 +136,23 @@ public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
         }
     }
 
+    @Test
+    public void fixPageData() {
+        PageRequest request = new PageRequest(0, 10);
+        Page<PageData> pager = pageDataRepository.findAll(request);
+        Assert.assertTrue(pager.hasContent());
+
+        for (int page = 0; page < pager.getTotalPages(); page++) {
+            Page<PageData> p = pageDataRepository.findAll(new PageRequest(page, 10));
+            p.forEach(pageData -> pageData.setDateLong(Long.parseLong(pageData.getDate().replace(":", ""))));
+            pageDataRepository.save(p);
+            log.debug("fix {}, {}", page, p.getSize());
+        }
+    }
+
 
     @Autowired
     StringRedisTemplate stringRedisTemplate;
-
-    @Autowired
-    HttpClientDownloader httpClientDownloader;
 
     final String names = "ccgp_history_fail_urls";
 
@@ -140,22 +165,23 @@ public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
     DataItemService dataItemService;
 
     @Test
-    public void testRedisUrl() {
+    public void getRedisUrl() {
         long total = stringRedisTemplate.boundSetOps(names).size();
-        String tabulationUrl = (String) stringRedisTemplate.boundSetOps(names).pop();
-        log.debug("total=={},tabulationUrl=={}", total, tabulationUrl);
-        Request request = new Request(tabulationUrl);
-        Page page = httpClientDownloader.download(request, SiteUtil.get().toTask());
-        log.debug("pageContent=={}", page.getHtml().getDocument().body());
-        Document document = page.getHtml().getDocument();
-        Elements elements = document.body().select(cssQuery4List);
-        List<ZhengFuCaiGouDataItem> dataItemList = pageProcessor.parseContent(elements);
-        if (!dataItemList.isEmpty()) {
-            repository.save(dataItemList);
-            log.info("ccgp save {} to mongodb", dataItemList.size());
-
-            List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
-            dataItemService.save2BidNewsOriginalTable(dtoList);
+        for (int i = 0; i < total; i++) {
+            String tabulationUrl = (String) stringRedisTemplate.boundSetOps(names).pop();
+            log.debug("total=={},tabulationUrl=={}", total, tabulationUrl);
+            Request request = new Request(tabulationUrl);
+            downloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
+            us.codecraft.webmagic.Page page = downloader.download(request, SiteUtil.get().toTask());
+            Document document = page.getHtml().getDocument();
+            Elements elements = document.body().select(cssQuery4List);
+            List<ZhengFuCaiGouDataItem> dataItemList = pageProcessor.parseContent(elements);
+            if (!dataItemList.isEmpty()) {
+                repository.save(dataItemList);
+                log.info("ccgp save {} to mongodb", dataItemList.size());
+                List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
+                dataItemService.save2BidNewsOriginalTable(dtoList);
+            }
         }
     }
 
