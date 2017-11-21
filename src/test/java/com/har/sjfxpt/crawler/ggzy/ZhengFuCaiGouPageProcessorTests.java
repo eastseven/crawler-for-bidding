@@ -1,17 +1,23 @@
 package com.har.sjfxpt.crawler.ggzy;
 
 import com.har.sjfxpt.crawler.ccgp.*;
+import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
+import com.har.sjfxpt.crawler.ggzy.service.DataItemService;
 import com.har.sjfxpt.crawler.ggzy.service.ProxyService;
+import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
@@ -23,11 +29,15 @@ import java.net.URLEncoder;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
+
+import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
 
 @Slf4j
 public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
 
-    @Autowired ZhengFuCaiGouSpiderLauncher spiderLauncher;
+    @Autowired
+    ZhengFuCaiGouSpiderLauncher spiderLauncher;
 
     @Autowired
     ZhengFuCaiGouPageProcessor pageProcessor;
@@ -93,7 +103,7 @@ public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
         spiderLauncher.countPageData();
     }
 
-    @Before
+    //    @Before
     public void init() {
         String url = "http://search.ccgp.gov.cn/bxsearch?searchtype=1&page_index=1&bidSort=0&buyerName=&projectId=&pinMu=0&bidType=0&dbselect=bidx&kw=&start_time=2017%3A10%3A30&end_time=2017%3A10%3A30&timeType=0&displayZone=&zoneId=&pppStatus=0&agentName=";
         HttpClientDownloader downloader = new HttpClientDownloader();
@@ -111,4 +121,43 @@ public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
             log.error("", e);
         }
     }
+
+
+    @Autowired
+    StringRedisTemplate stringRedisTemplate;
+
+    @Autowired
+    HttpClientDownloader httpClientDownloader;
+
+    final String names = "ccgp_history_fail_urls";
+
+    public static final String cssQuery4List = "div.vT_z div.vT-srch-result div.vT-srch-result-list-con2 div.vT-srch-result-list ul.vT-srch-result-list-bid li";
+
+    @Autowired
+    ZhengFuCaiGouRepository repository;
+
+    @Autowired
+    DataItemService dataItemService;
+
+    @Test
+    public void testRedisUrl() {
+        long total = stringRedisTemplate.boundSetOps(names).size();
+        String tabulationUrl = (String) stringRedisTemplate.boundSetOps(names).pop();
+        log.debug("total=={},tabulationUrl=={}", total, tabulationUrl);
+        Request request = new Request(tabulationUrl);
+        Page page = httpClientDownloader.download(request, SiteUtil.get().toTask());
+        log.debug("pageContent=={}", page.getHtml().getDocument().body());
+        Document document = page.getHtml().getDocument();
+        Elements elements = document.body().select(cssQuery4List);
+        List<ZhengFuCaiGouDataItem> dataItemList = pageProcessor.parseContent(elements);
+        if (!dataItemList.isEmpty()) {
+            repository.save(dataItemList);
+            log.info("ccgp save {} to mongodb", dataItemList.size());
+
+            List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
+            dataItemService.save2BidNewsOriginalTable(dtoList);
+        }
+    }
+
+
 }

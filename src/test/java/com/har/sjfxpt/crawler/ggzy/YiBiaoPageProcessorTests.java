@@ -1,26 +1,38 @@
 package com.har.sjfxpt.crawler.ggzy;
 
+import com.google.common.collect.Lists;
+import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
+import com.har.sjfxpt.crawler.ggzy.service.DataItemService;
 import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
+import com.har.sjfxpt.crawler.yibiao.YiBiaoDataItemUrlRepository;
+import com.har.sjfxpt.crawler.yibiao.YiBiaoDataItemUrlTarget;
 import com.har.sjfxpt.crawler.yibiao.YiBiaoPageProcessor;
 import com.har.sjfxpt.crawler.yibiao.YiBiaoPipeline;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Created by Administrator on 2017/11/9.
@@ -74,11 +86,11 @@ public class YiBiaoPageProcessorTests {
                 "http://www.1-biao.com/data/AjaxTender.aspx?0.41885172672931925&hidtypeID=&hidIndustryID=&hidProvince=31&hidCity=&hidPrice=&txtPrice1=&txtPrice2=&hidDate=&hidPape=1&keyword="
         };
 
-        Request[] requests=new Request[urls.length];
+        Request[] requests = new Request[urls.length];
 
-        for (int i=0;i<urls.length;i++){
-           Request request=new Request(urls[i]);
-           requests[i]=request;
+        for (int i = 0; i < urls.length; i++) {
+            Request request = new Request(urls[i]);
+            requests[i] = request;
         }
 
         Spider.create(yiBiaoPageProcessor)
@@ -115,25 +127,105 @@ public class YiBiaoPageProcessorTests {
 
 
     @Test
-    public void test(){
-        scheduledTest();
+    public void testFormatContent() {
+        HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
+        Request request = new Request("http://www.1-biao.com/data/T2169754.html");
+        Element html = httpClientDownloader.download(request, SiteUtil.get().setTimeOut(30000).toTask()).getHtml().getDocument().body();
+        Elements elements = null;
+        elements = html.select("body > div.g-doc > div.g-bd > div.g-lit-mn.f-fl");
+        while (StringUtils.isBlank(elements.html())) {
+            Page page = httpClientDownloader.download(request, SiteUtil.get().setTimeOut(30000).toTask());
+            elements = page.getHtml().getDocument().body().select("body > div.g-doc > div.g-bd > div.g-lit-mn.f-fl");
+        }
+        String formtContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
+        log.debug("fromatContent=={}", formtContent);
     }
 
-    @Scheduled(fixedDelay = 2000)
-    public void scheduledTest(){
-        log.debug("date=={}",new DateTime(new Date()).toString("HH:mm:ss"));
-    }
+    @Autowired
+    YiBiaoDataItemUrlRepository yiBiaoDataItemUrlRepository;
 
+    @Autowired
+    StringRedisTemplate stringRedisTemplate;
+
+    final String KEY_URLS = "fetch_fail_url_yibiao";
+
+    @Autowired
+    DataItemService dataItemService;
+
+    @Autowired
+    HttpClientDownloader httpClientDownloader;
 
     @Test
-    public void testFormatContent(){
-        HttpClientDownloader httpClientDownloader=new HttpClientDownloader();
-        Request request=new Request("http://www.1-biao.com/data/T2944913.html");
-        Page page=httpClientDownloader.download(request, SiteUtil.get().toTask());
-        Elements elements=page.getHtml().getDocument().body().select("body > div.g-doc > div.g-bd > div.g-lit-mn.f-fl");
-        log.info("elements=={}",elements);
-        String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
-        log.info("formatContent=={}",formatContent);
+    public void testMongoTest() {
+        org.springframework.data.domain.Page<YiBiaoDataItemUrlTarget> lists = yiBiaoDataItemUrlRepository.findAll(new PageRequest(0, 20));
+        log.debug("size=={}", lists.getTotalPages());
+        int pageSize = lists.getTotalPages();
+        for (int i = 0; i <= pageSize; i++) {
+            org.springframework.data.domain.Page<YiBiaoDataItemUrlTarget> currentPage = yiBiaoDataItemUrlRepository.findAll(new PageRequest(i, 20));
+            List<YiBiaoDataItemUrlTarget> dataItems = Lists.newArrayList();
+            log.info("pageNum=={}", i);
+            for (YiBiaoDataItemUrlTarget yiBiaoDataItemUrlTarget : currentPage) {
+                String titleReal = yiBiaoDataItemUrlTarget.getTitle().replace(StringUtils.substringBetween(yiBiaoDataItemUrlTarget.getTitle(), "[", "]"), "");
+                Matcher m = Pattern.compile("[\\u4e00-\\u9fa5]").matcher(titleReal);
+                if (yiBiaoDataItemUrlTarget.getFormatContent() == null && m.find()) {
+                    Request request = new Request(yiBiaoDataItemUrlTarget.getUrl());
+                    try {
+                        Element html = httpClientDownloader.download(request, SiteUtil.get().setTimeOut(30000).toTask()).getHtml().getDocument().body();
+                        Elements elements = null;
+                        elements = html.select("body > div.g-doc > div.g-bd > div.g-lit-mn.f-fl");
+                        int counter = 0;
+                        while (StringUtils.isBlank(elements.html()) && counter <= 10) {
+                            counter++;
+                            Page page = httpClientDownloader.download(request, SiteUtil.get().setTimeOut(30000).toTask());
+                            elements = page.getHtml().getDocument().body().select("body > div.g-doc > div.g-bd > div.g-lit-mn.f-fl");
+                            if (counter == 10 && StringUtils.isBlank(elements.html())) {
+                                stringRedisTemplate.boundSetOps(KEY_URLS).add(yiBiaoDataItemUrlTarget.getUrl());
+                            }
+                        }
+                        String formtContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
+                        if (StringUtils.isNotBlank(formtContent)) {
+                            yiBiaoDataItemUrlTarget.setFormatContent(formtContent);
+                            dataItems.add(yiBiaoDataItemUrlTarget);
+                        }
+                    } catch (Exception e) {
+                        log.warn("{} is wrong page", yiBiaoDataItemUrlTarget.getUrl());
+                    }
+                } else {
+                    log.debug("titleReal=={}", titleReal);
+                }
+            }
+            yiBiaoDataItemUrlRepository.save(dataItems);
+            List<DataItemDTO> dtoList = dataItems.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
+            dataItemService.save2BidNewsOriginalTable(dtoList);
+        }
+    }
+
+    @Test
+    public void testRegex() {
+        String title = "[中标] 2016-02-24 15:03:13";
+        String titleReal = title.replace(StringUtils.substringBetween(title, "[", "]"), "");
+        log.debug("titleReal=={}", titleReal);
+        String regex = "[\\u4e00-\\u9fa5]";
+        Matcher m = Pattern.compile(regex).matcher(titleReal);
+        log.debug("find=={}", m.find());
+    }
+
+    @Autowired
+    RedisTemplate redisTemplate;
+
+    @Test
+    public void testRedis() throws UnsupportedEncodingException {
+        final String key = "test_redis_set";
+
+//        for (int index = 0; index < 10; index++) {
+//            long result = redisTemplate.boundSetOps(key).add("hello redis " + index);
+//            Assert.assertTrue(result > 0L);
+//        }
+        long total = redisTemplate.boundSetOps(key).size();
+
+        Object popValue = redisTemplate.boundSetOps(key).pop();
+        long last = redisTemplate.boundSetOps(key).size();
+        log.info(">>> total={} pop [{}], last={}", total, popValue, last);
     }
 
 

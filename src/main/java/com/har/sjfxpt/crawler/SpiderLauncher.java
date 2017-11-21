@@ -140,6 +140,9 @@ public class SpiderLauncher implements CommandLineRunner {
                 case "history-yibiao":
                     yiBiaoSpiderLauncher.fetchHistory();
                     break;
+                case "history-parseUrl":
+                    yiBiaoSpiderLauncher.parseUrl();
+                    break;
                 case "start-suning":
                     suNingSpiderLauncher.start();
                     break;

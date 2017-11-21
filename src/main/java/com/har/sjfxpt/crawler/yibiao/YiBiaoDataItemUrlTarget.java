@@ -4,7 +4,6 @@ import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
 import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
 import lombok.Data;
 import lombok.ToString;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
@@ -12,21 +11,16 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
 /**
- * Created by Administrator on 2017/11/9.
+ * Created by Administrator on 2017/11/17.
  */
 @Data
 @ToString
-@Document(collection = "data_item_yi_biao_wang")
-public class YiBiaoDataItem {
-
-    public YiBiaoDataItem(String url) {
-        this.id = DigestUtils.md5Hex(url);
-    }
+@Document(collection = "data_item_yi_biao_wang_targetUrl")
+public class YiBiaoDataItemUrlTarget {
 
     @Id
     private String id;
@@ -58,7 +52,6 @@ public class YiBiaoDataItem {
 
     private String formatContent;
 
-
     public DataItemDTO dto() {
         DataItemDTO dto = new DataItemDTO();
         BeanUtils.copyProperties(this, dto);
@@ -71,6 +64,5 @@ public class YiBiaoDataItem {
         }
         return dto;
     }
-
 
 }

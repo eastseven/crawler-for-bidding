@@ -1,14 +1,33 @@
 package com.har.sjfxpt.crawler.yibiao;
 
+import com.google.common.collect.Lists;
 import com.har.sjfxpt.crawler.BaseSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
 import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
+import com.har.sjfxpt.crawler.ggzy.service.DataItemService;
+import com.har.sjfxpt.crawler.ggzy.service.ProxyService;
+import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
+import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
+import us.codecraft.webmagic.downloader.HttpClientDownloader;
+import us.codecraft.webmagic.proxy.SimpleProxyProvider;
 
+import java.util.List;
 import java.util.concurrent.ExecutorService;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Created by Administrator on 2017/11/10.
@@ -102,9 +121,78 @@ public class YiBiaoSpiderLauncher extends BaseSpiderLauncher {
                 .addRequest(requests)
                 .setExecutorService(executorService)
                 .setUUID(uuid)
-                .thread(num);
+                .thread(num * 2);
         addSpider(spider);
         start(uuid);
     }
+
+
+    @Autowired
+    YiBiaoDataItemUrlRepository yiBiaoDataItemUrlRepository;
+
+    @Autowired
+    StringRedisTemplate stringRedisTemplate;
+
+    final String KEY_URLS = "fetch_fail_url_yibiao";
+
+    @Autowired
+    DataItemService dataItemService;
+
+    @Autowired
+    HttpClientDownloader httpClientDownloader;
+
+    @Autowired
+    ProxyService proxyService;
+
+    /**
+     * 爬取目标url并将补充formatContent字段
+     */
+    public void parseUrl() {
+        org.springframework.data.domain.Page<YiBiaoDataItemUrlTarget> lists = yiBiaoDataItemUrlRepository.findAll(new PageRequest(0, 20));
+        log.debug("size=={}", lists.getTotalPages());
+        int pageSize = lists.getTotalPages();
+        for (int i = 0; i <= pageSize; i++) {
+            org.springframework.data.domain.Page<YiBiaoDataItemUrlTarget> currentPage = yiBiaoDataItemUrlRepository.findAll(new PageRequest(i, 20));
+            List<YiBiaoDataItemUrlTarget> dataItems = Lists.newArrayList();
+            log.info("pageNum=={}", i);
+            for (YiBiaoDataItemUrlTarget yiBiaoDataItemUrlTarget : currentPage) {
+                String titleReal = yiBiaoDataItemUrlTarget.getTitle().replace(StringUtils.substringBetween(yiBiaoDataItemUrlTarget.getTitle(), "[", "]"), "");
+                Matcher m = Pattern.compile("[\\u4e00-\\u9fa5]").matcher(titleReal);
+                if (yiBiaoDataItemUrlTarget.getFormatContent() == null && m.find()) {
+                    Request request = new Request(yiBiaoDataItemUrlTarget.getUrl());
+                    httpClientDownloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
+                    try {
+                        Element html = httpClientDownloader.download(request, SiteUtil.get().setTimeOut(30000).toTask()).getHtml().getDocument().body();
+                        Elements elements = null;
+                        elements = html.select("body > div.g-doc > div.g-bd > div.g-lit-mn.f-fl");
+                        int counter = 0;
+                        while (StringUtils.isBlank(elements.html()) && counter <= 10) {
+                            counter++;
+                            httpClientDownloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
+                            Page page = httpClientDownloader.download(request, SiteUtil.get().setTimeOut(30000).toTask());
+                            elements = page.getHtml().getDocument().body().select("body > div.g-doc > div.g-bd > div.g-lit-mn.f-fl");
+                            if (counter == 10 && StringUtils.isBlank(elements.html())) {
+                                stringRedisTemplate.boundSetOps(KEY_URLS).add(yiBiaoDataItemUrlTarget.getUrl());
+                            }
+                        }
+                        String formtContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
+                        if (StringUtils.isNotBlank(formtContent)) {
+                            yiBiaoDataItemUrlTarget.setFormatContent(formtContent);
+                            dataItems.add(yiBiaoDataItemUrlTarget);
+                        }
+                    } catch (Exception e) {
+                        log.warn("{} is wrong page", yiBiaoDataItemUrlTarget.getUrl());
+                    }
+                } else {
+                    log.debug("titleReal=={}", titleReal);
+                }
+            }
+            yiBiaoDataItemUrlRepository.save(dataItems);
+            log.info("yibiao save {} to mongodb",dataItems.size());
+            List<DataItemDTO> dtoList = dataItems.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
+            dataItemService.save2BidNewsOriginalTable(dtoList);
+        }
+    }
+
 
 }

@@ -38,8 +38,8 @@ public class YiBiaoPipeline implements Pipeline {
             yiBiaoDataItemRepository.save(dataItemList);
             log.info("{} save {} to mongodb", SourceCode.YIBIAO, dataItemList.size());
 
-            List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
-            dataItemService.save2BidNewsOriginalTable(dtoList);
+//            List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
+//            dataItemService.save2BidNewsOriginalTable(dtoList);
         }
     }
 }

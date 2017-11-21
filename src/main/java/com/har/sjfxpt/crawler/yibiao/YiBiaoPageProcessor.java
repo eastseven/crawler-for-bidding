@@ -162,17 +162,18 @@ public class YiBiaoPageProcessor implements BasePageProcessor {
             } else {
                 yiBiaoDataItem.setType(type);
             }
-            Request request = new Request(href);
-            Page page = httpClientDownloader1.download(request, SiteUtil.get().setTimeOut(30000).toTask());
-            Elements elements = page.getHtml().getDocument().body().select("body > div.g-doc > div.g-bd > div.g-lit-mn.f-fl");
-            String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
-            if (StringUtils.isNotBlank(formatContent)) {
-                yiBiaoDataItem.setFormatContent(formatContent);
-                dataItems.add(yiBiaoDataItem);
-            } else {
-                log.warn("history {} is wrong page", href);
-                log.warn("formatContent=={}", formatContent);
-            }
+//            Request request = new Request(href);
+//            Page page = httpClientDownloader1.download(request, SiteUtil.get().setTimeOut(30000).toTask());
+//            Elements elements = page.getHtml().getDocument().body().select("body > div.g-doc > div.g-bd > div.g-lit-mn.f-fl");
+//            String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
+//            if (StringUtils.isNotBlank(formatContent)) {
+//                yiBiaoDataItem.setFormatContent(formatContent);
+//                dataItems.add(yiBiaoDataItem);
+//            } else {
+//                log.warn("history {} is wrong page", href);
+//                log.warn("formatContent=={}", formatContent);
+//            }
+            dataItems.add(yiBiaoDataItem);
         }
         return dataItems;
     }
