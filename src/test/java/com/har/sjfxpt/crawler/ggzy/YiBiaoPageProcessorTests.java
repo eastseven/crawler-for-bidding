@@ -129,7 +129,7 @@ public class YiBiaoPageProcessorTests {
     @Test
     public void testFormatContent() {
         HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
-        Request request = new Request("http://www.1-biao.com/data/T2169754.html");
+        Request request = new Request("http://www.1-biao.com/data/T711264.html");
         Element html = httpClientDownloader.download(request, SiteUtil.get().setTimeOut(30000).toTask()).getHtml().getDocument().body();
         Elements elements = null;
         elements = html.select("body > div.g-doc > div.g-bd > div.g-lit-mn.f-fl");

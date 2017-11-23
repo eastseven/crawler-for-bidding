@@ -69,7 +69,7 @@ public class ChinaMobileDataItem {
         if (StringUtils.isBlank(date)) {
             dto.setDate(dt.toString("yyyy-MM-dd HH:mm"));
         } else if (date.length() == 10) {
-            dto.setDate(dt.toString("yyyy-MM-dd HH:mm"));
+            dto.setDate(dto.getDate().concat(dt.toString(" HH:mm")));
         }
         return dto;
     }

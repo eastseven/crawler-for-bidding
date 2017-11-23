@@ -118,7 +118,7 @@ public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
         }
     }
 
-    @Before
+    //    @Before
     public void init() {
         String url = "http://search.ccgp.gov.cn/bxsearch?searchtype=1&page_index=1&bidSort=0&buyerName=&projectId=&pinMu=0&bidType=0&dbselect=bidx&kw=&start_time=2017%3A10%3A30&end_time=2017%3A10%3A30&timeType=0&displayZone=&zoneId=&pppStatus=0&agentName=";
         HttpClientDownloader downloader = new HttpClientDownloader();
@@ -168,7 +168,7 @@ public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
     @Test
     public void getRedisUrl() {
         long total = stringRedisTemplate.boundSetOps(names).size();
-        for (int i = 0; i < total; i++) {
+        for (int i = 0; i < 3; i++) {
             String tabulationUrl = (String) stringRedisTemplate.boundSetOps(names).pop();
             log.debug("total=={},tabulationUrl=={}", total, tabulationUrl);
             Request request = new Request(tabulationUrl);
@@ -179,9 +179,6 @@ public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
             List<ZhengFuCaiGouDataItem> dataItemList = pageProcessor.parseContent(elements);
             if (!dataItemList.isEmpty()) {
                 repository.save(dataItemList);
-                log.info("ccgp save {} to mongodb", dataItemList.size());
-                List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
-                dataItemService.save2BidNewsOriginalTable(dtoList);
             }
         }
     }

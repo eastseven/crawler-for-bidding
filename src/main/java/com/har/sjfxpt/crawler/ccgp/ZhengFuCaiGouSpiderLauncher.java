@@ -218,7 +218,6 @@ public class ZhengFuCaiGouSpiderLauncher extends BaseSpiderLauncher {
         } catch (UnsupportedEncodingException e) {
             log.error("", e);
         }
-
         String params = "&start_time=" + start + "&end_time=" + end + "&page_index=1";
         String url = URL_PREFIX + params;
         return url;

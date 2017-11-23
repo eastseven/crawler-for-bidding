@@ -24,6 +24,7 @@ import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.proxy.SimpleProxyProvider;
 
 import java.util.List;
+import java.util.Timer;
 import java.util.concurrent.ExecutorService;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -147,10 +148,13 @@ public class YiBiaoSpiderLauncher extends BaseSpiderLauncher {
     /**
      * 爬取目标url并将补充formatContent字段
      */
+
+//    @Scheduled(fixedRate = 10 * 60 * 1000)
     public void parseUrl() {
         org.springframework.data.domain.Page<YiBiaoDataItemUrlTarget> lists = yiBiaoDataItemUrlRepository.findAll(new PageRequest(0, 20));
         log.debug("size=={}", lists.getTotalPages());
         int pageSize = lists.getTotalPages();
+        int pageCount = 0;
         for (int i = 0; i <= pageSize; i++) {
             org.springframework.data.domain.Page<YiBiaoDataItemUrlTarget> currentPage = yiBiaoDataItemUrlRepository.findAll(new PageRequest(i, 20));
             List<YiBiaoDataItemUrlTarget> dataItems = Lists.newArrayList();
@@ -159,6 +163,7 @@ public class YiBiaoSpiderLauncher extends BaseSpiderLauncher {
                 String titleReal = yiBiaoDataItemUrlTarget.getTitle().replace(StringUtils.substringBetween(yiBiaoDataItemUrlTarget.getTitle(), "[", "]"), "");
                 Matcher m = Pattern.compile("[\\u4e00-\\u9fa5]").matcher(titleReal);
                 if (yiBiaoDataItemUrlTarget.getFormatContent() == null && m.find()) {
+                    pageCount++;
                     Request request = new Request(yiBiaoDataItemUrlTarget.getUrl());
                     httpClientDownloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
                     try {
@@ -188,11 +193,18 @@ public class YiBiaoSpiderLauncher extends BaseSpiderLauncher {
                 }
             }
             yiBiaoDataItemUrlRepository.save(dataItems);
-            log.info("yibiao save {} to mongodb",dataItems.size());
-            List<DataItemDTO> dtoList = dataItems.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
-            dataItemService.save2BidNewsOriginalTable(dtoList);
+            log.info("yibiao save {} to mongodb", dataItems.size());
+            log.debug("pageCount=={}", pageCount);
+            if (pageCount >= 1700) {
+                break;
+            }
+//            List<DataItemDTO> dtoList = dataItems.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
+//            dataItemService.save2BidNewsOriginalTable(dtoList);
         }
     }
 
+    public void beginScheduled() {
+        log.debug("Scheduled begin");
+    }
 
 }

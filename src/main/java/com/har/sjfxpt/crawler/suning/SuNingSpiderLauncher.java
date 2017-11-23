@@ -36,11 +36,11 @@ public class SuNingSpiderLauncher extends BaseSpiderLauncher {
      */
     public void start() {
 
-       Request request1=requestGenerator("http://zb.suning.com/bid-web/searchIssue.htm", DateTime.now().toString("yyyy-MM-dd"),"m2");
-       Request request2=requestGenerator("http://zb.suning.com/bid-web/searchIssue.htm", DateTime.now().toString("yyyy-MM-dd"),"m3");
-       Request request3=requestGenerator("http://zb.suning.com/bid-web/searchIssue.htm", DateTime.now().toString("yyyy-MM-dd"),"m1");
+        Request request1 = requestGenerator("http://zb.suning.com/bid-web/searchIssue.htm", DateTime.now().toString("yyyy-MM-dd"), "m2");
+        Request request2 = requestGenerator("http://zb.suning.com/bid-web/searchIssue.htm", DateTime.now().toString("yyyy-MM-dd"), "m3");
+        Request request3 = requestGenerator("http://zb.suning.com/bid-web/searchIssue.htm", DateTime.now().toString("yyyy-MM-dd"), "m1");
 
-       Request[] requests={request1,request2,request3};
+        Request[] requests = {request1, request2, request3};
 
         cleanSpider(uuid);
         Spider spider = Spider.create(suNingPageProcessor)
@@ -53,14 +53,14 @@ public class SuNingSpiderLauncher extends BaseSpiderLauncher {
     }
 
     /**
-     *爬取历史
+     * 爬取历史
      */
-    public void fetchHistory(){
-        Request request1=historyRequestGenerator("http://zb.suning.com/bid-web/searchIssue.htm","m1");
-        Request request2=historyRequestGenerator("http://zb.suning.com/bid-web/searchIssue.htm","m2");
-        Request request3=historyRequestGenerator("http://zb.suning.com/bid-web/searchIssue.htm","m3");
+    public void fetchHistory() {
+        Request request1 = historyRequestGenerator("http://zb.suning.com/bid-web/searchIssue.htm", "m1");
+        Request request2 = historyRequestGenerator("http://zb.suning.com/bid-web/searchIssue.htm", "m2");
+        Request request3 = historyRequestGenerator("http://zb.suning.com/bid-web/searchIssue.htm", "m3");
 
-        Request[] requests={request1,request2,request3};
+        Request[] requests = {request1, request2, request3};
 
         cleanSpider(uuid);
         Spider spider = Spider.create(suNingPageProcessor)
@@ -73,8 +73,7 @@ public class SuNingSpiderLauncher extends BaseSpiderLauncher {
     }
 
 
-
-    public static Request requestGenerator(String url,String date,String type){
+    public static Request requestGenerator(String url, String date, String type) {
 
         Request request = new Request(url);
 
@@ -93,7 +92,7 @@ public class SuNingSpiderLauncher extends BaseSpiderLauncher {
         return request;
     }
 
-    public static Request historyRequestGenerator(String url,String type){
+    public static Request historyRequestGenerator(String url, String type) {
 
         Request request = new Request(url);
 
@@ -107,6 +106,7 @@ public class SuNingSpiderLauncher extends BaseSpiderLauncher {
         request.setRequestBody(HttpRequestBody.form(params, "UTF-8"));
 
         request.putExtra("pageParams", params);
+
         return request;
     }
 

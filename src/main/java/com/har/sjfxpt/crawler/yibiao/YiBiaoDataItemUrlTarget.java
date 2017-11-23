@@ -52,6 +52,8 @@ public class YiBiaoDataItemUrlTarget {
 
     private String formatContent;
 
+    private String filtration;
+
     public DataItemDTO dto() {
         DataItemDTO dto = new DataItemDTO();
         BeanUtils.copyProperties(this, dto);
