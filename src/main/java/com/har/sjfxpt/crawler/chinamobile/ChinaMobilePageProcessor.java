@@ -134,7 +134,7 @@ public class ChinaMobilePageProcessor implements BasePageProcessor {
 
             try {
                 log.debug(">>> download {}", url);
-                Document document =httpClientDownloader.download(new Request(url),SiteUtil.get().setTimeOut(60000).toTask()).getHtml().getDocument();
+                Document document = httpClientDownloader.download(new Request(url), SiteUtil.get().setTimeOut(60000).toTask()).getHtml().getDocument();
                 String html = document.html();
                 Element root = null;
                 if (!document.body().select("div#mobanDiv").isEmpty()) {

@@ -137,13 +137,13 @@ public class SpiderTaskScheduler {
     /**
      * 一标网
      */
-    @Scheduled(initialDelay = 21000, fixedRate = 25 * 60 * 1000)
-    public void fetchYiBiao() {
-        if (flag) {
-            log.info(">>> start fetch {}", SourceCode.YIBIAO);
-            context.getBean(YiBiaoSpiderLauncher.class).start();
-        }
-    }
+//    @Scheduled(initialDelay = 21000, fixedRate = 25 * 60 * 1000)
+//    public void fetchYiBiao() {
+//        if (flag) {
+//            log.info(">>> start fetch {}", SourceCode.YIBIAO);
+//            context.getBean(YiBiaoSpiderLauncher.class).start();
+//        }
+//    }
 
 
     /**
