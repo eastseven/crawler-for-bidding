@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.har.sjfxpt.crawler.ggzy.processor.BasePageProcessor;
 import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
+import com.har.sjfxpt.crawler.ggzy.utils.ProvinceUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -75,7 +76,7 @@ public class ggzySCPageProcessor implements BasePageProcessor {
             ggzySCDataItem.setUrl(urlEncoder);
             ggzySCDataItem.setTitle(title);
             ggzySCDataItem.setDate(date);
-            ggzySCDataItem.setProvince(province);
+            ggzySCDataItem.setProvince(ProvinceUtil.get(province));
             ggzySCDataItem.setType(type);
             ggzySCDataItem.setBusinessType(businessType);
             try {
