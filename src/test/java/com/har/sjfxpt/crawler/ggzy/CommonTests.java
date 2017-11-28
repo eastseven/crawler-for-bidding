@@ -27,6 +27,7 @@ import us.codecraft.webmagic.selector.Html;
 import us.codecraft.webmagic.utils.HttpConstant;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,10 +39,14 @@ import static com.har.sjfxpt.crawler.petrochina.ZGShiYouPageProcessor.formUrl;
 public class CommonTests {
 
     @Test
-    public void testRowKeyLen() {
+    public void testRowKeyLen() throws Exception{
         String rowKey = DateTime.now().toString("yyyyMMdd") + ':' + DigestUtils.md5Hex("123456");
         log.debug(">>> row key {}, len={}", rowKey, rowKey.length());
         Assert.assertEquals(rowKey.length(), 41);
+
+        String url = "http://www.scztb.gov.cn/Info/ProjectDetailPurchase/3_";
+        String url2 = url + URLEncoder.encode("珙委采谈[2017]23号", "utf-8") + ".html";
+        log.debug(">>> url2 {}", url2);
     }
 
     @Test
