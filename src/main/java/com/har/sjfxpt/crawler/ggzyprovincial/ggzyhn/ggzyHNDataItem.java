@@ -1,4 +1,4 @@
-package com.har.sjfxpt.crawler.ggzyprovincial.ggzysc;
+package com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn;
 
 import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
 import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
@@ -15,14 +15,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Date;
 
 /**
- * Created by Administrator on 2017/11/27.
+ * Created by Administrator on 2017/11/29.
  */
 @Data
 @ToString
-@Document(collection = "data_item_ggzy_sc")
-public class ggzySCDataItem {
+@Document(collection = "data_item_ggzy_hn")
+public class ggzyHNDataItem {
 
-    public ggzySCDataItem(String url) {
+    public ggzyHNDataItem(String url) {
         this.id = DigestUtils.md5Hex(url);
     }
 
@@ -36,7 +36,7 @@ public class ggzySCDataItem {
     /**
      * 地区
      */
-    private String province="四川";
+    private String province="海南";
 
     private String type;
 
@@ -61,8 +61,8 @@ public class ggzySCDataItem {
     public DataItemDTO dto() {
         DataItemDTO dto = new DataItemDTO();
         BeanUtils.copyProperties(this, dto);
-        dto.setSource(SourceCode.GGZYSC.getValue());
-        dto.setSourceCode(SourceCode.GGZYSC.toString());
+        dto.setSource(SourceCode.GGZYHN.getValue());
+        dto.setSourceCode(SourceCode.GGZYHN.toString());
         DateTime ct = new DateTime(this.getCreateTime());
         dto.setCreateTime(ct.toString("yyyyMMddHH"));
         if (StringUtils.isBlank(date)) {
