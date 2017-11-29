@@ -8,6 +8,7 @@ import com.har.sjfxpt.crawler.ggzy.utils.ProvinceUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
@@ -68,10 +69,10 @@ public class ggzyCQPageProcessor implements BasePageProcessor {
 
     @Override
     public void handleContent(Page page) {
-        List<ggzyCQDataItem> dataItems=parseContent(page);
-        if(!dataItems.isEmpty()){
-            page.putField(KEY_DATA_ITEMS,dataItems);
-        }else {
+        List<ggzyCQDataItem> dataItems = parseContent(page);
+        if (!dataItems.isEmpty()) {
+            page.putField(KEY_DATA_ITEMS, dataItems);
+        } else {
             log.warn("fetch {} no data", page.getUrl().get());
         }
 
@@ -105,12 +106,19 @@ public class ggzyCQPageProcessor implements BasePageProcessor {
                     ggzyCQDataItem.setBusinessType("工程招投标");
                     ggzyCQDataItem.setType("招标公告");
                 }
+                if(date.length()==10){
+                    date=date+DateTime.now().toString(" HH:mm");
+                }
                 ggzyCQDataItem.setDate(date);
                 Page page1 = httpClientDownloader.download(new Request(ggzyCQDataItem.getUrl()), SiteUtil.get().toTask());
                 Element element = page1.getHtml().getDocument().body();
                 Elements elements = element.select("body > div:nth-child(4) > div > div.detail-block");
                 String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
                 if (StringUtils.isNotBlank(formatContent)) {
+                    if (formatContent.contains("<a>相关公告</a>")) {
+                        formatContent = StringUtils.trim(StringUtils.removeAll(formatContent, "<li>(.+?)</li>"));
+                        formatContent = StringUtils.removeAll(formatContent, "\\s");
+                    }
                     ggzyCQDataItem.setFormatContent(formatContent);
                     dataItems.add(ggzyCQDataItem);
                 }

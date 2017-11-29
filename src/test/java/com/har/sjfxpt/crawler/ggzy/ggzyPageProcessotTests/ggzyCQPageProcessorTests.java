@@ -1,10 +1,12 @@
 package com.har.sjfxpt.crawler.ggzy.ggzyPageProcessotTests;
 
+import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.ggzyCQPageProcessor;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.ggzyCQPipeline;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.jsoup.select.Elements;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,6 +17,8 @@ import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
+
+import java.util.Date;
 
 /**
  * Created by Administrator on 2017/11/28.
@@ -48,10 +52,19 @@ public class ggzyCQPageProcessorTests {
         HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
         Page page = httpClientDownloader.download(new Request("http://www.cqggzy.com/xxhz/014001/014001001/014001001010/20171128/46088835-a22a-4a24-8a91-061c41607c84.html"), SiteUtil.get().toTask());
         Elements elements = page.getHtml().getDocument().body().select("body > div:nth-child(4) > div > div.detail-block");
-        String articles=elements.toString();
-        if(articles.contains("<!-- 相关公告 -->")){
-            articles.replace(StringUtils.substringAfter(articles,"<!-- 相关公告 -->"),"");
+        String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
+        if(formatContent.contains("<a>相关公告</a>")){
+            String real=StringUtils.trim(StringUtils.removeAll(formatContent,"<li>(.+?)</li>"));
+            String removeSpace=StringUtils.removeAll(real,"\\s");
+            log.debug("removeSpace=={}",removeSpace);
         }
-        log.debug("articles=={}",articles);
     }
+
+    @Test
+    public void testTime(){
+        String time=DateTime.now().toString(" HH:mm");
+        log.debug("time=={}",time);
+    }
+
+
 }
