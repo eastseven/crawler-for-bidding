@@ -75,7 +75,7 @@ public class ggzySCPageProcessor implements BasePageProcessor {
             String urlEncoder = "http://www.scztb.gov.cn" + StringUtils.substringBeforeLast(href, "/") + "/" + encode + ".html";
             ggzySCDataItem.setUrl(urlEncoder);
             ggzySCDataItem.setTitle(title);
-            ggzySCDataItem.setDate(date);
+            ggzySCDataItem.setDate(PageProcessorUtil.dataTxt(date));
             ggzySCDataItem.setProvince(ProvinceUtil.get(province));
             ggzySCDataItem.setType(type);
             ggzySCDataItem.setBusinessType(businessType);

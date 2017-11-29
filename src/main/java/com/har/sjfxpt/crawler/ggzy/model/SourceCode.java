@@ -16,7 +16,8 @@ public enum SourceCode {
     CCGPSC("四川政府采购"),
     YIBIAO("一标网"),
     SUNING("苏宁"),
-    GGZYSC("四川公共资源");
+    GGZYSC("四川公共资源"),
+    GGZYCQ("重庆公共资源");
 
 
     private String value;
