@@ -4,7 +4,10 @@ import com.har.sjfxpt.crawler.ggzyprovincial.ggzysc.ggzySCPageProcessor;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzysc.ggzySCPipeline;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.safety.Whitelist;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +16,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import us.codecraft.webmagic.Spider;
 
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 import java.net.URLEncoder;
 
 /**
@@ -45,7 +49,7 @@ public class ggzySCPageProcessorTests {
 
     @Test
     public void testPageUtiles() {
-        String content ="";
+        String content = "";
         Element element = new Element(content);
         log.debug("content=={}", content.replace("&nbsp;", ""));
     }
@@ -59,6 +63,30 @@ public class ggzySCPageProcessorTests {
         String urlEncoder = "http://www.scztb.gov.cn" + StringUtils.substringBeforeLast(href, "/") + "/" + encode + ".html";
 
         log.debug("urlEncoder=={}", urlEncoder);
+    }
+
+    @Test
+    public void testSiChuan() throws Exception {
+        String url = "http://www.scztb.gov.cn/Info/ProjectDetail/0_H5110008009003125001.html";
+        Document document = Jsoup.parse(new URL(url), 60 * 1000);
+        Element body = document.body();
+
+        for (Element element : body.select("div.Nmds")) {
+            boolean bln = StringUtils.contains(element.attr("style"), "block");
+            if (!bln) continue;
+            String content = element.select("input").attr("value");
+            if (content.contains("<![CDATA[")) {
+                Whitelist whitelist = Whitelist.relaxed();
+                whitelist.removeTags("iframe");
+                String html = StringUtils.substringBetween(content, "<![CDATA[", "]]");
+                System.out.println(Jsoup.clean(html, whitelist));
+            } else {
+                Whitelist whitelist = Whitelist.relaxed();
+                whitelist.removeTags("iframe");
+                System.out.println(Jsoup.clean(content, whitelist));
+            }
+
+        }
     }
 
 

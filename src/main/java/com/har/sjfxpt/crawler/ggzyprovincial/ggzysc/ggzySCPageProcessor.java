@@ -8,7 +8,9 @@ import com.har.sjfxpt.crawler.ggzy.utils.ProvinceUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
+import org.jsoup.safety.Whitelist;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
@@ -68,7 +70,7 @@ public class ggzySCPageProcessor implements BasePageProcessor {
             String date = StringUtils.substringBetween(target, "\"CreateDateAll\":\"", "\",");
             String province = StringUtils.substringBetween(target, "\"username\":\"", "\",");
             String type = StringUtils.substringBetween(target, "\"TableName\":\"", "\",");
-            String businessType=StringUtils.substringBetween(target,"\"businessType\":\"","\",");
+            String businessType = StringUtils.substringBetween(target, "\"businessType\":\"", "\",");
 
             ggzySCDataItem ggzySCDataItem = new ggzySCDataItem("http://www.scztb.gov.cn" + href);
             String encode = URLEncoder.encode(StringUtils.substringBefore(StringUtils.substringAfterLast(href, "/"), ".html"), "utf-8");
@@ -82,15 +84,30 @@ public class ggzySCPageProcessor implements BasePageProcessor {
             try {
                 Page page1 = httpClientDownloader.download(new Request(ggzySCDataItem.getUrl()), SiteUtil.get().setTimeOut(30000).toTask());
                 Element element = page1.getHtml().getDocument().body();
-                Elements elements = element.select("body > div.wmain > div.ContentMiddle > div > div.Middle > div.ChangeMidle");
-                String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
-                Elements elements1 = elements.select("div.detaileMiddle > div.deMidd_Nei > div");
-                for (Element element1 : elements1) {
-                    if (element1.attr("style").equalsIgnoreCase("display: block;")) {
-                        String formatContentDetail = element1.select("input").attr("value");
-                        if (StringUtils.isNotBlank(formatContentDetail)) {
-                            formatContent = formatContent + formatContentDetail;
-                        }
+                Elements elements = element.select("body > div.wmain > div.ContentMiddle > div > div.Middle > div.ChangeMidle > div.detailedTitle");
+                Elements elements1 = element.select("body > div.wmain > div.ContentMiddle > div > div.Middle > div.ChangeMidle > div.detailedIntroduc");
+                String formatContent = "";
+                String detailedTitle = PageProcessorUtil.formatElementsByWhitelist(elements.first());
+                String detailedIntroduc = PageProcessorUtil.formatElementsByWhitelist(elements1.first());
+                if (StringUtils.isNotBlank(detailedTitle)) {
+                    formatContent = formatContent + detailedTitle;
+                }
+                if (StringUtils.isNotBlank(detailedIntroduc)) {
+                    formatContent = formatContent + detailedIntroduc;
+                }
+                for (Element element1 : element.select("div.Nmds")) {
+                    boolean bln = StringUtils.contains(element1.attr("style"), "block");
+                    if (!bln) continue;
+                    String content = element1.select("input").attr("value");
+                    if (content.contains("<![CDATA[")) {
+                        Whitelist whitelist = Whitelist.relaxed();
+                        whitelist.removeTags("iframe");
+                        String html = StringUtils.substringBetween(content, "<![CDATA[", "]]");
+                        formatContent = formatContent + Jsoup.clean(html, whitelist);
+                    } else {
+                        Whitelist whitelist = Whitelist.relaxed();
+                        whitelist.removeTags("iframe");
+                        formatContent = formatContent + Jsoup.clean(content, whitelist);
                     }
                 }
                 if (StringUtils.isNotBlank(formatContent)) {
