@@ -12,9 +12,9 @@ import us.codecraft.webmagic.Spider;
  */
 @Slf4j
 @Component
-public class ggzyCQSpiderLauncher extends BaseSpiderLauncher{
+public class ggzyCQSpiderLauncher extends BaseSpiderLauncher {
 
-    private final String uuid= SourceCode.GGZYCQ.toString().toLowerCase()+"-current";
+    private final String uuid = SourceCode.GGZYCQ.toString().toLowerCase() + "-current";
 
     @Autowired
     ggzyCQPageProcessor ggzyCQPageProcessor;
@@ -22,9 +22,9 @@ public class ggzyCQSpiderLauncher extends BaseSpiderLauncher{
     @Autowired
     ggzyCQPipeline ggzyCQPipeline;
 
-    final int num=Runtime.getRuntime().availableProcessors();
+    final int num = Runtime.getRuntime().availableProcessors();
 
-    final String[] urls={
+    final String[] urls = {
             "http://www.cqggzy.com/web/services/PortalsWebservice/getInfoList?response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014005001&title=&infoC=&_=1511837748941",
             "http://www.cqggzy.com/web/services/PortalsWebservice/getInfoList?response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014001001&title=&infoC=&_=1511837779151"
     };
@@ -32,9 +32,9 @@ public class ggzyCQSpiderLauncher extends BaseSpiderLauncher{
     /**
      * 爬取当日数据
      */
-    public void start(){
+    public void start() {
         cleanSpider(uuid);
-        Spider spider=Spider.create(ggzyCQPageProcessor)
+        Spider spider = Spider.create(ggzyCQPageProcessor)
                 .addPipeline(ggzyCQPipeline)
                 .setUUID(uuid)
                 .addUrl(urls)

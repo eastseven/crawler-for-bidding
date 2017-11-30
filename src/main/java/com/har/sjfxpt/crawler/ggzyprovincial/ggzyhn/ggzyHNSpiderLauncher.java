@@ -43,7 +43,7 @@ public class ggzyHNSpiderLauncher extends BaseSpiderLauncher {
         Request[] requests = new Request[urls.length];
 
         for (int i = 0; i < urls.length; i++) {
-            requests[i] = requestGenerator(urls[i]);
+            requests[i] = requestGenerators(urls[i]);
         }
         cleanSpider(uuid);
         Spider spider = Spider.create(ggzyHNPageProcessor)
@@ -56,8 +56,7 @@ public class ggzyHNSpiderLauncher extends BaseSpiderLauncher {
     }
 
 
-
-    public static Request requestGenerator(String url) {
+    public static Request requestGenerators(String url) {
         String type = StringUtils.substringBetween(url, "ggzy/", "/index");
         Request request = new Request(url);
         Map<String, String> params = Maps.newHashMap();

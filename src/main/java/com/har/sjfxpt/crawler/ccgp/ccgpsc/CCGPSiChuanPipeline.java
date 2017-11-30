@@ -38,8 +38,8 @@ public class CCGPSiChuanPipeline implements Pipeline{
             ccgpSiChuanPageDataRepository.save(dataItems);
             log.info("{} save {} to mongodb", SourceCode.CCGPSC, dataItems.size());
 
-            List<DataItemDTO> dtoList = dataItems.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
-            dataItemService.save2BidNewsOriginalTable(dtoList);
+//            List<DataItemDTO> dtoList = dataItems.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
+//            dataItemService.save2BidNewsOriginalTable(dtoList);
         }
     }
 }

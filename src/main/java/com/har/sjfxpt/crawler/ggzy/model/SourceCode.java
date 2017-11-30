@@ -18,7 +18,8 @@ public enum SourceCode {
     SUNING("苏宁"),
     GGZYSC("四川公共资源"),
     GGZYCQ("重庆公共资源"),
-    GGZYHN("海南公共资源");
+    GGZYHN("海南公共资源"),
+    GGZYGZ("贵州公共资源");
 
 
     private String value;
