@@ -100,7 +100,7 @@ public class CCGPCQPageProcessor implements BasePageProcessor {
             }
             String hrefLook = "https://www.cqgp.gov.cn/notices/detail/" + id + "?title=" + code;
             String href = "https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable/" + id;
-            CCGPCQDataItem ccgpcqDataItem = new CCGPCQDataItem(hrefLook);
+            CCGPCQDataItem ccgpcqDataItem = new CCGPCQDataItem(href);
             ccgpcqDataItem.setTitle(title);
             ccgpcqDataItem.setPurchaser(purchaser);
             ccgpcqDataItem.setSource(source);

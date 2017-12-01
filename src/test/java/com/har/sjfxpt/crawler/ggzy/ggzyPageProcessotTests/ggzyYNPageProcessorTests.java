@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import us.codecraft.webmagic.Request;
 
 /**
  * Created by Administrator on 2017/11/30.
@@ -33,6 +34,12 @@ public class ggzyYNPageProcessorTests {
                 "https://www.ynggzyxx.gov.cn/jyxx/zfcg/gzsx?currentPage=1&area=000&industriesTypeCode=0&scrollValue=0",
                 "https://www.ynggzyxx.gov.cn/jyxx/zfcg/gzsx?currentPage=1&area=000&industriesTypeCode=0&scrollValue=0",
         };
+
+        Request[] requests = new Request[urls.length];
+        for (int i = 0; i < urls.length; i++) {
+            
+        }
+
     }
 
 
