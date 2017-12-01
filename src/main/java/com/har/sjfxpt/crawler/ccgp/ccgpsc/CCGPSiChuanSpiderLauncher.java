@@ -33,7 +33,7 @@ public class CCGPSiChuanSpiderLauncher extends BaseSpiderLauncher {
      * 爬取全部数据
      */
     public void start() {
-
+        cleanSpider(uuid);
         String[] urls = {
                 "http://www.sczfcg.com/CmsNewsController.do?method=recommendBulletinList&moreType=provincebuyBulletinMore&channelCode=cggg&rp=25&page=1",
                 "http://www.sczfcg.com/CmsNewsController.do?method=recommendBulletinList&moreType=provincebuyBulletinMore&channelCode=jggg&rp=25&page=1",
