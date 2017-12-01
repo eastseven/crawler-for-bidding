@@ -67,7 +67,7 @@ public class CCGPCQPageProcessor implements BasePageProcessor {
         List<CCGPCQDataItem> dataItems = parseContent(page);
         String type = pageParams.get("type");
         dataItems.forEach(dataItem -> dataItem.setType(type));
-        dataItems.forEach(dataItem -> dataItem.setForceUpdate(true));
+//        dataItems.forEach(dataItem -> dataItem.setForceUpdate(true));
         if (!dataItems.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItems);
         } else {
