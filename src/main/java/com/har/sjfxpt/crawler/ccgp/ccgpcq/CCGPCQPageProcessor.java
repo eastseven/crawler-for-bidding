@@ -7,7 +7,9 @@ import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
+import org.jsoup.safety.Whitelist;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -16,6 +18,8 @@ import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.Map;
 
@@ -63,7 +67,7 @@ public class CCGPCQPageProcessor implements BasePageProcessor {
         List<CCGPCQDataItem> dataItems = parseContent(page);
         String type = pageParams.get("type");
         dataItems.forEach(dataItem -> dataItem.setType(type));
-//        dataItems.forEach(dataItem -> dataItem.setForceUpdate(true));
+        dataItems.forEach(dataItem -> dataItem.setForceUpdate(true));
         if (!dataItems.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItems);
         } else {
@@ -87,18 +91,33 @@ public class CCGPCQPageProcessor implements BasePageProcessor {
             String industryCategory = noticesBean.getProjectDirectoryName();
             String source = noticesBean.getAgentName();
             String date = noticesBean.getIssueTime();
+
+            String code = null;
+            try {
+                code = URLEncoder.encode(title.getBytes().toString(), "utf-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            String hrefLook = "https://www.cqgp.gov.cn/notices/detail/" + id + "?title=" + code;
             String href = "https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable/" + id;
-            CCGPCQDataItem ccgpcqDataItem = new CCGPCQDataItem(href);
+            CCGPCQDataItem ccgpcqDataItem = new CCGPCQDataItem(hrefLook);
             ccgpcqDataItem.setTitle(title);
             ccgpcqDataItem.setPurchaser(purchaser);
             ccgpcqDataItem.setSource(source);
             ccgpcqDataItem.setIndustryCategory(industryCategory);
             ccgpcqDataItem.setDate(PageProcessorUtil.dataTxt(date));
-            ccgpcqDataItem.setUrl(href);
+            ccgpcqDataItem.setUrl(hrefLook);
 
             Page page1 = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(20000).toTask());
             CCGPCQDetailAnnouncement ccgpcqDetailAnnouncement = JSONObject.parseObject(page1.getRawText(), CCGPCQDetailAnnouncement.class);
-            String formatContent = ccgpcqDetailAnnouncement.getNotice().getHtml();
+            String html = ccgpcqDetailAnnouncement.getNotice().getHtml();
+            Whitelist whitelist = Whitelist.relaxed();
+            whitelist.removeTags("style");
+            whitelist.removeTags("script");
+            whitelist.removeAttributes("table", "style", "width", "height");
+            whitelist.removeAttributes("td", "style", "width", "height");
+            String formatContent = Jsoup.clean(html, whitelist);
+            formatContent = StringUtils.removeAll(formatContent, "<!-{2,}.*?-{2,}>|(&nbsp;)|<o:p>|</o:p>");
             if (StringUtils.isNotBlank(formatContent)) {
                 ccgpcqDataItem.setFormatContent(formatContent);
                 dataItems.add(ccgpcqDataItem);

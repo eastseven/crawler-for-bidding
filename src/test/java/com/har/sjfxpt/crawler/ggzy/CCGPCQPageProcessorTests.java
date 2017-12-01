@@ -10,7 +10,10 @@ import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.safety.Whitelist;
 import org.jsoup.select.Elements;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,7 +67,6 @@ public class CCGPCQPageProcessorTests {
     }
 
 
-
     @Test
     public void testHref() throws UnsupportedEncodingException {
         String title = "重庆市永川区疾病预防控制中心电感耦合等离子体质谱仪采购(17A0749)预公示";
@@ -76,9 +78,17 @@ public class CCGPCQPageProcessorTests {
     @Test
     public void testPageDownload() {
         HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
-        Page page = httpClientDownloader.download(new Request("https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable/512563536568926208"), SiteUtil.get().setTimeOut(30000).toTask());
+        Page page = httpClientDownloader.download(new Request("https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable/512584282552680449"), SiteUtil.get().setTimeOut(30000).toTask());
         CCGPCQDetailAnnouncement ccgpcqDetailAnnouncement = JSONObject.parseObject(page.getRawText(), CCGPCQDetailAnnouncement.class);
-        log.debug("text=={}", PageProcessorUtil.formatElementsByWhitelist(new Element(ccgpcqDetailAnnouncement.getNotice().getHtml())));
+        String html = ccgpcqDetailAnnouncement.getNotice().getHtml();
+        Whitelist whitelist = Whitelist.relaxed();
+        whitelist.removeTags("style");
+        whitelist.removeTags("script");
+        whitelist.removeAttributes("table", "style", "width", "height");
+        whitelist.removeAttributes("td", "style", "width", "height");
+        String formatContent = Jsoup.clean(html, whitelist);
+        formatContent = StringUtils.removeAll(formatContent, "<!-{2,}.*?-{2,}>|(&nbsp;)|<o:p>|</o:p>");
+        log.debug("formatContent=={}", formatContent);
     }
 
 
