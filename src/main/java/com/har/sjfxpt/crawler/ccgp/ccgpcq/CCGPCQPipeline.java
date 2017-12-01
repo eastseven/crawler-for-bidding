@@ -1,5 +1,7 @@
-package com.har.sjfxpt.crawler.ccgp.ccgpsc;
+package com.har.sjfxpt.crawler.ccgp.ccgpcq;
 
+import com.har.sjfxpt.crawler.ccgp.ccgpsc.CCGPSiChuanDataItem;
+import com.har.sjfxpt.crawler.ccgp.ccgpsc.CCGPSiChuanPageDataRepository;
 import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
 import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
 import com.har.sjfxpt.crawler.ggzy.service.DataItemService;
@@ -17,26 +19,25 @@ import java.util.stream.Collectors;
 import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
 
 /**
- * Created by Administrator on 2017/11/8.
+ * Created by Administrator on 2017/12/1.
  */
 @Slf4j
 @Component
-public class CCGPSiChuanPipeline implements Pipeline{
-
+public class CCGPCQPipeline implements Pipeline {
     @Autowired
-    CCGPSiChuanPageDataRepository ccgpSiChuanPageDataRepository;
+    CCGPCQDataItemRepository ccgpcqDataItemRepository;
 
     @Autowired
     DataItemService dataItemService;
 
     @Override
     public void process(ResultItems resultItems, Task task) {
-        List<CCGPSiChuanDataItem> dataItems=resultItems.get(KEY_DATA_ITEMS);
+        List<CCGPCQDataItem> dataItems=resultItems.get(KEY_DATA_ITEMS);
         if(CollectionUtils.isEmpty(dataItems)){
-            log.warn("{} save nothing", SourceCode.CCGPSC);
+            log.warn("{} save nothing", SourceCode.CCGPCQ);
         }else {
-            ccgpSiChuanPageDataRepository.save(dataItems);
-            log.info("{} save {} to mongodb", SourceCode.CCGPSC, dataItems.size());
+            ccgpcqDataItemRepository.save(dataItems);
+            log.info("{} save {} to mongodb", SourceCode.CCGPCQ, dataItems.size());
 
             List<DataItemDTO> dtoList = dataItems.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
             dataItemService.save2BidNewsOriginalTable(dtoList);

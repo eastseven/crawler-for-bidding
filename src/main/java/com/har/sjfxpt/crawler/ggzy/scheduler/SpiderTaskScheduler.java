@@ -1,6 +1,7 @@
 package com.har.sjfxpt.crawler.ggzy.scheduler;
 
 import com.har.sjfxpt.crawler.ccgp.ZhengFuCaiGouSpiderLauncher;
+import com.har.sjfxpt.crawler.ccgp.ccgpcq.CCGPCQSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgpsc.CCGPSiChuanSpiderLauncher;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
@@ -137,6 +138,18 @@ public class SpiderTaskScheduler {
             context.getBean(CCGPSiChuanSpiderLauncher.class).start();
         }
     }
+
+    /**
+     * 重庆政府采购网
+     */
+    @Scheduled(initialDelay = 24000, fixedRate = 30 * 60 * 1000)
+    public void fetchCCGPCQ() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.CCGPCQ);
+            context.getBean(CCGPCQSpiderLauncher.class).start();
+        }
+    }
+
 
     /**
      * 一标网

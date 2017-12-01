@@ -68,4 +68,6 @@ public class DataItemDTO {
 
     private String originalIndustryCategory;
 
+    private boolean forceUpdate;
+
 }

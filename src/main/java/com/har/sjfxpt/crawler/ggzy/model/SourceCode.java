@@ -14,6 +14,7 @@ public enum SourceCode {
     ZGZT("中国招投标"),
     CCGPHN("海南政府采购"),
     CCGPSC("四川政府采购"),
+    CCGPCQ("重庆政府采购"),
     YIBIAO("一标网"),
     SUNING("苏宁"),
     GGZYSC("四川公共资源"),

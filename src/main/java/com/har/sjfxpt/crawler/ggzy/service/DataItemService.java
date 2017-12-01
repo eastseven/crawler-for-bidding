@@ -118,6 +118,11 @@ public class DataItemService {
                         log.debug("save {} {}[mongo={}] to {}", sourceCode, rowKey, dataItem.getId(), DataItem.T_NAME_HTML);
                         counter++;
                     }
+
+                    if (dataItem.isForceUpdate()) {
+                        originalTable.put(row);
+                        log.debug("force update, save {} {}[mongo={}] to {}", sourceCode, rowKey, dataItem.getId(), DataItem.T_NAME_HTML);
+                    }
                 } else {
                     boolean exists = historyTable.exists(new Get(rowKey.getBytes()));
                     if (!exists) {
