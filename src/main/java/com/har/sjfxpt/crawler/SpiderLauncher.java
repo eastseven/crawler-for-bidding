@@ -5,6 +5,10 @@ import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgpsc.CCGPSiChuanSpiderLauncher;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.ggzyCQSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.ggzyGZSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn.ggzyHNSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzysc.ggzySCSpiderLauncher;
 import com.har.sjfxpt.crawler.jcw.JinCaiWangSpiderLauncher;
 import com.har.sjfxpt.crawler.petrochina.ZGShiYouSpiderLauncher;
 import com.har.sjfxpt.crawler.sgcc.StateGridSpiderLauncher;
@@ -66,6 +70,21 @@ public class SpiderLauncher implements CommandLineRunner {
     SuNingSpiderLauncher suNingSpiderLauncher;
 
     @Autowired
+    ggzySCSpiderLauncher ggzySCSpiderLauncher;
+
+    @Autowired
+    ggzyCQSpiderLauncher ggzyCQSpiderLauncher;
+
+    @Autowired
+    ggzyHNSpiderLauncher ggzyHNSpiderLauncher;
+
+    @Autowired
+    ggzyGZSpiderLauncher ggzyGZSpiderLauncher;
+
+    @Autowired
+    CCGPCQSpiderLauncher ccgpcqSpiderLauncher;
+
+    @Autowired
     StateGridSpiderLauncher stateGridSpiderLauncher;
 
     public void info() {
@@ -81,10 +100,15 @@ public class SpiderLauncher implements CommandLineRunner {
         yiBiaoSpiderLauncher.printInfo();
         suNingSpiderLauncher.printInfo();
         stateGridSpiderLauncher.printInfo();
+        ggzySCSpiderLauncher.printInfo();
+        ggzyCQSpiderLauncher.printInfo();
+        ggzyHNSpiderLauncher.printInfo();
+        ggzyGZSpiderLauncher.printInfo();
+        ccgpcqSpiderLauncher.printInfo();
     }
 
     @Override
-    public void run(String... args) {
+    public void run(String... args) throws Exception {
         log.info("{}", Arrays.toString(args));
         for (String arg : args) {
             switch (arg) {
@@ -160,6 +184,20 @@ public class SpiderLauncher implements CommandLineRunner {
                 case "history-sgcc":
                     stateGridSpiderLauncher.fetchAll();
                     break;
+                case "start-ggzysc":
+                    ggzySCSpiderLauncher.start();
+                    break;
+                case "start-ggzycq":
+                    ggzyCQSpiderLauncher.start();
+                    break;
+                case "start-ggzyhn":
+                    ggzyHNSpiderLauncher.start();
+                    break;
+                case "start-ggzygz":
+                    ggzyGZSpiderLauncher.start();
+                    break;
+                case "start-ccgpcq":
+                    ccgpcqSpiderLauncher.start();
                 default:
                     break;
             }

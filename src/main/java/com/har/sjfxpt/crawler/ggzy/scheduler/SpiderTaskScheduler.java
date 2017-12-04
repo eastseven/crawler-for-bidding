@@ -1,11 +1,16 @@
 package com.har.sjfxpt.crawler.ggzy.scheduler;
 
 import com.har.sjfxpt.crawler.ccgp.ZhengFuCaiGouSpiderLauncher;
+import com.har.sjfxpt.crawler.ccgp.ccgpcq.CCGPCQSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgpsc.CCGPSiChuanSpiderLauncher;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.ggzyCQSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.ggzyGZSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn.ggzyHNSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzysc.ggzySCSpiderLauncher;
 import com.har.sjfxpt.crawler.jcw.JinCaiWangSpiderLauncher;
 import com.har.sjfxpt.crawler.petrochina.ZGShiYouSpiderLauncher;
 import com.har.sjfxpt.crawler.sgcc.StateGridSpiderLauncher;
@@ -134,6 +139,16 @@ public class SpiderTaskScheduler {
         }
     }
 
+    /**
+     * 重庆政府采购网
+     */
+    @Scheduled(initialDelay = 23000, fixedRate = 30 * 60 * 1000)
+    public void fetchCCGPCQ() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.CCGPCQ);
+            context.getBean(CCGPCQSpiderLauncher.class).start();
+        }
+    }
 
     /**
      * 苏宁招标
@@ -145,6 +160,51 @@ public class SpiderTaskScheduler {
             context.getBean(SuNingSpiderLauncher.class).start();
         }
     }
+
+    /**
+     * 四川公共资源
+     */
+    @Scheduled(initialDelay = 22000, fixedRate = 25 * 60 * 1000)
+    public void fetchggzySC() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.GGZYSC);
+            context.getBean(ggzySCSpiderLauncher.class).start();
+        }
+    }
+
+    /**
+     * 重庆公共资源
+     */
+    @Scheduled(initialDelay = 22000, fixedRate = 30 * 60 * 1000)
+    public void fetchggzyCQ() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.GGZYCQ);
+            context.getBean(ggzyCQSpiderLauncher.class).start();
+        }
+    }
+
+    /**
+     * 海南公共资源
+     */
+    @Scheduled(initialDelay = 22000, fixedRate = 30 * 60 * 1000)
+    public void fetchggzyHN() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.GGZYHN);
+            context.getBean(ggzyHNSpiderLauncher.class).start();
+        }
+    }
+
+    /**
+     * 贵州公共资源
+     */
+    @Scheduled(initialDelay = 23000, fixedRate = 30 * 60 * 1000)
+    public void fetchggzyGZ() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.GGZYGZ);
+            context.getBean(ggzyGZSpiderLauncher.class).start();
+        }
+    }
+
 
     /**
      * 国家电网

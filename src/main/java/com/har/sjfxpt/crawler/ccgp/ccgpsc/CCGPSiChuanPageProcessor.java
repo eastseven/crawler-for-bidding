@@ -49,7 +49,7 @@ public class CCGPSiChuanPageProcessor implements BasePageProcessor {
     @Override
     public Site getSite() {
         httpClientDownloader = new HttpClientDownloader();
-        return SiteUtil.get();
+        return SiteUtil.get().setSleepTime(60 * 1000);
     }
 
     @Override
@@ -62,11 +62,20 @@ public class CCGPSiChuanPageProcessor implements BasePageProcessor {
             Elements pageNum = page.getHtml().getDocument().body().select("#QuotaList_paginate>span");
             int totalPageNum = Integer.parseInt(StringUtils.substringBetween(pageNum.text(), "页次：1/", "页"));
             log.debug("totalPageNum=={}", totalPageNum);
-            for (int i = 2; i <= totalPageNum; i++) {
-                String targetUrl = StringUtils.replace(url, "page=1", "page=" + i);
-                Request request = new Request(targetUrl);
-                request.putExtra(PAGE_PARAMS, pageParams);
-                page.addTargetRequest(request);
+            if (totalPageNum >= 40) {
+                for (int i = 2; i <= 40; i++) {
+                    String targetUrl = StringUtils.replace(url, "page=1", "page=" + i);
+                    Request request = new Request(targetUrl);
+                    request.putExtra(PAGE_PARAMS, pageParams);
+                    page.addTargetRequest(request);
+                }
+            } else {
+                for (int i = 2; i <= totalPageNum; i++) {
+                    String targetUrl = StringUtils.replace(url, "page=1", "page=" + i);
+                    Request request = new Request(targetUrl);
+                    request.putExtra(PAGE_PARAMS, pageParams);
+                    page.addTargetRequest(request);
+                }
             }
         }
     }
@@ -114,7 +123,7 @@ public class CCGPSiChuanPageProcessor implements BasePageProcessor {
                 log.debug("{} is duplication", href);
             } else {
                 Request request = new Request(href);
-                Page page = httpClientDownloader.download(request, SiteUtil.get().toTask());
+                Page page = httpClientDownloader.download(request, SiteUtil.get().setTimeOut(30000).toTask());
                 try {
                     String html = page.getHtml().getDocument().html();
                     Element element = page.getHtml().getDocument().body();

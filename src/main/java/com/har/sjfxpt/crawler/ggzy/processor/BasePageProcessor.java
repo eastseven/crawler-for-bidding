@@ -18,7 +18,7 @@ public interface BasePageProcessor extends PageProcessor {
      * 处理列表内容
      * @param page
      */
-    void handleContent(Page page);
+    void handleContent(Page page) throws Exception;
 
     /**
      * 解析列表内容

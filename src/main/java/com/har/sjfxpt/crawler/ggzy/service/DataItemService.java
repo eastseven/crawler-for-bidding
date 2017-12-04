@@ -120,6 +120,11 @@ public class DataItemService {
                     counter++;
                 }
 
+                if (dataItem.isForceUpdate()) {
+                    originalTable.put(row);
+                    log.debug("force update, save {} {}[mongo={}] to {}", sourceCode, rowKey, dataItem.getId(), DataItem.T_NAME_HTML);
+                }
+
                 if (!current.equalsIgnoreCase(date)) {
                     historyTable.put(row);
                     redisTemplate.boundValueOps(date + ':' + sourceCode.toLowerCase()).increment(1L);
