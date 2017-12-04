@@ -30,10 +30,10 @@ public class GGZYHNSpiderLauncher extends BaseSpiderLauncher {
     final int num = Runtime.getRuntime().availableProcessors();
 
     String[] urls = {
-            "http://www.ggzy.hi.gov.cn/ggzy/jgzbgg/index_1.jhtml",
-            "http://www.ggzy.hi.gov.cn/ggzy/jgzbgs/index_1.jhtml",
-            "http://www.ggzy.hi.gov.cn/ggzy/cggg/index_1.jhtml",
-            "http://www.ggzy.hi.gov.cn/ggzy/cgzbgg/index_1.jhtml"
+            "http://www.ggzy.hi.gov.cn/ggzy/ggzy/jgzbgg/index_1.jhtml",
+            "http://www.ggzy.hi.gov.cn/ggzy/ggzy/jgzbgs/index_1.jhtml",
+            "http://www.ggzy.hi.gov.cn/ggzy/ggzy/cggg/index_1.jhtml",
+            "http://www.ggzy.hi.gov.cn/ggzy/ggzy/cgzbgg/index_1.jhtml"
     };
 
     /**

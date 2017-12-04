@@ -3,6 +3,7 @@ package com.har.sjfxpt.crawler.ggzyprovincial.ggzysc;
 import com.har.sjfxpt.crawler.BaseSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
 import lombok.extern.slf4j.Slf4j;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Spider;
@@ -25,8 +26,8 @@ public class GGZYSCSpiderLauncher extends BaseSpiderLauncher {
     final int num = Runtime.getRuntime().availableProcessors();
 
     final String[] urls = {
-            "http://www.scztb.gov.cn/Info/GetInfoList?keywords=&times=1&timesStart=&timesEnd=&province=&area=&businessType=project&informationType=&page=1&parm=1511832393578",
-            "http://www.scztb.gov.cn/Info/GetInfoList?keywords=&times=1&timesStart=&timesEnd=&province=&area=&businessType=purchase&informationType=&page=1&parm=1511832537059"
+            "http://www.scztb.gov.cn/Info/GetInfoListNew?keywords=&times=1&timesStart=&timesEnd=&province=&area=&businessType=project&informationType=&page=1&parm="+ DateTime.now().getMillis(),
+            "http://www.scztb.gov.cn/Info/GetInfoListNew?keywords=&times=1&timesStart=&timesEnd=&province=&area=&businessType=purchase&informationType=&page=1&parm="+DateTime.now().getMillis()
     };
 
     /**
