@@ -26,15 +26,15 @@ import java.util.Iterator;
 public class HBaseTests extends SpiderApplicationTests {
 
     @Autowired
-    HBaseConfig hbaseConfig;
+    protected HBaseConfig hbaseConfig;
 
     @Autowired
-    Configuration conf;
+    protected Configuration conf;
 
     TableName tableName = TableName.valueOf("test_ggzy");
 
     @Before
-    public void teardown() {
+    public void setup() {
         Assert.assertNotNull(conf);
         Connection conn = null;
         Admin admin = null;

@@ -16,6 +16,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Date;
 
+/**
+ * @author dongqi
+ */
 @Setter
 @Getter
 @ToString
@@ -69,6 +72,7 @@ public class ChinaMobileDataItem {
         if (StringUtils.isBlank(date)) {
             dto.setDate(dt.toString("yyyy-MM-dd HH:mm"));
         } else if (date.length() == 10) {
+            //len == 10 既只有年月日
             dto.setDate(dto.getDate().concat(dt.toString(" HH:mm")));
         }
         return dto;

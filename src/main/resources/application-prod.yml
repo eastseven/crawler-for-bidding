@@ -2,6 +2,7 @@ logging:
   level:
     com.har.sjfxpt.crawler.ggzy: info
     us.codecraft.webmagic.downloader: error
+    com.har.sjfxpt.crawler.ccgp.ZhengFuCaiGouDownloader: warn
   file: ggzy.log
 
 spring:

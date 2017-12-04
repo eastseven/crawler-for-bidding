@@ -1,6 +1,7 @@
 package com.har.sjfxpt.crawler.chinamobile;
 
 import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
+import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
 import com.har.sjfxpt.crawler.ggzy.service.DataItemService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -15,6 +16,9 @@ import java.util.stream.Collectors;
 
 import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
 
+/**
+ * @author dongqi
+ */
 @Slf4j
 @Component
 public class ChinaMobilePipeline implements Pipeline {
@@ -29,10 +33,10 @@ public class ChinaMobilePipeline implements Pipeline {
     public void process(ResultItems resultItems, Task task) {
         List<ChinaMobileDataItem> dataItemList = resultItems.get(KEY_DATA_ITEMS);
         if (CollectionUtils.isEmpty(dataItemList)) {
-            log.warn("china mobile save nothing, {}", task.getSite());
+            log.warn("{} save nothing, {}", SourceCode.CM, task.getSite());
         } else {
             dataItemRepository.save(dataItemList);
-            log.info("china mobile save {} to mongodb", dataItemList.size());
+            log.info("{} save {} to mongodb", SourceCode.CM, dataItemList.size());
 
             List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
             dataItemService.save2BidNewsOriginalTable(dtoList);

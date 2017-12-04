@@ -79,7 +79,7 @@ public class SpiderLauncher implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         log.info("{}", Arrays.toString(args));
         for (String arg : args) {
             switch (arg) {
@@ -93,7 +93,7 @@ public class SpiderLauncher implements CommandLineRunner {
                     chinaMobileSpiderLauncher.start();
                     break;
                 case "history-cm":
-                    chinaMobileSpiderLauncher.fetchHistory();
+                    chinaMobileSpiderLauncher.fetchHistoryStartWith2013().start();
                     break;
                 case "start-ccgp":
                     zhengFuCaiGouSpiderLauncher.start();

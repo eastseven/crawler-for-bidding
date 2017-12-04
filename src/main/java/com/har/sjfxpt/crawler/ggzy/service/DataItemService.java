@@ -107,26 +107,25 @@ public class DataItemService {
                     throw new Exception(rowKey + " length not equal " + ROW_KEY_LENGTH + ", data item id is " + dataItem.getId() + ", source " + dataItem.getSourceCode());
                 }
 
+                // 数据写入策略：
+                // 记录所有数据到original表，如果是历史数据，则再保存一份在history表中
+
                 String sourceCode = dataItem.getSourceCode();
                 Put row = assemble(rowKey, dataItem);
-
                 String date = StringUtils.substringBefore(rowKey, ":");
-                if (current.equalsIgnoreCase(date)) {
-                    boolean exists = originalTable.exists(new Get(rowKey.getBytes()));
-                    if (!exists) {
-                        originalTable.put(row);
-                        log.debug("save {} {}[mongo={}] to {}", sourceCode, rowKey, dataItem.getId(), DataItem.T_NAME_HTML);
-                        counter++;
-                    }
-                } else {
-                    boolean exists = historyTable.exists(new Get(rowKey.getBytes()));
-                    if (!exists) {
-                        historyTable.put(row);
-                        redisTemplate.boundValueOps(date + ':' + sourceCode.toLowerCase()).increment(1L);
-                        log.info("save {} {} to {}", sourceCode, rowKey, DataItem.T_NAME_HTML_HISTORY);
-                        counter++;
-                    }
+                boolean exists = originalTable.exists(new Get(rowKey.getBytes()));
+                if (!exists) {
+                    originalTable.put(row);
+                    log.debug("save {} {}[mongo={}] to {}", sourceCode, rowKey, dataItem.getId(), DataItem.T_NAME_HTML);
+                    counter++;
                 }
+
+                if (!current.equalsIgnoreCase(date)) {
+                    historyTable.put(row);
+                    redisTemplate.boundValueOps(date + ':' + sourceCode.toLowerCase()).increment(1L);
+                    log.info("save {} {} to {}", sourceCode, rowKey, DataItem.T_NAME_HTML_HISTORY);
+                }
+
             } catch (Exception e) {
                 log.error("", e);
             }
@@ -145,7 +144,7 @@ public class DataItemService {
      */
     public DataItemDTO setIndustryCategory(DataItemDTO dataItem) {
         dataItem.setTextContent(Jsoup.clean(dataItem.getFormatContent(), Whitelist.none()));
-        String text = dataItem.getTitle() + ',' + dataItem.getTextContent();
+        String text = dataItem.getTitle();
         String words = segmenter.sentenceProcess(text).stream()
                 .filter(word -> StringUtils.isNotBlank(word) && word.length() > 1)
                 .map(word -> StringUtils.trim(word))
@@ -185,9 +184,6 @@ public class DataItemService {
         put.addColumn(family, "project_name".getBytes(),       StringUtils.defaultString(dataItem.getProjectName(), "").getBytes(charsetName));
 
         put.addColumn(family, "original_industry_category".getBytes(),  StringUtils.defaultString(dataItem.getOriginalIndustryCategory(), "").getBytes(charsetName));
-
-        //textContent 废弃
-        put.addColumn(family, "textContent".getBytes(), StringUtils.defaultString("", "").getBytes(charsetName));
 
         return put;
     }

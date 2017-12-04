@@ -69,16 +69,31 @@ public class ChinaMobileSpiderLauncher extends BaseSpiderLauncher {
         String endDate = df.toString(YYYYMMDD);
         String startDate = df.minusYears(5).toString(YYYYMMDD);
 
+        fetchHistory(startDate, endDate);
+    }
+
+    public void fetchHistory(String startDate, String endDate) {
         final int num = Runtime.getRuntime().availableProcessors();
         for (int type : types) {
             Spider spider = Spider.create(pageProcessor).addPipeline(pipeline);
-            spider.addRequest(getRequest(type, pageParams(startDate, endDate)));
+            spider.addRequest(getRequest(String.valueOf(type), pageParams(startDate, endDate)));
             spider.thread(num);
             spider.setExitWhenComplete(true);
             spider.start();
 
             addSpider(spider);
         }
+    }
+
+    public Spider fetchHistoryStartWith2013() {
+        String startDate = "2013-01-01";
+        String endDate = DateTime.now().minusDays(1).toString(YYYYMMDD);
+        Spider spider = Spider.create(pageProcessor).addPipeline(pipeline);
+        spider.addRequest(getRequest("", pageParams(startDate, endDate)));
+        spider.thread(num);
+        spider.setExitWhenComplete(true);
+
+        return spider;
     }
 
     /**
@@ -89,10 +104,10 @@ public class ChinaMobileSpiderLauncher extends BaseSpiderLauncher {
      */
     Request getRequest(int type) {
         String date = DateTime.now().toString(YYYYMMDD);
-        return getRequest(type, pageParams(date, date));
+        return getRequest(String.valueOf(type), pageParams(date, date));
     }
 
-    Request getRequest(int type, Map<String, Object> params) {
+    Request getRequest(String type, Map<String, Object> params) {
         Request request = new Request(SEED_URL + type);
         request.setMethod(HttpConstant.Method.POST);
         request.setRequestBody(HttpRequestBody.form(params, "UTF-8"));
