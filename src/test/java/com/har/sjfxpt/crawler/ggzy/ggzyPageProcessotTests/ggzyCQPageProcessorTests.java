@@ -18,8 +18,6 @@ import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
 
-import java.util.Date;
-
 /**
  * Created by Administrator on 2017/11/28.
  */

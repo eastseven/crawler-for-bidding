@@ -1,6 +1,7 @@
 package com.har.sjfxpt.crawler;
 
 import com.har.sjfxpt.crawler.ccgp.ZhengFuCaiGouSpiderLauncher;
+import com.har.sjfxpt.crawler.ccgp.ccgpcq.CCGPCQSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgpsc.CCGPSiChuanSpiderLauncher;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
@@ -108,7 +109,7 @@ public class SpiderLauncher implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         log.info("{}", Arrays.toString(args));
         for (String arg : args) {
             switch (arg) {
@@ -198,6 +199,7 @@ public class SpiderLauncher implements CommandLineRunner {
                     break;
                 case "start-ccgpcq":
                     ccgpcqSpiderLauncher.start();
+                    break;
                 default:
                     break;
             }

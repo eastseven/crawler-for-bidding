@@ -29,7 +29,6 @@ import us.codecraft.webmagic.selector.Html;
 import us.codecraft.webmagic.utils.HttpConstant;
 
 import java.net.URL;
-import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.Map;
 import java.util.regex.Matcher;

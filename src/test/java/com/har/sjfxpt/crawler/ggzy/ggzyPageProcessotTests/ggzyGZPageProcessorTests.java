@@ -1,11 +1,8 @@
 package com.har.sjfxpt.crawler.ggzy.ggzyPageProcessotTests;
 
-import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.ggzyGZPageProcessor;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.ggzyGZPipeline;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +10,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
-
-import java.util.Map;
 
 import static com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.ggzyGZSpiderLauncher.requestGenerator;
 

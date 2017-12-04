@@ -1,7 +1,5 @@
 package com.har.sjfxpt.crawler.ccgp.ccgpcq;
 
-import com.har.sjfxpt.crawler.ccgp.ccgpsc.CCGPSiChuanDataItem;
-import com.har.sjfxpt.crawler.ccgp.ccgpsc.CCGPSiChuanPageDataRepository;
 import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
 import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
 import com.har.sjfxpt.crawler.ggzy.service.DataItemService;
