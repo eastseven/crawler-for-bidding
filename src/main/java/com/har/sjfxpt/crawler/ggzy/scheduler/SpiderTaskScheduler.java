@@ -8,8 +8,8 @@ import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
 import com.har.sjfxpt.crawler.jcw.JinCaiWangSpiderLauncher;
 import com.har.sjfxpt.crawler.petrochina.ZGShiYouSpiderLauncher;
+import com.har.sjfxpt.crawler.sgcc.StateGridSpiderLauncher;
 import com.har.sjfxpt.crawler.suning.SuNingSpiderLauncher;
-import com.har.sjfxpt.crawler.yibiao.YiBiaoSpiderLauncher;
 import com.har.sjfxpt.crawler.zgyj.ZGYeJinSpiderLauncher;
 import com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingLauncher;
 import lombok.extern.slf4j.Slf4j;
@@ -134,26 +134,27 @@ public class SpiderTaskScheduler {
         }
     }
 
-    /**
-     * 一标网
-     */
-//    @Scheduled(initialDelay = 21000, fixedRate = 25 * 60 * 1000)
-//    public void fetchYiBiao() {
-//        if (flag) {
-//            log.info(">>> start fetch {}", SourceCode.YIBIAO);
-//            context.getBean(YiBiaoSpiderLauncher.class).start();
-//        }
-//    }
-
 
     /**
      * 苏宁招标
      */
-    @Scheduled(initialDelay = 2400, fixedRate = 6 * 60 * 60 * 1000)
+    @Scheduled(initialDelay = 25000, fixedRate = 6 * 60 * 60 * 1000)
     public void fetchSuNing() {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.SUNING);
             context.getBean(SuNingSpiderLauncher.class).start();
+        }
+    }
+
+    /**
+     * 国家电网
+     * 每个小时抓一次
+     */
+    @Scheduled(initialDelay = 26000, fixedRate = 60 * 60 * 1000)
+    public void fetchSGCC() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.SGCC);
+            context.getBean(StateGridSpiderLauncher.class).start();
         }
     }
 }

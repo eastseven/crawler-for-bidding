@@ -55,15 +55,16 @@ public class StateGridPageProcessor implements BasePageProcessor {
         Element pager = elements.last().previousElementSibling();
         String text = pager.text();
         String link = pager.attr("href");
+        log.info(">>> text {}, link {}", text, link);
 
         Object typeValue = page.getRequest().getExtra("type");
-        //<a href="topic_project_list.jsp?columnName=topic10&amp;site=global&amp;company_id=&amp;status=&amp;project_name=&amp;pageNo=391">391</a>
         int totalPages = Integer.parseInt(text);
         for (int index = 2; index <= totalPages; index++) {
-            String url = StringUtils.substringBeforeLast(link, "=") + "=" + index;
+            String url = "http://ecp.sgcc.com.cn/" + StringUtils.substringBeforeLast(link, "=") + "=" + index;
             Request request = new Request(url);
             request.putExtra("type", typeValue);
-            log.debug(">>> add page url {}", url);
+            request.putExtra("fetchAll", false);
+            log.info(">>> add page url {}", url);
 
             page.addTargetRequest(request);
         }
@@ -119,8 +120,6 @@ public class StateGridPageProcessor implements BasePageProcessor {
                 dataItems.add(dataItem);
             }
         }
-
-        dataItems.forEach(data -> log.debug(">>> {}", data));
 
         if (!CollectionUtils.isEmpty(dataItems)) {
             page.putField(KEY_DATA_ITEMS, dataItems);

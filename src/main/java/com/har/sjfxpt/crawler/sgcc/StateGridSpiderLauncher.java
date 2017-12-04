@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 
+import java.util.concurrent.ExecutorService;
+
 /**
  * @author dongqi
  * 国家电网公司 电子商务平台
@@ -36,6 +38,8 @@ public class StateGridSpiderLauncher extends BaseSpiderLauncher {
 
     @Autowired StateGridPipeline pipeline;
 
+    @Autowired ExecutorService executorService;
+
     public void start() {
         initBidSpider(false);
         initWinSpider(false);
@@ -47,6 +51,7 @@ public class StateGridSpiderLauncher extends BaseSpiderLauncher {
         if (bidSpider == null) {
             bidSpider = Spider.create(pageProcessor).setUUID(uuid);
             bidSpider.addPipeline(pipeline);
+            bidSpider.thread(executorService, 5);
             Request request = new Request(BID_URL);
             request.putExtra("type", "招标");
             request.putExtra("fetchAll", fetchAll);
@@ -64,6 +69,7 @@ public class StateGridSpiderLauncher extends BaseSpiderLauncher {
         if (winSpider == null) {
             winSpider = Spider.create(pageProcessor).setUUID(uuid);
             winSpider.addPipeline(pipeline);
+            winSpider.thread(executorService, 5);
             Request request = new Request(WIN_URL);
             request.putExtra("type", "中标");
             request.putExtra("fetchAll", fetchAll);
@@ -76,6 +82,6 @@ public class StateGridSpiderLauncher extends BaseSpiderLauncher {
 
     public void fetchAll() {
         initBidSpider(true).start();
-        initBidSpider(true).start();
+        initWinSpider(true).start();
     }
 }
