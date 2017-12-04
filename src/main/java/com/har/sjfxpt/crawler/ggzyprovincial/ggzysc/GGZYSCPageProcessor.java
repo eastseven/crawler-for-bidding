@@ -8,6 +8,7 @@ import com.har.sjfxpt.crawler.ggzy.utils.ProvinceUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.safety.Whitelist;
@@ -38,8 +39,9 @@ public class GGZYSCPageProcessor implements BasePageProcessor {
         if (currentPage == 1) {
             GGZYSCAnnouncement data = JSONObject.parseObject(page.getRawText(), GGZYSCAnnouncement.class);
             int size = data.getPageCount();
+            log.info("size=={}", size);
             for (int i = 2; i <= size; i++) {
-                String url = "http://www.scztb.gov.cn/Info/GetInfoList?keywords=&times=1&timesStart=&timesEnd=&province=&area=&businessType=&informationType=&page=" + i + "&parm=1511752991315";
+                String url = "http://www.scztb.gov.cn/Info/GetInfoListNew?keywords=&times=4&timesStart=&timesEnd=&province=&area=&businessType=project&informationType=&page=" + i + "&parm=" + DateTime.now().getMillis();
                 page.addTargetRequest(url);
             }
         }

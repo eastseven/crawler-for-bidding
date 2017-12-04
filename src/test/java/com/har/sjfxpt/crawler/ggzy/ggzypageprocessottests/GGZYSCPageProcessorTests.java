@@ -4,6 +4,7 @@ import com.har.sjfxpt.crawler.ggzyprovincial.ggzysc.GGZYSCPageProcessor;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzysc.GGZYSCPipeline;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -37,8 +38,8 @@ public class GGZYSCPageProcessorTests {
     public void testSCPageProcessor() {
 
         String urls[] = {
-                "http://www.scztb.gov.cn/Info/GetInfoList?keywords=&times=1&timesStart=&timesEnd=&province=&area=&businessType=project&informationType=&page=1&parm=1511832393578",
-                "http://www.scztb.gov.cn/Info/GetInfoList?keywords=&times=1&timesStart=&timesEnd=&province=&area=&businessType=purchase&informationType=&page=1&parm=1511832537059"
+                "http://www.scztb.gov.cn/Info/GetInfoListNew?keywords=&times=1&timesStart=&timesEnd=&province=&area=&businessType=project&informationType=&page=1&parm="+DateTime.now().getMillis(),
+                "http://www.scztb.gov.cn/Info/GetInfoListNew?keywords=&times=1&timesStart=&timesEnd=&province=&area=&businessType=purchase&informationType=&page=1&parm="+DateTime.now().getMillis()
         };
         Spider.create(GGZYSCPageProcessor)
                 .addPipeline(GGZYSCPipeline)
@@ -87,6 +88,12 @@ public class GGZYSCPageProcessorTests {
             }
 
         }
+    }
+
+    @Test
+    public void testTime() {
+        long datimeNow = DateTime.now().getMillis();
+        log.info("datimeNow=={}", datimeNow);
     }
 
 

@@ -57,7 +57,7 @@ public class GGZYHNSpiderLauncher extends BaseSpiderLauncher {
 
 
     public static Request requestGenerators(String url) {
-        String type = StringUtils.substringBetween(url, "ggzy/", "/index");
+        String type = StringUtils.substringBetween(url, "/ggzy/ggzy/", "/index");
         Request request = new Request(url);
         Map<String, String> params = Maps.newHashMap();
         if (type.equalsIgnoreCase("jgzbgg")) {

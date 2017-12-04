@@ -1,5 +1,6 @@
 package com.har.sjfxpt.crawler.ggzy.ggzypageprocessottests;
 
+import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn.GGZYHNPageProcessor;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn.GGZYHNPipeline;
 import lombok.extern.slf4j.Slf4j;
@@ -8,8 +9,10 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
+import us.codecraft.webmagic.downloader.HttpClientDownloader;
 
 import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn.GGZYHNSpiderLauncher.requestGenerators;
 
@@ -28,10 +31,10 @@ public class GGZYHNPageProcessorTests {
     GGZYHNPipeline GGZYHNPipeline;
 
     String[] urls = {
-            "http://www.ggzy.hi.gov.cn/ggzy/jgzbgg/index_1.jhtml",
-            "http://www.ggzy.hi.gov.cn/ggzy/jgzbgs/index_1.jhtml",
-            "http://www.ggzy.hi.gov.cn/ggzy/cggg/index_1.jhtml",
-            "http://www.ggzy.hi.gov.cn/ggzy/cgzbgg/index_1.jhtml"
+            "http://www.ggzy.hi.gov.cn/ggzy/ggzy/jgzbgg/index_1.jhtml",
+            "http://www.ggzy.hi.gov.cn/ggzy/ggzy/jgzbgs/index_1.jhtml",
+            "http://www.ggzy.hi.gov.cn/ggzy/ggzy/cggg/index_1.jhtml",
+            "http://www.ggzy.hi.gov.cn/ggzy/ggzy/cgzbgg/index_1.jhtml"
     };
 
     @Test
@@ -48,6 +51,13 @@ public class GGZYHNPageProcessorTests {
                 .addPipeline(GGZYHNPipeline)
                 .thread(4)
                 .run();
+    }
+
+    @Test
+    public void testHttpdown() {
+        HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
+        Page page = httpClientDownloader.download(new Request("http://www.ggzy.hi.gov.cn/ggzy/ggzy/cgzbgg/index_1.jhtml"), SiteUtil.get().toTask());
+        log.info("html=={}", page.getHtml().getDocument().body().html());
     }
 
 

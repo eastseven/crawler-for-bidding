@@ -76,7 +76,7 @@ public class GGZYHNPageProcessor implements BasePageProcessor {
                 String title = element.select("td > a").attr("title");
                 String date = element.select(" td:nth-child(4)").text();
                 if (PageProcessorUtil.timeCompare(date)) {
-                    log.debug("{} is not on the same day", href);
+                    log.info("{} is not on the same day", href);
                 } else {
                     GGZYHNDataItem GGZYHNDataItem = new GGZYHNDataItem(href);
                     GGZYHNDataItem.setUrl(href);
