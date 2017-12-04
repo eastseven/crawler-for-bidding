@@ -31,6 +31,7 @@ public final class PageProcessorUtil {
     }
 
     public static String formatElementsByWhitelist(Element root) {
+        log.debug("\n{}", root);
         if (root == null) return null;
         String html = root.html();
         Whitelist whitelist = Whitelist.relaxed();
@@ -105,11 +106,7 @@ public final class PageProcessorUtil {
 
             DateTime dateTime1 = new DateTime(new DateTime(new Date()).toString("yyyy-MM-dd"));
 
-            if (dateTime.isBefore(dateTime1)) {
-                return true;
-            } else {
-                return false;
-            }
+            return dateTime.isBefore(dateTime1);
         }
         return false;
     }

@@ -1,5 +1,7 @@
 package com.har.sjfxpt.crawler.ggzy.ggzypageprocessottests;
 
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.ggzyGZPageProcessor;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.ggzyGZPipeline;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.GGZYGZPageProcessor;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.GGZYGZPipeline;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 
+import static com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.ggzyGZSpiderLauncher.requestGenerator;
 import static com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.GGZYGZSpiderLauncher.requestGenerator;
 
 /**

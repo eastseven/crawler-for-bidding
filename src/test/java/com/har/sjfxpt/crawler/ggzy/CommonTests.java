@@ -14,6 +14,8 @@ import org.joda.time.PeriodType;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.safety.Whitelist;
+import org.jsoup.select.Elements;
 import org.junit.Assert;
 import org.junit.Test;
 import us.codecraft.webmagic.Page;
@@ -26,7 +28,7 @@ import us.codecraft.webmagic.proxy.SimpleProxyProvider;
 import us.codecraft.webmagic.selector.Html;
 import us.codecraft.webmagic.utils.HttpConstant;
 
-import java.io.IOException;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -37,6 +39,61 @@ import static com.har.sjfxpt.crawler.petrochina.ZGShiYouPageProcessor.formUrl;
 
 @Slf4j
 public class CommonTests {
+
+    @Test
+    public void testSGCC() throws Exception {
+        String listUrl = "http://ecp.sgcc.com.cn/topic_project_list.jsp?columnName=topic10";
+        Document doc = Jsoup.parse(new URL(listUrl), 60 * 1000);
+        log.info("\n{}\n", doc.body().select("div.contentRight table"));
+        for (Element tr : doc.body().select("div.contentRight table tr")) {
+            Elements row = tr.select("td.black40");
+            if (row.isEmpty()) continue;
+            String status = row.get(0).text();
+            String code = row.get(1).text();
+            String date = row.get(3).text();
+            Element link = row.get(2).select("a").first();
+            String name = link.attr("title");
+            String onclick = link.attr("onclick");
+
+            //http://ecp.sgcc.com.cn/html/project/014002007/9990000000010211392.html
+            String url = StringUtils.substringBetween(onclick, "(", ")").replaceAll("'", "").replace(",", "/");
+            url = "http://ecp.sgcc.com.cn/html/project/" + url + ".html";
+
+            log.info("\n{},{},{},{},{}\n", status, code, name, date, url);
+
+            String html = Jsoup.parse(new URL(url), 60 * 1000).body().select("div.article table").toString();
+            html = Jsoup.clean(html, Whitelist.relaxed());
+            log.info("\n{}\n", html);
+        }
+
+        log.info("\n{}\n", doc.body().select("div.contentRight div.page"));
+        Element page = doc.body().select("div.contentRight div.page a").last().previousElementSibling();
+        log.info("\n{},{}\n", page.text(), page.attr("href"));
+        Assert.assertNotNull(doc);
+    }
+
+    @Test
+    public void testSiChuan() throws Exception {
+        String url = "http://www.scztb.gov.cn/Info/ProjectDetailPurchase/1_NCXJ201711030.html";
+        Document document = Jsoup.parse(new URL(url), 60 * 1000);
+        Element body = document.body();
+        System.out.println(body);
+        System.out.println("==============================");
+
+        for (Element element : body.select("div.deMNei")) {
+            boolean bln = StringUtils.contains(element.attr("style"), "block");
+            if (!bln) continue;
+            System.out.println(element);
+        }
+
+        for (Element element : body.select("div.Nmds")) {
+            boolean bln = StringUtils.contains(element.attr("style"), "block");
+            if (!bln) continue;
+            String content = element.getElementById("hidOne").val();
+            String html = StringUtils.substringBetween(content, "<![CDATA[", "]]");
+            System.out.println(Jsoup.clean(html, Whitelist.basic()));
+        }
+    }
 
     @Test
     public void testRowKeyLen() throws Exception{
@@ -50,7 +107,7 @@ public class CommonTests {
     }
 
     @Test
-    public void testPetroChina() throws Exception {
+    public void testPetroChina() {
         String id = "2324681";
         Request request = new Request(formUrl);
         Map<String, Object> param = Maps.newHashMap();
@@ -224,7 +281,7 @@ public class CommonTests {
     }
 
     @Test
-    public void testFormatText() throws IOException {
+    public void testFormatText() {
         HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
         Request request = new Request("http://eportal.energyahead.com/wps/portal/ebid/!ut/p/c5/hY3LdoIwEEC_xQ_wJGgCdRkRgjwKCGJg4wnWglBelofy9cWebrUzyztzL4jAtCXvLwlvL1XJvwADkXgkKywTX9QNjF0Mt9pm_-aKsmDYeOLhU44C9M_34dF7fgHhS_7rf3D4ZAgE71pVnEEIImmyLP8s5mqy-ObOsX20pBoCPmAQHb0M1pb5XVrjynZ8JW-902hB92zUtlt-zXmB6wDVXarRNI-LtAupnZWH2r2SRPbaYO2-7gjSo8PCQZIrMiiEOShRcwUeoMrvbUyN5c3Za_eQoyz-ZI3OhiIt6PpuW5wG2WYeJpnG1cWwOzX0NASumW4qRlTlyrogwk1kfxiU7HeCRHQdZZ0wL8um39pCHo35uhfVfOGNC_FmoLqXWLSOw1xOrBmoCwYvTnrFFZn9AIuHl4s!/dl3/d3/L0lDU0dabVppbW1BIS9JTFNBQ0l3a0FnUWlRQ0NLSkFJRVlrQWdUaVFDQ0JKQUlJbFNRQ0FKMkZEUS80QzFiOFVBZy83X0E5M0NBVDZKSzVMOTUwSVRMUlBPVDQzRzE3L2RldGFpbA!!/");
         Map<String, Object> param = Maps.newHashMap();

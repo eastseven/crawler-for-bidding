@@ -13,6 +13,7 @@ import com.har.sjfxpt.crawler.ggzyprovincial.ggzysc.GGZYSCSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyyn.GGZYYNSpiderLauncher;
 import com.har.sjfxpt.crawler.jcw.JinCaiWangSpiderLauncher;
 import com.har.sjfxpt.crawler.petrochina.ZGShiYouSpiderLauncher;
+import com.har.sjfxpt.crawler.sgcc.StateGridSpiderLauncher;
 import com.har.sjfxpt.crawler.suning.SuNingSpiderLauncher;
 import com.har.sjfxpt.crawler.yibiao.YiBiaoSpiderLauncher;
 import com.har.sjfxpt.crawler.zgyj.ZGYeJinSpiderLauncher;
@@ -88,6 +89,9 @@ public class SpiderLauncher implements CommandLineRunner {
     @Autowired
     GGZYYNSpiderLauncher ggzyynSpiderLauncher;
 
+    @Autowired
+    StateGridSpiderLauncher stateGridSpiderLauncher;
+
     public void info() {
         gongGongZiYuanSpiderLauncher.printInfo();
         chinaMobileSpiderLauncher.printInfo();
@@ -104,12 +108,13 @@ public class SpiderLauncher implements CommandLineRunner {
         ggzycqSpiderLauncher.printInfo();
         ggzyhnSpiderLauncher.printInfo();
         ggzygzSpiderLauncher.printInfo();
+        stateGridSpiderLauncher.printInfo();
         ccgpcqSpiderLauncher.printInfo();
         ggzyynSpiderLauncher.printInfo();
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         log.info("{}", Arrays.toString(args));
         for (String arg : args) {
             switch (arg) {
@@ -123,7 +128,7 @@ public class SpiderLauncher implements CommandLineRunner {
                     chinaMobileSpiderLauncher.start();
                     break;
                 case "history-cm":
-                    chinaMobileSpiderLauncher.fetchHistory();
+                    chinaMobileSpiderLauncher.fetchHistoryStartWith2013().start();
                     break;
                 case "start-ccgp":
                     zhengFuCaiGouSpiderLauncher.start();
@@ -181,6 +186,9 @@ public class SpiderLauncher implements CommandLineRunner {
                     break;
                 case "history-suning":
                     suNingSpiderLauncher.fetchHistory();
+                    break;
+                case "history-sgcc":
+                    stateGridSpiderLauncher.fetchAll();
                     break;
                 case "start-ggzysc":
                     ggzyscSpiderLauncher.start();

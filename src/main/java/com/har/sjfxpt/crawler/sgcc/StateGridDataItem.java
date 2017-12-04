@@ -1,4 +1,4 @@
-package com.har.sjfxpt.crawler.chinamobile;
+package com.har.sjfxpt.crawler.sgcc;
 
 import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
 import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
@@ -13,6 +13,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.Date;
 
@@ -21,11 +22,11 @@ import java.util.Date;
  */
 @Setter
 @Getter
-@ToString
-@Document(collection = "data_item_china_mobile")
-public class ChinaMobileDataItem {
+@ToString(exclude = {"formatContent"})
+@Document(collection = "data_item_state_grid")
+public class StateGridDataItem {
 
-    public ChinaMobileDataItem(String url) {
+    public StateGridDataItem(String url) {
         this.id = DigestUtils.md5Hex(url);
         this.url = url;
     }
@@ -43,6 +44,9 @@ public class ChinaMobileDataItem {
 
     private String purchaser;
 
+    @Field("purchaser_agent")
+    private String purchaserAgent;
+
     private boolean download = false;
 
     @Indexed
@@ -52,23 +56,20 @@ public class ChinaMobileDataItem {
     private String title;
 
     @Transient
-    private String html;
-
-    @Transient
     private String formatContent;
 
-    @Transient
-    private String textContent;
+    private String code;
 
-    private String projectName;
+    private String status;
 
     public DataItemDTO dto() {
         DataItemDTO dto = new DataItemDTO();
         BeanUtils.copyProperties(this, dto);
-        dto.setSource(SourceCode.CM.getValue());
-        dto.setSourceCode(SourceCode.CM.toString());
+        dto.setSource(SourceCode.SGCC.getValue());
+        dto.setSourceCode(SourceCode.SGCC.toString());
         DateTime dt = new DateTime(this.getCreateTime());
         dto.setCreateTime(dt.toString("yyyyMMddHH"));
+
         if (StringUtils.isBlank(date)) {
             dto.setDate(dt.toString("yyyy-MM-dd HH:mm"));
         } else if (date.length() == 10) {

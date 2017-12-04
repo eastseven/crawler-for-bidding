@@ -1,20 +1,15 @@
 package com.har.sjfxpt.crawler.ggzy;
 
 import com.alibaba.fastjson.JSONObject;
-import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.ccgp.ccgpcq.CCGPCQDetailAnnouncement;
 import com.har.sjfxpt.crawler.ccgp.ccgpcq.CCGPCQPageProcessor;
 import com.har.sjfxpt.crawler.ccgp.ccgpcq.CCGPCQPipeline;
-import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.safety.Whitelist;
-import org.jsoup.select.Elements;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +22,6 @@ import us.codecraft.webmagic.downloader.HttpClientDownloader;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.Map;
 
 import static com.har.sjfxpt.crawler.ccgp.ccgpcq.CCGPCQSpiderLauncher.requestGenerator;
 

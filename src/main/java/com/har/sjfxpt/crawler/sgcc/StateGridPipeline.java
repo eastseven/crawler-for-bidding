@@ -1,12 +1,12 @@
-package com.har.sjfxpt.crawler.chinamobile;
+package com.har.sjfxpt.crawler.sgcc;
 
 import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
 import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
 import com.har.sjfxpt.crawler.ggzy.service.DataItemService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import us.codecraft.webmagic.ResultItems;
 import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.pipeline.Pipeline;
@@ -21,22 +21,20 @@ import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_
  */
 @Slf4j
 @Component
-public class ChinaMobilePipeline implements Pipeline {
+public class StateGridPipeline implements Pipeline {
 
-    @Autowired
-    ChinaMobileDataItemRepository dataItemRepository;
+    @Autowired StateGridDataItemRepository dataItemRepository;
 
-    @Autowired
-    DataItemService dataItemService;
+    @Autowired DataItemService dataItemService;
 
     @Override
     public void process(ResultItems resultItems, Task task) {
-        List<ChinaMobileDataItem> dataItemList = resultItems.get(KEY_DATA_ITEMS);
+        List<StateGridDataItem> dataItemList = resultItems.get(KEY_DATA_ITEMS);
         if (CollectionUtils.isEmpty(dataItemList)) {
-            log.warn("{} save nothing, {}", SourceCode.CM, task.getSite());
+            log.warn("{} save nothing, {}", SourceCode.SGCC, task.getSite());
         } else {
             dataItemRepository.save(dataItemList);
-            log.info("{} save {} to mongodb", SourceCode.CM, dataItemList.size());
+            log.info("{} save {} to mongodb", SourceCode.SGCC, dataItemList.size());
 
             List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
             dataItemService.save2BidNewsOriginalTable(dtoList);

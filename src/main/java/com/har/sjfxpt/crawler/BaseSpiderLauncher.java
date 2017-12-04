@@ -19,6 +19,19 @@ public class BaseSpiderLauncher implements DisposableBean, Runnable {
 
     private Map<String, Spider> spiderMap = Maps.newConcurrentMap();
 
+    public Spider getSpider(String uuid) {
+        if (StringUtils.isBlank(uuid)) {
+            log.warn("spider uuid is null, {}", uuid);
+            return null;
+        }
+
+        if (spiderMap.containsKey(uuid)) {
+            return spiderMap.get(uuid);
+        }
+
+        return null;
+    }
+
     public void addSpider(Spider spider) {
         if (spider == null) return;
 
@@ -61,7 +74,7 @@ public class BaseSpiderLauncher implements DisposableBean, Runnable {
     }
 
     @Override
-    public void destroy() throws Exception {
+    public void destroy() {
         String info = ">>> spider size " + spiderMap.size();
 
         for (Spider spider : spiderMap.values()) {

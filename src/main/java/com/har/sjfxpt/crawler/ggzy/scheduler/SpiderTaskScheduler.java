@@ -14,6 +14,7 @@ import com.har.sjfxpt.crawler.ggzyprovincial.ggzysc.GGZYSCSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyyn.GGZYYNSpiderLauncher;
 import com.har.sjfxpt.crawler.jcw.JinCaiWangSpiderLauncher;
 import com.har.sjfxpt.crawler.petrochina.ZGShiYouSpiderLauncher;
+import com.har.sjfxpt.crawler.sgcc.StateGridSpiderLauncher;
 import com.har.sjfxpt.crawler.suning.SuNingSpiderLauncher;
 import com.har.sjfxpt.crawler.zgyj.ZGYeJinSpiderLauncher;
 import com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingLauncher;
@@ -139,6 +140,17 @@ public class SpiderTaskScheduler {
         }
     }
 
+    /**
+     * 重庆政府采购网
+     */
+    @Scheduled(initialDelay = 23000, fixedRate = 30 * 60 * 1000)
+    public void fetchCCGPCQ() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.CCGPCQ);
+            context.getBean(CCGPCQSpiderLauncher.class).start();
+        }
+    }
+
 
     /**
      * 一标网
@@ -207,16 +219,6 @@ public class SpiderTaskScheduler {
         }
     }
 
-    /**
-     * 重庆政府采购网
-     */
-    @Scheduled(initialDelay = 23000, fixedRate = 30 * 60 * 1000)
-    public void fetchCCGPCQ() {
-        if (flag) {
-            log.info(">>> start fetch {}", SourceCode.CCGPCQ);
-            context.getBean(CCGPCQSpiderLauncher.class).start();
-        }
-    }
 
     /**
      * 云南公共资源
@@ -230,4 +232,15 @@ public class SpiderTaskScheduler {
     }
 
 
+    /**
+     * 国家电网
+     * 每个小时抓一次
+     */
+    @Scheduled(initialDelay = 26000, fixedRate = 60 * 60 * 1000)
+    public void fetchSGCC() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.SGCC);
+            context.getBean(StateGridSpiderLauncher.class).start();
+        }
+    }
 }
