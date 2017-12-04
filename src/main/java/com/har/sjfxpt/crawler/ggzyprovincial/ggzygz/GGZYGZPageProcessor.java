@@ -24,7 +24,7 @@ import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_
  */
 @Slf4j
 @Component
-public class ggzyGZPageProcessor implements BasePageProcessor {
+public class GGZYGZPageProcessor implements BasePageProcessor {
 
     HttpClientDownloader httpClientDownloader;
 
@@ -52,7 +52,7 @@ public class ggzyGZPageProcessor implements BasePageProcessor {
     public void handleContent(Page page) {
         Map<String, String> pageParams = (Map<String, String>) page.getRequest().getExtras().get(PAGE_PARAMS);
         Elements elements = page.getHtml().getDocument().body().select("#news_list1 > li");
-        List<ggzyGZDataItem> dataItems = parseContent(elements);
+        List<GGZYGZDataItem> dataItems = parseContent(elements);
         String businessType = pageParams.get("businessType");
         String type = pageParams.get("type");
         dataItems.forEach(dataItem -> dataItem.setBusinessType(businessType));
@@ -66,32 +66,32 @@ public class ggzyGZPageProcessor implements BasePageProcessor {
 
     @Override
     public List parseContent(Elements items) {
-        List<ggzyGZDataItem> ggzyGZDataItems = Lists.newArrayList();
+        List<GGZYGZDataItem> GGZYGZDataItems = Lists.newArrayList();
         for (Element element : items) {
             String href = element.select("a").attr("href");
             String title = element.select("a").attr("title");
             if (StringUtils.isNotBlank(href)) {
-                ggzyGZDataItem ggzyGZDataItem = new ggzyGZDataItem(href);
-                ggzyGZDataItem.setUrl(href);
-                ggzyGZDataItem.setTitle(title);
+                GGZYGZDataItem GGZYGZDataItem = new GGZYGZDataItem(href);
+                GGZYGZDataItem.setUrl(href);
+                GGZYGZDataItem.setTitle(title);
 
                 Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
                 String dataDetail = page.getHtml().getDocument().body().select("body > div.main > div.content_box > div.infos > span:nth-child(2)").text();
-                ggzyGZDataItem.setDate(PageProcessorUtil.dataTxt(dataDetail));
+                GGZYGZDataItem.setDate(PageProcessorUtil.dataTxt(dataDetail));
                 String source = page.getHtml().getDocument().body().select("body > div.main > div.content_box > div.infos > span:nth-child(3)").text();
                 if (source.contains("来源平台：")) {
                     source = StringUtils.remove(source, "来源平台：");
                 }
-                ggzyGZDataItem.setSource(source);
+                GGZYGZDataItem.setSource(source);
                 Elements elements = page.getHtml().getDocument().body().select("body > div.main > div.content_box");
                 String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
                 if (StringUtils.isNotBlank(formatContent)) {
-                    ggzyGZDataItem.setFormatContent(formatContent);
-                    ggzyGZDataItems.add(ggzyGZDataItem);
+                    GGZYGZDataItem.setFormatContent(formatContent);
+                    GGZYGZDataItems.add(GGZYGZDataItem);
                 }
             }
         }
-        return ggzyGZDataItems;
+        return GGZYGZDataItems;
     }
 
     @Override

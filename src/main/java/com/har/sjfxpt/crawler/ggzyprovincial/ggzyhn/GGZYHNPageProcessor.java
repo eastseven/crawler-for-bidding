@@ -24,7 +24,7 @@ import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_
  */
 @Slf4j
 @Component
-public class ggzyHNPageProcessor implements BasePageProcessor {
+public class GGZYHNPageProcessor implements BasePageProcessor {
 
     final static String PAGE_PARAMS = "pageParams";
 
@@ -54,7 +54,7 @@ public class ggzyHNPageProcessor implements BasePageProcessor {
             log.error("fetch error, elements is empty");
             return;
         }
-        List<ggzyHNDataItem> dataItems = parseContent(elements);
+        List<GGZYHNDataItem> dataItems = parseContent(elements);
         String type = pageParams.get("type");
         String businessType = pageParams.get("businessType");
         dataItems.forEach(dataItem -> dataItem.setType(type));
@@ -69,7 +69,7 @@ public class ggzyHNPageProcessor implements BasePageProcessor {
 
     @Override
     public List parseContent(Elements items) {
-        List<ggzyHNDataItem> dataItems = Lists.newArrayList();
+        List<GGZYHNDataItem> dataItems = Lists.newArrayList();
         for (Element element : items) {
             String href = element.select("td > a").attr("href");
             if (StringUtils.isNotBlank(href)) {
@@ -78,19 +78,19 @@ public class ggzyHNPageProcessor implements BasePageProcessor {
                 if (PageProcessorUtil.timeCompare(date)) {
                     log.debug("{} is not on the same day", href);
                 } else {
-                    ggzyHNDataItem ggzyHNDataItem = new ggzyHNDataItem(href);
-                    ggzyHNDataItem.setUrl(href);
-                    ggzyHNDataItem.setTitle(title);
+                    GGZYHNDataItem GGZYHNDataItem = new GGZYHNDataItem(href);
+                    GGZYHNDataItem.setUrl(href);
+                    GGZYHNDataItem.setTitle(title);
                     if (date.length() == 10) {
                         date = PageProcessorUtil.dataTxt(date);
                     }
-                    ggzyHNDataItem.setDate(date);
+                    GGZYHNDataItem.setDate(date);
                     Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
                     Elements elements = page.getHtml().getDocument().body().select("body > div.container > div > div.newsTex");
                     String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
                     if (StringUtils.isNotBlank(formatContent)) {
-                        ggzyHNDataItem.setFormatContent(formatContent);
-                        dataItems.add(ggzyHNDataItem);
+                        GGZYHNDataItem.setFormatContent(formatContent);
+                        dataItems.add(GGZYHNDataItem);
                     }
                 }
             }

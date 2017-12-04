@@ -17,15 +17,15 @@ import java.util.Map;
  */
 @Slf4j
 @Component
-public class ggzyHNSpiderLauncher extends BaseSpiderLauncher {
+public class GGZYHNSpiderLauncher extends BaseSpiderLauncher {
 
     private final String uuid = SourceCode.CCGPHN.toString().toLowerCase() + "-current";
 
     @Autowired
-    ggzyHNPageProcessor ggzyHNPageProcessor;
+    GGZYHNPageProcessor GGZYHNPageProcessor;
 
     @Autowired
-    ggzyHNPipeline ggzyHNPipeline;
+    GGZYHNPipeline GGZYHNPipeline;
 
     final int num = Runtime.getRuntime().availableProcessors();
 
@@ -46,8 +46,8 @@ public class ggzyHNSpiderLauncher extends BaseSpiderLauncher {
             requests[i] = requestGenerators(urls[i]);
         }
         cleanSpider(uuid);
-        Spider spider = Spider.create(ggzyHNPageProcessor)
-                .addPipeline(ggzyHNPipeline)
+        Spider spider = Spider.create(GGZYHNPageProcessor)
+                .addPipeline(GGZYHNPipeline)
                 .setUUID(uuid)
                 .addRequest(requests)
                 .thread(num);

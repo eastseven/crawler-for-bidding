@@ -7,14 +7,14 @@ import com.har.sjfxpt.crawler.ccgp.ccgpsc.CCGPSiChuanSpiderLauncher;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.ggzyCQSpiderLauncher;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.ggzyGZSpiderLauncher;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn.ggzyHNSpiderLauncher;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzysc.ggzySCSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.GGZYCQSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.GGZYGZSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn.GGZYHNSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzysc.GGZYSCSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzyyn.GGZYYNSpiderLauncher;
 import com.har.sjfxpt.crawler.jcw.JinCaiWangSpiderLauncher;
 import com.har.sjfxpt.crawler.petrochina.ZGShiYouSpiderLauncher;
 import com.har.sjfxpt.crawler.suning.SuNingSpiderLauncher;
-import com.har.sjfxpt.crawler.yibiao.YiBiaoSpiderLauncher;
 import com.har.sjfxpt.crawler.zgyj.ZGYeJinSpiderLauncher;
 import com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingLauncher;
 import lombok.extern.slf4j.Slf4j;
@@ -139,17 +139,6 @@ public class SpiderTaskScheduler {
         }
     }
 
-    /**
-     * 重庆政府采购网
-     */
-    @Scheduled(initialDelay = 23000, fixedRate = 30 * 60 * 1000)
-    public void fetchCCGPCQ() {
-        if (flag) {
-            log.info(">>> start fetch {}", SourceCode.CCGPCQ);
-            context.getBean(CCGPCQSpiderLauncher.class).start();
-        }
-    }
-
 
     /**
      * 一标网
@@ -181,7 +170,7 @@ public class SpiderTaskScheduler {
     public void fetchggzySC() {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.GGZYSC);
-            context.getBean(ggzySCSpiderLauncher.class).start();
+            context.getBean(GGZYSCSpiderLauncher.class).start();
         }
     }
 
@@ -192,7 +181,7 @@ public class SpiderTaskScheduler {
     public void fetchggzyCQ() {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.GGZYCQ);
-            context.getBean(ggzyCQSpiderLauncher.class).start();
+            context.getBean(GGZYCQSpiderLauncher.class).start();
         }
     }
 
@@ -203,7 +192,7 @@ public class SpiderTaskScheduler {
     public void fetchggzyHN() {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.GGZYHN);
-            context.getBean(ggzyHNSpiderLauncher.class).start();
+            context.getBean(GGZYHNSpiderLauncher.class).start();
         }
     }
 
@@ -214,8 +203,31 @@ public class SpiderTaskScheduler {
     public void fetchggzyGZ() {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.GGZYGZ);
-            context.getBean(ggzyGZSpiderLauncher.class).start();
+            context.getBean(GGZYGZSpiderLauncher.class).start();
         }
     }
+
+    /**
+     * 重庆政府采购网
+     */
+    @Scheduled(initialDelay = 23000, fixedRate = 30 * 60 * 1000)
+    public void fetchCCGPCQ() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.CCGPCQ);
+            context.getBean(CCGPCQSpiderLauncher.class).start();
+        }
+    }
+
+    /**
+     * 云南公共资源
+     */
+    @Scheduled(initialDelay = 23000, fixedRate = 30 * 60 * 1000)
+    public void fetchggzyYN() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.GGZYYN);
+            context.getBean(GGZYYNSpiderLauncher.class).start();
+        }
+    }
+
 
 }

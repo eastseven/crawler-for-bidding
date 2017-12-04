@@ -1,9 +1,9 @@
-package com.har.sjfxpt.crawler.ggzy.ggzyPageProcessotTests;
+package com.har.sjfxpt.crawler.ggzy.ggzypageprocessottests;
 
 import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.ggzyCQPageProcessor;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.ggzyCQPipeline;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.GGZYCQPageProcessor;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.GGZYCQPipeline;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -18,21 +18,19 @@ import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
 
-import java.util.Date;
-
 /**
  * Created by Administrator on 2017/11/28.
  */
 @Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class ggzyCQPageProcessorTests {
+public class GGZYCQPageProcessorTests {
 
     @Autowired
-    ggzyCQPageProcessor ggzyCQPageProcessor;
+    GGZYCQPageProcessor GGZYCQPageProcessor;
 
     @Autowired
-    ggzyCQPipeline ggzyCQPipeline;
+    GGZYCQPipeline GGZYCQPipeline;
 
     @Test
     public void testCQPageProcessor() {
@@ -40,8 +38,8 @@ public class ggzyCQPageProcessorTests {
                 "http://www.cqggzy.com/web/services/PortalsWebservice/getInfoList?response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014005001&title=&infoC=&_=1511837748941",
                 "http://www.cqggzy.com/web/services/PortalsWebservice/getInfoList?response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014001001&title=&infoC=&_=1511837779151"
         };
-        Spider.create(ggzyCQPageProcessor)
-                .addPipeline(ggzyCQPipeline)
+        Spider.create(GGZYCQPageProcessor)
+                .addPipeline(GGZYCQPipeline)
                 .addUrl(urls)
                 .thread(4)
                 .run();

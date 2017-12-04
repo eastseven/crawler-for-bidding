@@ -1,7 +1,7 @@
-package com.har.sjfxpt.crawler.ggzy.ggzyPageProcessotTests;
+package com.har.sjfxpt.crawler.ggzy.ggzypageprocessottests;
 
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzysc.ggzySCPageProcessor;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzysc.ggzySCPipeline;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzysc.GGZYSCPageProcessor;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzysc.GGZYSCPipeline;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
@@ -25,13 +25,13 @@ import java.net.URLEncoder;
 @Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class ggzySCPageProcessorTests {
+public class GGZYSCPageProcessorTests {
 
     @Autowired
-    ggzySCPageProcessor ggzyScPageProcessor;
+    GGZYSCPageProcessor GGZYSCPageProcessor;
 
     @Autowired
-    ggzySCPipeline ggzySCPipeline;
+    GGZYSCPipeline GGZYSCPipeline;
 
     @Test
     public void testSCPageProcessor() {
@@ -40,8 +40,8 @@ public class ggzySCPageProcessorTests {
                 "http://www.scztb.gov.cn/Info/GetInfoList?keywords=&times=1&timesStart=&timesEnd=&province=&area=&businessType=project&informationType=&page=1&parm=1511832393578",
                 "http://www.scztb.gov.cn/Info/GetInfoList?keywords=&times=1&timesStart=&timesEnd=&province=&area=&businessType=purchase&informationType=&page=1&parm=1511832537059"
         };
-        Spider.create(ggzyScPageProcessor)
-                .addPipeline(ggzySCPipeline)
+        Spider.create(GGZYSCPageProcessor)
+                .addPipeline(GGZYSCPipeline)
                 .addUrl(urls)
                 .thread(4)
                 .run();

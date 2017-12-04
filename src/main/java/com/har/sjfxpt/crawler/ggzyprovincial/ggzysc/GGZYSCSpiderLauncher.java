@@ -12,15 +12,15 @@ import us.codecraft.webmagic.Spider;
  */
 @Slf4j
 @Component
-public class ggzySCSpiderLauncher extends BaseSpiderLauncher {
+public class GGZYSCSpiderLauncher extends BaseSpiderLauncher {
 
     private final String uuid = SourceCode.GGZYSC.toString().toLowerCase() + "-current";
 
     @Autowired
-    ggzySCPageProcessor ggzySCPageProcessor;
+    GGZYSCPageProcessor GGZYSCPageProcessor;
 
     @Autowired
-    ggzySCPipeline ggzySCPipeline;
+    GGZYSCPipeline GGZYSCPipeline;
 
     final int num = Runtime.getRuntime().availableProcessors();
 
@@ -34,8 +34,8 @@ public class ggzySCSpiderLauncher extends BaseSpiderLauncher {
      */
     public void start() {
         cleanSpider(uuid);
-        Spider spider = Spider.create(ggzySCPageProcessor)
-                .addPipeline(ggzySCPipeline)
+        Spider spider = Spider.create(GGZYSCPageProcessor)
+                .addPipeline(GGZYSCPipeline)
                 .setUUID(uuid)
                 .addUrl(urls)
                 .thread(num);

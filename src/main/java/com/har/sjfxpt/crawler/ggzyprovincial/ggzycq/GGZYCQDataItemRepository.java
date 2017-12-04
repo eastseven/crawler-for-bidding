@@ -5,5 +5,5 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 /**
  * Created by Administrator on 2017/11/28.
  */
-public interface ggzyCQDataItemRepository extends MongoRepository<ggzyCQDataItem,String>{
+public interface GGZYCQDataItemRepository extends MongoRepository<GGZYCQDataItem,String>{
 }

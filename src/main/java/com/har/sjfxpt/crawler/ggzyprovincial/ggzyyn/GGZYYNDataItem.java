@@ -1,4 +1,4 @@
-package com.har.sjfxpt.crawler.ggzyprovincial.ggzycq;
+package com.har.sjfxpt.crawler.ggzyprovincial.ggzyyn;
 
 import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
 import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
@@ -15,14 +15,14 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import java.util.Date;
 
 /**
- * Created by Administrator on 2017/11/28.
+ * Created by Administrator on 2017/12/4.
  */
 @Data
 @ToString
-@Document(collection = "data_item_ggzy_cq")
-public class ggzyCQDataItem {
+@Document(collection = "data_item_ggzy_yn")
+public class GGZYYNDataItem {
 
-    public ggzyCQDataItem(String url) {
+    public GGZYYNDataItem(String url) {
         this.id = DigestUtils.md5Hex(url);
     }
 
@@ -36,12 +36,19 @@ public class ggzyCQDataItem {
     /**
      * 地区
      */
-    private String province="重庆";
+    private String province = "云南";
 
     private String type;
 
+    private String source;
+
     private String businessType;
 
+    private String announcementId;
+
+    private String closeTime;
+
+    private String status;
 
     /**
      * 发布时间
@@ -59,8 +66,8 @@ public class ggzyCQDataItem {
     public DataItemDTO dto() {
         DataItemDTO dto = new DataItemDTO();
         BeanUtils.copyProperties(this, dto);
-        dto.setSource(SourceCode.GGZYCQ.getValue());
-        dto.setSourceCode(SourceCode.GGZYCQ.toString());
+        dto.setSource(SourceCode.GGZYYN.getValue());
+        dto.setSourceCode(SourceCode.GGZYYN.toString());
         DateTime ct = new DateTime(this.getCreateTime());
         dto.setCreateTime(ct.toString("yyyyMMddHH"));
         if (StringUtils.isBlank(date)) {
@@ -68,6 +75,4 @@ public class ggzyCQDataItem {
         }
         return dto;
     }
-
-
 }

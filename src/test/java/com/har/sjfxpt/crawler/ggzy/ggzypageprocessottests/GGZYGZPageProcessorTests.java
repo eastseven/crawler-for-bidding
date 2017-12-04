@@ -1,11 +1,8 @@
-package com.har.sjfxpt.crawler.ggzy.ggzyPageProcessotTests;
+package com.har.sjfxpt.crawler.ggzy.ggzypageprocessottests;
 
-import com.google.common.collect.Maps;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.ggzyGZPageProcessor;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.ggzyGZPipeline;
-import lombok.ToString;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.GGZYGZPageProcessor;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.GGZYGZPipeline;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +11,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 
-import java.util.Map;
-
-import static com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.ggzyGZSpiderLauncher.requestGenerator;
+import static com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.GGZYGZSpiderLauncher.requestGenerator;
 
 /**
  * Created by Administrator on 2017/11/29.
@@ -24,13 +19,13 @@ import static com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.ggzyGZSpiderLauncher.
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class ggzyGZPageProcessorTests {
+public class GGZYGZPageProcessorTests {
 
     @Autowired
-    ggzyGZPageProcessor ggzyGZPageProcessor;
+    GGZYGZPageProcessor GGZYGZPageProcessor;
 
     @Autowired
-    ggzyGZPipeline ggzyGZPipeline;
+    GGZYGZPipeline GGZYGZPipeline;
 
     @Test
     public void testPageProcessor() {
@@ -52,9 +47,9 @@ public class ggzyGZPageProcessorTests {
             requests[i] = requestGenerator(urls[i]);
         }
 
-        Spider.create(ggzyGZPageProcessor)
+        Spider.create(GGZYGZPageProcessor)
                 .addRequest(requests)
-                .addPipeline(ggzyGZPipeline)
+                .addPipeline(GGZYGZPipeline)
                 .thread(4)
                 .run();
     }

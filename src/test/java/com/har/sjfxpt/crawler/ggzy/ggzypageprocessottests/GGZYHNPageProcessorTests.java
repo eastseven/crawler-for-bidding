@@ -1,7 +1,7 @@
-package com.har.sjfxpt.crawler.ggzy.ggzyPageProcessotTests;
+package com.har.sjfxpt.crawler.ggzy.ggzypageprocessottests;
 
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn.ggzyHNPageProcessor;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn.ggzyHNPipeline;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn.GGZYHNPageProcessor;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn.GGZYHNPipeline;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,7 +11,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 
-import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn.ggzyHNSpiderLauncher.requestGenerators;
+import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn.GGZYHNSpiderLauncher.requestGenerators;
 
 /**
  * Created by Administrator on 2017/11/29.
@@ -19,13 +19,13 @@ import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn.ggzyHNSpiderLauncher.
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class ggzyHNPageProcessorTests {
+public class GGZYHNPageProcessorTests {
 
     @Autowired
-    ggzyHNPageProcessor ggzyHNPageProcessor;
+    GGZYHNPageProcessor GGZYHNPageProcessor;
 
     @Autowired
-    ggzyHNPipeline ggzyHNPipeline;
+    GGZYHNPipeline GGZYHNPipeline;
 
     String[] urls = {
             "http://www.ggzy.hi.gov.cn/ggzy/jgzbgg/index_1.jhtml",
@@ -43,9 +43,9 @@ public class ggzyHNPageProcessorTests {
             requests[i] = requestGenerators(urls[i]);
         }
 
-        Spider.create(ggzyHNPageProcessor)
+        Spider.create(GGZYHNPageProcessor)
                 .addRequest(requests)
-                .addPipeline(ggzyHNPipeline)
+                .addPipeline(GGZYHNPipeline)
                 .thread(4)
                 .run();
     }

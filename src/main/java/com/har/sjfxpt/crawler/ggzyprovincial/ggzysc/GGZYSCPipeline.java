@@ -18,21 +18,21 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Component
-public class ggzySCPipeline implements Pipeline {
+public class GGZYSCPipeline implements Pipeline {
 
     @Autowired
-    ggzySCDataItemRepository ggzySCDataItemRepository;
+    GGZYSCDataItemRepository GGZYSCDataItemRepository;
 
     @Autowired
     DataItemService dataItemService;
 
     @Override
     public void process(ResultItems resultItems, Task task) {
-        List<ggzySCDataItem> dataItemList = resultItems.get("dataItemList");
+        List<GGZYSCDataItem> dataItemList = resultItems.get("dataItemList");
         if (CollectionUtils.isEmpty(dataItemList)) {
             log.warn("ggzySC save nothing,{}", task.getSite());
         } else {
-            ggzySCDataItemRepository.save(dataItemList);
+            GGZYSCDataItemRepository.save(dataItemList);
             log.info("ggzySC save {} to mongodb", dataItemList.size());
 
             List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());

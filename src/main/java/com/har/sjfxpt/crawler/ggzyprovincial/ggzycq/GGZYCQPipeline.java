@@ -1,8 +1,7 @@
-package com.har.sjfxpt.crawler.ggzyprovincial.ggzygz;
+package com.har.sjfxpt.crawler.ggzyprovincial.ggzycq;
 
 import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
 import com.har.sjfxpt.crawler.ggzy.service.DataItemService;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn.ggzyHNDataItem;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,26 +14,26 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * Created by Administrator on 2017/11/30.
+ * Created by Administrator on 2017/11/28.
  */
 @Slf4j
 @Component
-public class ggzyGZPipeline implements Pipeline {
+public class GGZYCQPipeline implements Pipeline{
 
     @Autowired
-    ggzyGZDataItemRepository ggzyGZDataItemRepository;
+    GGZYCQDataItemRepository GGZYCQDataItemRepository;
 
     @Autowired
     DataItemService dataItemService;
 
     @Override
     public void process(ResultItems resultItems, Task task) {
-        List<ggzyGZDataItem> dataItemList = resultItems.get("dataItemList");
-        if (CollectionUtils.isEmpty(dataItemList)) {
-            log.warn("ggzyGZ save nothing,{}", task.getSite());
-        } else {
-            ggzyGZDataItemRepository.save(dataItemList);
-            log.info("ggzyGZ save {} to mongodb", dataItemList.size());
+        List<GGZYCQDataItem> dataItemList=resultItems.get("dataItemList");
+        if(CollectionUtils.isEmpty(dataItemList)){
+            log.warn("ggzyCQ save nothing,{}",task.getSite());
+        }else {
+            GGZYCQDataItemRepository.save(dataItemList);
+            log.info("ggzyCQ save {} to mongodb",dataItemList.size());
 
             List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
             dataItemService.save2BidNewsOriginalTable(dtoList);

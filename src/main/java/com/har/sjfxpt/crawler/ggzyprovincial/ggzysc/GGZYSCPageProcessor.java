@@ -28,7 +28,7 @@ import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_
  */
 @Slf4j
 @Component
-public class ggzySCPageProcessor implements BasePageProcessor {
+public class GGZYSCPageProcessor implements BasePageProcessor {
 
     HttpClientDownloader httpClientDownloader;
 
@@ -36,7 +36,7 @@ public class ggzySCPageProcessor implements BasePageProcessor {
     public void handlePaging(Page page) {
         int currentPage = Integer.parseInt(StringUtils.substringBetween(page.getUrl().toString(), "page=", "&parm"));
         if (currentPage == 1) {
-            ggzySCAnnouncement data = JSONObject.parseObject(page.getRawText(), ggzySCAnnouncement.class);
+            GGZYSCAnnouncement data = JSONObject.parseObject(page.getRawText(), GGZYSCAnnouncement.class);
             int size = data.getPageCount();
             for (int i = 2; i <= size; i++) {
                 String url = "http://www.scztb.gov.cn/Info/GetInfoList?keywords=&times=1&timesStart=&timesEnd=&province=&area=&businessType=&informationType=&page=" + i + "&parm=1511752991315";
@@ -47,7 +47,7 @@ public class ggzySCPageProcessor implements BasePageProcessor {
 
     @Override
     public void handleContent(Page page) throws Exception {
-        List<ggzySCDataItem> dataItems = parseContent(page);
+        List<GGZYSCDataItem> dataItems = parseContent(page);
         if (!dataItems.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItems);
         } else {
@@ -61,8 +61,8 @@ public class ggzySCPageProcessor implements BasePageProcessor {
     }
 
     public List parseContent(Page page) throws Exception {
-        ggzySCAnnouncement data = JSONObject.parseObject(page.getRawText(), ggzySCAnnouncement.class);
-        List<ggzySCDataItem> dataItems = Lists.newArrayList();
+        GGZYSCAnnouncement data = JSONObject.parseObject(page.getRawText(), GGZYSCAnnouncement.class);
+        List<GGZYSCDataItem> dataItems = Lists.newArrayList();
         String targets[] = StringUtils.substringsBetween(data.getData(), "{", "}");
         for (String target : targets) {
             String href = StringUtils.substringBetween(target, "\"Link\":\"", "\",");
@@ -72,17 +72,17 @@ public class ggzySCPageProcessor implements BasePageProcessor {
             String type = StringUtils.substringBetween(target, "\"TableName\":\"", "\",");
             String businessType = StringUtils.substringBetween(target, "\"businessType\":\"", "\",");
 
-            ggzySCDataItem ggzySCDataItem = new ggzySCDataItem("http://www.scztb.gov.cn" + href);
+            GGZYSCDataItem GGZYSCDataItem = new GGZYSCDataItem("http://www.scztb.gov.cn" + href);
             String encode = URLEncoder.encode(StringUtils.substringBefore(StringUtils.substringAfterLast(href, "/"), ".html"), "utf-8");
             String urlEncoder = "http://www.scztb.gov.cn" + StringUtils.substringBeforeLast(href, "/") + "/" + encode + ".html";
-            ggzySCDataItem.setUrl(urlEncoder);
-            ggzySCDataItem.setTitle(title);
-            ggzySCDataItem.setDate(PageProcessorUtil.dataTxt(date));
-            ggzySCDataItem.setProvince(ProvinceUtil.get(province));
-            ggzySCDataItem.setType(type);
-            ggzySCDataItem.setBusinessType(businessType);
+            GGZYSCDataItem.setUrl(urlEncoder);
+            GGZYSCDataItem.setTitle(title);
+            GGZYSCDataItem.setDate(PageProcessorUtil.dataTxt(date));
+            GGZYSCDataItem.setProvince(ProvinceUtil.get(province));
+            GGZYSCDataItem.setType(type);
+            GGZYSCDataItem.setBusinessType(businessType);
             try {
-                Page page1 = httpClientDownloader.download(new Request(ggzySCDataItem.getUrl()), SiteUtil.get().setTimeOut(30000).toTask());
+                Page page1 = httpClientDownloader.download(new Request(GGZYSCDataItem.getUrl()), SiteUtil.get().setTimeOut(30000).toTask());
                 Element element = page1.getHtml().getDocument().body();
                 Elements elements = element.select("body > div.wmain > div.ContentMiddle > div > div.Middle > div.ChangeMidle > div.detailedTitle");
                 Elements elements1 = element.select("body > div.wmain > div.ContentMiddle > div > div.Middle > div.ChangeMidle > div.detailedIntroduc");
@@ -111,11 +111,11 @@ public class ggzySCPageProcessor implements BasePageProcessor {
                     }
                 }
                 if (StringUtils.isNotBlank(formatContent)) {
-                    ggzySCDataItem.setFormatContent(formatContent);
-                    dataItems.add(ggzySCDataItem);
+                    GGZYSCDataItem.setFormatContent(formatContent);
+                    dataItems.add(GGZYSCDataItem);
                 }
             } catch (Exception e) {
-                log.error("url {} is wrong page", ggzySCDataItem.getUrl());
+                log.error("url {} is wrong page", GGZYSCDataItem.getUrl());
                 log.error("error is {}", e);
             }
         }

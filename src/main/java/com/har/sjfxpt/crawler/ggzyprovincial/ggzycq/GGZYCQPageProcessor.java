@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.har.sjfxpt.crawler.ggzy.processor.BasePageProcessor;
 import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
-import com.har.sjfxpt.crawler.ggzy.utils.ProvinceUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +25,7 @@ import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_
  */
 @Slf4j
 @Component
-public class ggzyCQPageProcessor implements BasePageProcessor {
+public class GGZYCQPageProcessor implements BasePageProcessor {
 
     HttpClientDownloader httpClientDownloader;
 
@@ -69,7 +68,7 @@ public class ggzyCQPageProcessor implements BasePageProcessor {
 
     @Override
     public void handleContent(Page page) {
-        List<ggzyCQDataItem> dataItems = parseContent(page);
+        List<GGZYCQDataItem> dataItems = parseContent(page);
         if (!dataItems.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItems);
         } else {
@@ -84,7 +83,7 @@ public class ggzyCQPageProcessor implements BasePageProcessor {
     }
 
     public List parseContent(Page page) {
-        List<ggzyCQDataItem> dataItems = Lists.newArrayList();
+        List<GGZYCQDataItem> dataItems = Lists.newArrayList();
         String urlId = StringUtils.substringAfter(page.getUrl().toString(), "infoC=&_=");
         String Json = StringUtils.substringBetween(page.getRawText(), "\"[", "]\"");
         String targets[] = StringUtils.substringsBetween(Json, "{", "}");
@@ -95,22 +94,22 @@ public class ggzyCQPageProcessor implements BasePageProcessor {
             if (PageProcessorUtil.timeCompare(date)) {
                 log.debug("{} is not on the same day", href);
             } else {
-                ggzyCQDataItem ggzyCQDataItem = new ggzyCQDataItem(href);
-                ggzyCQDataItem.setTitle(title);
-                ggzyCQDataItem.setUrl(href);
+                GGZYCQDataItem GGZYCQDataItem = new GGZYCQDataItem(href);
+                GGZYCQDataItem.setTitle(title);
+                GGZYCQDataItem.setUrl(href);
                 if (urlId.equalsIgnoreCase("1511837748941")) {
-                    ggzyCQDataItem.setBusinessType("政府采购");
-                    ggzyCQDataItem.setType("采购公告");
+                    GGZYCQDataItem.setBusinessType("政府采购");
+                    GGZYCQDataItem.setType("采购公告");
                 }
                 if (urlId.equalsIgnoreCase("1511837779151")) {
-                    ggzyCQDataItem.setBusinessType("工程招投标");
-                    ggzyCQDataItem.setType("招标公告");
+                    GGZYCQDataItem.setBusinessType("工程招投标");
+                    GGZYCQDataItem.setType("招标公告");
                 }
                 if(date.length()==10){
                     date=date+DateTime.now().toString(" HH:mm");
                 }
-                ggzyCQDataItem.setDate(date);
-                Page page1 = httpClientDownloader.download(new Request(ggzyCQDataItem.getUrl()), SiteUtil.get().toTask());
+                GGZYCQDataItem.setDate(date);
+                Page page1 = httpClientDownloader.download(new Request(GGZYCQDataItem.getUrl()), SiteUtil.get().toTask());
                 Element element = page1.getHtml().getDocument().body();
                 Elements elements = element.select("body > div:nth-child(4) > div > div.detail-block");
                 String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
@@ -119,8 +118,8 @@ public class ggzyCQPageProcessor implements BasePageProcessor {
                         formatContent = StringUtils.trim(StringUtils.removeAll(formatContent, "<li>(.+?)</li>"));
                         formatContent = StringUtils.removeAll(formatContent, "\\s");
                     }
-                    ggzyCQDataItem.setFormatContent(formatContent);
-                    dataItems.add(ggzyCQDataItem);
+                    GGZYCQDataItem.setFormatContent(formatContent);
+                    dataItems.add(GGZYCQDataItem);
                 }
             }
         }
