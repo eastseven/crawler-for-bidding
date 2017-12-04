@@ -221,7 +221,7 @@ public class SpiderTaskScheduler {
     /**
      * 云南公共资源
      */
-    @Scheduled(initialDelay = 23000, fixedRate = 30 * 60 * 1000)
+    @Scheduled(initialDelay = 23000, fixedRate = 45 * 60 * 1000)
     public void fetchggzyYN() {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.GGZYYN);
