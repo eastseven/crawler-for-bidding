@@ -7,6 +7,7 @@ import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
 import com.har.sjfxpt.crawler.jcw.JinCaiWangSpiderLauncher;
 import com.har.sjfxpt.crawler.petrochina.ZGShiYouSpiderLauncher;
+import com.har.sjfxpt.crawler.sgcc.StateGridSpiderLauncher;
 import com.har.sjfxpt.crawler.suning.SuNingSpiderLauncher;
 import com.har.sjfxpt.crawler.yibiao.YiBiaoSpiderLauncher;
 import com.har.sjfxpt.crawler.zgyj.ZGYeJinSpiderLauncher;
@@ -64,6 +65,9 @@ public class SpiderLauncher implements CommandLineRunner {
     @Autowired
     SuNingSpiderLauncher suNingSpiderLauncher;
 
+    @Autowired
+    StateGridSpiderLauncher stateGridSpiderLauncher;
+
     public void info() {
         gongGongZiYuanSpiderLauncher.printInfo();
         chinaMobileSpiderLauncher.printInfo();
@@ -76,6 +80,7 @@ public class SpiderLauncher implements CommandLineRunner {
         ccgpSiChuanSpiderLauncher.printInfo();
         yiBiaoSpiderLauncher.printInfo();
         suNingSpiderLauncher.printInfo();
+        stateGridSpiderLauncher.printInfo();
     }
 
     @Override
@@ -151,6 +156,9 @@ public class SpiderLauncher implements CommandLineRunner {
                     break;
                 case "history-suning":
                     suNingSpiderLauncher.fetchHistory();
+                    break;
+                case "history-sgcc":
+                    stateGridSpiderLauncher.fetchAll();
                     break;
                 default:
                     break;

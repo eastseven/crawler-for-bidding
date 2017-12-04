@@ -116,7 +116,7 @@ public class DataItemService {
                 boolean exists = originalTable.exists(new Get(rowKey.getBytes()));
                 if (!exists) {
                     originalTable.put(row);
-                    log.debug("save {} {}[mongo={}] to {}", sourceCode, rowKey, dataItem.getId(), DataItem.T_NAME_HTML);
+                    log.info("save {} {}[mongo={}] to {}", sourceCode, rowKey, dataItem.getId(), DataItem.T_NAME_HTML);
                     counter++;
                 }
 
