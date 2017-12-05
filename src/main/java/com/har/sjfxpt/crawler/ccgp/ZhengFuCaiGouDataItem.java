@@ -66,6 +66,16 @@ public class ZhengFuCaiGouDataItem {
      */
     private String summaryFormatContent;
 
+    /**
+     * 预算金额
+     */
+    private String budget;
+
+    /**
+     * 总成交金额
+     */
+    private String totalBidMoney;
+
     public DataItemDTO dto() {
         DataItemDTO dto = new DataItemDTO();
         BeanUtils.copyProperties(this, dto);

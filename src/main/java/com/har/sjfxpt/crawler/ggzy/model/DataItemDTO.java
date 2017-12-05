@@ -66,8 +66,20 @@ public class DataItemDTO {
      */
     private String industryCategory;
 
+    /**
+     * 原始的行业分类
+     */
     private String originalIndustryCategory;
 
     private boolean forceUpdate;
 
+    /**
+     * 预算金额 budget
+     */
+    private String budget;
+
+    /**
+     * 总成交金额 total_bid_money
+     */
+    private String totalBidMoney;
 }

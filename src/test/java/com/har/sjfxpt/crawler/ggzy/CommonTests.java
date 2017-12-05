@@ -138,7 +138,8 @@ public class CommonTests {
 
     @Test
     public void testCCGP() {
-        String url = "http://www.ccgp.gov.cn/cggg/dfgg/cjgg/201710/t20171030_9077520.htm";
+        String url = "http://www.ccgp.gov.cn/cggg/zygg/yqzbgg/201712/t20171204_9274206.htm";
+        url = "http://www.ccgp.gov.cn/cggg/dfgg/cjgg/201712/t20171205_9284857.htm";
         SimpleHttpClient simpleHttpClient = new SimpleHttpClient();
         Page page = simpleHttpClient.get(url);
         Element element = page.getHtml().getDocument().body();
@@ -147,11 +148,23 @@ public class CommonTests {
         boolean isNewVersion = !element.select("div.vF_detail_content_container div.vF_detail_content").isEmpty();
         log.debug("isNewVersion {}", isNewVersion);
         String detailCssQuery = isNewVersion ? "div.vF_detail_content_container div.vF_detail_content" : "div.vT_detail_main div.vT_detail_content";
+        String summaryCssQuery = isNewVersion ? "div.vF_detail_main div.table table" : "div.vT_detail_main table";
 
-        String detailFormatContent = PageProcessorUtil.formatElementsByWhitelist(element.select(detailCssQuery).first());
-        Assert.assertNotNull(detailFormatContent);
-        Assert.assertTrue(StringUtils.isNotBlank(detailFormatContent));
-        System.out.println(detailFormatContent);
+//        String detailFormatContent = PageProcessorUtil.formatElementsByWhitelist(element.select(detailCssQuery).first());
+//        Assert.assertNotNull(detailFormatContent);
+//        Assert.assertTrue(StringUtils.isNotBlank(detailFormatContent));
+//        System.out.println(detailFormatContent);
+
+        for (Element td : element.select(summaryCssQuery).select("tr td")) {
+            String text = td.text();
+            if (StringUtils.contains(text, "预算金额")) {
+                log.info(">>> {}, {}", text, td.siblingElements().text());
+            }
+
+            if (StringUtils.contains(text, "成交金额")) {
+                log.info(">>> {}, {}", text, td.siblingElements().text());
+            }
+        }
     }
 
     @Test

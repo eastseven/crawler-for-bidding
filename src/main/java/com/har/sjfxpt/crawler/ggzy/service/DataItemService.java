@@ -12,6 +12,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.util.Bytes;
 import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
@@ -190,6 +191,8 @@ public class DataItemService {
 
         put.addColumn(family, "original_industry_category".getBytes(),  StringUtils.defaultString(dataItem.getOriginalIndustryCategory(), "").getBytes(charsetName));
 
+        put.addColumn(family, Bytes.toBytes("budget"),          StringUtils.defaultString(dataItem.getBudget(), "").getBytes(charsetName));
+        put.addColumn(family, Bytes.toBytes("total_bid_money"), StringUtils.defaultString(dataItem.getTotalBidMoney(), "").getBytes(charsetName));
         return put;
     }
 

@@ -19,7 +19,6 @@ import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.SimpleHttpClient;
 import us.codecraft.webmagic.Site;
 
-import java.io.IOException;
 import java.util.List;
 
 import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
@@ -106,7 +105,7 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
         }
     }
 
-    private ZhengFuCaiGouDataItem download(ZhengFuCaiGouDataItem dataItem) throws IOException {
+    private ZhengFuCaiGouDataItem download(ZhengFuCaiGouDataItem dataItem) {
         if (simpleHttpClient == null) {
             simpleHttpClient = new SimpleHttpClient(SiteUtil.get().setTimeOut(60000));
         }
@@ -121,7 +120,7 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
         //判断是否为新版css
         boolean isNewVersion = !element.select("div.vF_detail_content_container div.vF_detail_content").isEmpty();
         String detailCssQuery = isNewVersion ? "div.vF_detail_content_container div.vF_detail_content" : "div.vT_detail_main div.vT_detail_content";
-        String summaryCssQuery = isNewVersion ? "div.vF_detail_main table" : "div.vT_detail_main table";
+        String summaryCssQuery = isNewVersion ? "div.vF_detail_main div.table table" : "div.vT_detail_main table";
 
         String detailFormatContent = PageProcessorUtil.formatElementsByWhitelist(element.select(detailCssQuery).first());
         if (StringUtils.isBlank(detailFormatContent)) {
@@ -135,6 +134,19 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
         dataItem.setSummaryFormatContent(summaryFormatContent);
         dataItem.setFormatContent(detailFormatContent);
         dataItem.setTextContent(detailTextContent);
+
+        //公告概要 table #detail > div.main > div > div.vF_deail_maincontent > div > div.table
+        for (Element td : element.select(summaryCssQuery).select("tr td")) {
+            String text = td.text();
+            if (StringUtils.contains(text, "预算金额")) {
+                dataItem.setBudget(td.siblingElements().text());
+            }
+
+            if (StringUtils.contains(text, "成交金额")) {
+                dataItem.setTotalBidMoney(td.siblingElements().text());
+            }
+        }
+
         return dataItem;
     }
 
