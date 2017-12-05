@@ -22,7 +22,8 @@ public enum SourceCode {
     GGZYHN("海南公共资源"),
     GGZYGZ("贵州公共资源"),
     GGZYYN("云南公共资源"),
-    SGCC("国家电网");
+    SGCC("国家电网"),
+    CDJS("成都建设");
 
 
     private String value;

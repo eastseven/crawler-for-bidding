@@ -4,6 +4,7 @@ import com.har.sjfxpt.crawler.ccgp.ZhengFuCaiGouSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgpcq.CCGPCQSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgpsc.CCGPSiChuanSpiderLauncher;
+import com.har.sjfxpt.crawler.chengduconstruction.ChengDuConstructionSpiderLauncher;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.GGZYCQSpiderLauncher;
@@ -92,6 +93,9 @@ public class SpiderLauncher implements CommandLineRunner {
     @Autowired
     StateGridSpiderLauncher stateGridSpiderLauncher;
 
+    @Autowired
+    ChengDuConstructionSpiderLauncher chengDuConstructionSpiderLauncher;
+
     public void info() {
         gongGongZiYuanSpiderLauncher.printInfo();
         chinaMobileSpiderLauncher.printInfo();
@@ -111,6 +115,7 @@ public class SpiderLauncher implements CommandLineRunner {
         stateGridSpiderLauncher.printInfo();
         ccgpcqSpiderLauncher.printInfo();
         ggzyynSpiderLauncher.printInfo();
+        chengDuConstructionSpiderLauncher.printInfo();
     }
 
     @Override
@@ -207,6 +212,9 @@ public class SpiderLauncher implements CommandLineRunner {
                     break;
                 case "start-ggzyyn":
                     ggzyynSpiderLauncher.start();
+                    break;
+                case "start-cdjs":
+                    chengDuConstructionSpiderLauncher.start();
                     break;
                 default:
                     break;
