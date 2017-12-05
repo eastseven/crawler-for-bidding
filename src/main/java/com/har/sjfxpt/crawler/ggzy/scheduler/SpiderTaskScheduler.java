@@ -12,6 +12,7 @@ import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.GGZYCQSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.GGZYGZSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn.GGZYHNSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzysc.GGZYSCSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzyxz.GGZYXZSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyyn.GGZYYNSpiderLauncher;
 import com.har.sjfxpt.crawler.jcw.JinCaiWangSpiderLauncher;
 import com.har.sjfxpt.crawler.petrochina.ZGShiYouSpiderLauncher;
@@ -180,7 +181,7 @@ public class SpiderTaskScheduler {
      * 四川公共资源
      */
     @Scheduled(initialDelay = 22000, fixedRate = 25 * 60 * 1000)
-    public void fetchggzySC() {
+    public void fetchGGZYSC() {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.GGZYSC);
             context.getBean(GGZYSCSpiderLauncher.class).start();
@@ -191,7 +192,7 @@ public class SpiderTaskScheduler {
      * 重庆公共资源
      */
     @Scheduled(initialDelay = 22000, fixedRate = 30 * 60 * 1000)
-    public void fetchggzyCQ() {
+    public void fetchGGZYCQ() {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.GGZYCQ);
             context.getBean(GGZYCQSpiderLauncher.class).start();
@@ -202,7 +203,7 @@ public class SpiderTaskScheduler {
      * 海南公共资源
      */
     @Scheduled(initialDelay = 22000, fixedRate = 30 * 60 * 1000)
-    public void fetchggzyHN() {
+    public void fetchGGZYHN() {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.GGZYHN);
             context.getBean(GGZYHNSpiderLauncher.class).start();
@@ -213,7 +214,7 @@ public class SpiderTaskScheduler {
      * 贵州公共资源
      */
     @Scheduled(initialDelay = 23000, fixedRate = 30 * 60 * 1000)
-    public void fetchggzyGZ() {
+    public void fetchGGZYGZ() {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.GGZYGZ);
             context.getBean(GGZYGZSpiderLauncher.class).start();
@@ -225,7 +226,7 @@ public class SpiderTaskScheduler {
      * 云南公共资源
      */
     @Scheduled(initialDelay = 23000, fixedRate = 45 * 60 * 1000)
-    public void fetchggzyYN() {
+    public void fetchGGZYYN() {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.GGZYYN);
             context.getBean(GGZYYNSpiderLauncher.class).start();
@@ -253,6 +254,17 @@ public class SpiderTaskScheduler {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.CDJS);
             context.getBean(ChengDuConstructionSpiderLauncher.class).start();
+        }
+    }
+
+    /**
+     * 西藏公共资源
+     */
+    @Scheduled(initialDelay = 24000, fixedRate = 6 * 60 * 60 * 1000)
+    public void fetchGGZYXZ() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.GGZYXZ);
+            context.getBean(GGZYXZSpiderLauncher.class).start();
         }
     }
 }
