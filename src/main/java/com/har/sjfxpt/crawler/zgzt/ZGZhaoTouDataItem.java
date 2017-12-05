@@ -60,9 +60,6 @@ public class ZGZhaoTouDataItem {
     @Indexed
     private String title;
 
-    @Transient
-    private String html;
-
     private String formatContent;
 
 

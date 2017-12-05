@@ -2,6 +2,7 @@ package com.har.sjfxpt.crawler.ggzy;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Maps;
+import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingAnnouncement;
 import com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingContent;
@@ -47,12 +48,12 @@ public class ZGZhaoTouPageProcessorTests {
 
         String url = "http://www.cebpubservice.com/ctpsp_iiss/searchbusinesstypebeforedooraction/getStringMethod.do";
 
-        Request[] requests={
-                requestGenerator(url, "招标项目",""),
-                requestGenerator(url, "招标公告",""),
-                requestGenerator(url, "中标公告",""),
-                requestGenerator(url, "开标记录",""),
-                requestGenerator(url, "评标公示","")
+        Request[] requests = {
+                requestGenerator(url, "招标项目", ""),
+                requestGenerator(url, "招标公告", ""),
+                requestGenerator(url, "中标公告", ""),
+                requestGenerator(url, "开标记录", ""),
+                requestGenerator(url, "评标公示", "")
         };
 
         Spider.create(zgZhaoTouPageProcessor)
@@ -124,7 +125,7 @@ public class ZGZhaoTouPageProcessorTests {
     }
 
     @Test
-    public void testAnnouncement(){
+    public void testAnnouncement() {
         HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
         Request request = new Request("http://www.cebpubservice.com/ctpsp_iiss/SecondaryAction/findDetails.do");
         Map<String, Object> param = Maps.newHashMap();
@@ -134,9 +135,18 @@ public class ZGZhaoTouPageProcessorTests {
         request.setMethod(HttpConstant.Method.POST);
         request.setRequestBody(HttpRequestBody.form(param, "UTF-8"));
         Page page1 = httpClientDownloader.download(request, SiteUtil.get().toTask());
-        ChinaTenderingAndBiddingAnnouncement data1=JSONObject.parseObject(page1.getRawText(),ChinaTenderingAndBiddingAnnouncement.class);
-        List<ChinaTenderingAndBiddingAnnouncement.ObjectBean.TenderBulletinBean> tenderBulletin=data1.getObject().getTenderBulletin();
+        ChinaTenderingAndBiddingAnnouncement data1 = JSONObject.parseObject(page1.getRawText(), ChinaTenderingAndBiddingAnnouncement.class);
+        List<ChinaTenderingAndBiddingAnnouncement.ObjectBean.TenderBulletinBean> tenderBulletin = data1.getObject().getTenderBulletin();
+    }
 
+    @Test
+    public void testFormatContent() {
+        String text = "<table><tbody><tr><td align=\"center\" rowspan=\"1\" colspan=\"2\"><div><h4 class=\"fleft\">华能灵华山风电场（100MW）工程水保完善工程 </h4></div></td></tr><tr><td align=\"right\" colspan=\"2\"><div style=\"margin:0 auto 10px auto;text-align:center;font-size:14px;color:#333;font-family:微软雅黑;\">发布日期：20171205115122&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div></td></tr><tr><td class=\"even\"><p>所属行业：<span>大气污染控制工程</span></p></td><td><p>所属地区：<span>北京市</span></p></td></tr><tr><td class=\"even\"><p>招标项目建立时间：<span>20171205115122</span></p></td><td><p><span></span></p></td></tr><tr><td class=\"even\"><p>招标代理机构代码：<span title=\"\">{tenderAgencyCodevalue}</span></p></td><td><p>招标代理机构名称：<span title=\"华能招标有限公司\">华能招标有限公司</span></p></td></tr><tr><td class=\"even\"><p>招标人名称：<span title=\"华能国际电力股份有限公司江西分公司\">华能国际电力股份有限公司江西分公司</span></p></td><td><p>招标组织方式：<span>委托招标</span></p></td></tr><tr><td class=\"even\"><p>行政监督部门代码：<span>{superviseDeptCodevalue}</span></p></td><td><p>行政监督部门名称：<span>{superviseDeptNamevalue}</span></p></td></tr><tr><td class=\"even\"><p>行政审核部门代码：<span>{approveDeptCodevalue}</span></p></td><td><p>行政审核部门名称：<span>{approveDeptNamevalue}</span></p></td></tr><tr><td rowspan=\"1\" colspan=\"2\"><div ><h5>招标内容与范围及招标方案说明：</h5><span></span></td></tr></tbody></table>";
+        String[] filed = StringUtils.substringsBetween(text, "{", "}");
+        for (int i = 0; i < filed.length; i++) {
+            text = StringUtils.remove(text, "{" + filed[i] + "}");
+        }
+        log.info("text=={}", text);
     }
 
 }

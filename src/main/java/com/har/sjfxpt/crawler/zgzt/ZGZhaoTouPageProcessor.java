@@ -215,13 +215,13 @@ public class ZGZhaoTouPageProcessor implements BasePageProcessor {
 
                     String test = formTemplate;
                     for (Map.Entry<String, String> entry : map.entrySet()) {
-                        log.debug("key=={}value=={}", entry.getKey(), entry.getValue());
                         if (StringUtils.isNotBlank(entry.getValue())) {
                             test = StringUtils.replace(test, "{" + entry.getKey() + "}", entry.getValue());
                         }
                     }
+
                     if (StringUtils.isNotBlank(test)) {
-                        zgZhaoTouDataItem.setFormatContent(test);
+                        zgZhaoTouDataItem.setFormatContent(PageProcessorUtil.removeField(test));
                         dataItems.add(zgZhaoTouDataItem);
                     }
                 }
@@ -257,13 +257,10 @@ public class ZGZhaoTouPageProcessor implements BasePageProcessor {
                         }
                         log.debug("test=={}", test);
                         if (StringUtils.isNotBlank(test)) {
-                            zgZhaoTouDataItem.setHtml(test);
-                            zgZhaoTouDataItem.setFormatContent(test);
+                            zgZhaoTouDataItem.setFormatContent(PageProcessorUtil.removeField(test));
                             dataItems.add(zgZhaoTouDataItem);
                         }
-
                     }
-
                 }
 
                 if (type.equals("中标公告")) {
@@ -296,8 +293,7 @@ public class ZGZhaoTouPageProcessor implements BasePageProcessor {
                             }
                             log.debug("test=={}", test);
                             if (StringUtils.isNotBlank(test)) {
-                                zgZhaoTouDataItem.setHtml(test);
-                                zgZhaoTouDataItem.setFormatContent(test);
+                                zgZhaoTouDataItem.setFormatContent(PageProcessorUtil.removeField(test));
                                 dataItems.add(zgZhaoTouDataItem);
                             }
 
@@ -345,8 +341,7 @@ public class ZGZhaoTouPageProcessor implements BasePageProcessor {
                             }
                             log.debug("test=={}", test);
                             if (StringUtils.isNotBlank(test)) {
-                                zgZhaoTouDataItem.setHtml(test);
-                                zgZhaoTouDataItem.setFormatContent(test);
+                                zgZhaoTouDataItem.setFormatContent(PageProcessorUtil.removeField(test));
                                 dataItems.add(zgZhaoTouDataItem);
                             }
 
@@ -387,11 +382,9 @@ public class ZGZhaoTouPageProcessor implements BasePageProcessor {
                             }
                             log.debug("test=={}", test);
                             if (StringUtils.isNotBlank(test)) {
-                                zgZhaoTouDataItem.setHtml(test);
-                                zgZhaoTouDataItem.setFormatContent(test);
+                                zgZhaoTouDataItem.setFormatContent(PageProcessorUtil.removeField(test));
                                 dataItems.add(zgZhaoTouDataItem);
                             }
-
                         }
 
                     } catch (Exception e) {
