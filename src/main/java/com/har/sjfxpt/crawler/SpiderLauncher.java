@@ -4,12 +4,15 @@ import com.har.sjfxpt.crawler.ccgp.ZhengFuCaiGouSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgpcq.CCGPCQSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgpsc.CCGPSiChuanSpiderLauncher;
+import com.har.sjfxpt.crawler.chengduconstruction.ChengDuConstructionSpiderLauncher;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.ggzyCQSpiderLauncher;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.ggzyGZSpiderLauncher;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn.ggzyHNSpiderLauncher;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzysc.ggzySCSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.GGZYCQSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.GGZYGZSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn.GGZYHNSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzysc.GGZYSCSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzyxz.GGZYXZSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzyyn.GGZYYNSpiderLauncher;
 import com.har.sjfxpt.crawler.jcw.JinCaiWangSpiderLauncher;
 import com.har.sjfxpt.crawler.petrochina.ZGShiYouSpiderLauncher;
 import com.har.sjfxpt.crawler.sgcc.StateGridSpiderLauncher;
@@ -71,22 +74,31 @@ public class SpiderLauncher implements CommandLineRunner {
     SuNingSpiderLauncher suNingSpiderLauncher;
 
     @Autowired
-    ggzySCSpiderLauncher ggzySCSpiderLauncher;
+    GGZYSCSpiderLauncher ggzyscSpiderLauncher;
 
     @Autowired
-    ggzyCQSpiderLauncher ggzyCQSpiderLauncher;
+    GGZYCQSpiderLauncher ggzycqSpiderLauncher;
 
     @Autowired
-    ggzyHNSpiderLauncher ggzyHNSpiderLauncher;
+    GGZYHNSpiderLauncher ggzyhnSpiderLauncher;
 
     @Autowired
-    ggzyGZSpiderLauncher ggzyGZSpiderLauncher;
+    GGZYGZSpiderLauncher ggzygzSpiderLauncher;
 
     @Autowired
     CCGPCQSpiderLauncher ccgpcqSpiderLauncher;
 
     @Autowired
+    GGZYYNSpiderLauncher ggzyynSpiderLauncher;
+
+    @Autowired
     StateGridSpiderLauncher stateGridSpiderLauncher;
+
+    @Autowired
+    ChengDuConstructionSpiderLauncher chengDuConstructionSpiderLauncher;
+
+    @Autowired
+    GGZYXZSpiderLauncher ggzyxzSpiderLauncher;
 
     public void info() {
         gongGongZiYuanSpiderLauncher.printInfo();
@@ -100,12 +112,15 @@ public class SpiderLauncher implements CommandLineRunner {
         ccgpSiChuanSpiderLauncher.printInfo();
         yiBiaoSpiderLauncher.printInfo();
         suNingSpiderLauncher.printInfo();
+        ggzyscSpiderLauncher.printInfo();
+        ggzycqSpiderLauncher.printInfo();
+        ggzyhnSpiderLauncher.printInfo();
+        ggzygzSpiderLauncher.printInfo();
         stateGridSpiderLauncher.printInfo();
-        ggzySCSpiderLauncher.printInfo();
-        ggzyCQSpiderLauncher.printInfo();
-        ggzyHNSpiderLauncher.printInfo();
-        ggzyGZSpiderLauncher.printInfo();
         ccgpcqSpiderLauncher.printInfo();
+        ggzyynSpiderLauncher.printInfo();
+        chengDuConstructionSpiderLauncher.printInfo();
+        ggzyxzSpiderLauncher.printInfo();
     }
 
     @Override
@@ -186,19 +201,28 @@ public class SpiderLauncher implements CommandLineRunner {
                     stateGridSpiderLauncher.fetchAll();
                     break;
                 case "start-ggzysc":
-                    ggzySCSpiderLauncher.start();
+                    ggzyscSpiderLauncher.start();
                     break;
                 case "start-ggzycq":
-                    ggzyCQSpiderLauncher.start();
+                    ggzycqSpiderLauncher.start();
                     break;
                 case "start-ggzyhn":
-                    ggzyHNSpiderLauncher.start();
+                    ggzyhnSpiderLauncher.start();
                     break;
                 case "start-ggzygz":
-                    ggzyGZSpiderLauncher.start();
+                    ggzygzSpiderLauncher.start();
                     break;
                 case "start-ccgpcq":
                     ccgpcqSpiderLauncher.start();
+                    break;
+                case "start-ggzyyn":
+                    ggzyynSpiderLauncher.start();
+                    break;
+                case "start-cdjs":
+                    chengDuConstructionSpiderLauncher.start();
+                    break;
+                case "start-ggzyxz":
+                    ggzyxzSpiderLauncher.start();
                     break;
                 default:
                     break;

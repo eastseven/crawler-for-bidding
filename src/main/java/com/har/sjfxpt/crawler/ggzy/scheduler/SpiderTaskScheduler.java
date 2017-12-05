@@ -4,13 +4,16 @@ import com.har.sjfxpt.crawler.ccgp.ZhengFuCaiGouSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgpcq.CCGPCQSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgpsc.CCGPSiChuanSpiderLauncher;
+import com.har.sjfxpt.crawler.chengduconstruction.ChengDuConstructionSpiderLauncher;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.ggzyCQSpiderLauncher;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.ggzyGZSpiderLauncher;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn.ggzyHNSpiderLauncher;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzysc.ggzySCSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.GGZYCQSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.GGZYGZSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn.GGZYHNSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzysc.GGZYSCSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzyxz.GGZYXZSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzyyn.GGZYYNSpiderLauncher;
 import com.har.sjfxpt.crawler.jcw.JinCaiWangSpiderLauncher;
 import com.har.sjfxpt.crawler.petrochina.ZGShiYouSpiderLauncher;
 import com.har.sjfxpt.crawler.sgcc.StateGridSpiderLauncher;
@@ -150,10 +153,23 @@ public class SpiderTaskScheduler {
         }
     }
 
+
+    /**
+     * 一标网
+     */
+//    @Scheduled(initialDelay = 21000, fixedRate = 25 * 60 * 1000)
+//    public void fetchYiBiao() {
+//        if (flag) {
+//            log.info(">>> start fetch {}", SourceCode.YIBIAO);
+//            context.getBean(YiBiaoSpiderLauncher.class).start();
+//        }
+//    }
+
+
     /**
      * 苏宁招标
      */
-    @Scheduled(initialDelay = 25000, fixedRate = 6 * 60 * 60 * 1000)
+    @Scheduled(initialDelay = 24000, fixedRate = 6 * 60 * 60 * 1000)
     public void fetchSuNing() {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.SUNING);
@@ -165,10 +181,10 @@ public class SpiderTaskScheduler {
      * 四川公共资源
      */
     @Scheduled(initialDelay = 22000, fixedRate = 25 * 60 * 1000)
-    public void fetchggzySC() {
+    public void fetchGGZYSC() {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.GGZYSC);
-            context.getBean(ggzySCSpiderLauncher.class).start();
+            context.getBean(GGZYSCSpiderLauncher.class).start();
         }
     }
 
@@ -176,10 +192,10 @@ public class SpiderTaskScheduler {
      * 重庆公共资源
      */
     @Scheduled(initialDelay = 22000, fixedRate = 30 * 60 * 1000)
-    public void fetchggzyCQ() {
+    public void fetchGGZYCQ() {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.GGZYCQ);
-            context.getBean(ggzyCQSpiderLauncher.class).start();
+            context.getBean(GGZYCQSpiderLauncher.class).start();
         }
     }
 
@@ -187,10 +203,10 @@ public class SpiderTaskScheduler {
      * 海南公共资源
      */
     @Scheduled(initialDelay = 22000, fixedRate = 30 * 60 * 1000)
-    public void fetchggzyHN() {
+    public void fetchGGZYHN() {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.GGZYHN);
-            context.getBean(ggzyHNSpiderLauncher.class).start();
+            context.getBean(GGZYHNSpiderLauncher.class).start();
         }
     }
 
@@ -198,10 +214,22 @@ public class SpiderTaskScheduler {
      * 贵州公共资源
      */
     @Scheduled(initialDelay = 23000, fixedRate = 30 * 60 * 1000)
-    public void fetchggzyGZ() {
+    public void fetchGGZYGZ() {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.GGZYGZ);
-            context.getBean(ggzyGZSpiderLauncher.class).start();
+            context.getBean(GGZYGZSpiderLauncher.class).start();
+        }
+    }
+
+
+    /**
+     * 云南公共资源
+     */
+    @Scheduled(initialDelay = 23000, fixedRate = 45 * 60 * 1000)
+    public void fetchGGZYYN() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.GGZYYN);
+            context.getBean(GGZYYNSpiderLauncher.class).start();
         }
     }
 
@@ -215,6 +243,28 @@ public class SpiderTaskScheduler {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.SGCC);
             context.getBean(StateGridSpiderLauncher.class).start();
+        }
+    }
+
+    /**
+     * 成都工程建设
+     */
+    @Scheduled(initialDelay = 24000, fixedRate = 6 * 60 * 60 * 1000)
+    public void fetchCDConstruction() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.CDJS);
+            context.getBean(ChengDuConstructionSpiderLauncher.class).start();
+        }
+    }
+
+    /**
+     * 西藏公共资源
+     */
+    @Scheduled(initialDelay = 24000, fixedRate = 6 * 60 * 60 * 1000)
+    public void fetchGGZYXZ() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.GGZYXZ);
+            context.getBean(GGZYXZSpiderLauncher.class).start();
         }
     }
 }

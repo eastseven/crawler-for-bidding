@@ -57,6 +57,9 @@ public final class PageProcessorUtil {
         if (StringUtils.contains(date, "发布：")) {
             date = StringUtils.remove(date, "发布：");
         }
+        if (StringUtils.contains(date, "发布时间 ")) {
+            date = StringUtils.remove(date, "发布时间 ");
+        }
 
         Matcher matcher = yyyymmddhhmmPattern.matcher(date);
         String dataStr = null;
