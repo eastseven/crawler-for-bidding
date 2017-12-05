@@ -4,6 +4,7 @@ import com.har.sjfxpt.crawler.ccgp.ZhengFuCaiGouSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgpcq.CCGPCQSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgpsc.CCGPSiChuanSpiderLauncher;
+import com.har.sjfxpt.crawler.chengduconstruction.ChengDuConstructionSpiderLauncher;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
@@ -241,6 +242,17 @@ public class SpiderTaskScheduler {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.SGCC);
             context.getBean(StateGridSpiderLauncher.class).start();
+        }
+    }
+
+    /**
+     * 成都工程建设
+     */
+    @Scheduled(initialDelay = 24000, fixedRate = 6 * 60 * 60 * 1000)
+    public void fetchCDConstruction() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.CDJS);
+            context.getBean(ChengDuConstructionSpiderLauncher.class).start();
         }
     }
 }
