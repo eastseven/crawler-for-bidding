@@ -40,9 +40,11 @@ public class GGZYSCPageProcessor implements BasePageProcessor {
             GGZYSCAnnouncement data = JSONObject.parseObject(page.getRawText(), GGZYSCAnnouncement.class);
             int size = data.getPageCount();
             log.info("size=={}", size);
-            for (int i = 2; i <= size; i++) {
-                String url = "http://www.scztb.gov.cn/Info/GetInfoListNew?keywords=&times=4&timesStart=&timesEnd=&province=&area=&businessType=project&informationType=&page=" + i + "&parm=" + DateTime.now().getMillis();
-                page.addTargetRequest(url);
+            if (size >= 2) {
+                for (int i = 2; i <= size; i++) {
+                    String url = "http://www.scztb.gov.cn/Info/GetInfoListNew?keywords=&times=1&timesStart=&timesEnd=&province=&area=&businessType=project&informationType=&page=" + i + "&parm=" + DateTime.now().getMillis();
+                    page.addTargetRequest(url);
+                }
             }
         }
     }
@@ -66,60 +68,66 @@ public class GGZYSCPageProcessor implements BasePageProcessor {
         GGZYSCAnnouncement data = JSONObject.parseObject(page.getRawText(), GGZYSCAnnouncement.class);
         List<GGZYSCDataItem> dataItems = Lists.newArrayList();
         String targets[] = StringUtils.substringsBetween(data.getData(), "{", "}");
-        for (String target : targets) {
-            String href = StringUtils.substringBetween(target, "\"Link\":\"", "\",");
-            String title = StringUtils.substringBetween(target, "\"Title\":\"", "\",");
-            String date = StringUtils.substringBetween(target, "\"CreateDateAll\":\"", "\",");
-            String province = StringUtils.substringBetween(target, "\"username\":\"", "\",");
-            String type = StringUtils.substringBetween(target, "\"TableName\":\"", "\",");
-            String businessType = StringUtils.substringBetween(target, "\"businessType\":\"", "\",");
+        if (targets.length != 0) {
+            for (String target : targets) {
+                String href = StringUtils.substringBetween(target, "\"Link\":\"", "\",");
+                String title = StringUtils.substringBetween(target, "\"Title\":\"", "\",");
+                String date = StringUtils.substringBetween(target, "\"CreateDateAll\":\"", "\",");
+                String province = StringUtils.substringBetween(target, "\"username\":\"", "\",");
+                String type = StringUtils.substringBetween(target, "\"TableName\":\"", "\",");
+                String businessType = StringUtils.substringBetween(target, "\"businessType\":\"", "\",");
 
-            GGZYSCDataItem GGZYSCDataItem = new GGZYSCDataItem("http://www.scztb.gov.cn" + href);
-            String encode = URLEncoder.encode(StringUtils.substringBefore(StringUtils.substringAfterLast(href, "/"), ".html"), "utf-8");
-            String urlEncoder = "http://www.scztb.gov.cn" + StringUtils.substringBeforeLast(href, "/") + "/" + encode + ".html";
-            GGZYSCDataItem.setUrl(urlEncoder);
-            GGZYSCDataItem.setTitle(title);
-            GGZYSCDataItem.setDate(PageProcessorUtil.dataTxt(date));
-            GGZYSCDataItem.setProvince(ProvinceUtil.get(province));
-            GGZYSCDataItem.setType(type);
-            GGZYSCDataItem.setBusinessType(businessType);
-            try {
-                Page page1 = httpClientDownloader.download(new Request(GGZYSCDataItem.getUrl()), SiteUtil.get().setTimeOut(30000).toTask());
-                Element element = page1.getHtml().getDocument().body();
-                Elements elements = element.select("body > div.wmain > div.ContentMiddle > div > div.Middle > div.ChangeMidle > div.detailedTitle");
-                Elements elements1 = element.select("body > div.wmain > div.ContentMiddle > div > div.Middle > div.ChangeMidle > div.detailedIntroduc");
-                String formatContent = "";
-                String detailedTitle = PageProcessorUtil.formatElementsByWhitelist(elements.first());
-                String detailedIntroduc = PageProcessorUtil.formatElementsByWhitelist(elements1.first());
-                if (StringUtils.isNotBlank(detailedTitle)) {
-                    formatContent = formatContent + detailedTitle;
-                }
-                if (StringUtils.isNotBlank(detailedIntroduc)) {
-                    formatContent = formatContent + detailedIntroduc;
-                }
-                for (Element element1 : element.select("div.Nmds")) {
-                    boolean bln = StringUtils.contains(element1.attr("style"), "block");
-                    if (!bln) continue;
-                    String content = element1.select("input").attr("value");
-                    if (content.contains("<![CDATA[")) {
-                        Whitelist whitelist = Whitelist.relaxed();
-                        whitelist.removeTags("iframe");
-                        String html = StringUtils.substringBetween(content, "<![CDATA[", "]]");
-                        formatContent = formatContent + Jsoup.clean(html, whitelist);
-                    } else {
-                        Whitelist whitelist = Whitelist.relaxed();
-                        whitelist.removeTags("iframe");
-                        formatContent = formatContent + Jsoup.clean(content, whitelist);
+                GGZYSCDataItem GGZYSCDataItem = new GGZYSCDataItem("http://www.scztb.gov.cn" + href);
+                String encode = URLEncoder.encode(StringUtils.substringBefore(StringUtils.substringAfterLast(href, "/"), ".html"), "utf-8");
+                String urlEncoder = "http://www.scztb.gov.cn" + StringUtils.substringBeforeLast(href, "/") + "/" + encode + ".html";
+                GGZYSCDataItem.setUrl(urlEncoder);
+                GGZYSCDataItem.setTitle(title);
+                GGZYSCDataItem.setDate(PageProcessorUtil.dataTxt(date));
+                GGZYSCDataItem.setProvince(ProvinceUtil.get(province));
+                GGZYSCDataItem.setType(type);
+                GGZYSCDataItem.setBusinessType(businessType);
+                try {
+                    Page page1 = httpClientDownloader.download(new Request(GGZYSCDataItem.getUrl()), SiteUtil.get().setTimeOut(30000).toTask());
+                    Element element = page1.getHtml().getDocument().body();
+                    Elements elements = element.select("body > div.wmain > div.ContentMiddle > div > div.Middle > div.ChangeMidle > div.detailedTitle");
+                    Elements elements1 = element.select("body > div.wmain > div.ContentMiddle > div > div.Middle > div.ChangeMidle > div.detailedIntroduc");
+                    String formatContent = "";
+                    String detailedTitle = PageProcessorUtil.formatElementsByWhitelist(elements.first());
+                    String detailedIntroduc = PageProcessorUtil.formatElementsByWhitelist(elements1.first());
+                    if (StringUtils.isNotBlank(detailedTitle)) {
+                        formatContent = formatContent + detailedTitle;
                     }
+                    if (StringUtils.isNotBlank(detailedIntroduc)) {
+                        formatContent = formatContent + detailedIntroduc;
+                    }
+                    for (Element element1 : element.select("div.Nmds")) {
+                        boolean bln = StringUtils.contains(element1.attr("style"), "block");
+                        if (!bln) {
+                            continue;
+                        }
+                        String content = element1.select("input").attr("value");
+                        if (content.contains("<![CDATA[")) {
+                            Whitelist whitelist = Whitelist.relaxed();
+                            whitelist.removeTags("iframe");
+                            String html = StringUtils.substringBetween(content, "<![CDATA[", "]]");
+                            formatContent = formatContent + Jsoup.clean(html, whitelist);
+                        } else {
+                            Whitelist whitelist = Whitelist.relaxed();
+                            whitelist.removeTags("iframe");
+                            formatContent = formatContent + Jsoup.clean(content, whitelist);
+                        }
+                    }
+                    if (StringUtils.isNotBlank(formatContent)) {
+                        GGZYSCDataItem.setFormatContent(formatContent);
+                        dataItems.add(GGZYSCDataItem);
+                    }
+                } catch (Exception e) {
+                    log.error("url {} is wrong page", GGZYSCDataItem.getUrl());
+                    log.error("error is {}", e);
                 }
-                if (StringUtils.isNotBlank(formatContent)) {
-                    GGZYSCDataItem.setFormatContent(formatContent);
-                    dataItems.add(GGZYSCDataItem);
-                }
-            } catch (Exception e) {
-                log.error("url {} is wrong page", GGZYSCDataItem.getUrl());
-                log.error("error is {}", e);
             }
+        } else {
+            log.warn("JSON {} no data", page.getUrl().toString());
         }
         return dataItems;
     }
@@ -137,6 +145,6 @@ public class GGZYSCPageProcessor implements BasePageProcessor {
     @Override
     public Site getSite() {
         httpClientDownloader = new HttpClientDownloader();
-        return SiteUtil.get();
+        return SiteUtil.get().setSleepTime(10000);
     }
 }
