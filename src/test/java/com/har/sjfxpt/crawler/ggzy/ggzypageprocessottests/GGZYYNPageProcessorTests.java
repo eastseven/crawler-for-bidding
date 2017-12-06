@@ -72,6 +72,7 @@ public class GGZYYNPageProcessorTests {
         Date date = new SimpleDateFormat("yyyyMMddHHmmss").parse(time);
         DateTime dateTime = new DateTime(date);
         log.debug("time=={}", dateTime.toString("yyyy-MM-dd HH:mm"));
+        log.info("time={}", new DateTime(new SimpleDateFormat("yyyyMMddHH").parse("2017120615")).toString("yyyy-MM-dd HH:mm"));
     }
 
 }

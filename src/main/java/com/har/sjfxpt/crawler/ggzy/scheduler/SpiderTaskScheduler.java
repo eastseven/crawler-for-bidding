@@ -235,17 +235,6 @@ public class SpiderTaskScheduler {
     }
 
     /**
-     * 成都工程建设
-     */
-    @Scheduled(initialDelay = 24000, fixedRate = 6 * 60 * 60 * 1000)
-    public void fetchCDConstruction() {
-        if (flag) {
-            log.info(">>> start fetch {}", SourceCode.CDJS);
-            context.getBean(ChengDuConstructionSpiderLauncher.class).start();
-        }
-    }
-
-    /**
      * 西藏公共资源
      */
     @Scheduled(initialDelay = 25000, fixedRate = 6 * 60 * 60 * 1000)
