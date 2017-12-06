@@ -133,4 +133,16 @@ public final class PageProcessorUtil {
         return null;
     }
 
+    /**
+     * 字段去除
+     */
+    public static String removeField(String text) {
+        String[] filed = StringUtils.substringsBetween(text, "{", "}");
+        if (filed != null) {
+            for (int i = 0; i < filed.length; i++) {
+                text = StringUtils.remove(text, "{" + filed[i] + "}");
+            }
+        }
+        return text;
+    }
 }
