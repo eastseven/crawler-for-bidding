@@ -7,6 +7,8 @@ public interface GongGongZiYuanConstant {
 
     String KEY_DATA_ITEMS = "dataItemList";
 
+    int THREAD_NUM = Runtime.getRuntime().availableProcessors();
+
     /**
      * 01 工程建设
      */
