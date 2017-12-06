@@ -91,6 +91,15 @@ public class ZhengFuCaiGouDataItem {
         dto.setProvince(StringUtils.defaultString(province, "全国"));
         dto.setSource(SourceCode.CCGP.getValue());
         dto.setSourceCode(SourceCode.CCGP.toString());
+
+        if (StringUtils.contains(dto.getBudget(), "详见公告正文")) {
+            dto.setBudget("");
+        }
+
+        if (StringUtils.contains(dto.getTotalBidMoney(), "详见公告正文")) {
+            dto.setTotalBidMoney("");
+        }
+
         return dto;
     }
 }

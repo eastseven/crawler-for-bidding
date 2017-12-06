@@ -41,6 +41,21 @@ import static com.har.sjfxpt.crawler.petrochina.ZGShiYouPageProcessor.formUrl;
 public class CommonTests {
 
     @Test
+    public void testGGZYCQPage() throws Exception {
+        String url = "http://www.cqggzy.com/xxhz/014005/014005001/20171205/514185232283561984.html";
+        Elements elements = Jsoup.connect(url).get().select("#mainContent div.wrap-post");
+        String html = PageProcessorUtil.formatElementsByWhitelist(elements.first());
+
+        Document doc = Jsoup.parse(html);
+        for (Element h : doc.select("h4")) {
+            if (StringUtils.containsIgnoreCase(h.text(), "预算金额")) {
+                log.info("\n{}, {}\n", h, h.children().text());
+                break;
+            }
+        }
+    }
+
+    @Test
     public void testSGCC() throws Exception {
         String listUrl = "http://ecp.sgcc.com.cn/topic_project_list.jsp?columnName=topic10";
         Document doc = Jsoup.parse(new URL(listUrl), 60 * 1000);
