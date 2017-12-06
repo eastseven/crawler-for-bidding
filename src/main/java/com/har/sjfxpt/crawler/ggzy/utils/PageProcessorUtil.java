@@ -35,8 +35,7 @@ public final class PageProcessorUtil {
         if (root == null) return null;
         String html = root.html();
         Whitelist whitelist = Whitelist.relaxed();
-        whitelist.removeTags("style");
-        whitelist.removeTags("script");
+        whitelist.removeTags("style", "script");
         whitelist.removeAttributes("table", "style", "width", "height");
         whitelist.removeAttributes("td", "style", "width", "height");
         String formatContent = Jsoup.clean(html, whitelist);
