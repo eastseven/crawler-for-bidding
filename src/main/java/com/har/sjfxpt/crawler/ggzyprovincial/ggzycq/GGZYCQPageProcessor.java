@@ -8,6 +8,8 @@ import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
@@ -92,7 +94,7 @@ public class GGZYCQPageProcessor implements BasePageProcessor {
             String title = StringUtils.substringBetween(target, "\"title\\\":\\\"", "\\\",");
             String date = StringUtils.substringBetween(target, "\"infodate\\\":\\\"", "\\\",");
             if (PageProcessorUtil.timeCompare(date)) {
-                log.debug("{} is not on the same day", href);
+                log.info("{} is not on the same day", href);
             } else {
                 GGZYCQDataItem GGZYCQDataItem = new GGZYCQDataItem(href);
                 GGZYCQDataItem.setTitle(title);
@@ -105,8 +107,8 @@ public class GGZYCQPageProcessor implements BasePageProcessor {
                     GGZYCQDataItem.setBusinessType("工程招投标");
                     GGZYCQDataItem.setType("招标公告");
                 }
-                if(date.length()==10){
-                    date=date+DateTime.now().toString(" HH:mm");
+                if (date.length() == 10) {
+                    date = date + DateTime.now().toString(" HH:mm");
                 }
                 GGZYCQDataItem.setDate(date);
                 Page page1 = httpClientDownloader.download(new Request(GGZYCQDataItem.getUrl()), SiteUtil.get().toTask());
@@ -114,6 +116,14 @@ public class GGZYCQPageProcessor implements BasePageProcessor {
                 Elements elements = element.select("body > div:nth-child(4) > div > div.detail-block");
                 String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
                 if (StringUtils.isNotBlank(formatContent)) {
+                    Document doc = Jsoup.parse(formatContent);
+                    for (Element h : doc.select("h4")) {
+                        if (StringUtils.containsIgnoreCase(h.text(), "预算金额")) {
+                            if (StringUtils.isNotBlank(h.children().text())) {
+                                GGZYCQDataItem.setBudget(h.children().text());
+                            }
+                        }
+                    }
                     if (formatContent.contains("<a>相关公告</a>")) {
                         formatContent = StringUtils.trim(StringUtils.removeAll(formatContent, "<li>(.+?)</li>"));
                         formatContent = StringUtils.removeAll(formatContent, "\\s");
@@ -136,6 +146,6 @@ public class GGZYCQPageProcessor implements BasePageProcessor {
     @Override
     public Site getSite() {
         httpClientDownloader = new HttpClientDownloader();
-        return SiteUtil.get();
+        return SiteUtil.get().setSleepTime(10000);
     }
 }
