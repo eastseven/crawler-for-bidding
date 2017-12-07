@@ -8,6 +8,8 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.safety.Whitelist;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -106,6 +108,26 @@ public final class PageProcessorUtil {
             DateTime dateTime1 = new DateTime(new DateTime(new Date()).toString("yyyy-MM-dd"));
 
             return dateTime.isBefore(dateTime1);
+        }
+        return false;
+    }
+
+    /**
+     * 时间比较
+     */
+    public static boolean timeDetailCompare(String date) throws ParseException {
+
+        String dataStr = null;
+
+        Matcher matcher = yyyymmddhhmmPattern.matcher(date);
+
+        if (matcher.find()) {
+            dataStr = matcher.group();
+        }
+        if (StringUtils.isNotBlank(dataStr)) {
+            DateTime dateTime = new DateTime(new SimpleDateFormat("yyyy-MM-dd HH:mm").parse(dataStr));
+            DateTime dateTime1 = DateTime.now();
+            return dateTime.isAfter(dateTime1);
         }
         return false;
     }

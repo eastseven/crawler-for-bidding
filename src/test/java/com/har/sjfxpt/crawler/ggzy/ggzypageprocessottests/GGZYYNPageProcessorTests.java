@@ -1,5 +1,6 @@
 package com.har.sjfxpt.crawler.ggzy.ggzypageprocessottests;
 
+import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyyn.GGZYYNPageProcessor;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyyn.GGZYYNPipeline;
 import lombok.extern.slf4j.Slf4j;
@@ -73,6 +74,13 @@ public class GGZYYNPageProcessorTests {
         DateTime dateTime = new DateTime(date);
         log.debug("time=={}", dateTime.toString("yyyy-MM-dd HH:mm"));
         log.info("time={}", new DateTime(new SimpleDateFormat("yyyyMMddHH").parse("2017120615")).toString("yyyy-MM-dd HH:mm"));
+    }
+
+    @Test
+    public void testTimeCompare() throws ParseException {
+        String time = "2017-12-07 09:58";
+        log.info("compare=={}", PageProcessorUtil.timeDetailCompare(time));
+        log.info("time=={}",DateTime.now().toString("yyyy-MM-dd HH:mm"));
     }
 
 }

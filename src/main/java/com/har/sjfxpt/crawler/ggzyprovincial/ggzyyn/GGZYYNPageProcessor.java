@@ -149,6 +149,13 @@ public class GGZYYNPageProcessor implements BasePageProcessor {
                     if (PageProcessorUtil.timeCompare(GGZYYNDataItem.getDate())) {
                         log.warn("{} is not the same day", GGZYYNDataItem.getUrl());
                     } else {
+                        try {
+                            if (PageProcessorUtil.timeDetailCompare(GGZYYNDataItem.getDate())) {
+                                GGZYYNDataItem.setDate(DateTime.now().toString("yyyy-MM-dd HH:mm"));
+                            }
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
                         GGZYYNDataItem.setFormatContent(formatContent);
                         dataItems.add(GGZYYNDataItem);
                     }
