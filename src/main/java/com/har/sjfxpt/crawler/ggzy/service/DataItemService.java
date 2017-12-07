@@ -191,8 +191,9 @@ public class DataItemService {
 
         put.addColumn(family, "original_industry_category".getBytes(),  StringUtils.defaultString(dataItem.getOriginalIndustryCategory(), "").getBytes(charsetName));
 
-        put.addColumn(family, Bytes.toBytes("budget"),          StringUtils.defaultString(dataItem.getBudget(), "").getBytes(charsetName));
-        put.addColumn(family, Bytes.toBytes("total_bid_money"), StringUtils.defaultString(dataItem.getTotalBidMoney(), "").getBytes(charsetName));
+        put.addColumn(family, Bytes.toBytes("budget"),           StringUtils.defaultString(dataItem.getBudget(), "").getBytes(charsetName));
+        put.addColumn(family, Bytes.toBytes("total_bid_money"),  StringUtils.defaultString(dataItem.getTotalBidMoney(), "").getBytes(charsetName));
+        put.addColumn(family, Bytes.toBytes("bid_company_name"), StringUtils.defaultString(dataItem.getBidCompanyName(), "").getBytes(charsetName));
         return put;
     }
 

@@ -6,6 +6,7 @@ import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
@@ -20,6 +21,7 @@ import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_
 
 /**
  * Created by Administrator on 2017/11/7.
+ * @author luo fei
  */
 @Slf4j
 @Component
@@ -69,33 +71,81 @@ public class CCGPHaiNanPageProcessor implements BasePageProcessor {
                 typeTxt = StringUtils.replace(typeTxt, "| ", "");
             }
             String url = element.attr("href");
+            if (StringUtils.startsWith(url, "http")) {
+                url = "http://www.ccgp-hainan.gov.cn" + url;
+            }
             String title = element.text();
             String projectName = StringUtils.substringBeforeLast(title, "-");
-            CCGPHaiNanDataItem CCGPHaiNanDataItem = new CCGPHaiNanDataItem(url);
-            CCGPHaiNanDataItem.setType(typeTxt);
-            CCGPHaiNanDataItem.setUrl("http://www.ccgp-hainan.gov.cn" + url);
-            CCGPHaiNanDataItem.setTitle(title);
-            CCGPHaiNanDataItem.setDate(date);
-            CCGPHaiNanDataItem.setProjectName(StringUtils.defaultString(projectName, ""));
+            CCGPHaiNanDataItem haiNanDataItem = new CCGPHaiNanDataItem(url);
+            haiNanDataItem.setType(typeTxt);
+            haiNanDataItem.setUrl(url);
+            haiNanDataItem.setTitle(title);
+            haiNanDataItem.setDate(date);
+            haiNanDataItem.setProjectName(StringUtils.defaultString(projectName, ""));
 
-            Request request = new Request("http://www.ccgp-hainan.gov.cn" + url);
-            Page page = httpClientDownloader.download(request, SiteUtil.get().toTask());
-            String html = page.getHtml().getDocument().html();
-            Element element1 = page.getHtml().getDocument().body();
-            Elements source = element1.select("body > div.neibox > div.neibox02 > div.box > div > div.nei03_02 > div.basic");
-            String tenderer = StringUtils.substringBetween(source.text(), "信息来源：", " 公告类型：");
-            String dateDetail = StringUtils.substringAfter(source.text(), "发表时间：");
-            if (StringUtils.isNotBlank(dateDetail)) {
-                CCGPHaiNanDataItem.setDate(dateDetail);
+            // 正文处理
+            try {
+                Request request = new Request(url);
+                Page page = httpClientDownloader.download(request, SiteUtil.get().toTask());
+
+                Element body = page.getHtml().getDocument().body();
+                Elements source = body.select("body > div.neibox > div.neibox02 > div.box > div > div.nei03_02 > div.basic");
+
+                String purchaserAgent = StringUtils.substringBetween(source.text(), "信息来源：", " 公告类型：");
+                purchaserAgent = StringUtils.strip(purchaserAgent);
+                haiNanDataItem.setPurchaserAgent(purchaserAgent);
+
+                String dateDetail = StringUtils.substringAfter(source.text(), "发表时间：");
+                dateDetail = StringUtils.trim(dateDetail);
+                if (StringUtils.isNotBlank(dateDetail)) {
+                    haiNanDataItem.setDate(dateDetail);
+                }
+
+                Elements html = body.select("body > div.neibox > div.neibox02 > div.box > div > div.nei03_02 div.content01");
+                String format = PageProcessorUtil.formatElementsByWhitelist(html.first());
+                for (Element td : Jsoup.parse(format).select("td")) {
+                    String tdText = td.text();
+                    if (StringUtils.contains(tdText, "项目编号")) {
+                        log.debug(">>> {}, {}", tdText, td.nextElementSibling().text());
+                        haiNanDataItem.setProjectCode(StringUtils.trim(td.nextElementSibling().text()));
+                    }
+
+                    if (StringUtils.contains(tdText, "预算金额")) {
+                        log.debug(">>> {}, {}", tdText, td.nextElementSibling().text());
+                        haiNanDataItem.setBudget(StringUtils.trim(td.nextElementSibling().text()));
+                    }
+
+                    if (StringUtils.contains(tdText, "中标金额(万元)") ||
+                            StringUtils.contains(tdText, "成交金额(万元)")) {
+                        log.debug(">>> {}, {}", tdText, td.nextElementSibling().text());
+                        haiNanDataItem.setTotalBidMoney(StringUtils.trim(td.nextElementSibling().text()));
+                    }
+
+                    if (StringUtils.contains(tdText, "中标供应商名称") ||
+                            StringUtils.contains(tdText, "成交供应商名称")) {
+                        log.debug(">>> {}, {}", tdText, td.nextElementSibling().text());
+                        haiNanDataItem.setBidCompanyName(StringUtils.trim(td.nextElementSibling().text()));
+                    }
+
+                    if (StringUtils.contains(tdText, "中标供应商地址") ||
+                            StringUtils.contains(tdText, "成交供应商地址")) {
+                        log.debug(">>> {}, {}", tdText, td.nextElementSibling().text());
+                        haiNanDataItem.setBidCompanyAddress(StringUtils.trim(td.nextElementSibling().text()));
+                    }
+
+                    if (StringUtils.contains(tdText, "采购人单位名称")) {
+                        log.debug(">>> {}, {}", tdText, td.nextElementSibling().text());
+                        haiNanDataItem.setPurchaser(StringUtils.trim(td.nextElementSibling().text()));
+                    }
+                }
+
+                String formatContent = PageProcessorUtil.formatElementsByWhitelist(html.first());
+                haiNanDataItem.setFormatContent(formatContent);
+            } catch (Exception e) {
+                log.error("", e);
+                log.error("{} formatContent fetch fail", url);
             }
-            CCGPHaiNanDataItem.setPurchaser(tenderer);
-            Element formatContentHtml = element1.select("body > div.neibox > div.neibox02 > div.box > div > div.nei03_02").first();
-            String formatContent = PageProcessorUtil.formatElementsByWhitelist(formatContentHtml);
-            if (StringUtils.isNotBlank(html)) {
-                CCGPHaiNanDataItem.setHtml(html);
-                CCGPHaiNanDataItem.setFormatContent(formatContent);
-            }
-            dataItems.add(CCGPHaiNanDataItem);
+            dataItems.add(haiNanDataItem);
         }
         return dataItems;
     }
