@@ -35,15 +35,15 @@ public class GGZYSCPageProcessor implements BasePageProcessor {
 
     @Override
     public void handlePaging(Page page) {
+        String url = page.getUrl().get();
         int currentPage = Integer.parseInt(StringUtils.substringBetween(page.getUrl().toString(), "page=", "&parm"));
         if (currentPage == 1) {
             GGZYSCAnnouncement data = JSONObject.parseObject(page.getRawText(), GGZYSCAnnouncement.class);
             int size = data.getPageCount();
-            log.info("size=={}", size);
             if (size >= 2) {
                 for (int i = 2; i <= size; i++) {
-                    String url = "http://www.scztb.gov.cn/Info/GetInfoListNew?keywords=&times=1&timesStart=&timesEnd=&province=&area=&businessType=project&informationType=&page=" + i + "&parm=" + DateTime.now().getMillis();
-                    page.addTargetRequest(url);
+                    String urlTarget = url.replace("page=1", "page=" + i);
+                    page.addTargetRequest(urlTarget);
                 }
             }
         }
@@ -83,7 +83,6 @@ public class GGZYSCPageProcessor implements BasePageProcessor {
                 GGZYSCDataItem.setUrl(urlEncoder);
                 GGZYSCDataItem.setTitle(title);
                 GGZYSCDataItem.setDate(PageProcessorUtil.dataTxt(date));
-                GGZYSCDataItem.setProvince(ProvinceUtil.get(province));
                 GGZYSCDataItem.setType(type);
                 GGZYSCDataItem.setBusinessType(businessType);
                 try {

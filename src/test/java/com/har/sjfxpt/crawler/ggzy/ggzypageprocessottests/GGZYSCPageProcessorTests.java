@@ -34,6 +34,7 @@ public class GGZYSCPageProcessorTests {
     @Autowired
     GGZYSCPipeline GGZYSCPipeline;
 
+    //mvn test -Dtest=testSCPageProcessor -Dspring.profiles.active=prod -Dapp.fetch.current.day=false
     @Test
     public void testSCPageProcessor() {
 
