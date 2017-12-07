@@ -82,4 +82,10 @@ public class DataItemDTO {
      * 总成交金额 total_bid_money
      */
     private String totalBidMoney;
+
+    /**
+     * 中标公司名称
+     */
+    private String bidCompanyName;
+
 }

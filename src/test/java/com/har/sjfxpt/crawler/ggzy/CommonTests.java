@@ -41,6 +41,57 @@ import static com.har.sjfxpt.crawler.petrochina.ZGShiYouPageProcessor.formUrl;
 public class CommonTests {
 
     @Test
+    public void testCCGPHNPage() throws Exception {
+        String url = "http://www.ccgp-hainan.gov.cn/cgw/cgw_show.jsp?id=5944";
+//        url = "http://www.ccgp-hainan.gov.cn/cgw/cgw_show_dylygg.jsp?id=638";
+//        url = "http://www.ccgp-hainan.gov.cn/cgw/cgw_show_zbgg.jsp?id=7622";
+//        url = "http://www.ccgp-hainan.gov.cn/cgw/cgw_show_cjgg.jsp?id=6175";
+        Elements html = Jsoup.connect(url).get().select("body > div.neibox > div.neibox02 > div.box > div > div.nei03_02 > div.content01");
+        String format = PageProcessorUtil.formatElementsByWhitelist(html.first());
+        log.info("\n{}\n", format);
+
+        Jsoup.parse(format).select("tr").forEach(System.out::println);
+
+        for (Element td : Jsoup.parse(format).select("td")) {
+            if (StringUtils.contains(td.text(), "项目编号")) {
+                log.info(">>> {}, {}", td.text(), td.nextElementSibling().text());
+            }
+
+            if (StringUtils.contains(td.text(), "预算金额")) {
+                log.info(">>> {}, {}", td.text(), td.nextElementSibling().text());
+            }
+
+            if (StringUtils.contains(td.text(), "中标金额(万元)")) {
+                log.info(">>> {}, {}", td.text(), td.nextElementSibling().text());
+            }
+
+            if (StringUtils.contains(td.text(), "中标供应商名称")) {
+                log.info(">>> {}, {}", td.text(), td.nextElementSibling().text());
+            }
+
+            if (StringUtils.contains(td.text(), "中标供应商地址")) {
+                log.info(">>> {}, {}", td.text(), td.nextElementSibling().text());
+            }
+
+            if (StringUtils.contains(td.text(), "成交金额(万元)")) {
+                log.info(">>> {}, {}", td.text(), td.nextElementSibling().text());
+            }
+
+            if (StringUtils.contains(td.text(), "成交供应商名称")) {
+                log.info(">>> {}, {}", td.text(), td.nextElementSibling().text());
+            }
+
+            if (StringUtils.contains(td.text(), "成交供应商地址")) {
+                log.info(">>> {}, {}", td.text(), td.nextElementSibling().text());
+            }
+
+            if (StringUtils.contains(td.text(), "采购人单位名称")) {
+                log.info(">>> {}, {}", td.text(), td.nextElementSibling().text());
+            }
+        }
+    }
+
+    @Test
     public void testGGZYCQPage() throws Exception {
         String url = "http://www.cqggzy.com/xxhz/014005/014005001/20171205/514185232283561984.html";
         Elements elements = Jsoup.connect(url).get().select("#mainContent div.wrap-post");
@@ -111,7 +162,7 @@ public class CommonTests {
     }
 
     @Test
-    public void testRowKeyLen() throws Exception{
+    public void testRowKeyLen() throws Exception {
         String rowKey = DateTime.now().toString("yyyyMMdd") + ':' + DigestUtils.md5Hex("123456");
         log.debug(">>> row key {}, len={}", rowKey, rowKey.length());
         Assert.assertEquals(rowKey.length(), 41);

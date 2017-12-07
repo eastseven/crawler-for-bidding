@@ -11,18 +11,20 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
 
 import java.util.Date;
 
 /**
  * Created by Administrator on 2017/11/7.
+ *
+ * @author luo fei
  */
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-//@ToString
 @Document(collection = "data_item_ccgp_hn")
 public class CCGPHaiNanDataItem {
 
@@ -45,15 +47,18 @@ public class CCGPHaiNanDataItem {
     private String type;
 
     /**
-     * 投标人
+     * 招标方，采购方，甲方
      */
     private String purchaser;
 
+    private String purchaserAgent;
 
     /**
      * 项目名称，title 下划线前面的值
      */
     private String projectName;
+
+    private String projectCode;
 
     /**
      * 发布时间
@@ -68,6 +73,23 @@ public class CCGPHaiNanDataItem {
     private String html;
 
     private String formatContent;
+
+    /**
+     * 预算金额 budget
+     */
+    private String budget;
+
+    /**
+     * 总成交金额 total_bid_money
+     */
+    @Field("total_bid_money")
+    private String totalBidMoney;
+
+    @Field("bid_company_name")
+    private String bidCompanyName;
+
+    @Field("bid_company_address")
+    private String bidCompanyAddress;
 
     public DataItemDTO dto() {
         DataItemDTO dto = new DataItemDTO();
