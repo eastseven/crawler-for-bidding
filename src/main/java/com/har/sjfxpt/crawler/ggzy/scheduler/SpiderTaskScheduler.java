@@ -10,6 +10,7 @@ import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.GGZYCQSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.GGZYGZSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhlj.GGZYHLJSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn.GGZYHNSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzysc.GGZYSCSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyxz.GGZYXZSpiderLauncher;
@@ -234,24 +235,24 @@ public class SpiderTaskScheduler {
     }
 
     /**
-     * 成都工程建设
-     */
-    @Scheduled(initialDelay = 24000, fixedRate = 6 * 60 * 60 * 1000)
-    public void fetchCDConstruction() {
-        if (flag) {
-            log.info(">>> start fetch {}", SourceCode.CDJS);
-            context.getBean(ChengDuConstructionSpiderLauncher.class).start();
-        }
-    }
-
-    /**
      * 西藏公共资源
      */
-    @Scheduled(initialDelay = 24000, fixedRate = 6 * 60 * 60 * 1000)
+    @Scheduled(initialDelay = 25000, fixedRate = 6 * 60 * 60 * 1000)
     public void fetchGGZYXZ() {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.GGZYXZ);
             context.getBean(GGZYXZSpiderLauncher.class).start();
+        }
+    }
+
+    /**
+     * 黑龙江公共资源
+     */
+    @Scheduled(initialDelay = 26000, fixedRate = 2 * 60 * 60 * 1000)
+    public void fetchGGZYHLJ() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.GGZYHLJ);
+            context.getBean(GGZYHLJSpiderLauncher.class).start();
         }
     }
 }

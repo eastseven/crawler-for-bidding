@@ -86,7 +86,7 @@ public class GGZYHNPageProcessor implements BasePageProcessor {
                     }
                     GGZYHNDataItem.setDate(date);
                     Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
-                    Elements elements = page.getHtml().getDocument().body().select("body > div.container > div > div.newsTex");
+                    Elements elements = page.getHtml().getDocument().body().select("body > div.container > div > div.newsTex > div.newsCon");
                     String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
                     if (StringUtils.isNotBlank(formatContent)) {
                         GGZYHNDataItem.setFormatContent(formatContent);
