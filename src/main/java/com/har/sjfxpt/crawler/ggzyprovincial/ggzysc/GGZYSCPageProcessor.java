@@ -73,7 +73,6 @@ public class GGZYSCPageProcessor implements BasePageProcessor {
                 String href = StringUtils.substringBetween(target, "\"Link\":\"", "\",");
                 String title = StringUtils.substringBetween(target, "\"Title\":\"", "\",");
                 String date = StringUtils.substringBetween(target, "\"CreateDateAll\":\"", "\",");
-                String province = StringUtils.substringBetween(target, "\"username\":\"", "\",");
                 String type = StringUtils.substringBetween(target, "\"TableName\":\"", "\",");
                 String businessType = StringUtils.substringBetween(target, "\"businessType\":\"", "\",");
 
