@@ -31,9 +31,9 @@ public class CCGPCQSpiderLauncher extends BaseSpiderLauncher {
     final int num = Runtime.getRuntime().availableProcessors();
 
     String[] urls = {
-            "https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable?pi=1&ps=20&startDate=&timestamp=1512045570859&type=100,200,201,202,203,204,205,206,207,309,400,401,402,3091,4001",
-            "https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable?pi=1&ps=20&startDate=&timestamp=1512045650210&type=301,303",
-            "https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable?pi=1&ps=20&startDate=&timestamp=1512045664635&type=300,302,304,3041,305,306,307,308"
+            "https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable?pi=1&ps=20&startDate=&timestamp=" + DateTime.now().getMillis() + "&type=100,200,201,202,203,204,205,206,207,309,400,401,402,3091,4001",
+            "https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable?pi=1&ps=20&startDate=&timestamp=" + DateTime.now().getMillis() + "&type=301,303",
+            "https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable?pi=1&ps=20&startDate=&timestamp=" + DateTime.now().getMillis() + "&type=300,302,304,3041,305,306,307,308"
     };
 
     /**

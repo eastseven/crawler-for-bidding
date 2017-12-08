@@ -42,7 +42,6 @@ public class CCGPCQPageProcessor implements BasePageProcessor {
     public void handlePaging(Page page) {
         Map<String, String> pageParams = (Map<String, String>) page.getRequest().getExtras().get(PAGE_PARAMS);
         int count = Integer.parseInt(StringUtils.substringBetween(page.getUrl().toString(), "pi=", "&ps="));
-
         if (count == 1) {
             CCGPCQAnnouncement ccgpcqAnnouncement = JSONObject.parseObject(page.getRawText(), CCGPCQAnnouncement.class);
             int announcementNum = ccgpcqAnnouncement.getTotal();
@@ -62,6 +61,7 @@ public class CCGPCQPageProcessor implements BasePageProcessor {
 
     @Override
     public void handleContent(Page page) {
+        log.info("pageUrl=={}", page.getUrl().get());
         Map<String, String> pageParams = (Map<String, String>) page.getRequest().getExtras().get(PAGE_PARAMS);
         List<CCGPCQDataItem> dataItems = parseContent(page);
         String type = pageParams.get("type");
