@@ -280,7 +280,7 @@ public class CommonTests {
 
     @Test
     public void testPageProcessorUtil() {
-        String text = "发布时间：2017-10-30 10:03:36";
+        String text = "2017-12-07";
         String result = PageProcessorUtil.dataTxt(text);
         Assert.assertNotNull(result);
         log.debug("{}, {}", text, result);

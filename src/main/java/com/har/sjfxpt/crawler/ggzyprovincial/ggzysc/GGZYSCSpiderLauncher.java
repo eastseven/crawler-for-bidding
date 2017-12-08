@@ -26,8 +26,8 @@ public class GGZYSCSpiderLauncher extends BaseSpiderLauncher {
     final int num = Runtime.getRuntime().availableProcessors();
 
     final String[] urls = {
-            "http://www.scztb.gov.cn/Info/GetInfoListNew?keywords=&times=1&timesStart=&timesEnd=&province=&area=&businessType=project&informationType=&page=1&parm="+ DateTime.now().getMillis(),
-            "http://www.scztb.gov.cn/Info/GetInfoListNew?keywords=&times=1&timesStart=&timesEnd=&province=&area=&businessType=purchase&informationType=&page=1&parm="+DateTime.now().getMillis()
+            "http://www.scztb.gov.cn/Info/GetInfoListNew?keywords=&times=1&timesStart=&timesEnd=&province=&area=&businessType=project&informationType=&page=1&parm=" + DateTime.now().getMillis(),
+            "http://www.scztb.gov.cn/Info/GetInfoListNew?keywords=&times=1&timesStart=&timesEnd=&province=&area=&businessType=purchase&informationType=&page=1&parm=" + DateTime.now().getMillis()
     };
 
     /**

@@ -135,7 +135,7 @@ public class SpiderTaskScheduler {
     /**
      * 四川政府采购网
      */
-    @Scheduled(initialDelay = 24000, fixedRate = 6 * 60 * 60 * 1000)
+    @Scheduled(initialDelay = 24000, fixedRate = 60 * 60 * 1000)
     public void fetchCCGP4SiChuan() {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.CCGPSC);

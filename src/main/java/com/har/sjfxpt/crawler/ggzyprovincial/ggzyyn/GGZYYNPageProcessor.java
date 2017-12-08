@@ -18,6 +18,7 @@ import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
 
+import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
@@ -146,6 +147,13 @@ public class GGZYYNPageProcessor implements BasePageProcessor {
                         if (PageProcessorUtil.timeCompare(yuNanDataItem.getDate())) {
                             log.warn("{} is not the same day", yuNanDataItem.getUrl());
                         } else {
+                            try {
+                                if (PageProcessorUtil.timeDetailCompare(yuNanDataItem.getDate())) {
+                                    yuNanDataItem.setDate(DateTime.now().toString("yyyy-MM-dd HH:mm"));
+                                }
+                            } catch (ParseException e) {
+                                log.error("", e);
+                            }
                             yuNanDataItem.setFormatContent(formatContent);
                             dataItems.add(yuNanDataItem);
                         }
