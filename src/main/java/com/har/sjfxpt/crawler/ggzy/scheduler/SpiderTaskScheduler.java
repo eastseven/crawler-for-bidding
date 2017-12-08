@@ -14,6 +14,7 @@ import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn.GGZYHNSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzysc.GGZYSCSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyxz.GGZYXZSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyyn.GGZYYNSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.hbebtp.HBEBTPSpiderLauncher;
 import com.har.sjfxpt.crawler.jcw.JinCaiWangSpiderLauncher;
 import com.har.sjfxpt.crawler.petrochina.ZGShiYouSpiderLauncher;
 import com.har.sjfxpt.crawler.sgcc.StateGridSpiderLauncher;
@@ -252,6 +253,17 @@ public class SpiderTaskScheduler {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.GGZYHLJ);
             context.getBean(GGZYHLJSpiderLauncher.class).start();
+        }
+    }
+
+    /**
+     * 湖北电子招投标
+     */
+    @Scheduled(initialDelay = 27000, fixedRate = 6 * 60 * 60 * 1000)
+    public void fetchHBEBTP() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.HBEBPT);
+            context.getBean(HBEBTPSpiderLauncher.class).start();
         }
     }
 }

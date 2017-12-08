@@ -21,6 +21,7 @@ import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_
 
 /**
  * Created by Administrator on 2017/11/7.
+ *
  * @author luo fei
  */
 @Slf4j
@@ -118,7 +119,7 @@ public class CCGPHaiNanPageProcessor implements BasePageProcessor {
                     if (StringUtils.endsWithIgnoreCase(tdText, "中标金额(万元)") ||
                             StringUtils.contains(tdText, "成交金额(万元)")) {
                         log.debug(">>> {}, {}", tdText, td.nextElementSibling().text());
-                        haiNanDataItem.setTotalBidMoney(StringUtils.trim(td.nextElementSibling().text()));
+                        haiNanDataItem.setTotalBidMoney(StringUtils.trim(td.nextElementSibling().text()) + "万元");
                     }
 
                     if (StringUtils.endsWithIgnoreCase(tdText, "中标供应商名称") ||

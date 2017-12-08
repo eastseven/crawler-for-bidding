@@ -36,9 +36,16 @@ public class HBEBTPPageProcessor implements BasePageProcessor {
             if (StringUtils.isNotBlank(pageCount)) {
                 int pageNum = Integer.parseInt(pageCount);
                 if (pageNum >= 2) {
-                    for (int i = 2; i <= pageNum; i++) {
-                        String urlTarget = url + "?Paging=" + i;
-                        page.addTargetRequest(urlTarget);
+                    if (pageNum >= 5) {
+                        for (int i = 2; i <= 5; i++) {
+                            String urlTarget = url + "?Paging=" + i;
+                            page.addTargetRequest(urlTarget);
+                        }
+                    } else {
+                        for (int i = 2; i <= pageNum; i++) {
+                            String urlTarget = url + "?Paging=" + i;
+                            page.addTargetRequest(urlTarget);
+                        }
                     }
                 }
             }
@@ -96,19 +103,23 @@ public class HBEBTPPageProcessor implements BasePageProcessor {
                 hbebtpDataItem.setUrl(href);
                 hbebtpDataItem.setTitle(title);
                 hbebtpDataItem.setDate(PageProcessorUtil.dataTxt(date));
-                Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
-                try {
-                    Elements elements = page.getHtml().getDocument().body().select("#tblInfo");
-                    String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
-                    if (StringUtils.contains(formatContent, "阅读次数：")) {
-                        formatContent = StringUtils.remove(formatContent, StringUtils.substringBetween(formatContent, "<h4>", "</h4>"));
+                if (PageProcessorUtil.timeCompare(hbebtpDataItem.getDate())) {
+                    log.warn("{} is not the same day", hbebtpDataItem.getUrl());
+                } else {
+                    Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
+                    try {
+                        Elements elements = page.getHtml().getDocument().body().select("#tblInfo");
+                        String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
+                        if (StringUtils.contains(formatContent, "阅读次数：")) {
+                            formatContent = StringUtils.remove(formatContent, StringUtils.substringBetween(formatContent, "<h4>", "</h4>"));
+                        }
+                        if (StringUtils.isNotBlank(formatContent)) {
+                            hbebtpDataItem.setFormatContent(formatContent);
+                            dataItems.add(hbebtpDataItem);
+                        }
+                    } catch (Exception e) {
+                        log.info("href=={}", href);
                     }
-                    if (StringUtils.isNotBlank(formatContent)) {
-                        hbebtpDataItem.setFormatContent(formatContent);
-                        dataItems.add(hbebtpDataItem);
-                    }
-                } catch (Exception e) {
-                    log.info("href=={}", href);
                 }
             }
         }
