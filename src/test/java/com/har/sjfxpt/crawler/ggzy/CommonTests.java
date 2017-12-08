@@ -11,6 +11,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Duration;
 import org.joda.time.Period;
 import org.joda.time.PeriodType;
+import org.joda.time.format.DateTimeFormat;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -39,6 +40,34 @@ import static com.har.sjfxpt.crawler.petrochina.ZGShiYouPageProcessor.formUrl;
 
 @Slf4j
 public class CommonTests {
+
+    @Test
+    public void testGGZYYNPage() throws Exception {
+        String url = "https://www.ynggzyxx.gov.cn/jyxx/jsgcZbggDetail?guid=f0492333-6ccc-4308-8e11-332048717a66&isOther=false";
+        Document doc = Jsoup.connect(url).get();
+        Elements elements = doc.select("body > div.w1200s > div > div.detail_contect > div.con");
+        String html = PageProcessorUtil.formatElementsByWhitelist(elements.first());
+        log.info("\n{}\n", html);
+        for (Element td : Jsoup.parse(html).select("td")) {
+            if (td.text().contains("本次发包估价")) {
+                log.info(">>> {}, {}", td.text(), td.nextElementSibling().text());
+            }
+        }
+        //
+        url = "https://www.ynggzyxx.gov.cn/jyxx/jsgcZbjggsDetail?guid=956a34c8-7f36-4c01-811b-8593bc679236&isOther=false";
+        doc = Jsoup.connect(url).get();
+        elements = doc.select("div.w1200s").select("div.detail_contect").select("div.con");
+        log.info("\n{}\n", elements.html());
+        for (Element td : elements.select("table tr td")) {
+            if (td.text().contains("中标人")) {
+                log.info(">>> {}, {}", td.text(), td.nextElementSibling().text());
+            }
+
+            if (td.text().contains("中标价")) {
+                log.info(">>> {}, {}", td.text(), td.nextElementSibling().text());
+            }
+        }
+    }
 
     @Test
     public void testCCGPHNPage() throws Exception {
@@ -95,12 +124,12 @@ public class CommonTests {
     public void testGGZYCQPage() throws Exception {
         String url = "http://www.cqggzy.com/xxhz/014005/014005001/20171205/514185232283561984.html";
         Elements elements = Jsoup.connect(url).get().select("#mainContent div.wrap-post");
-        String html = PageProcessorUtil.formatElementsByWhitelist(elements.first());
 
+        String html = PageProcessorUtil.formatElementsByWhitelist(elements.first());
         Document doc = Jsoup.parse(html);
-        for (Element h : doc.select("h4")) {
-            if (StringUtils.containsIgnoreCase(h.text(), "预算金额")) {
-                log.info("\n{}, {}\n", h, h.children().text());
+        for (Element element : doc.select("h4")) {
+            if (StringUtils.containsIgnoreCase(element.text(), "预算金额")) {
+                log.info("\n{}, {}\n", element, element.children().text());
                 break;
             }
         }
@@ -357,6 +386,10 @@ public class CommonTests {
         String time = PageProcessorUtil.dataTxt("发布时间：2016-05-09");
         log.info("time={}", time);
         log.info("{}", PageProcessorUtil.dataTxt("2017-10-18 15:14"));
+
+        String v = "20171207123456";
+        DateTime dt = DateTime.parse(v, DateTimeFormat.forPattern("yyyyMMddHHmmss"));
+        log.debug(">>> {}", dt.toString("yyyy-MM-dd HH:mm:ss"));
     }
 
     @Test
