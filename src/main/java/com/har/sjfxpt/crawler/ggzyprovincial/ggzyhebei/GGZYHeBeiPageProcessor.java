@@ -102,7 +102,6 @@ public class GGZYHeBeiPageProcessor implements BasePageProcessor {
         dataItems.forEach(dataItem -> {
             dataItem.setType(type);
             dataItem.setBusinessType(businessType);
-            dataItem.setForceUpdate(true);
         });
         if (!dataItems.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItems);

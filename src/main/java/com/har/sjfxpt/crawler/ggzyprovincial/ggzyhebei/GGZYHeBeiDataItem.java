@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -56,8 +57,6 @@ public class GGZYHeBeiDataItem {
 
 
     private String formatContent;
-
-    private boolean forceUpdate;
 
 
     public DataItemDTO dto() {
