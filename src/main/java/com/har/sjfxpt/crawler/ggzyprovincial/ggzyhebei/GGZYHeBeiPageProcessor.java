@@ -69,20 +69,12 @@ public class GGZYHeBeiPageProcessor implements BasePageProcessor {
         List<GGZYHeBeiAnnouncement.ResultBean.RecordsBean> recordsBeanList = ggzyHeBeiAnnouncement.getResult().getRecords();
         for (int i = 0; i < recordsBeanList.size(); i++) {
             String href = recordsBeanList.get(i).getLink();
-            String title = recordsBeanList.get(i).getTitle();
             String date = recordsBeanList.get(i).getDate();
-            String source = recordsBeanList.get(i).getRemark3();
             if (!StringUtils.startsWith(href, "http:")) {
                 href = "http://www.hebpr.cn" + href;
             }
-            if (StringUtils.containsIgnoreCase(title, "<font color='#CC0000'>") || StringUtils.containsIgnoreCase(title, "</font>")) {
-                title = StringUtils.remove(title, "<font color='#CC0000'>");
-                title = StringUtils.remove(title, "</font>");
-            }
             GGZYHeBeiDataItem ggzyHeBeiDataItem = new GGZYHeBeiDataItem(href);
             ggzyHeBeiDataItem.setUrl(href);
-            ggzyHeBeiDataItem.setTitle(title);
-            ggzyHeBeiDataItem.setSource(source);
             ggzyHeBeiDataItem.setDate(PageProcessorUtil.dataTxt(date));
 
             if (PageProcessorUtil.timeCompare(ggzyHeBeiDataItem.getDate())) {
@@ -90,6 +82,13 @@ public class GGZYHeBeiPageProcessor implements BasePageProcessor {
             } else {
                 Page page1 = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
                 Elements elements = page1.getHtml().getDocument().body().select("#mainContent");
+                Elements elements1 = page1.getHtml().getDocument().body().select("body > div.ewb-container.ewb-pb30 > div.ewb-main > div > div.ewb-poll-hd > h1");
+                String title = elements1.text();
+                if (StringUtils.containsIgnoreCase(title, "<font color='#CC0000'>") || StringUtils.containsIgnoreCase(title, "</font>")) {
+                    title = StringUtils.remove(title, "<font color='#CC0000'>");
+                    title = StringUtils.remove(title, "</font>");
+                }
+                ggzyHeBeiDataItem.setTitle(title);
                 String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
                 if (StringUtils.isNotBlank(formatContent)) {
                     ggzyHeBeiDataItem.setFormatContent(formatContent);
@@ -103,6 +102,7 @@ public class GGZYHeBeiPageProcessor implements BasePageProcessor {
         dataItems.forEach(dataItem -> {
             dataItem.setType(type);
             dataItem.setBusinessType(businessType);
+            dataItem.setForceUpdate(true);
         });
         if (!dataItems.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItems);

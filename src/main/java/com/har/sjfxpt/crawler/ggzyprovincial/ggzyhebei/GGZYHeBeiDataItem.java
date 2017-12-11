@@ -57,6 +57,8 @@ public class GGZYHeBeiDataItem {
 
     private String formatContent;
 
+    private boolean forceUpdate;
+
 
     public DataItemDTO dto() {
         DataItemDTO dto = new DataItemDTO();
