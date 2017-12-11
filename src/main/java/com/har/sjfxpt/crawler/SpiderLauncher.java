@@ -9,6 +9,7 @@ import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.GGZYCQSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.GGZYGZSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhebei.GGZYHeBeiSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.hbebtp.HBEBTPSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhlj.GGZYHLJSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn.GGZYHNSpiderLauncher;
@@ -108,6 +109,9 @@ public class SpiderLauncher implements CommandLineRunner {
     @Autowired
     HBEBTPSpiderLauncher hbebtpSpiderLauncher;
 
+    @Autowired
+    GGZYHeBeiSpiderLauncher ggzyHeBeiSpiderLauncher;
+
     public void info() {
         gongGongZiYuanSpiderLauncher.printInfo();
         chinaMobileSpiderLauncher.printInfo();
@@ -131,6 +135,7 @@ public class SpiderLauncher implements CommandLineRunner {
         ggzyxzSpiderLauncher.printInfo();
         ggzyhljSpiderLauncher.printInfo();
         hbebtpSpiderLauncher.printInfo();
+        ggzyHeBeiSpiderLauncher.printInfo();
     }
 
     @Override
@@ -239,6 +244,9 @@ public class SpiderLauncher implements CommandLineRunner {
                     break;
                 case "start-hbebtp":
                     hbebtpSpiderLauncher.start();
+                    break;
+                case "start-ggzyhebei":
+                    ggzyHeBeiSpiderLauncher.start();
                     break;
                 default:
                     break;
