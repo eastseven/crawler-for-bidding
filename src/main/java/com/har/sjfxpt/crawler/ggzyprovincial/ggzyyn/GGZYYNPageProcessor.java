@@ -161,18 +161,18 @@ public class GGZYYNPageProcessor implements BasePageProcessor {
                         // 招标公告字段提取
                         for (Element td : Jsoup.parse(formatContent).select("td")) {
                             String tdText = td.text();
-                            if (tdText.contains("本次发包估价")) {
+                            if (tdText.equalsIgnoreCase("本次发包估价：")) {
                                 //TODO 存在一个公告内有多个标段的情况，每个标段都有 本次发包估价 字段，目前没有处理这种情况
                                 String budget = td.nextElementSibling().text();
                                 yuNanDataItem.setBudget(StringUtils.strip(budget));
                             }
 
-                            if (tdText.contains("建设单位")) {
+                            if (tdText.equalsIgnoreCase("建设单位：")) {
                                 String purchaser = td.nextElementSibling().text();
                                 yuNanDataItem.setPurchaser(StringUtils.strip(purchaser));
                             }
 
-                            if (tdText.contains("招标代理机构")) {
+                            if (tdText.equalsIgnoreCase("招标代理机构：")) {
                                 String purchaserAgent = td.nextElementSibling().text();
                                 yuNanDataItem.setPurchaserAgent(StringUtils.strip(purchaserAgent));
                             }
@@ -184,12 +184,14 @@ public class GGZYYNPageProcessor implements BasePageProcessor {
                     if (!html.isEmpty()) {
                         for (Element td : html.select("table tr td")) {
                             String tdText = td.text();
-                            if (tdText.contains("中标人")) {
+                            if (tdText.equalsIgnoreCase("中标人：")) {
                                 String bidCompanyName = td.nextElementSibling().text();
                                 yuNanDataItem.setBidCompanyName(StringUtils.strip(bidCompanyName));
                             }
 
-                            if (tdText.contains("中标价")) {
+                            if (tdText.equalsIgnoreCase("中标价：")) {
+                                log.debug("td.nextElementSibling {}", td.nextElementSibling());
+                                log.debug("td {}", td);
                                 String totalBidMoney = td.nextElementSibling().text();
                                 yuNanDataItem.setTotalBidMoney(StringUtils.strip(totalBidMoney));
                             }
@@ -197,6 +199,7 @@ public class GGZYYNPageProcessor implements BasePageProcessor {
                     }
                 } catch (Exception e) {
                     log.error("", e);
+                    log.error("url {}", url);
                 }
             }
         }

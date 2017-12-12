@@ -1,14 +1,12 @@
-package com.har.sjfxpt.crawler.ggzy.ggzypageprocessottests;
+package com.har.sjfxpt.crawler.ggzyprovincial.hbebtp;
 
 import com.google.common.collect.Lists;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhb.GGZYHBPageProcessor;
+import com.har.sjfxpt.crawler.BaseSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 
@@ -17,18 +15,25 @@ import java.util.List;
 import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.THREAD_NUM;
 
 /**
- * Created by Administrator on 2017/12/6.
+ * Created by Administrator on 2017/12/8.
  */
 @Slf4j
-@SpringBootTest
-@RunWith(SpringRunner.class)
-public class GGZYHBPageProcessorTests {
+@Component
+public class HBEBTPSpiderLauncher extends BaseSpiderLauncher {
+
+    private final String uuid = SourceCode.HBEBPT.toString().toLowerCase() + "-current";
 
     @Autowired
-    GGZYHBPageProcessor ggzyhbPageProcessor;
+    HBEBTPPageProcessor hbebtpPageProcessor;
 
-    @Test
-    public void test() {
+    @Autowired
+    HBEBTPPipeline hbebtpPipeline;
+
+    /**
+     * 爬取当日数据
+     */
+    public void start() {
+        cleanSpider(uuid);
         String url = "http://www.hbbidcloud.com/hbcloud/jyxx/00200";
         List<String> lists = Lists.newArrayList();
         List<String> listsDetail = Lists.newArrayList();
@@ -42,15 +47,17 @@ public class GGZYHBPageProcessorTests {
                 listsDetail.add(urlTarget + "/" + filed + "00" + i + "/");
             }
         }
-
         Request[] requests = new Request[listsDetail.size()];
         for (int i = 0; i < listsDetail.size(); i++) {
             Request request = new Request(listsDetail.get(i));
             requests[i] = request;
         }
-        Spider.create(ggzyhbPageProcessor)
+        Spider spider = Spider.create(hbebtpPageProcessor)
+                .addPipeline(hbebtpPipeline)
+                .setUUID(uuid)
                 .addRequest(requests)
-                .thread(THREAD_NUM)
-                .run();
+                .thread(THREAD_NUM);
+        addSpider(spider);
+        start(uuid);
     }
 }

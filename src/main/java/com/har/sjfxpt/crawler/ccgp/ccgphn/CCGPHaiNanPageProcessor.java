@@ -21,6 +21,7 @@ import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_
 
 /**
  * Created by Administrator on 2017/11/7.
+ *
  * @author luo fei
  */
 @Slf4j
@@ -71,7 +72,7 @@ public class CCGPHaiNanPageProcessor implements BasePageProcessor {
                 typeTxt = StringUtils.replace(typeTxt, "| ", "");
             }
             String url = element.attr("href");
-            if (StringUtils.startsWith(url, "http")) {
+            if (!StringUtils.startsWith(url, "http")) {
                 url = "http://www.ccgp-hainan.gov.cn" + url;
             }
             String title = element.text();
@@ -105,35 +106,35 @@ public class CCGPHaiNanPageProcessor implements BasePageProcessor {
                 String format = PageProcessorUtil.formatElementsByWhitelist(html.first());
                 for (Element td : Jsoup.parse(format).select("td")) {
                     String tdText = td.text();
-                    if (StringUtils.contains(tdText, "项目编号")) {
+                    if (StringUtils.endsWithIgnoreCase(tdText, "项目编号")) {
                         log.debug(">>> {}, {}", tdText, td.nextElementSibling().text());
                         haiNanDataItem.setProjectCode(StringUtils.trim(td.nextElementSibling().text()));
                     }
 
-                    if (StringUtils.contains(tdText, "预算金额")) {
+                    if (StringUtils.endsWithIgnoreCase(tdText, "预算金额")) {
                         log.debug(">>> {}, {}", tdText, td.nextElementSibling().text());
                         haiNanDataItem.setBudget(StringUtils.trim(td.nextElementSibling().text()));
                     }
 
-                    if (StringUtils.contains(tdText, "中标金额(万元)") ||
+                    if (StringUtils.endsWithIgnoreCase(tdText, "中标金额(万元)") ||
                             StringUtils.contains(tdText, "成交金额(万元)")) {
                         log.debug(">>> {}, {}", tdText, td.nextElementSibling().text());
-                        haiNanDataItem.setTotalBidMoney(StringUtils.trim(td.nextElementSibling().text()));
+                        haiNanDataItem.setTotalBidMoney(StringUtils.trim(td.nextElementSibling().text()) + "万元");
                     }
 
-                    if (StringUtils.contains(tdText, "中标供应商名称") ||
+                    if (StringUtils.endsWithIgnoreCase(tdText, "中标供应商名称") ||
                             StringUtils.contains(tdText, "成交供应商名称")) {
                         log.debug(">>> {}, {}", tdText, td.nextElementSibling().text());
                         haiNanDataItem.setBidCompanyName(StringUtils.trim(td.nextElementSibling().text()));
                     }
 
-                    if (StringUtils.contains(tdText, "中标供应商地址") ||
+                    if (StringUtils.endsWithIgnoreCase(tdText, "中标供应商地址") ||
                             StringUtils.contains(tdText, "成交供应商地址")) {
                         log.debug(">>> {}, {}", tdText, td.nextElementSibling().text());
                         haiNanDataItem.setBidCompanyAddress(StringUtils.trim(td.nextElementSibling().text()));
                     }
 
-                    if (StringUtils.contains(tdText, "采购人单位名称")) {
+                    if (StringUtils.endsWithIgnoreCase(tdText, "采购人单位名称")) {
                         log.debug(">>> {}, {}", tdText, td.nextElementSibling().text());
                         haiNanDataItem.setPurchaser(StringUtils.trim(td.nextElementSibling().text()));
                     }
