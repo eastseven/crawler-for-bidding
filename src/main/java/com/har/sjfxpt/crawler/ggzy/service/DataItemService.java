@@ -183,6 +183,7 @@ public class DataItemService {
         put.addColumn(family, "type".getBytes(),               StringUtils.defaultString(dataItem.getType(), "").getBytes(charsetName));
         put.addColumn(family, "source".getBytes(),             StringUtils.defaultString(dataItem.getSource(), "其他").getBytes(charsetName));
         put.addColumn(family, Bytes.toBytes("source_code"), StringUtils.defaultString(dataItem.getSourceCode(), "UNKNOWN").getBytes(charsetName));
+        put.addColumn(family, Bytes.toBytes("sourceCode"), StringUtils.defaultString(dataItem.getSourceCode(), "UNKNOWN").getBytes(charsetName));
         put.addColumn(family, "date".getBytes(),               StringUtils.defaultString(dataItem.getDate(), "").getBytes(charsetName));
         put.addColumn(family, "create_time".getBytes(),        StringUtils.defaultString(dataItem.getCreateTime(), "").getBytes(charsetName));
         put.addColumn(family, "formatContent".getBytes(),      StringUtils.defaultString(dataItem.getFormatContent(), "").getBytes(charsetName));
