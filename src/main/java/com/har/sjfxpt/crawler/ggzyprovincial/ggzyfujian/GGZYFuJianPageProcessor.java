@@ -8,6 +8,8 @@ import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
@@ -43,7 +45,7 @@ public class GGZYFuJianPageProcessor implements BasePageProcessor {
             GGZYFuJianAnnouncement ggzyFuJianAnnouncement = JSONObject.parseObject(page.getRawText(), GGZYFuJianAnnouncement.class);
             int announcementNum = ggzyFuJianAnnouncement.getTotal();
             int pageCount = announcementNum % pageSize == 0 ? announcementNum / pageSize : announcementNum / pageSize + 1;
-            log.info("pageCount=={}", pageCount);
+            log.debug("pageCount=={}", pageCount);
             for (int i = 2; i <= pageCount; i++) {
                 pageParams.put("pageNo", i);
                 Request request = new Request(url);
@@ -80,12 +82,12 @@ public class GGZYFuJianPageProcessor implements BasePageProcessor {
                 ggzyFuJianDataItem.setTitle(title);
                 ggzyFuJianDataItem.setType(type);
                 ggzyFuJianDataItem.setSource(source);
-                ggzyFuJianDataItem.setDate(date);
+                ggzyFuJianDataItem.setDate(DateTime.parse(date, DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss")).toString("yyyy-MM-dd HH:mm"));
                 ggzyFuJianDataItem.setBusinessType("工程建设");
                 String getFormContentUrl = "https://www.fjggfw.gov.cn/Website/AjaxHandler/BuilderHandler.ashx?OPtype=GetGGInfoPC&ID=" + m_id + "&GGTYPE=" + ggtype + "&url=AjaxHandler%2FBuilderHandler.ashx";
                 Page page1 = httpClientDownloader.download(new Request(getFormContentUrl), SiteUtil.get().setTimeOut(50000).toTask());
                 GGZYFuJianContentAnnouncement ggzyFuJianContentAnnouncement = JSONObject.parseObject(page1.getRawText(), GGZYFuJianContentAnnouncement.class);
-                log.info("getFormContentUrl=={}", getFormContentUrl);
+                log.debug("getFormContentUrl=={}", getFormContentUrl);
                 int resultNum = ggzyFuJianContentAnnouncement.getResult2();
                 String formatContent = ggzyFuJianContentAnnouncement.getData().get(resultNum - 1).toString();
                 if (StringUtils.isNotBlank(formatContent)) {
@@ -100,7 +102,7 @@ public class GGZYFuJianPageProcessor implements BasePageProcessor {
                 ggzyFuJianDataItem.setTitle(title);
                 ggzyFuJianDataItem.setType(type);
                 ggzyFuJianDataItem.setSource(source);
-                ggzyFuJianDataItem.setDate(date);
+                ggzyFuJianDataItem.setDate(DateTime.parse(date, DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss")).toString("yyyy-MM-dd HH:mm"));
                 ggzyFuJianDataItem.setBusinessType("政府采购");
                 Request request = new Request("https://www.fjggfw.gov.cn/Website/AjaxHandler/BuilderHandler.ashx");
                 Map<String, Object> pageParams = Maps.newHashMap();

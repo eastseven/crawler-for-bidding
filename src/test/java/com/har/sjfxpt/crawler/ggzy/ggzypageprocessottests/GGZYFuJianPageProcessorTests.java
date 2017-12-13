@@ -3,11 +3,14 @@ package com.har.sjfxpt.crawler.ggzy.ggzypageprocessottests;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzyfujian.*;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzyfujian.GGZYFuJianContentAnnouncement;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzyfujian.GGZYFuJianPageProcessor;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzyfujian.GGZYFuJianPipeline;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzyfujian.GGZYFuJianZFCGContentAnnouncement;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,9 +23,14 @@ import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.model.HttpRequestBody;
 import us.codecraft.webmagic.utils.HttpConstant;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
+import java.util.TimeZone;
 
 import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.THREAD_NUM;
+import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyfujian.GGZYFuJianSpiderLauncher.requestGenerator;
 
 /**
  * Created by Administrator on 2017/12/12.
@@ -52,25 +60,7 @@ public class GGZYFuJianPageProcessorTests {
                 .run();
     }
 
-    public static Request requestGenerator(String url, String date, String type) {
-        Request request = new Request(url);
-        Map<String, Object> pageParams = Maps.newHashMap();
-        pageParams.put("OPtype", "GetListNew");
-        pageParams.put("pageNo", "1");
-        pageParams.put("pageSize", "10");
-        pageParams.put("proArea", "-1");
-        pageParams.put("category", type);
-        pageParams.put("announcementType", "-1");
-        pageParams.put("ProType", "-1");
-        pageParams.put("xmlx", "-1");
-        pageParams.put("projectName", "");
-        pageParams.put("TopTime", date + " 00:00:00");
-        pageParams.put("EndTime", date + " 23:59:59");
-        request.setMethod(HttpConstant.Method.POST);
-        request.setRequestBody(HttpRequestBody.form(pageParams, "UTF-8"));
-        request.putExtra("pageParams", pageParams);
-        return request;
-    }
+
 
 
     @Test
@@ -102,6 +92,15 @@ public class GGZYFuJianPageProcessorTests {
         String contract_term = data3Bean.getCONTRACT_TERM();
         String formatContent = "<div class=\"detail_content\"><table class=\"detail_Table\" cellspacing=\"1\" cellpadding=\"1\"><tbody><tr><th>采购人名称</th><td>" + purchaser_name + "</td></tr><tr><th>中标（成交）供应商名称</th><td>" + supplier_name + "</td></tr><tr><th>合同金额</th><td>" + contract_amount + price_unit_text + currency_code_text + "</td></tr><tr><th>合同期限</th><td>" + contract_term + "</td></tr></tbody></table></div>";
         log.info("formatContent=={}", formatContent);
+    }
+
+    @Test
+    public void testTime() throws ParseException {
+        String time = "2017-12-13T10:55:44";
+//        DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss");
+//        DateTime dateTime = DateTime.parse(time, dateTimeFormat);
+//        log.info("time=={}",dateTime.toString("yyyy-MM-dd HH:mm"));
+        log.info("time=={}",DateTime.parse(time,DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss")).toString("yyyy-MM-dd HH:mm"));
     }
 
 

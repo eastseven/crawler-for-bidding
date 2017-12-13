@@ -8,6 +8,7 @@ import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.GGZYCQSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzyfujian.GGZYFuJianSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.GGZYGZSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhebei.GGZYHeBeiSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhlj.GGZYHLJSpiderLauncher;
@@ -279,4 +280,14 @@ public class SpiderTaskScheduler {
         }
     }
 
+    /**
+     * 福建公共资源
+     */
+    @Scheduled(initialDelay = 26000, fixedRate = 30 * 60 * 1000)
+    public void fetchGGZYFuJian() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.GGZYFUJIAN);
+            context.getBean(GGZYFuJianSpiderLauncher.class).start();
+        }
+    }
 }
