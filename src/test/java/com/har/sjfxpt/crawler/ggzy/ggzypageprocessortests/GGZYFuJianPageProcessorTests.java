@@ -1,4 +1,4 @@
-package com.har.sjfxpt.crawler.ggzy.ggzypageprocessottests;
+package com.har.sjfxpt.crawler.ggzy.ggzypageprocessortests;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Maps;
@@ -10,7 +10,6 @@ import com.har.sjfxpt.crawler.ggzyprovincial.ggzyfujian.GGZYFuJianZFCGContentAnn
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +23,7 @@ import us.codecraft.webmagic.model.HttpRequestBody;
 import us.codecraft.webmagic.utils.HttpConstant;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Map;
-import java.util.TimeZone;
 
 import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.THREAD_NUM;
 import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyfujian.GGZYFuJianSpiderLauncher.requestGenerator;

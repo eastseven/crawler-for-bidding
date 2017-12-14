@@ -1,4 +1,4 @@
-package com.har.sjfxpt.crawler.ggzy.ggzypageprocessottests;
+package com.har.sjfxpt.crawler.ggzy.ggzypageprocessortests;
 
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyshanxi.GGZYShanXiPageProcessor;

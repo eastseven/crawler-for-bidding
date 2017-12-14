@@ -1,4 +1,4 @@
-package com.har.sjfxpt.crawler.ggzy.ggzypageprocessottests;
+package com.har.sjfxpt.crawler.ggzy.ggzypageprocessortests;
 
 import com.google.common.collect.Lists;
 import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;

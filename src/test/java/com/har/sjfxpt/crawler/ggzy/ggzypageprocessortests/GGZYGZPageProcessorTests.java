@@ -1,4 +1,4 @@
-package com.har.sjfxpt.crawler.ggzy.ggzypageprocessottests;
+package com.har.sjfxpt.crawler.ggzy.ggzypageprocessortests;
 
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.GGZYGZPageProcessor;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.GGZYGZPipeline;

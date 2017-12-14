@@ -1,4 +1,4 @@
-package com.har.sjfxpt.crawler.ggzy.ggzypageprocessottests;
+package com.har.sjfxpt.crawler.ggzy.ggzypageprocessortests;
 
 import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;

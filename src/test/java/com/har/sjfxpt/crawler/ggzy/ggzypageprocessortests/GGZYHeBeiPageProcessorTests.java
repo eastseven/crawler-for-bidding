@@ -1,14 +1,9 @@
-package com.har.sjfxpt.crawler.ggzy.ggzypageprocessottests;
+package com.har.sjfxpt.crawler.ggzy.ggzypageprocessortests;
 
-import com.google.common.collect.Maps;
-import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhebei.GGZYHeBeiPageProcessor;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhebei.GGZYHeBeiPipeline;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +11,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
-
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.THREAD_NUM;
 import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyhebei.GGZYHeBeiSpiderLauncher.requestGenerators;
