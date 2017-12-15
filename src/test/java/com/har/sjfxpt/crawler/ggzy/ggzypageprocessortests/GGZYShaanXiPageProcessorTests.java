@@ -2,6 +2,7 @@ package com.har.sjfxpt.crawler.ggzy.ggzypageprocessortests;
 
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
+import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyshaanxi.GGZYShaanXiPageProcessor;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyshaanxi.GGZYShaanXiPipeline;
 import lombok.extern.slf4j.Slf4j;
@@ -11,8 +12,10 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
+import us.codecraft.webmagic.downloader.HttpClientDownloader;
 
 import java.util.Map;
 
@@ -66,6 +69,15 @@ public class GGZYShaanXiPageProcessorTests {
         log.info("date=={}", PageProcessorUtil.dataTxt(dataReal));
     }
 
+    @Test
+    public void testDownload() {
+        HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
+        Page page = httpClientDownloader.download(new Request("http://www.sxggzyjy.cn/jydt/001001/001001001/001001001002/20171214/ff808081604e2cf6016052c970b20fb0.html"), SiteUtil.get().toTask());
+        String dataInformation = page.getHtml().getDocument().body().select("body > div.ewb-container > div.ewb-main > div.info-source").text();
+        log.info("dataInformation=={}", dataInformation);
+        String dataReal = StringUtils.substringBetween(dataInformation, "信息时间：", "】");
+        log.info("dataReal=={}", dataReal);
+    }
 
 
 }
