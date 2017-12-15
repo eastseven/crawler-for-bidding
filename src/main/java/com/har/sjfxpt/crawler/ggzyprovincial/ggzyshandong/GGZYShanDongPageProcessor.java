@@ -30,13 +30,14 @@ public class GGZYShanDongPageProcessor implements BasePageProcessor {
     @Override
     public void handlePaging(Page page) {
         String url = page.getUrl().get();
-        int pageNum = Integer.parseInt(StringUtils.substringBetween(url, "inDates=", "&channelId="));
+        int pageNum = Integer.parseInt(StringUtils.substringBetween(url, "queryContent_", "-jyxx.jspx"));
         if (pageNum == 1) {
             Elements elements = page.getHtml().getDocument().body().select("body > div.content > div.jyxxcontent > div > div > ul > li:nth-child(1) > a");
             int pageCount = Integer.parseInt(StringUtils.substringBetween(elements.text(), "/", "页"));
             if (pageCount >= 2) {
                 for (int i = 2; i <= pageCount; i++) {
                     String urlTarget = StringUtils.replace(url, "queryContent_1", "queryContent_" + i);
+                    log.info("urlTarget=={}", urlTarget);
                     page.addTargetRequest(urlTarget);
                 }
             }

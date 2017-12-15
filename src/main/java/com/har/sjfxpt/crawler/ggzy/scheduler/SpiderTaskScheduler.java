@@ -15,6 +15,7 @@ import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhlj.GGZYHLJSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn.GGZYHNSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyjiangxi.GGZYJiangXiSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzysc.GGZYSCSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzyshandong.GGZYShanDongSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyxz.GGZYXZSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyyn.GGZYYNSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.hbebtp.HBEBTPSpiderLauncher;
@@ -300,6 +301,17 @@ public class SpiderTaskScheduler {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.GGZYJIANGXI);
             context.getBean(GGZYJiangXiSpiderLauncher.class).start();
+        }
+    }
+
+    /**
+     * 山东公共资源
+     */
+    @Scheduled(initialDelay = 26000, fixedRate = 30 * 60 * 1000)
+    public void fetchGGZYShanDong() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.GGZYSHANDONG);
+            context.getBean(GGZYShanDongSpiderLauncher.class).start();
         }
     }
 
