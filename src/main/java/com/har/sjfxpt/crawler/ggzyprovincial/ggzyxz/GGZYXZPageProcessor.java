@@ -66,8 +66,10 @@ public class GGZYXZPageProcessor implements BasePageProcessor {
         List<GGZYXZDataItem> dataItems = parseContent(elements);
         String type = pageParams.get("type");
         String businessType = pageParams.get("businessType");
-        dataItems.forEach(dataItem -> dataItem.setType(type));
-        dataItems.forEach(dataItem -> dataItem.setBusinessType(businessType));
+        dataItems.forEach(dataItem -> {
+            dataItem.setType(type);
+            dataItem.setBusinessType(businessType);
+        });
         if (!dataItems.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItems);
         } else {

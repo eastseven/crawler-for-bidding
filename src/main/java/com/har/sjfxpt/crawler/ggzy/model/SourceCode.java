@@ -30,7 +30,8 @@ public enum SourceCode {
     GGZYHEBEI("河北公共资源"),
     GGZYSHANXI("山西公共资源"),
     GGZYFUJIAN("福建公共资源"),
-    GGZYJIANGXI("江西公共资源");
+    GGZYJIANGXI("江西公共资源"),
+    GGZYSHANDONG("山东公共资源");
 
 
     private String value;
