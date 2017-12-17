@@ -36,8 +36,8 @@ public class GGZYGanSuPipeline implements Pipeline{
             ggzyGanSuDataItemRepository.save(dataItemList);
             log.info("ggzyGanSu save {} to mongodb", dataItemList.size());
 
-//            List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
-//            dataItemService.save2BidNewsOriginalTable(dtoList);
+            List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
+            dataItemService.save2BidNewsOriginalTable(dtoList);
         }
     }
 }
