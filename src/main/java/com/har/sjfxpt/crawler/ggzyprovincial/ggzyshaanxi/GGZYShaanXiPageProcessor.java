@@ -39,20 +39,13 @@ public class GGZYShaanXiPageProcessor implements BasePageProcessor {
             Elements elements = page.getHtml().getDocument().body().select("#index");
             if (!elements.isEmpty()) {
                 int pageCount = Integer.parseInt(StringUtils.substringAfter(elements.text(), "/"));
-                if (pageCount >= 4) {
-                    for (int i = 2; i <= 4; i++) {
-                        String urlTarget = url.replace("1.html", i + ".html");
-                        Request request = new Request(urlTarget);
-                        request.putExtra(PAGE_PARAMS, pageParams);
-                        page.addTargetRequest(request);
-                    }
-                } else {
-                    for (int i = 2; i <= pageCount; i++) {
-                        String urlTarget = url.replace("1.html", i + ".html");
-                        Request request = new Request(urlTarget);
-                        request.putExtra(PAGE_PARAMS, pageParams);
-                        page.addTargetRequest(request);
-                    }
+                int cycleCount = pageCount >= 4 ? 4 : pageCount;
+                log.info("cycleCount=={}", cycleCount);
+                for (int i = 2; i <= cycleCount; i++) {
+                    String urlTarget = url.replace("1.html", i + ".html");
+                    Request request = new Request(urlTarget);
+                    request.putExtra(PAGE_PARAMS, pageParams);
+                    page.addTargetRequest(request);
                 }
 
             }

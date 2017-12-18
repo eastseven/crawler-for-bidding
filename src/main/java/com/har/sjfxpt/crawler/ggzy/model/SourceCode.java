@@ -33,7 +33,8 @@ public enum SourceCode {
     GGZYJIANGXI("江西公共资源"),
     GGZYSHANDONG("山东公共资源"),
     GGZYSHAANXI("陕西公共资源"),
-    GGZYGANSU("甘肃公共资源");
+    GGZYGANSU("甘肃公共资源"),
+    GGZYNINGXIA("宁夏公共资源");
 
 
     private String value;
