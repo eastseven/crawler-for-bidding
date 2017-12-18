@@ -19,6 +19,7 @@ import com.har.sjfxpt.crawler.ggzyprovincial.ggzyningxia.GGZYNingXiaSpiderLaunch
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzysc.GGZYSCSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyshaanxi.GGZYShaanXiSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyshandong.GGZYShanDongSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzyxjbt.GGZYXJBTSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyxz.GGZYXZSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyyn.GGZYYNSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.hbebtp.HBEBTPSpiderLauncher;
@@ -348,6 +349,17 @@ public class SpiderTaskScheduler {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.GGZYNINGXIA);
             context.getBean(GGZYNingXiaSpiderLauncher.class).start();
+        }
+    }
+
+    /**
+     * 新疆兵团公共资源
+     */
+    @Scheduled(initialDelay = 26000, fixedRate = 60 * 60 * 1000)
+    public void fetchGGZYXJBT() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.GGZYXJBT);
+            context.getBean(GGZYXJBTSpiderLauncher.class).start();
         }
     }
 

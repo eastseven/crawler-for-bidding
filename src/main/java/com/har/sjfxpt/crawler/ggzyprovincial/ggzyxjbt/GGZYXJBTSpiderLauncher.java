@@ -56,6 +56,7 @@ public class GGZYXJBTSpiderLauncher extends BaseSpiderLauncher {
         }
         Spider spider = Spider.create(ggzyxjbtPageProcessor)
                 .addPipeline(ggzyxjbtPipeline)
+                .setUUID(uuid)
                 .addRequest(requests)
                 .thread(THREAD_NUM);
         addSpider(spider);
