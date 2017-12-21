@@ -42,6 +42,26 @@ import static com.har.sjfxpt.crawler.petrochina.ZGShiYouPageProcessor.formUrl;
 public class CommonTests {
 
     @Test
+    public void testCEECPage() throws Exception {
+        //中国能建
+
+        //采购 货物
+        String url = "http://ec.ceec.net.cn/HomeInfo/ProjectList.aspx?InfoLevel=MgA=&bigType=QwBHAEcARwA=&smallType=aAB3AA==";
+        url = "http://ec.ceec.net.cn/HomeInfo/ProjectList.aspx?InfoLevel=MgA=&bigType=QwBHAEcARwA=&smallType=ZwBjAA==";
+        url = "http://ec.ceec.net.cn/HomeInfo/ProjectList.aspx?InfoLevel=MgA=&bigType=QwBHAEcARwA=&smallType=ZgB3AA==";
+        Element body = Jsoup.connect(url).get().body();
+        log.info("page {}", body.select("#outMsg").text());
+        log.info("list \n{}", body.select("div.real_news_show div.list01"));
+
+        url = "http://ec.ceec.net.cn/HomeInfo" + "/ProjectDetail.aspx?threadID=c9515c00-ceec-4f4e-b149-d74fa4386876";
+        url = "http://ec.ceec.net.cn/HomeInfo/winDidDetails.aspx?threadID=323929ec-aa47-4e83-9d9d-82c4b75b25a9";
+        body = Jsoup.connect(url).get().body();
+        String html = body.select("div[align='center']").html();
+        String table = Jsoup.clean(html, PageProcessorUtil.tableWhitelist());
+        log.info("\n{}\n-----\n{}", html, table);
+    }
+
+    @Test
     public void testGGZYYNPage() throws Exception {
         String url = "https://www.ynggzyxx.gov.cn/jyxx/jsgcZbggDetail?guid=f0492333-6ccc-4308-8e11-332048717a66&isOther=false";
         Document doc = Jsoup.connect(url).get();
