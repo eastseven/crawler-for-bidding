@@ -28,6 +28,7 @@ import com.har.sjfxpt.crawler.jcw.JinCaiWangSpiderLauncher;
 import com.har.sjfxpt.crawler.petrochina.ZGShiYouSpiderLauncher;
 import com.har.sjfxpt.crawler.sgcc.StateGridSpiderLauncher;
 import com.har.sjfxpt.crawler.suning.SuNingSpiderLauncher;
+import com.har.sjfxpt.crawler.zgly.ZGLvYeSpiderLauncher;
 import com.har.sjfxpt.crawler.zgyj.ZGYeJinSpiderLauncher;
 import com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingLauncher;
 import lombok.extern.slf4j.Slf4j;
@@ -375,4 +376,14 @@ public class SpiderTaskScheduler {
         }
     }
 
+    /**
+     * 中国铝业
+     */
+    @Scheduled(initialDelay = 29000, fixedRate = 2 * 60 * 60 * 1000)
+    public void fetchZGLVYE() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.ZGLVYE);
+            context.getBean(ZGLvYeSpiderLauncher.class).start();
+        }
+    }
 }
