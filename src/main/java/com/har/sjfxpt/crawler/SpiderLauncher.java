@@ -29,6 +29,7 @@ import com.har.sjfxpt.crawler.petrochina.ZGShiYouSpiderLauncher;
 import com.har.sjfxpt.crawler.sgcc.StateGridSpiderLauncher;
 import com.har.sjfxpt.crawler.suning.SuNingSpiderLauncher;
 import com.har.sjfxpt.crawler.yibiao.YiBiaoSpiderLauncher;
+import com.har.sjfxpt.crawler.zgly.ZGLvYeSpiderLauncher;
 import com.har.sjfxpt.crawler.zgyj.ZGYeJinSpiderLauncher;
 import com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingLauncher;
 import lombok.extern.slf4j.Slf4j;
@@ -144,6 +145,9 @@ public class SpiderLauncher implements CommandLineRunner {
     @Autowired
     DongFengSpiderLauncher dongFengSpiderLauncher;
 
+    @Autowired
+    ZGLvYeSpiderLauncher zgLvYeSpiderLauncher;
+
     public void info() {
         gongGongZiYuanSpiderLauncher.printInfo();
         chinaMobileSpiderLauncher.printInfo();
@@ -176,6 +180,7 @@ public class SpiderLauncher implements CommandLineRunner {
         ggzyNingXiaSpiderLauncher.printInfo();
         ggzyxjbtSpiderLauncher.printInfo();
         dongFengSpiderLauncher.printInfo();
+        zgLvYeSpiderLauncher.printInfo();
     }
 
     @Override
@@ -311,6 +316,9 @@ public class SpiderLauncher implements CommandLineRunner {
                     break;
                 case "start-dongfeng":
                     dongFengSpiderLauncher.start();
+                    break;
+                case "start-zglvye":
+                    zgLvYeSpiderLauncher.start();
                     break;
                 default:
                     break;

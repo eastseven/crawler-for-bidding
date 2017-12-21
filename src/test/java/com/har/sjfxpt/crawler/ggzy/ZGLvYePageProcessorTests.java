@@ -19,6 +19,7 @@ import us.codecraft.webmagic.utils.HttpConstant;
 import java.util.Map;
 
 import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.THREAD_NUM;
+import static com.har.sjfxpt.crawler.zgly.ZGLvYeSpiderLauncher.requestGenerator;
 
 /**
  * Created by Administrator on 2017/12/21.
@@ -54,47 +55,5 @@ public class ZGLvYePageProcessorTests {
                 .run();
     }
 
-    public static Request requestGenerator(String url, String beginDate, String endDate) {
-        Request request = new Request(url);
-        String typeField = StringUtils.substringAfter(url, "xxposition=");
-        Map<String, Object> pageParams = Maps.newHashMap();
-        switch (typeField) {
-            case "cgxx":
-                pageParams.put("currpage", "1");
-                pageParams.put("xxposition", "cgxx");
-                pageParams.put("xxmc", "");
-                pageParams.put("fbrq1", beginDate);
-                pageParams.put("fbrq2", endDate);
-                pageParams.put("type", "采购信息");
-                break;
-            case "zbgg":
-                pageParams.put("currpage", "1");
-                pageParams.put("xxposition", "zbgg");
-                pageParams.put("zbmc", "");
-                pageParams.put("sbsj1", beginDate);
-                pageParams.put("sbsj2", endDate);
-                pageParams.put("type", "采购公告");
-                break;
-            case "cqgg":
-                pageParams.put("currpage", "1");
-                pageParams.put("xxposition", "cqgg");
-                pageParams.put("pubdesc", "");
-                pageParams.put("audittime", beginDate);
-                pageParams.put("audittime2", endDate);
-                pageParams.put("type", "变更公告");
-                break;
-            case "zhongbgg":
-                pageParams.put("currpage", "1");
-                pageParams.put("xxposition", "zhongbgg");
-                pageParams.put("pubdesc", "");
-                pageParams.put("releasedate1", beginDate);
-                pageParams.put("releasedate2", endDate);
-                pageParams.put("type", "结果公告");
-                break;
-        }
-        request.putExtra("pageParams", pageParams);
-        request.setMethod(HttpConstant.Method.POST);
-        request.setRequestBody(HttpRequestBody.form(pageParams, "UTF-8"));
-        return request;
-    }
+
 }

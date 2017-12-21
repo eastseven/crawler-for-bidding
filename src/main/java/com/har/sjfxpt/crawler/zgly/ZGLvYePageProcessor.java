@@ -3,6 +3,7 @@ package com.har.sjfxpt.crawler.zgly;
 import com.google.common.collect.Lists;
 import com.har.sjfxpt.crawler.ggzy.processor.BasePageProcessor;
 import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
+import com.har.sjfxpt.crawler.ggzy.utils.ProvinceUtil;
 import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -40,7 +41,6 @@ public class ZGLvYePageProcessor implements BasePageProcessor {
         if (currPage == 1) {
             String text = page.getHtml().getDocument().body().select("body > div.main_1 > div.rightbx > div.page > table > tbody > tr > td:nth-child(4)").text();
             int pageCount = Integer.parseInt(StringUtils.substringBetween(text, "/ ", " 页"));
-            log.info("pageCount=={}", pageCount);
             if (pageCount >= 2) {
                 for (int i = 2; i <= pageCount; i++) {
                     pageParams.put("currpage", i);
@@ -74,7 +74,6 @@ public class ZGLvYePageProcessor implements BasePageProcessor {
         for (Element element : items) {
             String onclick = element.select("a").attr("onclick");
             String href = urlParser(onclick);
-
             if (StringUtils.isNotBlank(href)) {
                 String title = element.select("a").attr("title");
                 String date = element.select("td:nth-child(2)").text();
@@ -82,6 +81,7 @@ public class ZGLvYePageProcessor implements BasePageProcessor {
                 ZGLvYeDataItem zgLvYeDataItem = new ZGLvYeDataItem(href);
                 zgLvYeDataItem.setUrl(href);
                 zgLvYeDataItem.setTitle(title);
+                zgLvYeDataItem.setProvince(ProvinceUtil.get(title));
                 zgLvYeDataItem.setDate(PageProcessorUtil.dataTxt(date));
 
                 Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
@@ -124,40 +124,40 @@ public class ZGLvYePageProcessor implements BasePageProcessor {
                 url = "http://ec.chalieco.com/b2b/web/two/indexinfoAction.do?actionType=showCgxjDetail&xjbm=" + parameter;
                 break;
             case "showZbsMessage":
-                url = "http://ec.chalieco.com.cn/b2b/web/two/indexinfoAction.do?actionType=showZbsDetail&inviteid=" + parameter;
+                url = "http://ec.chalieco.com/b2b/web/two/indexinfoAction.do?actionType=showZbsDetail&inviteid=" + parameter;
                 break;
             case "showCgwzMessage":
-                url = "http://ec.chalieco.com.cn/b2b/web/two/indexinfoAction.do?actionType=showUrgentDetail&xxbh=" + parameter;
+                url = "http://ec.chalieco.com/b2b/web/two/indexinfoAction.do?actionType=showUrgentDetail&xxbh=" + parameter;
                 break;
             case "showWxwzMessage":
-                url = "http://ec.chalieco.com.cn/b2b/web/two/indexinfoAction.do?actionType=showSaleDetail&xxbh=" + parameter;
+                url = "http://ec.chalieco.com/b2b/web/two/indexinfoAction.do?actionType=showSaleDetail&xxbh=" + parameter;
                 break;
             case "showOldMaterialMessage":
-                url = "http://ec.chalieco.com.cn/b2b/web/two/indexinfoAction.do?actionType=showOldMaterialDetail&xxbh=" + parameter;
+                url = "http://ec.chalieco.com/b2b/web/two/indexinfoAction.do?actionType=showOldMaterialDetail&xxbh=" + parameter;
                 break;
             case "showInvalidMaterialMessage":
-                url = "http://ec.chalieco.com.cn/b2b/web/two/indexinfoAction.do?actionType=showInvalidMaterialDetail&xxbh=" + parameter;
+                url = "http://ec.chalieco.com/b2b/web/two/indexinfoAction.do?actionType=showInvalidMaterialDetail&xxbh=" + parameter;
                 break;
             case "showCqggMessage":
-                url = "http://ec.chalieco.com.cn/b2b/web/two/indexinfoAction.do?actionType=showCqggDetail&xxbh=" + parameter;
+                url = "http://ec.chalieco.com/b2b/web/two/indexinfoAction.do?actionType=showCqggDetail&xxbh=" + parameter;
                 break;
             case "showPxjgmessage":
-                url = "http://ec.chalieco.com.cn/b2b/web/two/indexinfoAction.do?actionType=showPxjgDetail&xxbh=" + parameter;
+                url = "http://ec.chalieco.com/b2b/web/two/indexinfoAction.do?actionType=showPxjgDetail&xxbh=" + parameter;
                 break;
             case "showMessage":
-                url = "http://ec.chalieco.com.cn/b2b/web/two/indexinfoAction.do?actionType=showMessage&xxbh=" + parameter;
+                url = "http://ec.chalieco.com/b2b/web/two/indexinfoAction.do?actionType=showMessage&xxbh=" + parameter;
                 break;
             case "showZgysDetail":
-                url = "http://ec.chalieco.com.cn/b2b/web/two/indexinfoAction.do?actionType=showZgysDetail&zgyswjbm=" + parameter;
+                url = "http://ec.chalieco.com/b2b/web/two/indexinfoAction.do?actionType=showZgysDetail&zgyswjbm=" + parameter;
                 break;
             case "showZhongbggMessage":
-                url = "http://ec.chalieco.com.cn/b2b/web/two/indexinfoAction.do?actionType=showZhongbggDetail&xxbh=" + parameter;
+                url = "http://ec.chalieco.com/b2b/web/two/indexinfoAction.do?actionType=showZhongbggDetail&xxbh=" + parameter;
                 break;
             case "showXcpMessage":
                 url = "http://ec.chalieco.com.cn/b2b/web/two/indexinfoAction.do?actionType=showNewProductDetail&dwbm=" + parameter;
                 break;
             case "showYzbgsMessage":
-                url = "http://ec.chalieco.com.cn/b2b/web/two/indexinfoAction.do?actionType=showYzbgsDetail&xxbh=" + parameter;
+                url = "http://ec.chalieco.com/b2b/web/two/indexinfoAction.do?actionType=showYzbgsDetail&xxbh=" + parameter;
                 break;
         }
         return url;

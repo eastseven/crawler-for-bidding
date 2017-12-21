@@ -19,7 +19,7 @@ import java.util.Date;
  */
 @Data
 @ToString
-@Document(collection = "data_item_ZGLY")
+@Document(collection = "data_item_zgly")
 public class ZGLvYeDataItem {
 
     public ZGLvYeDataItem(String url) {

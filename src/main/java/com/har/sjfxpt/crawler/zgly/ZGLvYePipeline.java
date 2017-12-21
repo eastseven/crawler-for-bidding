@@ -38,8 +38,8 @@ public class ZGLvYePipeline implements Pipeline {
             zgLvYeDataItemRepository.save(dataItemList);
             log.info("{} save {} to mongodb", SourceCode.ZGLVYE, dataItemList.size());
 
-//            List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
-//            dataItemService.save2BidNewsOriginalTable(dtoList);
+            List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
+            dataItemService.save2BidNewsOriginalTable(dtoList);
         }
     }
 }
