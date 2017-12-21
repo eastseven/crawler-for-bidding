@@ -5,6 +5,7 @@ import com.har.sjfxpt.crawler.ccgp.ccgpcq.CCGPCQSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgpsc.CCGPSiChuanSpiderLauncher;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
+import com.har.sjfxpt.crawler.dongfeng.DongFengSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.GGZYCQSpiderLauncher;
@@ -360,6 +361,17 @@ public class SpiderTaskScheduler {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.GGZYXJBT);
             context.getBean(GGZYXJBTSpiderLauncher.class).start();
+        }
+    }
+
+    /**
+     * 东风招投
+     */
+    @Scheduled(initialDelay = 29000, fixedRate = 2 * 60 * 60 * 1000)
+    public void fetchDONGFENG() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.DONGFENG);
+            context.getBean(DongFengSpiderLauncher.class).start();
         }
     }
 
