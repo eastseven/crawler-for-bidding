@@ -106,16 +106,14 @@ public class CCGPSiChuanPageProcessor implements BasePageProcessor {
             String href = target.attr("href");
             String title = target.attr("title");
             String date = a.select("span").text();
-
+            if (!href.contains("http://")) {
+                href = "http://www.sczfcg.com" + href;
+            }
             CCGPSiChuanDataItem ccgpSiChuanDataItem = new CCGPSiChuanDataItem(href);
             ccgpSiChuanDataItem.setTitle(title);
             ccgpSiChuanDataItem.setDate(date);
             ccgpSiChuanDataItem.setUrl(href);
             ccgpSiChuanDataItem.setType(title);
-
-            if (!href.contains("http://")) {
-                href = "http://www.sczfcg.com" + href;
-            }
 
             long value = stringRedisTemplate.boundSetOps(KEY_URLS).add(href);
             if (value == 0L) {
