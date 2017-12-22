@@ -40,6 +40,7 @@ public enum SourceCode {
     CDJS("成都建设"),
     DONGFENG("东风招投"),
     ZGLVYE("中国铝业"),
+    SHENHUA("中国神华"),
     ;
 
 
