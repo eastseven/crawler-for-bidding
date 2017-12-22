@@ -41,6 +41,7 @@ public enum SourceCode {
     DONGFENG("东风招投"),
     ZGLVYE("中国铝业"),
     SHENHUA("中国神华"),
+    BAOWU("中国宝武")
     ;
 
 
