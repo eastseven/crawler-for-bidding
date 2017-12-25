@@ -1,5 +1,6 @@
 package com.har.sjfxpt.crawler;
 
+import com.har.sjfxpt.crawler.baowu.BaoWuSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ZhengFuCaiGouSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgpcq.CCGPCQSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanSpiderLauncher;
@@ -152,6 +153,9 @@ public class SpiderLauncher implements CommandLineRunner {
     @Autowired
     ShenHuaSpiderLauncher shenHuaSpiderLauncher;
 
+    @Autowired
+    BaoWuSpiderLauncher baoWuSpiderLauncher;
+
     public void info() {
         gongGongZiYuanSpiderLauncher.printInfo();
         chinaMobileSpiderLauncher.printInfo();
@@ -186,6 +190,7 @@ public class SpiderLauncher implements CommandLineRunner {
         dongFengSpiderLauncher.printInfo();
         zgLvYeSpiderLauncher.printInfo();
         shenHuaSpiderLauncher.printInfo();
+        baoWuSpiderLauncher.printInfo();
     }
 
     @Override
@@ -327,6 +332,9 @@ public class SpiderLauncher implements CommandLineRunner {
                     break;
                 case "start-shenhua":
                     shenHuaSpiderLauncher.start();
+                    break;
+                case "start-baowu":
+                    baoWuSpiderLauncher.start();
                     break;
                 default:
                     break;
