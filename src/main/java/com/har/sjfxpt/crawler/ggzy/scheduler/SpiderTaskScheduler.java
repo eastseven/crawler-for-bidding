@@ -1,5 +1,6 @@
 package com.har.sjfxpt.crawler.ggzy.scheduler;
 
+import com.har.sjfxpt.crawler.baowu.BaoWuSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ZhengFuCaiGouSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgpcq.CCGPCQSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanSpiderLauncher;
@@ -396,6 +397,17 @@ public class SpiderTaskScheduler {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.SHENHUA);
             context.getBean(ShenHuaSpiderLauncher.class).start();
+        }
+    }
+
+    /**
+     * 中国宝武
+     */
+    @Scheduled(initialDelay = 29000, fixedRate = 1 * 60 * 60 * 1000)
+    public void fetchBAOWU() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.BAOWU);
+            context.getBean(BaoWuSpiderLauncher.class).start();
         }
     }
 }
