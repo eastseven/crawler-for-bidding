@@ -13,6 +13,7 @@ import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.GGZYCQSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyfujian.GGZYFuJianSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzygansu.GGZYGanSuSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.GGZYGZSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhebeinew.GGZYHeBeiSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhlj.GGZYHLJSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn.GGZYHNSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyjiangxi.GGZYJiangXiSpiderLauncher;
@@ -396,6 +397,17 @@ public class SpiderTaskScheduler {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.BAOWU);
             context.getBean(BaoWuSpiderLauncher.class).start();
+        }
+    }
+
+    /**
+     * 中国宝武
+     */
+    @Scheduled(initialDelay = 26000, fixedRate = 30 * 60 * 1000)
+    public void fetchHEBEI() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.GGZYHEBEI);
+            context.getBean(GGZYHeBeiSpiderLauncher.class).start();
         }
     }
 }
