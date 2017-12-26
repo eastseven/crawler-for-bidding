@@ -401,7 +401,7 @@ public class SpiderTaskScheduler {
     }
 
     /**
-     * 中国宝武
+     * 河北公共资源
      */
     @Scheduled(initialDelay = 26000, fixedRate = 30 * 60 * 1000)
     public void fetchHEBEI() {
