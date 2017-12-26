@@ -1,4 +1,4 @@
-package com.har.sjfxpt.crawler.ggzyprovincial.ggzyhebei;
+package com.har.sjfxpt.crawler.ggzyprovincial.ggzyhebeinew;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 
