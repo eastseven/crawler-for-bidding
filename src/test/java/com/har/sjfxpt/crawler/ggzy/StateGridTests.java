@@ -37,9 +37,10 @@ public class StateGridTests {
     StateGridPageProcessor pageProcessor;
 
     @Test
-    public void testStart() {
+    public void testStart() throws Exception {
         Assert.assertNotNull(spiderLauncher);
         spiderLauncher.start();
+        Thread.sleep(10 * 1000L);
     }
 
     @Test
