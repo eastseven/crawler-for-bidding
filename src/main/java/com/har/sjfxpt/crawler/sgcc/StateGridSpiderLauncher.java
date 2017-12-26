@@ -12,7 +12,7 @@ import java.util.concurrent.ExecutorService;
 
 /**
  * @author dongqi
- *         国家电网公司 电子商务平台
+ * 国家电网公司 电子商务平台
  */
 @Slf4j
 @Service
@@ -43,8 +43,11 @@ public class StateGridSpiderLauncher extends BaseSpiderLauncher {
     ExecutorService executorService;
 
     public void start() {
-        initBidSpider(false);
-        initWinSpider(false);
+       initBidSpider(false);
+       initWinSpider(false);
+
+       start(SourceCode.SGCC.name().toLowerCase() + "-bid-current");
+       start(SourceCode.SGCC.name().toLowerCase() + "-win-current");
     }
 
     public Spider initBidSpider(boolean fetchAll) {

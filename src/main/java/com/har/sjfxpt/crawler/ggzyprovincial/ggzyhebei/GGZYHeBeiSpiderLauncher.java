@@ -62,14 +62,14 @@ public class GGZYHeBeiSpiderLauncher extends BaseSpiderLauncher {
 
 
     public static Request requestGenerators(String url) {
-        String bussinessTypeFiled = StringUtils.substringBetween(url, "idx_cgy=", "&sort=");
+        String typeField = StringUtils.substringBetween(url, "idx_cgy=", "&sort=");
         String typeId = StringUtils.substringBetween(url, "rmk4=", "&pn=");
         Request request = new Request(url);
         Map<String, String> pageParams = Maps.newHashMap();
-        if (bussinessTypeFiled.equalsIgnoreCase("jsgc")) {
+        if (typeField.equalsIgnoreCase("jsgc")) {
             pageParams.put("businessType", "工程建设");
         }
-        if (bussinessTypeFiled.equalsIgnoreCase("zfcg")) {
+        if (typeField.equalsIgnoreCase("zfcg")) {
             pageParams.put("businessType", "政府采购");
         }
         switch (typeId) {
@@ -85,7 +85,6 @@ public class GGZYHeBeiSpiderLauncher extends BaseSpiderLauncher {
             case "003005002002":
                 pageParams.put("type", "澄清/变更公告");
                 break;
-
             case "003005001001":
                 pageParams.put("type", "采购/资审公告");
                 break;
@@ -98,6 +97,7 @@ public class GGZYHeBeiSpiderLauncher extends BaseSpiderLauncher {
             case "003005001002":
                 pageParams.put("type", "更正公告");
                 break;
+            default:
         }
         request.putExtra("pageParams", pageParams);
         return request;

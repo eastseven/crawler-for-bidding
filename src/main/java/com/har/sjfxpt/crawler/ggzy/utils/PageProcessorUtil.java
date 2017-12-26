@@ -167,4 +167,13 @@ public final class PageProcessorUtil {
         }
         return text;
     }
+
+    public static Whitelist tableWhitelist() {
+        Whitelist table = Whitelist.none();
+
+        table.addTags("table", "tbody", "tr", "td");
+        table.addAttributes("table", "align");
+        table.addAttributes("td", "align", "colspan");
+        return table;
+    }
 }
