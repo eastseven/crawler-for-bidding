@@ -6,6 +6,7 @@ import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgpsc.CCGPSiChuanSpiderLauncher;
 import com.har.sjfxpt.crawler.chengduconstruction.ChengDuConstructionSpiderLauncher;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
+import com.har.sjfxpt.crawler.dongfeng.DongFengSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.GGZYCQSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyfujian.GGZYFuJianSpiderLauncher;
@@ -28,6 +29,7 @@ import com.har.sjfxpt.crawler.petrochina.ZGShiYouSpiderLauncher;
 import com.har.sjfxpt.crawler.sgcc.StateGridSpiderLauncher;
 import com.har.sjfxpt.crawler.suning.SuNingSpiderLauncher;
 import com.har.sjfxpt.crawler.yibiao.YiBiaoSpiderLauncher;
+import com.har.sjfxpt.crawler.zgly.ZGLvYeSpiderLauncher;
 import com.har.sjfxpt.crawler.zgyj.ZGYeJinSpiderLauncher;
 import com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingLauncher;
 import lombok.extern.slf4j.Slf4j;
@@ -140,6 +142,12 @@ public class SpiderLauncher implements CommandLineRunner {
     @Autowired
     GGZYXJBTSpiderLauncher ggzyxjbtSpiderLauncher;
 
+    @Autowired
+    DongFengSpiderLauncher dongFengSpiderLauncher;
+
+    @Autowired
+    ZGLvYeSpiderLauncher zgLvYeSpiderLauncher;
+
     public void info() {
         gongGongZiYuanSpiderLauncher.printInfo();
         chinaMobileSpiderLauncher.printInfo();
@@ -171,6 +179,8 @@ public class SpiderLauncher implements CommandLineRunner {
         ggzyGanSuSpiderLauncher.printInfo();
         ggzyNingXiaSpiderLauncher.printInfo();
         ggzyxjbtSpiderLauncher.printInfo();
+        dongFengSpiderLauncher.printInfo();
+        zgLvYeSpiderLauncher.printInfo();
     }
 
     @Override
@@ -303,6 +313,12 @@ public class SpiderLauncher implements CommandLineRunner {
                     break;
                 case "start-ggzyxjbt":
                     ggzyxjbtSpiderLauncher.start();
+                    break;
+                case "start-dongfeng":
+                    dongFengSpiderLauncher.start();
+                    break;
+                case "start-zglvye":
+                    zgLvYeSpiderLauncher.start();
                     break;
                 default:
                     break;

@@ -5,6 +5,7 @@ import com.har.sjfxpt.crawler.ccgp.ccgpcq.CCGPCQSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgpsc.CCGPSiChuanSpiderLauncher;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
+import com.har.sjfxpt.crawler.dongfeng.DongFengSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.GGZYCQSpiderLauncher;
@@ -27,6 +28,7 @@ import com.har.sjfxpt.crawler.jcw.JinCaiWangSpiderLauncher;
 import com.har.sjfxpt.crawler.petrochina.ZGShiYouSpiderLauncher;
 import com.har.sjfxpt.crawler.sgcc.StateGridSpiderLauncher;
 import com.har.sjfxpt.crawler.suning.SuNingSpiderLauncher;
+import com.har.sjfxpt.crawler.zgly.ZGLvYeSpiderLauncher;
 import com.har.sjfxpt.crawler.zgyj.ZGYeJinSpiderLauncher;
 import com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingLauncher;
 import lombok.extern.slf4j.Slf4j;
@@ -363,4 +365,25 @@ public class SpiderTaskScheduler {
         }
     }
 
+    /**
+     * 东风招投
+     */
+    @Scheduled(initialDelay = 29000, fixedRate = 2 * 60 * 60 * 1000)
+    public void fetchDONGFENG() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.DONGFENG);
+            context.getBean(DongFengSpiderLauncher.class).start();
+        }
+    }
+
+    /**
+     * 中国铝业
+     */
+    @Scheduled(initialDelay = 29000, fixedRate = 2 * 60 * 60 * 1000)
+    public void fetchZGLVYE() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.ZGLVYE);
+            context.getBean(ZGLvYeSpiderLauncher.class).start();
+        }
+    }
 }

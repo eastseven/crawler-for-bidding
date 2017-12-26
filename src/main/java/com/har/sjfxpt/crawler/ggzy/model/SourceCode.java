@@ -38,7 +38,8 @@ public enum SourceCode {
     SUNING("苏宁"),
     SGCC("国家电网"),
     CDJS("成都建设"),
-
+    DONGFENG("东风招投"),
+    ZGLVYE("中国铝业"),
     ;
 
 
