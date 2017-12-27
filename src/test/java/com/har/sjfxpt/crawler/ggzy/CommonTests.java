@@ -12,6 +12,7 @@ import org.joda.time.Duration;
 import org.joda.time.Period;
 import org.joda.time.PeriodType;
 import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -31,6 +32,7 @@ import us.codecraft.webmagic.utils.HttpConstant;
 
 import java.net.URL;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -443,4 +445,21 @@ public class CommonTests {
                 new Period(start, end, PeriodType.months()).getMonths(),
                 new Period(start, end, PeriodType.years()).getYears());
     }
+
+    @Test
+    public void testDate() {
+        DateTime dateTime = DateTime.parse("2017-12-01 00:00", DateTimeFormat.forPattern("yyyy-MM-dd HH:mm"));
+        log.debug("dateTime=={}", dateTime);
+    }
+
+    @Test
+    public void testDuration() {
+        DateTime start = new DateTime("2013-01-01");
+        DateTime end = new DateTime("2017-11-30");
+        Duration duration = new Duration(start, end);
+        for (int days = 0; days <= duration.getStandardDays(); days++) {
+            log.debug("day=={}", start.plusDays(days).toString("yyyy-MM-dd"));
+        }
+    }
+
 }

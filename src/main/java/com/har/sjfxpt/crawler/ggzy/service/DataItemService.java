@@ -99,6 +99,11 @@ public class DataItemService {
                 redisTemplate.boundListOps("fetch_fail_url_" + dataItem.getSourceCode().toLowerCase()).leftPush(dataItem.getUrl());
                 continue;
             }
+            if (StringUtils.isNotBlank(dataItem.getUrl()) && !StringUtils.startsWith(dataItem.getUrl(), "http")) {
+                log.error("{} {} save to hbase fail, formatContent is empty", dataItem.getSourceCode(), dataItem.getId());
+                redisTemplate.boundListOps("fetch_fail_url_" + dataItem.getSourceCode().toLowerCase()).leftPush(dataItem.getUrl());
+                continue;
+            }
 
             //计算 行业分类
             //setIndustryCategory(dataItem);
@@ -158,6 +163,7 @@ public class DataItemService {
     /**
      * 将title及textContent
      * 先分词，再匹配行业关键字，找出对应的行业分类
+     *
      * @param dataItem
      * @return dataItem.industryCategory 以逗号结尾的行业分类
      */
@@ -176,6 +182,7 @@ public class DataItemService {
 
     /**
      * 生成hbase row key
+     *
      * @param dataItem
      * @return rowKey 格式 yyyyMMdd:md5(title)
      */
@@ -190,23 +197,23 @@ public class DataItemService {
 
     private Put assemble(String rowKey, DataItemDTO dataItem) throws UnsupportedEncodingException {
         Put put = new Put(rowKey.getBytes());
-        put.addColumn(family, "url".getBytes(),                StringUtils.defaultString(dataItem.getUrl(), "").getBytes(charsetName));
-        put.addColumn(family, "title".getBytes(),              StringUtils.defaultString(dataItem.getTitle(), "").getBytes(charsetName));
-        put.addColumn(family, "province".getBytes(),           StringUtils.defaultString(dataItem.getProvince(), "全国").getBytes(charsetName));
-        put.addColumn(family, "type".getBytes(),               StringUtils.defaultString(dataItem.getType(), "").getBytes(charsetName));
-        put.addColumn(family, "source".getBytes(),             StringUtils.defaultString(dataItem.getSource(), "其他").getBytes(charsetName));
+        put.addColumn(family, "url".getBytes(), StringUtils.defaultString(dataItem.getUrl(), "").getBytes(charsetName));
+        put.addColumn(family, "title".getBytes(), StringUtils.defaultString(dataItem.getTitle(), "").getBytes(charsetName));
+        put.addColumn(family, "province".getBytes(), StringUtils.defaultString(dataItem.getProvince(), "全国").getBytes(charsetName));
+        put.addColumn(family, "type".getBytes(), StringUtils.defaultString(dataItem.getType(), "").getBytes(charsetName));
+        put.addColumn(family, "source".getBytes(), StringUtils.defaultString(dataItem.getSource(), "其他").getBytes(charsetName));
         put.addColumn(family, Bytes.toBytes("source_code"), StringUtils.defaultString(dataItem.getSourceCode(), "UNKNOWN").getBytes(charsetName));
         put.addColumn(family, Bytes.toBytes("sourceCode"), StringUtils.defaultString(dataItem.getSourceCode(), "UNKNOWN").getBytes(charsetName));
-        put.addColumn(family, "date".getBytes(),               StringUtils.defaultString(dataItem.getDate(), "").getBytes(charsetName));
-        put.addColumn(family, "create_time".getBytes(),        StringUtils.defaultString(dataItem.getCreateTime(), "").getBytes(charsetName));
-        put.addColumn(family, "formatContent".getBytes(),      StringUtils.defaultString(dataItem.getFormatContent(), "").getBytes(charsetName));
-        put.addColumn(family, "purchaser".getBytes(),          StringUtils.defaultString(dataItem.getPurchaser(), "").getBytes(charsetName));
-        put.addColumn(family, "project_name".getBytes(),       StringUtils.defaultString(dataItem.getProjectName(), "").getBytes(charsetName));
+        put.addColumn(family, "date".getBytes(), StringUtils.defaultString(dataItem.getDate(), "").getBytes(charsetName));
+        put.addColumn(family, "create_time".getBytes(), StringUtils.defaultString(dataItem.getCreateTime(), "").getBytes(charsetName));
+        put.addColumn(family, "formatContent".getBytes(), StringUtils.defaultString(dataItem.getFormatContent(), "").getBytes(charsetName));
+        put.addColumn(family, "purchaser".getBytes(), StringUtils.defaultString(dataItem.getPurchaser(), "").getBytes(charsetName));
+        put.addColumn(family, "project_name".getBytes(), StringUtils.defaultString(dataItem.getProjectName(), "").getBytes(charsetName));
 
-        put.addColumn(family, "original_industry_category".getBytes(),  StringUtils.defaultString(dataItem.getOriginalIndustryCategory(), "").getBytes(charsetName));
+        put.addColumn(family, "original_industry_category".getBytes(), StringUtils.defaultString(dataItem.getOriginalIndustryCategory(), "").getBytes(charsetName));
 
-        put.addColumn(family, Bytes.toBytes("budget"),           StringUtils.defaultString(dataItem.getBudget(), "").getBytes(charsetName));
-        put.addColumn(family, Bytes.toBytes("total_bid_money"),  StringUtils.defaultString(dataItem.getTotalBidMoney(), "").getBytes(charsetName));
+        put.addColumn(family, Bytes.toBytes("budget"), StringUtils.defaultString(dataItem.getBudget(), "").getBytes(charsetName));
+        put.addColumn(family, Bytes.toBytes("total_bid_money"), StringUtils.defaultString(dataItem.getTotalBidMoney(), "").getBytes(charsetName));
         put.addColumn(family, Bytes.toBytes("bid_company_name"), StringUtils.defaultString(dataItem.getBidCompanyName(), "").getBytes(charsetName));
         return put;
     }
@@ -246,6 +253,7 @@ public class DataItemService {
 
     /**
      * 打分
+     *
      * @param sources
      * @return
      */

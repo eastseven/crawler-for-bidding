@@ -1,5 +1,6 @@
 package com.har.sjfxpt.crawler.ggzy.scheduler;
 
+import com.har.sjfxpt.crawler.baowu.BaoWuSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ZhengFuCaiGouSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgpcq.CCGPCQSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanSpiderLauncher;
@@ -27,6 +28,7 @@ import com.har.sjfxpt.crawler.ggzyprovincial.hbebtp.HBEBTPSpiderLauncher;
 import com.har.sjfxpt.crawler.jcw.JinCaiWangSpiderLauncher;
 import com.har.sjfxpt.crawler.petrochina.ZGShiYouSpiderLauncher;
 import com.har.sjfxpt.crawler.sgcc.StateGridSpiderLauncher;
+import com.har.sjfxpt.crawler.shenhua.ShenHuaSpiderLauncher;
 import com.har.sjfxpt.crawler.suning.SuNingSpiderLauncher;
 import com.har.sjfxpt.crawler.zgly.ZGLvYeSpiderLauncher;
 import com.har.sjfxpt.crawler.zgyj.ZGYeJinSpiderLauncher;
@@ -384,6 +386,28 @@ public class SpiderTaskScheduler {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.ZGLVYE);
             context.getBean(ZGLvYeSpiderLauncher.class).start();
+        }
+    }
+
+    /**
+     * 中国神华
+     */
+    @Scheduled(initialDelay = 29000, fixedRate = 1 * 60 * 60 * 1000)
+    public void fetchZGSHENHUA() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.SHENHUA);
+            context.getBean(ShenHuaSpiderLauncher.class).start();
+        }
+    }
+
+    /**
+     * 中国宝武
+     */
+    @Scheduled(initialDelay = 29000, fixedRate = 1 * 60 * 60 * 1000)
+    public void fetchBAOWU() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.BAOWU);
+            context.getBean(BaoWuSpiderLauncher.class).start();
         }
     }
 }
