@@ -6,6 +6,7 @@ import com.har.sjfxpt.crawler.ccgp.ccgpcq.CCGPCQSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgpsc.CCGPSiChuanSpiderLauncher;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
+import com.har.sjfxpt.crawler.chinaunicom.ChinaUnicomSpiderLauncher;
 import com.har.sjfxpt.crawler.dongfeng.DongFengSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
@@ -408,6 +409,17 @@ public class SpiderTaskScheduler {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.GGZYHEBEI);
             context.getBean(GGZYHeBeiSpiderLauncher.class).start();
+        }
+    }
+
+    /**
+     * 中国联通
+     */
+    @Scheduled(initialDelay = 28000, fixedRate = 45 * 60 * 1000)
+    public void fetchCU() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.CU);
+            context.getBean(ChinaUnicomSpiderLauncher.class).start();
         }
     }
 }
