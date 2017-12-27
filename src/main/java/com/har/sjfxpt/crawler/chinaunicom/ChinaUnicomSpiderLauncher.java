@@ -1,13 +1,10 @@
-package com.har.sjfxpt.crawler.ggzy;
+package com.har.sjfxpt.crawler.chinaunicom;
 
-import com.har.sjfxpt.crawler.chinaunicom.ChinaUnicomPageProcessor;
-import com.har.sjfxpt.crawler.chinaunicom.ChinaUnicomPipeline;
+import com.har.sjfxpt.crawler.BaseSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Spider;
 
 import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.THREAD_NUM;
@@ -16,9 +13,10 @@ import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.THREAD_NU
  * Created by Administrator on 2017/12/27.
  */
 @Slf4j
-@SpringBootTest
-@RunWith(SpringRunner.class)
-public class ChinaUnicomTests {
+@Component
+public class ChinaUnicomSpiderLauncher extends BaseSpiderLauncher {
+
+    private final String uuid = SourceCode.CU.toString().toLowerCase() + "-current";
 
     @Autowired
     ChinaUnicomPageProcessor chinaUnicomPageProcessor;
@@ -32,13 +30,18 @@ public class ChinaUnicomTests {
             "http://www.chinaunicombidding.cn/jsp/cnceb/web/info1/infoList.jsp?page=1&type=3",
     };
 
-    @Test
-    public void testChinaUnicomPageProcessor() {
-        Spider.create(chinaUnicomPageProcessor)
-                .addUrl(urls)
+    /**
+     * 爬取当日数据
+     */
+    public void start() {
+        cleanSpider(uuid);
+        Spider spider = Spider.create(chinaUnicomPageProcessor)
                 .addPipeline(chinaUnicomPipeline)
-                .thread(THREAD_NUM)
-                .run();
+                .setUUID(uuid)
+                .addUrl(urls)
+                .thread(THREAD_NUM);
+        addSpider(spider);
+        start(uuid);
     }
 
 }
