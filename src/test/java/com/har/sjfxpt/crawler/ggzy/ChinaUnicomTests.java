@@ -9,25 +9,29 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import us.codecraft.webmagic.Spider;
 
+import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.THREAD_NUM;
+
 /**
  * Created by Administrator on 2017/12/27.
  */
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class ChinaUnicom {
+public class ChinaUnicomTests {
 
     @Autowired
     ChinaUnicomPageProcessor chinaUnicomPageProcessor;
 
     String[] urls = {
-            "http://www.chinaunicombidding.cn/jsp/cnceb/web/info1/infoList.jsp?page=1",
-            "http://www.chinaunicombidding.cn/jsp/cnceb/web/info1/infoList.jsp?page=1",
+            "http://www.chinaunicombidding.cn/jsp/cnceb/web/info1/infoList.jsp?page=1&type=1",
     };
 
     @Test
     public void testChinaUnicomPageProcessor() {
-        Spider.create(chinaUnicomPageProcessor);
+        Spider.create(chinaUnicomPageProcessor)
+                .addUrl(urls)
+                .thread(THREAD_NUM)
+                .run();
     }
 
 }

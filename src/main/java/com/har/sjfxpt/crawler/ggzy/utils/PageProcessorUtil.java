@@ -70,10 +70,10 @@ public final class PageProcessorUtil {
 
         matcher = yyyymmddPattern.matcher(date);
         if (matcher.matches()) {
-            dataStr = matcher.group() + DateTime.now().toString(" HH:mm");
+            dataStr = matcher.group() + " 00:00";
         }
 
-        return StringUtils.defaultString(dataStr, DateTime.now().toString("yyyy-MM-dd HH:mm"));
+        return StringUtils.defaultString(dataStr, DateTime.now().toString("yyyy-MM-dd") + " 00:00");
     }
 
     /**

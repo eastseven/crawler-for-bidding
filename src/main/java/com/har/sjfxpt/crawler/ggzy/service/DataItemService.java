@@ -112,7 +112,7 @@ public class DataItemService {
             try {
                 DateTime dt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm").parseDateTime(dataItem.getDate());
                 String pattern = DateTime.now().toString("yyyy-MM-dd HH:mm");
-                DateTime now = new DateTime(pattern);
+                DateTime now = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm").parseDateTime(pattern);
                 if (dt.compareTo(now) > 0) {
                     dataItem.setDate(now.toString("yyyy-MM-dd HH:mm"));
                 }
