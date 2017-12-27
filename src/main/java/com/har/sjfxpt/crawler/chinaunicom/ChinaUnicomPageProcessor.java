@@ -35,8 +35,9 @@ public class ChinaUnicomPageProcessor implements BasePageProcessor {
         if (pageNum == 1) {
             Elements elements = page.getHtml().getDocument().body().select("body > table > tbody > tr:nth-child(2) > td:nth-child(2) > table > tbody > tr > td:nth-child(2) > table:nth-child(2) > tbody > tr:nth-child(3) > td > table > tbody > tr > td:nth-child(1)");
             int pageCount = Integer.parseInt(StringUtils.substringBetween(elements.text(), "共 ", " 页"));
-            log.info("pageCount=={}", pageCount);
-            for (int i = 2; i <= pageCount; i++) {
+            int cycleNum = pageCount >= 15 ? 15 : pageCount;
+            log.info("cycleNum=={}", cycleNum);
+            for (int i = 2; i <= cycleNum; i++) {
                 String urlTarget = url.replace("page=1", "page=" + i);
                 page.addTargetRequest(urlTarget);
             }
@@ -101,6 +102,8 @@ public class ChinaUnicomPageProcessor implements BasePageProcessor {
                     if (StringUtils.isNotBlank(formatContent)) {
                         chinaUnicomDataItem.setFormatContent(formatContent);
                         dataItems.add(chinaUnicomDataItem);
+                    } else {
+                        log.warn("{} formatContent is null", chinaUnicomDataItem.getUrl());
                     }
                 }
             }
