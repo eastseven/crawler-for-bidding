@@ -14,6 +14,7 @@ import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,6 +107,18 @@ public class DataItemService {
 
             //计算 行业分类
             //setIndustryCategory(dataItem);
+
+            // 处理超前时间，大于当前时间，按当前时间记录
+            try {
+                DateTime dt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm").parseDateTime(dataItem.getDate());
+                String pattern = DateTime.now().toString("yyyy-MM-dd HH:mm");
+                DateTime now = new DateTime(pattern);
+                if (dt.compareTo(now) > 0) {
+                    dataItem.setDate(now.toString("yyyy-MM-dd HH:mm"));
+                }
+            } catch (Exception e) {
+                log.error("", e);
+            }
 
             try {
                 String rowKey = getRowKey(dataItem);
