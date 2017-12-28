@@ -17,4 +17,10 @@ public class DateTimeTests {
 
         log.info(">>> {} : {} = {}", dt.toString(pattern), now.toString(pattern), dt.compareTo(now));
     }
+
+    @Test
+    public void testTime() {
+        log.debug("{}", DateTime.now().toString("yyyy-MM-dd") + " 23:59:59");
+        log.debug("{}", DateTime.now().minusDays(20).toString("yyyy-MM-dd") + " 00:00:00");
+    }
 }

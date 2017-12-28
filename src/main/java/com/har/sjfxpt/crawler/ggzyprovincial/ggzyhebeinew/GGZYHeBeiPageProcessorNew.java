@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.util.Lists;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.joda.time.DateTime;
 import org.jsoup.select.Elements;
 import org.mortbay.util.ajax.JSON;
 import org.springframework.stereotype.Component;
@@ -77,7 +78,7 @@ public class GGZYHeBeiPageProcessorNew implements BasePageProcessor {
                 ggzyHeBeiDataItem.setTitle(title);
 
                 if (PageProcessorUtil.timeCompare(ggzyHeBeiDataItem.getDate())) {
-                    log.info("{} is not the same day", ggzyHeBeiDataItem.getUrl());
+                    log.info("{} {} is not the same day", ggzyHeBeiDataItem.getUrl(), ggzyHeBeiDataItem.getDate());
                 } else {
                     Page page1 = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
                     Elements elements = page1.getHtml().getDocument().body().select("#hideDeil");
@@ -129,8 +130,8 @@ public class GGZYHeBeiPageProcessorNew implements BasePageProcessor {
         ggzyHeBeiPageParameter.setToken("");
         ggzyHeBeiPageParameter.setPn(pageCount);
         ggzyHeBeiPageParameter.setRn(10);
-        ggzyHeBeiPageParameter.setSdt("2017-12-06 00:00:00");
-        ggzyHeBeiPageParameter.setEdt("2017-12-26 23:59:59");
+        ggzyHeBeiPageParameter.setSdt(DateTime.now().minusDays(20).toString("yyyy-MM-dd") + " 00:00:00");
+        ggzyHeBeiPageParameter.setEdt(DateTime.now().toString("yyyy-MM-dd") + " 23:59:59");
         ggzyHeBeiPageParameter.setFields("title");
         ggzyHeBeiPageParameter.setSort("{\"showdate\":\"0\"}");
         ggzyHeBeiPageParameter.setSsort("title");
