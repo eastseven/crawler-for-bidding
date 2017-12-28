@@ -2,8 +2,8 @@ package com.har.sjfxpt.crawler.ggzy;
 
 import com.har.sjfxpt.crawler.BaseSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.listener.MonitorSpiderListener;
-import com.har.sjfxpt.crawler.ggzy.pipeline.DataItemPipeline;
-import com.har.sjfxpt.crawler.ggzy.pipeline.HBasePipeline;
+import com.har.sjfxpt.crawler.ggzy.pipeline.GongGongZiYuanMongoPipeline;
+import com.har.sjfxpt.crawler.ggzy.pipeline.GongGongZiYuanPipeline;
 import com.har.sjfxpt.crawler.ggzy.processor.GongGongZiYuanPageProcessor;
 import com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -141,8 +141,8 @@ public class GongGongZiYuanSpiderLauncher extends BaseSpiderLauncher {
 
     Spider getGongGongZiYuanSpider() {
         Spider spider = Spider.create(context.getBean(GongGongZiYuanPageProcessor.class));
-        spider.addPipeline(context.getBean(DataItemPipeline.class));
-        spider.addPipeline(context.getBean(HBasePipeline.class));
+        spider.addPipeline(context.getBean(GongGongZiYuanMongoPipeline.class));
+        spider.addPipeline(context.getBean(GongGongZiYuanPipeline.class));
         spider.setSpiderListeners(Lists.newArrayList(context.getBean(MonitorSpiderListener.class)));
         spider.setExitWhenComplete(true);
 

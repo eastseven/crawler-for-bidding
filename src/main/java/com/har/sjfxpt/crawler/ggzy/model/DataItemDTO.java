@@ -9,7 +9,9 @@ import lombok.ToString;
  *
  * @author dongqi
  */
-@Setter@Getter@ToString
+@Setter
+@Getter
+@ToString(exclude = {"formatContent"})
 public class DataItemDTO {
 
     public static final int ROW_KEY_LENGTH = 41;
@@ -17,75 +19,75 @@ public class DataItemDTO {
     /**
      * hbase rowKey: yyyyMMdd:title
      */
-    private String rowKey;
+    protected String rowKey;
 
-    private String id;
+    protected String id;
 
-    private String url;
+    protected String url;
 
-    private String title;
+    protected String title;
 
-    private String province;
+    protected String province;
 
-    private String type;
+    protected String type;
 
-    private String source;
+    protected String source;
 
-    private String sourceCode;
+    protected String sourceCode;
 
     /**
      * yyyy-MM-dd HH:mm
      */
-    private String date;
+    protected String date;
 
     /**
      * yyyyMMddHH
      */
-    private String createTime;
+    protected String createTime;
 
-    private String formatContent;
+    protected String formatContent;
 
-    private String textContent;
+    protected String textContent;
 
     /**
      * 采购单位名称，甲方
      * 中国政府采购网
      */
-    private String purchaser;
+    protected String purchaser;
 
     /**
      * 项目名称，title 下划线前面的值
      * 中国移动
      */
-    private String projectName;
+    protected String projectName;
 
     /**
      * 行业分类
      * 通过配置文件中的关键字匹配，计算出的值
      * 汉字，以英文逗号分隔
      */
-    private String industryCategory;
+    protected String industryCategory;
 
     /**
      * 原始的行业分类
      */
-    private String originalIndustryCategory;
+    protected String originalIndustryCategory;
 
-    private boolean forceUpdate;
+    protected boolean forceUpdate;
 
     /**
      * 预算金额 budget
      */
-    private String budget;
+    protected String budget;
 
     /**
      * 总成交金额 total_bid_money
      */
-    private String totalBidMoney;
+    protected String totalBidMoney;
 
     /**
      * 中标公司名称
      */
-    private String bidCompanyName;
+    protected String bidCompanyName;
 
 }

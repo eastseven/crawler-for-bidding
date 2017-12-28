@@ -118,6 +118,7 @@ public class DataItemService {
                 }
             } catch (Exception e) {
                 log.error("", e);
+                log.error(">>> date {}", dataItem.getDate());
             }
 
             try {

@@ -13,9 +13,13 @@ import us.codecraft.webmagic.pipeline.Pipeline;
 
 import java.util.List;
 
+/**
+ * @author dongqi
+ * 全国公共资源 mongodb 存储
+ */
 @Slf4j
 @Component
-public class DataItemPipeline implements Pipeline {
+public class GongGongZiYuanMongoPipeline implements Pipeline {
 
     @Autowired
     DataItemRepository repository;
