@@ -97,7 +97,6 @@ public class GGZYShanXiPageProcessor implements BasePageProcessor {
                     }
                 });
 
-                dataItems.forEach(dataItem -> log.debug(">>> {}", dataItem));
                 page.putField(KEY_DATA_ITEMS, dataItems);
             }
         }

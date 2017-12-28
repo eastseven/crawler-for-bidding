@@ -107,7 +107,6 @@ public class ZGJiaoJianPageProcessor implements BasePageProcessor {
                 zgJiaoJianDataItem.setProvince(ProvinceUtil.get(title));
                 zgJiaoJianDataItem.setDate(PageProcessorUtil.dataTxt(date));
 
-                log.info("url={}", zgJiaoJianDataItem.getUrl());
                 Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
                 String dateDetail = page.getHtml().getDocument().body().select("body > div:nth-child(2)").text();
                 dateDetail = PageProcessorUtil.dataTxt(dateDetail);

@@ -121,7 +121,7 @@ public class SpiderNewLauncher implements CommandLineRunner {
         init();
         if (spiderMap.isEmpty()) return;
 
-//        spiderMap.forEach((s, spider) -> spider.start());
+        spiderMap.forEach((s, spider) -> spider.start());
     }
 
     @Override

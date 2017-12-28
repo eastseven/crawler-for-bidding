@@ -3,6 +3,8 @@ package com.har.sjfxpt.crawler.core.pipeline;
 import com.har.sjfxpt.crawler.core.service.DataItemService;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyshanxi.GGZYShanXiDataItem;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyshanxi.GGZYShanXiDataItemRepository;
+import com.har.sjfxpt.crawler.zgjiaojian.ZGJiaoJianDataItem;
+import com.har.sjfxpt.crawler.zgjiaojian.ZGJiaoJianDataItemRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,8 +42,11 @@ public class DataItemDtoPipeline implements Pipeline {
             if (object instanceof GGZYShanXiDataItem) {
                 ctx.getBean(GGZYShanXiDataItemRepository.class).save(dataItemList);
             }
+            if (object instanceof ZGJiaoJianDataItem) {
+                ctx.getBean(ZGJiaoJianDataItemRepository.class).save(dataItemList);
+            }
 
-            dataItemService.save2BidNewsOriginalTable(dataItemList);
+//            dataItemService.save2BidNewsOriginalTable(dataItemList);
         }
     }
 }
