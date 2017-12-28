@@ -13,7 +13,7 @@ import us.codecraft.webmagic.utils.HttpConstant;
 
 import java.util.Map;
 
-import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanUtil.YYYYMMDD;
+import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanUtil.YYYYMMDD;
 
 /**
  * @author dongqi

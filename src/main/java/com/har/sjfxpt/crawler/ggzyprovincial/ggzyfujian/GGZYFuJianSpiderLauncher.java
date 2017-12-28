@@ -2,7 +2,7 @@ package com.har.sjfxpt.crawler.ggzyprovincial.ggzyfujian;
 
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.BaseSpiderLauncher;
-import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,7 @@ import us.codecraft.webmagic.utils.HttpConstant;
 
 import java.util.Map;
 
-import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.THREAD_NUM;
+import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.THREAD_NUM;
 
 /**
  * Created by Administrator on 2017/12/13.

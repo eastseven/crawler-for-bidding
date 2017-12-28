@@ -2,12 +2,11 @@ package com.har.sjfxpt.crawler.yibiao;
 
 import com.google.common.collect.Lists;
 import com.har.sjfxpt.crawler.BaseSpiderLauncher;
-import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
-import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
-import com.har.sjfxpt.crawler.ggzy.service.DataItemService;
-import com.har.sjfxpt.crawler.ggzy.service.ProxyService;
-import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
-import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
+import com.har.sjfxpt.crawler.core.service.DataItemService;
+import com.har.sjfxpt.crawler.core.service.ProxyService;
+import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
+import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Element;
@@ -15,7 +14,6 @@ import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
@@ -24,11 +22,9 @@ import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.proxy.SimpleProxyProvider;
 
 import java.util.List;
-import java.util.Timer;
 import java.util.concurrent.ExecutorService;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Created by Administrator on 2017/11/10.

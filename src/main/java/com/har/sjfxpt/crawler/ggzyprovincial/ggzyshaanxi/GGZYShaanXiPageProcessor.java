@@ -1,9 +1,9 @@
 package com.har.sjfxpt.crawler.ggzyprovincial.ggzyshaanxi;
 
 import com.google.common.collect.Lists;
-import com.har.sjfxpt.crawler.ggzy.processor.BasePageProcessor;
-import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
-import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
+import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
+import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
+import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Element;
@@ -17,7 +17,7 @@ import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import java.util.List;
 import java.util.Map;
 
-import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
+import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
 
 /**
  * Created by Administrator on 2017/12/15.

@@ -1,6 +1,6 @@
 package com.har.sjfxpt.crawler.zgjiaojian;
 
-import com.har.sjfxpt.crawler.ggzy.processor.BasePageProcessor;
+import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;

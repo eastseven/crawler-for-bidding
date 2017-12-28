@@ -9,7 +9,7 @@ import com.har.sjfxpt.crawler.chengduconstruction.ChengDuConstructionSpiderLaunc
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
 import com.har.sjfxpt.crawler.chinaunicom.ChinaUnicomSpiderLauncher;
 import com.har.sjfxpt.crawler.dongfeng.DongFengSpiderLauncher;
-import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
+import com.har.sjfxpt.crawler.core.GongGongZiYuanSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.GGZYCQSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyfujian.GGZYFuJianSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzygansu.GGZYGanSuSpiderLauncher;
@@ -39,6 +39,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Profile;
+import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
@@ -49,7 +51,8 @@ import java.util.Arrays;
  */
 @Slf4j
 @Service
-@Order
+@Profile("prod")
+@Order(Ordered.LOWEST_PRECEDENCE - 1)
 public class SpiderLauncher implements CommandLineRunner {
 
     @Autowired
@@ -200,7 +203,7 @@ public class SpiderLauncher implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        log.info("{}", Arrays.toString(args));
+        log.info(">>> SpiderLauncher {}", Arrays.toString(args));
         for (String arg : args) {
             switch (arg) {
                 case "start-ggzy":
@@ -351,3 +354,4 @@ public class SpiderLauncher implements CommandLineRunner {
     }
 
 }
+

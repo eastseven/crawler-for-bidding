@@ -1,8 +1,8 @@
 package com.har.sjfxpt.crawler.ccgp;
 
-import com.har.sjfxpt.crawler.ggzy.processor.BasePageProcessor;
-import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
-import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
+import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
+import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
+import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.RandomUtils;
@@ -21,7 +21,7 @@ import us.codecraft.webmagic.Site;
 
 import java.util.List;
 
-import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
+import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
 
 /**
  * 中国政府采购网

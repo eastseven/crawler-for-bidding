@@ -1,9 +1,8 @@
 package com.har.sjfxpt.crawler.chengduconstruction;
 
-import com.har.sjfxpt.crawler.chinamobile.ChinaMobileDataItem;
-import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
-import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
-import com.har.sjfxpt.crawler.ggzy.service.DataItemService;
+import com.har.sjfxpt.crawler.core.model.DataItemDTO;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
+import com.har.sjfxpt.crawler.core.service.DataItemService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,7 @@ import us.codecraft.webmagic.pipeline.Pipeline;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
+import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
 
 /**
  * Created by Administrator on 2017/12/5.

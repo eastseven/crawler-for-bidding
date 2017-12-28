@@ -1,16 +1,14 @@
 package com.har.sjfxpt.crawler.ggzyprovincial.ggzyhebeinew;
 
 import com.alibaba.fastjson.JSONObject;
-import com.har.sjfxpt.crawler.ggzy.processor.BasePageProcessor;
-import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
-import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
+import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
+import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
+import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.util.Lists;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.joda.time.DateTime;
 import org.jsoup.select.Elements;
-import org.mortbay.util.ajax.JSON;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
@@ -19,11 +17,10 @@ import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.model.HttpRequestBody;
 import us.codecraft.webmagic.utils.HttpConstant;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
+import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
 
 /**
  * Created by Administrator on 2017/12/26.

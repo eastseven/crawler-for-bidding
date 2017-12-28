@@ -1,7 +1,7 @@
 package com.har.sjfxpt.crawler.sgcc;
 
-import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
-import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
+import com.har.sjfxpt.crawler.core.model.DataItemDTO;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;

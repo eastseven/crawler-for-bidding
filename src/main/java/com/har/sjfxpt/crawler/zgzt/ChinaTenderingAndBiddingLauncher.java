@@ -2,7 +2,7 @@ package com.har.sjfxpt.crawler.zgzt;
 
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.BaseSpiderLauncher;
-import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

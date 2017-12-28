@@ -1,8 +1,8 @@
 package com.har.sjfxpt.crawler.ggzyprovincial.ggzyshanxi;
 
-import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
-import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
-import com.har.sjfxpt.crawler.ggzy.utils.PageProcessorUtil;
+import com.har.sjfxpt.crawler.core.model.DataItemDTO;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
+import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;

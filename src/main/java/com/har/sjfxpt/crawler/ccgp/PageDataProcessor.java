@@ -1,6 +1,6 @@
 package com.har.sjfxpt.crawler.ccgp;
 
-import com.har.sjfxpt.crawler.ggzy.utils.SiteUtil;
+import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;

@@ -1,7 +1,7 @@
 package com.har.sjfxpt.crawler.yibiao;
 
-import com.har.sjfxpt.crawler.ggzy.model.DataItemDTO;
-import com.har.sjfxpt.crawler.ggzy.model.SourceCode;
+import com.har.sjfxpt.crawler.core.model.DataItemDTO;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
 import lombok.Data;
 import lombok.ToString;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -9,10 +9,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 
