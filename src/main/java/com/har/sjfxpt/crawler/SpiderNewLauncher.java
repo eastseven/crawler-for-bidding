@@ -33,6 +33,8 @@ import java.util.concurrent.ExecutorService;
 
 /**
  * @author dongqi
+ *
+ * https://stackoverflow.com/questions/259140/scanning-java-annotations-at-runtime
  */
 @Slf4j
 @Service
@@ -123,7 +125,7 @@ public class SpiderNewLauncher implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         start();
     }
 }
