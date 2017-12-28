@@ -7,7 +7,6 @@ import com.har.sjfxpt.crawler.zgjiaojian.ZGJiaoJianPageProcessor;
 import com.har.sjfxpt.crawler.zgjiaojian.ZGJiaoJianPipeline;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -24,6 +23,7 @@ import us.codecraft.webmagic.utils.HttpConstant;
 import java.util.Map;
 
 import static com.har.sjfxpt.crawler.ggzy.utils.GongGongZiYuanConstant.THREAD_NUM;
+import static com.har.sjfxpt.crawler.zgjiaojian.ZGJiaoJianSpiderLauncher.requestGenerator;
 
 /**
  * Created by Administrator on 2017/12/28.
@@ -52,25 +52,6 @@ public class ZGJiaoJianPageProcessorTests {
                 .run();
     }
 
-    public static Request requestGenerator(String url) {
-        Request request = new Request(url);
-        String typeField = StringUtils.substringBetween(url, "/t9M5buuVsVwZbmhKSxRhbdvSgqcr+", "=");
-        Map<String, Object> pageParams = Maps.newHashMap();
-        if ("4yWYEPz0JTUNvOCTs".equalsIgnoreCase(typeField)) {
-            pageParams.put("VENUS_PAGE_NO_KEY", "1");
-            pageParams.put("VENUS_PAGE_SIZE_KEY", "20");
-            pageParams.put("channelId", "2013300100000000035");
-        }
-        if ("4yWYEPeVgXu6xroO0".equalsIgnoreCase(typeField)) {
-            pageParams.put("VENUS_PAGE_NO_KEY", "1");
-            pageParams.put("VENUS_PAGE_SIZE_KEY", "20");
-            pageParams.put("channelId", "2013300100000000034");
-        }
-        request.setMethod(HttpConstant.Method.POST);
-        request.setRequestBody(HttpRequestBody.form(pageParams, "UTF-8"));
-        request.putExtra("pageParams", pageParams);
-        return request;
-    }
 
     @Test
     public void testDown() {
