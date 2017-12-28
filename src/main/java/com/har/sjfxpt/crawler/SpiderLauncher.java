@@ -7,6 +7,7 @@ import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgpsc.CCGPSiChuanSpiderLauncher;
 import com.har.sjfxpt.crawler.chengduconstruction.ChengDuConstructionSpiderLauncher;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
+import com.har.sjfxpt.crawler.chinaunicom.ChinaUnicomSpiderLauncher;
 import com.har.sjfxpt.crawler.dongfeng.DongFengSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzy.GongGongZiYuanSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.GGZYCQSpiderLauncher;
@@ -156,6 +157,9 @@ public class SpiderLauncher implements CommandLineRunner {
     @Autowired
     GGZYHeBeiSpiderLauncher ggzyHeBeiSpiderLauncher;
 
+    @Autowired
+    ChinaUnicomSpiderLauncher chinaUnicomSpiderLauncher;
+
     public void info() {
         gongGongZiYuanSpiderLauncher.printInfo();
         chinaMobileSpiderLauncher.printInfo();
@@ -191,6 +195,7 @@ public class SpiderLauncher implements CommandLineRunner {
         shenHuaSpiderLauncher.printInfo();
         baoWuSpiderLauncher.printInfo();
         ggzyHeBeiSpiderLauncher.printInfo();
+        chinaUnicomSpiderLauncher.printInfo();
     }
 
     @Override
@@ -335,6 +340,9 @@ public class SpiderLauncher implements CommandLineRunner {
                     break;
                 case "start-hebei":
                     ggzyHeBeiSpiderLauncher.start();
+                    break;
+                case "start-chinaunicom":
+                    chinaUnicomSpiderLauncher.start();
                     break;
                 default:
                     break;
