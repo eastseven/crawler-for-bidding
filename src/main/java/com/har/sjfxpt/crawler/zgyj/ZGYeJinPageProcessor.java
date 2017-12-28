@@ -38,7 +38,7 @@ public class ZGYeJinPageProcessor implements BasePageProcessor {
     final static String PAGE_PARAMS = "pageParams";
 
     @Autowired
-    HttpClientDownloader downloader;
+    HttpClientDownloader httpClientDownloader;
 
     @Autowired
     ProxyService proxyService;
@@ -116,8 +116,8 @@ public class ZGYeJinPageProcessor implements BasePageProcessor {
                 log.debug("zgYeJinDataItem=={}", zgYeJinDataItem);
 
                 log.debug(">>> download {}", url);
-                downloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
-                Element root =downloader.download(url).getDocument().body().select("body > div.main-news").first();
+                httpClientDownloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
+                Element root =httpClientDownloader.download(url).getDocument().body().select("body > div.main-news").first();
                 String formatContent = PageProcessorUtil.formatElementsByWhitelist(root);
 
                 zgYeJinDataItem.setFormatContent(formatContent);

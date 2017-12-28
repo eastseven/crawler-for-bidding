@@ -51,7 +51,7 @@ public class SpiderNewLauncher implements CommandLineRunner {
     ProxyService proxyService;
 
     @Autowired
-    HttpClientDownloader downloader;
+    HttpClientDownloader httpClientDownloader;
 
     private static final String basePackage = "com.har.sjfxpt.crawler";
 
@@ -109,8 +109,8 @@ public class SpiderNewLauncher implements CommandLineRunner {
                     .addPipeline(ctx.getBean(DataItemDtoPipeline.class));
 
             if (config.useProxy()) {
-                downloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
-                spider.setDownloader(downloader);
+                httpClientDownloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
+                spider.setDownloader(httpClientDownloader);
             }
 
             spiderMap.put(uuid, spider);

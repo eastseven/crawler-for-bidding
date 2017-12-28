@@ -59,7 +59,7 @@ public class AppConfig implements AsyncConfigurer {
     }
 
     @Bean
-    HttpClientDownloader downloader() {
+    HttpClientDownloader httpClientDownloader() {
         return new HttpClientDownloader();
     }
 }

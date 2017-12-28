@@ -27,12 +27,11 @@ import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_
 @Component
 public class YiBiaoPageProcessor implements BasePageProcessor {
 
-    HttpClientDownloader httpClientDownloader;
 
     final static int ARTICLE_NUM = 50;
 
     @Autowired
-    HttpClientDownloader httpClientDownloader1;
+    HttpClientDownloader httpClientDownloader;
 
     @Override
     public void handlePaging(Page page) {
