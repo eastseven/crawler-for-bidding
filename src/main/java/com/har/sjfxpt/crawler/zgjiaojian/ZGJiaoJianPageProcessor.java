@@ -2,7 +2,10 @@ package com.har.sjfxpt.crawler.zgjiaojian;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
+import com.har.sjfxpt.crawler.core.processor.Source;
+import com.har.sjfxpt.crawler.core.processor.SourceConfig;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.ProvinceUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
@@ -29,6 +32,14 @@ import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_
  */
 @Slf4j
 @Component
+@SourceConfig(code = SourceCode.ZGJIAOJIAN, sources = {
+        @Source(url = "http://empm.ccccltd.cn/PMS/downpage.shtml?id=J8Gis7a8zFp0/0+cu62h4ufCdjRQ/t9M5buuVsVwZbmhKSxRhbdvSgqcr+4yWYEPz0JTUNvOCTs=", post = true,
+                postParams = "{'VENUS_PAGE_NO_KEY':'1','VENUS_PAGE_SIZE_KEY':'20','channelId':'2013300100000000035'}"
+        ),
+        @Source(url = "http://empm.ccccltd.cn/PMS/downpage.shtml?id=J8Gis7a8zFp0/0+cu62h4ufCdjRQ/t9M5buuVsVwZbmhKSxRhbdvSgqcr+4yWYEPeVgXu6xroO0=", post = true,
+                postParams = "{'VENUS_PAGE_NO_KEY':'1','VENUS_PAGE_SIZE_KEY':'20','channelId':'2013300100000000034'}"
+        )
+})
 public class ZGJiaoJianPageProcessor implements BasePageProcessor {
 
     HttpClientDownloader httpClientDownloader;
@@ -96,6 +107,7 @@ public class ZGJiaoJianPageProcessor implements BasePageProcessor {
                 zgJiaoJianDataItem.setProvince(ProvinceUtil.get(title));
                 zgJiaoJianDataItem.setDate(PageProcessorUtil.dataTxt(date));
 
+                log.info("url={}", zgJiaoJianDataItem.getUrl());
                 Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
                 String dateDetail = page.getHtml().getDocument().body().select("body > div:nth-child(2)").text();
                 dateDetail = PageProcessorUtil.dataTxt(dateDetail);

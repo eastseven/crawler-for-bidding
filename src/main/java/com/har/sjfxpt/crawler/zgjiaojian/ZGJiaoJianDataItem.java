@@ -5,7 +5,6 @@ import com.har.sjfxpt.crawler.core.model.SourceCode;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.joda.time.DateTime;
 import org.springframework.data.mongodb.core.mapping.Document;
