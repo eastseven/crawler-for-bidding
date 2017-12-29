@@ -2,6 +2,7 @@ package com.har.sjfxpt.crawler.ggzyprovincial.ggzyshanxi;
 
 import com.har.sjfxpt.crawler.core.model.DataItemDTO;
 import com.har.sjfxpt.crawler.core.model.SourceCode;
+import com.har.sjfxpt.crawler.core.processor.DataItemRepository;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,6 +16,8 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.model.AfterExtractor;
 
+import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyshanxi.GGZYShanXiDataItem.COLLECTION_NAME;
+
 /**
  * Created by Administrator on 2017/12/12.
  *
@@ -24,10 +27,11 @@ import us.codecraft.webmagic.model.AfterExtractor;
 @Data
 @NoArgsConstructor
 @ToString(callSuper = true)
-@Document(collection = "data_item_ggzy_shanxi")
+@Document(collection = COLLECTION_NAME)
+@DataItemRepository(repository = GGZYShanXiDataItemRepository.class)
 public class GGZYShanXiDataItem extends DataItemDTO implements AfterExtractor {
 
-    public static final String collection = "data_item_ggzy_shanxi";
+    public static final String COLLECTION_NAME = "data_item_ggzy_shanxi";
 
     public GGZYShanXiDataItem(String url) {
         this.id = DigestUtils.md5Hex(url);

@@ -58,7 +58,7 @@ public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
     ExecutorService executorService;
 
     @Autowired
-    ZhengFuCaiGouDownloader downloader;
+    ZhengFuCaiGouDownloader zhengFuCaiGouDownloader;
 
     int num = Runtime.getRuntime().availableProcessors();
 
@@ -79,7 +79,7 @@ public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
         url = url + params;
         log.debug(">>> test {}", url);
         Spider.create(pageProcessor)
-                .setDownloader(downloader)
+                .setDownloader(zhengFuCaiGouDownloader)
                 .addPipeline(pipeline)
                 .addRequest(new Request(url)).run();
     }
@@ -166,11 +166,11 @@ public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
     public void getRedisUrl() {
         long total = stringRedisTemplate.boundSetOps(names).size();
         for (int i = 0; i < 3; i++) {
-            String tabulationUrl = (String) stringRedisTemplate.boundSetOps(names).pop();
+            String tabulationUrl = stringRedisTemplate.boundSetOps(names).pop();
             log.debug("total=={},tabulationUrl=={}", total, tabulationUrl);
             Request request = new Request(tabulationUrl);
-            downloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
-            us.codecraft.webmagic.Page page = downloader.download(request, SiteUtil.get().toTask());
+            zhengFuCaiGouDownloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
+            us.codecraft.webmagic.Page page = zhengFuCaiGouDownloader.download(request, SiteUtil.get().toTask());
             Document document = page.getHtml().getDocument();
             Elements elements = document.body().select(cssQuery4List);
             List<ZhengFuCaiGouDataItem> dataItemList = pageProcessor.parseContent(elements);

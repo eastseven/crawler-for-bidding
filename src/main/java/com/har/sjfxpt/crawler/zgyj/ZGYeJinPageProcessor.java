@@ -117,7 +117,7 @@ public class ZGYeJinPageProcessor implements BasePageProcessor {
 
                 log.debug(">>> download {}", url);
                 httpClientDownloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
-                Element root =httpClientDownloader.download(url).getDocument().body().select("body > div.main-news").first();
+                Element root = httpClientDownloader.download(url).getDocument().body().select("body > div.main-news").first();
                 String formatContent = PageProcessorUtil.formatElementsByWhitelist(root);
 
                 zgYeJinDataItem.setFormatContent(formatContent);
@@ -193,6 +193,7 @@ public class ZGYeJinPageProcessor implements BasePageProcessor {
             case "showYzbgsMessage":
                 url = "http://ec.mcc.com.cn/b2b/web/two/indexinfoAction.do?actionType=showYzbgsDetail&xxbh=" + parameter;
                 break;
+            default:
         }
 
         return url;
