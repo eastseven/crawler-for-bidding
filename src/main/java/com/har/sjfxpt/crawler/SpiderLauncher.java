@@ -52,6 +52,7 @@ import java.util.Arrays;
 @Service
 @Profile("prod")
 @Order(Ordered.LOWEST_PRECEDENCE - 1)
+@Deprecated
 public class SpiderLauncher implements CommandLineRunner {
 
     @Autowired

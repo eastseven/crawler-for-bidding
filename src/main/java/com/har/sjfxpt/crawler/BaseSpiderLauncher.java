@@ -15,6 +15,7 @@ import java.util.Map;
  */
 @Slf4j
 @Component
+@Deprecated
 public class BaseSpiderLauncher implements DisposableBean, Runnable {
 
     private Map<String, Spider> spiderMap = Maps.newConcurrentMap();
