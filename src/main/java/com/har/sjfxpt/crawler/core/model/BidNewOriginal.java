@@ -18,13 +18,15 @@ import java.util.Date;
  * @author dongqi
  */
 @Setter
-@Getter@NoArgsConstructor
-@ToString(exclude = {"formatContent"})
+@Getter
+@NoArgsConstructor
+@ToString(exclude = {"formatContent", "rowKey", "forceUpdate"})
 @Document(collection = "bid_news_original")
 public class BidNewOriginal {
 
     /**
      * 初始化 id, url, createTime
+     *
      * @param url
      */
     public BidNewOriginal(String url) {
@@ -68,9 +70,6 @@ public class BidNewOriginal {
 
     @Field("format_content")
     protected String formatContent;
-
-    @Field("text_content")
-    protected String textContent;
 
     /**
      * 采购单位名称，甲方
