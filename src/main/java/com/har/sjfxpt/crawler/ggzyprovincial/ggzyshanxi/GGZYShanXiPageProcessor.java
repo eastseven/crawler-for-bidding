@@ -31,6 +31,7 @@ import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_
 /**
  * Created by Administrator on 2017/12/12.
  *
+ * 山西公共资源 页面解析
  * @author luofei
  * @author dongqi
  */
