@@ -33,6 +33,7 @@ import com.har.sjfxpt.crawler.shenhua.ShenHuaSpiderLauncher;
 import com.har.sjfxpt.crawler.suning.SuNingSpiderLauncher;
 import com.har.sjfxpt.crawler.zgjiaojian.ZGJiaoJianSpiderLauncher;
 import com.har.sjfxpt.crawler.zgly.ZGLvYeSpiderLauncher;
+import com.har.sjfxpt.crawler.zgrenshou.ZGRenShouSpiderLauncher;
 import com.har.sjfxpt.crawler.zgyj.ZGYeJinSpiderLauncher;
 import com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingLauncher;
 import lombok.extern.slf4j.Slf4j;
@@ -432,6 +433,17 @@ public class SpiderTaskScheduler {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.ZGJIAOJIAN);
             context.getBean(ZGJiaoJianSpiderLauncher.class).start();
+        }
+    }
+
+    /**
+     * 中国人寿
+     */
+    @Scheduled(initialDelay = 29000, fixedRate = 60 * 60 * 1000)
+    public void fetchZGRENSHOU() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.ZGRENSHOU);
+            context.getBean(ZGRenShouSpiderLauncher.class).start();
         }
     }
 }
