@@ -31,6 +31,7 @@ import com.har.sjfxpt.crawler.petrochina.ZGShiYouSpiderLauncher;
 import com.har.sjfxpt.crawler.sgcc.StateGridSpiderLauncher;
 import com.har.sjfxpt.crawler.shenhua.ShenHuaSpiderLauncher;
 import com.har.sjfxpt.crawler.suning.SuNingSpiderLauncher;
+import com.har.sjfxpt.crawler.zgjiaojian.ZGJiaoJianSpiderLauncher;
 import com.har.sjfxpt.crawler.zgly.ZGLvYeSpiderLauncher;
 import com.har.sjfxpt.crawler.zgyj.ZGYeJinSpiderLauncher;
 import com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingLauncher;
@@ -420,6 +421,17 @@ public class SpiderTaskScheduler {
         if (flag) {
             log.info(">>> start fetch {}", SourceCode.CU);
             context.getBean(ChinaUnicomSpiderLauncher.class).start();
+        }
+    }
+
+    /**
+     * 中国交建
+     */
+    @Scheduled(initialDelay = 29000, fixedRate = 60 * 60 * 1000)
+    public void fetchZGJIAOJIAN() {
+        if (flag) {
+            log.info(">>> start fetch {}", SourceCode.ZGJIAOJIAN);
+            context.getBean(ZGJiaoJianSpiderLauncher.class).start();
         }
     }
 }

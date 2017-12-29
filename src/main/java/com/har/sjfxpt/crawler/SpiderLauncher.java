@@ -32,6 +32,7 @@ import com.har.sjfxpt.crawler.sgcc.StateGridSpiderLauncher;
 import com.har.sjfxpt.crawler.shenhua.ShenHuaSpiderLauncher;
 import com.har.sjfxpt.crawler.suning.SuNingSpiderLauncher;
 import com.har.sjfxpt.crawler.yibiao.YiBiaoSpiderLauncher;
+import com.har.sjfxpt.crawler.zgjiaojian.ZGJiaoJianSpiderLauncher;
 import com.har.sjfxpt.crawler.zgly.ZGLvYeSpiderLauncher;
 import com.har.sjfxpt.crawler.zgyj.ZGYeJinSpiderLauncher;
 import com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingLauncher;
@@ -160,6 +161,9 @@ public class SpiderLauncher implements CommandLineRunner {
     @Autowired
     ChinaUnicomSpiderLauncher chinaUnicomSpiderLauncher;
 
+    @Autowired
+    ZGJiaoJianSpiderLauncher zgJiaoJianSpiderLauncher;
+
     public void info() {
         gongGongZiYuanSpiderLauncher.printInfo();
         chinaMobileSpiderLauncher.printInfo();
@@ -196,6 +200,7 @@ public class SpiderLauncher implements CommandLineRunner {
         baoWuSpiderLauncher.printInfo();
         ggzyHeBeiSpiderLauncher.printInfo();
         chinaUnicomSpiderLauncher.printInfo();
+        zgJiaoJianSpiderLauncher.printInfo();
     }
 
     @Override
@@ -343,6 +348,9 @@ public class SpiderLauncher implements CommandLineRunner {
                     break;
                 case "start-chinaunicom":
                     chinaUnicomSpiderLauncher.start();
+                    break;
+                case "start-zgjiaojian":
+                    zgJiaoJianSpiderLauncher.start();
                     break;
                 default:
                     break;
