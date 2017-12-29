@@ -58,9 +58,14 @@ public class SpiderNewLauncher implements CommandLineRunner {
     private static final String basePackage = "com.har.sjfxpt.crawler";
 
     private Map<String, Spider> spiderMap = Maps.newConcurrentMap();
+    private Map<String, Request[]> spiderRequestsMap = Maps.newConcurrentMap();
 
     public Map<String, Spider> getSpiders() {
         return this.spiderMap;
+    }
+
+    public Map<String, Request[]> getRequests() {
+        return this.spiderRequestsMap;
     }
 
     public void init() {
@@ -112,9 +117,11 @@ public class SpiderNewLauncher implements CommandLineRunner {
                 }
             }
 
+            Request[] requests = requestList.toArray(new Request[requestList.size()]);
             Spider spider = Spider.create((PageProcessor) pageProcessor).setUUID(uuid)
-                    .thread(executorService, 10).setExitWhenComplete(true)
-                    .addRequest(requestList.toArray(new Request[requestList.size()]))
+                    .thread(executorService, 10)
+                    .setExitWhenComplete(true)
+                    .addRequest(requests)
                     .addPipeline(ctx.getBean(DataItemDtoPipeline.class));
 
             if (config.useProxy()) {
@@ -123,17 +130,19 @@ public class SpiderNewLauncher implements CommandLineRunner {
             }
 
             spiderMap.put(uuid, spider);
+            spiderRequestsMap.put(uuid, requests);
         }
     }
 
     public void start() {
         if (spiderMap.isEmpty()) return;
 
-        spiderMap.forEach((s, spider) -> {
+        spiderMap.forEach((uuid, spider) -> {
             if (!spider.getStatus().equals(Spider.Status.Running)) {
+                spider.addRequest(spiderRequestsMap.get(uuid));
                 spider.start();
             }
-            log.info(">>> uuid={}, status={}, startTime={}", s, spider.getStatus(), spider.getStartTime());
+            log.info(">>> uuid={}, status={}, startTime={}", uuid, spider.getStatus(), spider.getStartTime());
         });
     }
 
