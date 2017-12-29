@@ -94,6 +94,7 @@ public class ZGLvYeSpiderLauncher extends BaseSpiderLauncher {
                 pageParams.put("releasedate2", endDate);
                 pageParams.put("type", "结果公告");
                 break;
+            default:
         }
         request.putExtra("pageParams", pageParams);
         request.setMethod(HttpConstant.Method.POST);

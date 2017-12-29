@@ -43,7 +43,8 @@ public enum SourceCode {
     SHENHUA("中国神华"),
     BAOWU("中国宝武"),
     CU("中国联通"),
-    ZGJIAOJIAN("中国交建")
+    ZGJIAOJIAN("中国交建"),
+    ZGRENSHOU("中国人寿")
     ;
 
 
