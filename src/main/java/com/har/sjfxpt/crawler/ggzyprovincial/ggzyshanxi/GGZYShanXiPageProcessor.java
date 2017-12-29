@@ -137,7 +137,8 @@ public class GGZYShanXiPageProcessor implements BasePageProcessor {
             Spider spider = OOSpider.create(getSite(), GGZYShanXiDataItem.class);
             spider.setExitWhenComplete(true);
             try {
-                GGZYShanXiDataItem _dataItem = spider.get(dataItem.getUrl());
+                String url = dataItem.getUrl();
+                GGZYShanXiDataItem _dataItem = spider.get(url);
                 dataItem.setProjectName(_dataItem.getProjectName());
                 dataItem.setPurchaser(_dataItem.getPurchaser());
                 dataItem.setFormatContent(_dataItem.getFormatContent());
