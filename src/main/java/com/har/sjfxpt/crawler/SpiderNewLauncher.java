@@ -5,7 +5,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.core.annotation.Source;
 import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
-import com.har.sjfxpt.crawler.core.pipeline.DataItemDtoPipeline;
+import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.service.ProxyService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
@@ -122,7 +122,7 @@ public class SpiderNewLauncher implements CommandLineRunner {
                     .thread(executorService, 10)
                     .setExitWhenComplete(true)
                     .addRequest(requests)
-                    .addPipeline(ctx.getBean(DataItemDtoPipeline.class));
+                    .addPipeline(ctx.getBean(HBasePipeline.class));
 
             if (config.useProxy()) {
                 httpClientDownloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));

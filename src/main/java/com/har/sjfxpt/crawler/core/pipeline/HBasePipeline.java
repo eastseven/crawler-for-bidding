@@ -1,7 +1,7 @@
 package com.har.sjfxpt.crawler.core.pipeline;
 
-import com.har.sjfxpt.crawler.core.repository.BidNewOriginalReposiroty;
-import com.har.sjfxpt.crawler.core.service.DataItemService;
+import com.har.sjfxpt.crawler.core.repository.BidNewOriginalRepository;
+import com.har.sjfxpt.crawler.core.service.HBaseService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +21,10 @@ import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_
  */
 @Slf4j
 @Component
-public class DataItemDtoPipeline implements Pipeline {
+public class HBasePipeline implements Pipeline {
 
     @Autowired
-    DataItemService dataItemService;
+    HBaseService HBaseService;
 
     @Autowired
     ApplicationContext ctx;
@@ -35,8 +35,8 @@ public class DataItemDtoPipeline implements Pipeline {
         if (CollectionUtils.isEmpty(dataItemList)) {
             log.warn(">>> save nothing, {}", task.getSite());
         } else {
-            ctx.getBean(BidNewOriginalReposiroty.class).save(dataItemList);
-            dataItemService.save2BidNewsOriginalTable(dataItemList);
+            ctx.getBean(BidNewOriginalRepository.class).save(dataItemList);
+            HBaseService.saveBidNewsOriginals(dataItemList);
         }
     }
 }

@@ -1,6 +1,7 @@
 package com.har.sjfxpt.crawler.core.service;
 
 import com.har.sjfxpt.crawler.core.config.HBaseConfig;
+import com.har.sjfxpt.crawler.core.model.BidNewOriginal;
 import com.har.sjfxpt.crawler.core.model.DataItem;
 import com.har.sjfxpt.crawler.core.model.DataItemDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +22,7 @@ import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.har.sjfxpt.crawler.core.model.DataItemDTO.ROW_KEY_LENGTH;
 
@@ -29,7 +31,7 @@ import static com.har.sjfxpt.crawler.core.model.DataItemDTO.ROW_KEY_LENGTH;
  */
 @Slf4j
 @Service
-public class DataItemService {
+public class HBaseService {
 
     @Autowired
     StringRedisTemplate redisTemplate;
@@ -69,60 +71,73 @@ public class DataItemService {
         }
     }
 
+    /**
+     * 只是为了兼容以前的代码，后面逐步替换调用该方法的类
+     * @param dataItemList
+     */
+    @Deprecated
     public void save2BidNewsOriginalTable(List<DataItemDTO> dataItemList) {
+        if (CollectionUtils.isEmpty(dataItemList)) {
+            return;
+        }
+        List<BidNewOriginal> list = dataItemList.parallelStream().map(dataItem -> (BidNewOriginal) dataItem).collect(Collectors.toList());
+        saveBidNewsOriginals(list);
+    }
+
+    public void saveBidNewsOriginals(List<BidNewOriginal> dataItemList) {
         if (CollectionUtils.isEmpty(dataItemList)) {
             return;
         }
 
         String current = DateTime.now().toString("yyyyMMdd");
         int counter = 0;
-        for (DataItemDTO dataItem : dataItemList) {
-            if (StringUtils.isBlank(dataItem.getFormatContent())) {
-                log.error("{} {} save to hbase fail, formatContent is empty, {}", dataItem.getSourceCode(), dataItem.getId(), dataItem.getUrl());
-                redisTemplate.boundListOps("fetch_fail_url_" + dataItem.getSourceCode().toLowerCase()).leftPush(dataItem.getUrl());
+        for (BidNewOriginal original : dataItemList) {
+            if (StringUtils.isBlank(original.getFormatContent())) {
+                log.error("{} {} save to hbase fail, formatContent is empty, {}", original.getSourceCode(), original.getId(), original.getUrl());
+                redisTemplate.boundListOps("fetch_fail_url_" + original.getSourceCode().toLowerCase()).leftPush(original.getUrl());
                 continue;
             }
-            if (StringUtils.isNotBlank(dataItem.getUrl()) && !StringUtils.startsWith(dataItem.getUrl(), "http")) {
-                log.error("{} {} save to hbase fail, formatContent is empty, {}", dataItem.getSourceCode(), dataItem.getId(), dataItem.getUrl());
-                redisTemplate.boundListOps("fetch_fail_url_" + dataItem.getSourceCode().toLowerCase()).leftPush(dataItem.getUrl());
+            if (StringUtils.isNotBlank(original.getUrl()) && !StringUtils.startsWith(original.getUrl(), "http")) {
+                log.error("{} {} save to hbase fail, formatContent is empty, {}", original.getSourceCode(), original.getId(), original.getUrl());
+                redisTemplate.boundListOps("fetch_fail_url_" + original.getSourceCode().toLowerCase()).leftPush(original.getUrl());
                 continue;
             }
 
             // 处理超前时间，大于当前时间，按当前时间记录
             try {
-                DateTime dt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm").parseDateTime(dataItem.getDate());
+                DateTime dt = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm").parseDateTime(original.getDate());
                 String pattern = DateTime.now().toString("yyyy-MM-dd HH:mm");
                 DateTime now = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm").parseDateTime(pattern);
                 if (dt.compareTo(now) > 0) {
-                    dataItem.setDate(now.toString("yyyy-MM-dd HH:mm"));
+                    original.setDate(now.toString("yyyy-MM-dd HH:mm"));
                 }
             } catch (Exception e) {
                 log.error("", e);
-                log.error(">>> date {}", dataItem.getDate());
+                log.error(">>> date {}", original.getDate());
             }
 
             try {
-                String rowKey = getRowKey(dataItem);
+                String rowKey = getRowKey(original);
                 if (rowKey.length() != ROW_KEY_LENGTH) {
-                    throw new Exception(rowKey + " length not equal " + ROW_KEY_LENGTH + ", data item id is " + dataItem.getId() + ", source " + dataItem.getSourceCode());
+                    throw new Exception(rowKey + " length not equal " + ROW_KEY_LENGTH + ", data item id is " + original.getId() + ", source " + original.getSourceCode());
                 }
 
                 // 数据写入策略：
                 // 记录所有数据到original表，如果是历史数据，则再保存一份在history表中
 
-                String sourceCode = dataItem.getSourceCode();
-                Put row = assemble(rowKey, dataItem);
+                String sourceCode = original.getSourceCode();
+                Put row = assemble(rowKey, original);
                 String date = StringUtils.substringBefore(rowKey, ":");
                 boolean exists = originalTable.exists(new Get(rowKey.getBytes()));
                 if (!exists) {
                     originalTable.put(row);
-                    log.info("save {} {}[mongo={}] to {}", sourceCode, rowKey, dataItem.getId(), DataItem.T_NAME_HTML);
+                    log.info("save {} {}[mongo={}] to {}", sourceCode, rowKey, original.getId(), DataItem.T_NAME_HTML);
                     counter++;
                 }
 
-                if (dataItem.isForceUpdate()) {
+                if (original.isForceUpdate()) {
                     originalTable.put(row);
-                    log.debug("force update, save {} {}[mongo={}] to {}", sourceCode, rowKey, dataItem.getId(), DataItem.T_NAME_HTML);
+                    log.debug("force update, save {} {}[mongo={}] to {}", sourceCode, rowKey, original.getId(), DataItem.T_NAME_HTML);
                 }
 
                 if (!current.equalsIgnoreCase(date)) {
@@ -147,7 +162,7 @@ public class DataItemService {
      * @param dataItem
      * @return rowKey 格式 yyyyMMdd:md5(title)
      */
-    private String getRowKey(DataItemDTO dataItem) {
+    private String getRowKey(BidNewOriginal dataItem) {
         String date = StringUtils.substring(dataItem.getDate(), 0, 10).replace("-", "");
         return getRowKey(date, dataItem.getTitle());
     }
@@ -156,7 +171,7 @@ public class DataItemService {
         return String.join(":", date, DigestUtils.md5Hex(StringUtils.trim(title)));
     }
 
-    private Put assemble(String rowKey, DataItemDTO dataItem) throws UnsupportedEncodingException {
+    private Put assemble(String rowKey, BidNewOriginal dataItem) throws UnsupportedEncodingException {
         Put put = new Put(rowKey.getBytes());
         put.addColumn(family, "url".getBytes(), StringUtils.defaultString(dataItem.getUrl(), "").getBytes(charsetName));
         put.addColumn(family, "title".getBytes(), StringUtils.defaultString(dataItem.getTitle(), "").getBytes(charsetName));
