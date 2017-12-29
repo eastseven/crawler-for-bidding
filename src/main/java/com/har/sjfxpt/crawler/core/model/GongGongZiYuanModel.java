@@ -21,7 +21,6 @@ public class GongGongZiYuanModel {
             this.date = new DateTime(dataItem.getCreateTime()).toString("yyyy-MM-dd HH:mm");
         }
 
-        this.type = StringUtils.defaultString(dataItem.getInfoType(), "其他");
         this.province = StringUtils.defaultString(dataItem.getProvince(), "全国");
     }
 

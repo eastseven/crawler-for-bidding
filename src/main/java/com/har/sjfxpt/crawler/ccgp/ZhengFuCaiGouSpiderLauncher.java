@@ -3,7 +3,7 @@ package com.har.sjfxpt.crawler.ccgp;
 import com.har.sjfxpt.crawler.BaseSpiderLauncher;
 import com.har.sjfxpt.crawler.core.model.DataItemDTO;
 import com.har.sjfxpt.crawler.core.model.SourceCode;
-import com.har.sjfxpt.crawler.core.service.DataItemService;
+import com.har.sjfxpt.crawler.core.service.HBaseService;
 import com.har.sjfxpt.crawler.core.service.ProxyService;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -234,7 +234,7 @@ public class ZhengFuCaiGouSpiderLauncher extends BaseSpiderLauncher {
     ZhengFuCaiGouRepository repository;
 
     @Autowired
-    DataItemService dataItemService;
+    HBaseService HBaseService;
 
     public void getRedisUrl() {
         long total = stringRedisTemplate.boundSetOps(names).size();
@@ -251,7 +251,7 @@ public class ZhengFuCaiGouSpiderLauncher extends BaseSpiderLauncher {
                 repository.save(dataItemList);
                 log.info("ccgp save {} to mongodb", dataItemList.size());
                 List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
-                dataItemService.save2BidNewsOriginalTable(dtoList);
+                HBaseService.save2BidNewsOriginalTable(dtoList);
             }
         }
     }

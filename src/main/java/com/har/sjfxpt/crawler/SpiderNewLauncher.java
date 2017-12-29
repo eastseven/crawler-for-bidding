@@ -3,12 +3,14 @@ package com.har.sjfxpt.crawler;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.har.sjfxpt.crawler.core.pipeline.DataItemDtoPipeline;
-import com.har.sjfxpt.crawler.core.processor.Source;
-import com.har.sjfxpt.crawler.core.processor.SourceConfig;
+import com.har.sjfxpt.crawler.core.annotation.Source;
+import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
+import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.service.ProxyService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.CommandLineRunner;
@@ -33,8 +35,8 @@ import java.util.concurrent.ExecutorService;
 
 /**
  * @author dongqi
- *         <p>
- *         https://stackoverflow.com/questions/259140/scanning-java-annotations-at-runtime
+ *
+ * https://stackoverflow.com/questions/259140/scanning-java-annotations-at-runtime
  */
 @Slf4j
 @Service
@@ -56,9 +58,14 @@ public class SpiderNewLauncher implements CommandLineRunner {
     private static final String basePackage = "com.har.sjfxpt.crawler";
 
     private Map<String, Spider> spiderMap = Maps.newConcurrentMap();
+    private Map<String, Request[]> spiderRequestsMap = Maps.newConcurrentMap();
 
     public Map<String, Spider> getSpiders() {
         return this.spiderMap;
+    }
+
+    public Map<String, Request[]> getRequests() {
+        return this.spiderRequestsMap;
     }
 
     public void init() {
@@ -66,7 +73,6 @@ public class SpiderNewLauncher implements CommandLineRunner {
         scanner.addIncludeFilter(new AnnotationTypeFilter(SourceConfig.class));
         for (BeanDefinition bd : scanner.findCandidateComponents(basePackage)) {
             String pageProcessorClassName = bd.getBeanClassName();
-            log.debug(">>> pageProcessorClassName [{}], {}, {}", pageProcessorClassName, bd.getParentName(), bd.getFactoryBeanName());
             Object pageProcessor = null;
 
             try {
@@ -87,13 +93,21 @@ public class SpiderNewLauncher implements CommandLineRunner {
             List<Request> requestList = Lists.newArrayList();
             Source[] sources = config.sources();
             if (ArrayUtils.isNotEmpty(sources)) {
+                DateTime now = DateTime.now();
                 for (Source source : sources) {
                     String url = source.url();
                     Request request = new Request(url);
-                    boolean isPost = source.post();
-                    if (isPost) {
+
+                    if (source.post() && StringUtils.isNotBlank(source.postParams())) {
                         String json = source.postParams();
                         Map<String, Object> pageParams = JSONObject.parseObject(json, Map.class);
+
+                        if (ArrayUtils.isNotEmpty(source.needPlaceholderFields())) {
+                            for (String field : source.needPlaceholderFields()) {
+                                pageParams.put(field, now.toString(source.dayPattern()));
+                            }
+                        }
+
                         request.setMethod(HttpConstant.Method.POST);
                         request.setRequestBody(HttpRequestBody.form(pageParams, "UTF-8"));
                         request.putExtra("pageParams", pageParams);
@@ -103,10 +117,12 @@ public class SpiderNewLauncher implements CommandLineRunner {
                 }
             }
 
+            Request[] requests = requestList.toArray(new Request[requestList.size()]);
             Spider spider = Spider.create((PageProcessor) pageProcessor).setUUID(uuid)
-                    .setExecutorService(executorService).setExitWhenComplete(true)
-                    .addRequest(requestList.toArray(new Request[requestList.size()]))
-                    .addPipeline(ctx.getBean(DataItemDtoPipeline.class));
+                    .thread(executorService, 10)
+                    .setExitWhenComplete(true)
+                    .addRequest(requests)
+                    .addPipeline(ctx.getBean(HBasePipeline.class));
 
             if (config.useProxy()) {
                 httpClientDownloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
@@ -114,20 +130,24 @@ public class SpiderNewLauncher implements CommandLineRunner {
             }
 
             spiderMap.put(uuid, spider);
+            spiderRequestsMap.put(uuid, requests);
         }
     }
 
     public void start() {
-        init();
-        if (spiderMap.isEmpty()) {
-            return;
-        }
+        if (spiderMap.isEmpty()) return;
 
-        spiderMap.forEach((s, spider) -> spider.start());
+        spiderMap.forEach((uuid, spider) -> {
+            if (!spider.getStatus().equals(Spider.Status.Running)) {
+                spider.addRequest(spiderRequestsMap.get(uuid));
+                spider.start();
+            }
+            log.info(">>> uuid={}, status={}, startTime={}", uuid, spider.getStatus(), spider.getStartTime());
+        });
     }
 
     @Override
     public void run(String... args) {
-        start();
+        init();
     }
 }

@@ -1,12 +1,14 @@
 package com.har.sjfxpt.crawler.core.processor;
 
 import com.google.common.collect.Maps;
+import com.har.sjfxpt.crawler.core.annotation.Source;
+import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
 import com.har.sjfxpt.crawler.core.downloader.GongGongZiYuanPageDownloader;
-import com.har.sjfxpt.crawler.core.model.DataItem;
+import com.har.sjfxpt.crawler.core.model.BidNewOriginal;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.service.PageDataService;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.util.Lists;
 import org.jsoup.nodes.Element;
@@ -22,8 +24,8 @@ import us.codecraft.webmagic.utils.HttpConstant;
 import java.util.List;
 import java.util.Map;
 
+import static com.har.sjfxpt.crawler.core.processor.GongGongZiYuanPageProcessor.*;
 import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanUtil.*;
 
 /**
  * 全国公共资源交易平台
@@ -33,7 +35,24 @@ import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanUtil.*;
  */
 @Slf4j
 @Component
+@SourceConfig(
+        code = SourceCode.GGZY,
+        sources = {
+                @Source(url = SEED_URL, post = true, postParams = POST_PARAMS_01, needPlaceholderFields = {"TIMEEND_SHOW", "TIMEBEGIN_SHOW", "TIMEEND", "TIMEBEGIN"}),
+                @Source(url = SEED_URL, post = true, postParams = POST_PARAMS_02, needPlaceholderFields = {"TIMEEND_SHOW", "TIMEBEGIN_SHOW", "TIMEEND", "TIMEBEGIN"})
+        }
+)
 public class GongGongZiYuanPageProcessor implements BasePageProcessor {
+
+    public static final String DEAL_CLASSIFY = "DEAL_CLASSIFY";
+
+    public static final String PAGE_NUMBER = "PAGENUMBER";
+
+    public static final String SEED_URL = "http://deal.ggzy.gov.cn/ds/deal/dealList.jsp";
+
+    public static final String POST_PARAMS_01 = "{'DEAL_CITY':'0','TIMEEND_SHOW':'#','DEAL_STAGE':'0100','DEAL_TIME':'01','FINDTXT':'','DEAL_CLASSIFY':'01','TIMEBEGIN_SHOW':'#','DEAL_TRADE':'0','DEAL_PLATFORM':'0','isShowAll':'1','TIMEEND':'#','TIMEBEGIN':'#','PAGENUMBER':1,'DEAL_PROVINCE':'0'}";
+
+    public static final String POST_PARAMS_02 = "{'DEAL_CITY':'0','TIMEEND_SHOW':'#','DEAL_STAGE':'0200','DEAL_TIME':'01','FINDTXT':'','DEAL_CLASSIFY':'02','TIMEBEGIN_SHOW':'#','DEAL_TRADE':'0','DEAL_PLATFORM':'0','isShowAll':'1','TIMEEND':'#','TIMEBEGIN':'#','PAGENUMBER':1,'DEAL_PROVINCE':'0'}";
 
     final String KEY_PAGE_PARAMS = "pageParams";
 
@@ -54,8 +73,8 @@ public class GongGongZiYuanPageProcessor implements BasePageProcessor {
     }
 
     @Override
-    public List<DataItem> parseContent(Elements items) {
-        List<DataItem> dataItemList = Lists.newArrayList();
+    public List<BidNewOriginal> parseContent(Elements items) {
+        List<BidNewOriginal> dataItemList = Lists.newArrayList();
 
         for (Element item : items) {
             String title = item.select("h4 a").text();
@@ -63,9 +82,12 @@ public class GongGongZiYuanPageProcessor implements BasePageProcessor {
             href = StringUtils.replace(href, "/a/", "/b/");
             String date = item.select("h4 span").text();
 
-            DataItem dataItem = DataItem.builder()
-                    .title(title).id(DigestUtils.md5Hex(href)).url(href).date(date)
-                    .build();
+            BidNewOriginal dataItem = new BidNewOriginal(href);
+            dataItem.setSource(SourceCode.GGZY.getValue());
+            dataItem.setSourceCode(SourceCode.GGZY.name());
+            dataItem.setTitle(title);
+            dataItem.setDate(date);
+
             String cssQuery = "p.p_tw span";
             for (Element element : item.select(cssQuery)) {
                 String text = element.text();
@@ -74,24 +96,14 @@ public class GongGongZiYuanPageProcessor implements BasePageProcessor {
                     dataItem.setProvince(province);
                 }
 
-                if (StringUtils.contains(text, "来源平台")) {
-                    String source = element.nextElementSibling().text();
-                    dataItem.setSource(StringUtils.defaultString(source, "全国公共资源交易平台"));
-                }
-
-                if (StringUtils.contains(text, "业务类型")) {
-                    String businessType = element.nextElementSibling().text();
-                    dataItem.setBusinessType(businessType);
-                }
-
                 if (StringUtils.contains(text, "信息类型")) {
                     String infoType = element.nextElementSibling().text();
-                    dataItem.setInfoType(infoType);
+                    dataItem.setType(StringUtils.defaultString(infoType, "其他"));
                 }
 
                 if (StringUtils.contains(text, "行业")) {
                     String industry = element.nextElementSibling().text();
-                    dataItem.setIndustry(StringUtils.defaultString(industry, "其他"));
+                    dataItem.setOriginalIndustryCategory(StringUtils.defaultString(industry, "其他"));
                 }
             }
 
@@ -108,9 +120,9 @@ public class GongGongZiYuanPageProcessor implements BasePageProcessor {
         Elements totalSize = page.getHtml().getDocument().body().select("div#publicl div.contp span.span_left:nth-child(1)");
         Elements totalPage = page.getHtml().getDocument().body().select("div#publicl div.contp span.span_right");
 
-        int sizeNum        = Integer.parseInt(totalSize.select("b").text());
+        int sizeNum = Integer.parseInt(totalSize.select("b").text());
         int currentPageNum = Integer.parseInt(StringUtils.substringBefore(totalPage.select("b").text(), "/"));
-        int pageNum        = Integer.parseInt(StringUtils.substringAfter(totalPage.select("b").text(), "/"));
+        int pageNum = Integer.parseInt(StringUtils.substringAfter(totalPage.select("b").text(), "/"));
 
         log.info("type {}, current page {}/{}, total size={}", extra.get(DEAL_CLASSIFY), currentPageNum, pageNum, sizeNum);
         try {
@@ -140,7 +152,7 @@ public class GongGongZiYuanPageProcessor implements BasePageProcessor {
     public void handleContent(Page page) {
         final String css = "div#publicl div.publicont div";
         Elements items = page.getHtml().getDocument().body().select(css);
-        List<DataItem> dataItemList = parseContent(items);
+        List<BidNewOriginal> dataItemList = parseContent(items);
         if (!dataItemList.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItemList);
         }
@@ -148,6 +160,6 @@ public class GongGongZiYuanPageProcessor implements BasePageProcessor {
 
     @Override
     public Site getSite() {
-        return SiteUtil.get().setTimeOut(60*60*1000).addHeader("content-type", "application/x-www-form-urlencoded");
+        return SiteUtil.get().setTimeOut(60 * 60 * 1000).addHeader("content-type", "application/x-www-form-urlencoded");
     }
 }

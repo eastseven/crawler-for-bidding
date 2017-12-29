@@ -2,13 +2,15 @@ package com.har.sjfxpt.crawler.ggzyprovincial.ggzyshanxi;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.har.sjfxpt.crawler.core.annotation.Source;
+import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
+import com.har.sjfxpt.crawler.core.model.BidNewOriginal;
 import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
-import com.har.sjfxpt.crawler.core.processor.Source;
-import com.har.sjfxpt.crawler.core.processor.SourceConfig;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,14 +19,12 @@ import org.springframework.util.CollectionUtils;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
-import us.codecraft.webmagic.Spider;
+import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.model.HttpRequestBody;
-import us.codecraft.webmagic.model.OOSpider;
 import us.codecraft.webmagic.utils.HttpConstant;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 
 import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
 
@@ -57,7 +57,7 @@ public class GGZYShanXiPageProcessor implements BasePageProcessor {
     final static String PREFIX = "http://prec.sxzwfw.gov.cn";
 
     @Autowired
-    ExecutorService executorService;
+    HttpClientDownloader httpClientDownloader;
 
     @Override
     public void handlePaging(Page page) {
@@ -86,7 +86,7 @@ public class GGZYShanXiPageProcessor implements BasePageProcessor {
             log.error("fetch error, elements is empty");
             return;
         }
-        List<GGZYShanXiDataItem> dataItems = parseContent(elements);
+        List<BidNewOriginal> dataItems = parseContent(elements);
         Object extra = page.getRequest().getExtra(PAGE_PARAMS);
         if (extra != null) {
             Map<String, Object> map = (Map<String, Object>) extra;
@@ -107,7 +107,7 @@ public class GGZYShanXiPageProcessor implements BasePageProcessor {
 
     @Override
     public List parseContent(Elements items) {
-        List<GGZYShanXiDataItem> dataItems = Lists.newArrayList();
+        List<BidNewOriginal> dataItems = Lists.newArrayList();
         if (items.isEmpty()) {
             return dataItems;
         }
@@ -123,30 +123,22 @@ public class GGZYShanXiPageProcessor implements BasePageProcessor {
             date = PageProcessorUtil.dataTxt(date);
 
             String url = PREFIX + href;
-            GGZYShanXiDataItem dataItem = new GGZYShanXiDataItem(url);
+            BidNewOriginal dataItem = new BidNewOriginal(url);
+            dataItem.setProvince("山西");
+            dataItem.setSourceCode(SourceCode.GGZYSHANXI.name());
+            dataItem.setSource(SourceCode.GGZYSHANXI.getValue());
             dataItem.setDate(date);
             dataItem.setTitle(title);
             dataItem.setProjectCode(projectCode);
-
+            try {
+                download(Jsoup.connect(url).get().body(), dataItem);
+            } catch (Exception e) {
+                log.error(">>> {} download fail", url);
+            }
             urls.add(url);
 
             dataItems.add(dataItem);
         }
-
-        dataItems.parallelStream().forEach(dataItem -> {
-            Spider spider = OOSpider.create(getSite(), GGZYShanXiDataItem.class);
-            spider.setExitWhenComplete(true);
-            try {
-                String url = dataItem.getUrl();
-                GGZYShanXiDataItem _dataItem = spider.get(url);
-                dataItem.setProjectName(_dataItem.getProjectName());
-                dataItem.setPurchaser(_dataItem.getPurchaser());
-                dataItem.setFormatContent(_dataItem.getFormatContent());
-            } catch (Exception e) {
-                log.error("", e);
-                log.error("{} fetch content fail", dataItem.getUrl());
-            }
-        });
 
         return dataItems;
     }
@@ -160,5 +152,25 @@ public class GGZYShanXiPageProcessor implements BasePageProcessor {
     @Override
     public Site getSite() {
         return SiteUtil.get().setSleepTime(10000);
+    }
+
+    public void download(Element body, BidNewOriginal dataItem) {
+        if (!body.select("div.jiaoyihuanjie.ct").isEmpty()) {
+            for (Element td : body.select("div.table_project_container table.table_content tr td")) {
+                String text = td.text();
+                if (text.equalsIgnoreCase("项目名称")) {
+                    dataItem.setProjectName(td.nextElementSibling().text());
+                }
+
+                if (text.equalsIgnoreCase("招标人")) {
+                    dataItem.setPurchaser(td.nextElementSibling().text());
+                }
+            }
+        }
+
+        if (!body.select("div.notice_content").isEmpty()) {
+            String formatContent = PageProcessorUtil.formatElementsByWhitelist(body.select("div.notice_content").first());
+            dataItem.setFormatContent(formatContent);
+        }
     }
 }

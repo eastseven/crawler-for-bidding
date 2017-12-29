@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * @author dongqi
  */
-@Slf4j
+@Slf4j@Deprecated
 public final class GongGongZiYuanUtil {
 
     public static final String DEAL_CLASSIFY = "DEAL_CLASSIFY";

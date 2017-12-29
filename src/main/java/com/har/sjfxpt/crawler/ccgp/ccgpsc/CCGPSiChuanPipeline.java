@@ -2,7 +2,7 @@ package com.har.sjfxpt.crawler.ccgp.ccgpsc;
 
 import com.har.sjfxpt.crawler.core.model.DataItemDTO;
 import com.har.sjfxpt.crawler.core.model.SourceCode;
-import com.har.sjfxpt.crawler.core.service.DataItemService;
+import com.har.sjfxpt.crawler.core.service.HBaseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,7 +27,7 @@ public class CCGPSiChuanPipeline implements Pipeline{
     CCGPSiChuanPageDataRepository ccgpSiChuanPageDataRepository;
 
     @Autowired
-    DataItemService dataItemService;
+    HBaseService HBaseService;
 
     @Override
     public void process(ResultItems resultItems, Task task) {
@@ -39,7 +39,7 @@ public class CCGPSiChuanPipeline implements Pipeline{
             log.info("{} save {} to mongodb", SourceCode.CCGPSC, dataItems.size());
 
             List<DataItemDTO> dtoList = dataItems.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
-            dataItemService.save2BidNewsOriginalTable(dtoList);
+            HBaseService.save2BidNewsOriginalTable(dtoList);
         }
     }
 }

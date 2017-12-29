@@ -24,7 +24,8 @@ import java.util.concurrent.ExecutorService;
 @EnableScheduling
 public class AppConfig implements AsyncConfigurer {
 
-    final int size = Runtime.getRuntime().availableProcessors() * 4;
+    final int size = 1000;
+    //Runtime.getRuntime().availableProcessors() * 4;
 
     @Bean
     ExecutorService executorService() {

@@ -1,4 +1,6 @@
-package com.har.sjfxpt.crawler.core.processor;
+package com.har.sjfxpt.crawler.core.annotation;
+
+import com.har.sjfxpt.crawler.core.model.SourceCode;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -10,11 +12,11 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Source {
+public @interface SourceConfig {
 
-    String url() default "";
+    Source[] sources() default {};
 
-    boolean post() default false;
+    SourceCode code() default SourceCode.DEFAULT;
 
-    String postParams() default "";
+    boolean useProxy() default false;
 }

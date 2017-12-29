@@ -1,7 +1,7 @@
 package com.har.sjfxpt.crawler.core;
 
 import com.har.sjfxpt.crawler.ccgp.*;
-import com.har.sjfxpt.crawler.core.service.DataItemService;
+import com.har.sjfxpt.crawler.core.service.HBaseService;
 import com.har.sjfxpt.crawler.core.service.ProxyService;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -160,7 +160,7 @@ public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
     ZhengFuCaiGouRepository repository;
 
     @Autowired
-    DataItemService dataItemService;
+    HBaseService HBaseService;
 
     @Test
     public void getRedisUrl() {

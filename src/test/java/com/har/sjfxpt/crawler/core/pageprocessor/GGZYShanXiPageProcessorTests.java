@@ -1,7 +1,7 @@
 package com.har.sjfxpt.crawler.core.pageprocessor;
 
 import com.google.common.collect.Maps;
-import com.har.sjfxpt.crawler.core.pipeline.DataItemDtoPipeline;
+import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyshanxi.GGZYShanXiPageProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -30,7 +30,7 @@ public class GGZYShanXiPageProcessorTests {
     GGZYShanXiPageProcessor ggzyShanXiPageProcessor;
 
     @Autowired
-    DataItemDtoPipeline pipeline;
+    HBasePipeline pipeline;
 
     final String url = "http://prec.sxzwfw.gov.cn/TenderProjectSx/ColTableInfoOther.do";
 

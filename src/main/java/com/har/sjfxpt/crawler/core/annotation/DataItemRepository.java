@@ -1,4 +1,4 @@
-package com.har.sjfxpt.crawler.core.processor;
+package com.har.sjfxpt.crawler.core.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

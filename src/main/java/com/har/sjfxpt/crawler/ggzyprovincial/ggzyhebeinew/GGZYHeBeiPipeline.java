@@ -1,7 +1,7 @@
 package com.har.sjfxpt.crawler.ggzyprovincial.ggzyhebeinew;
 
 import com.har.sjfxpt.crawler.core.model.DataItemDTO;
-import com.har.sjfxpt.crawler.core.service.DataItemService;
+import com.har.sjfxpt.crawler.core.service.HBaseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,7 +24,7 @@ public class GGZYHeBeiPipeline implements Pipeline {
     GGZYHeBeiDataItemRepository ggzyHeBeiDataItemRepository;
 
     @Autowired
-    DataItemService dataItemService;
+    HBaseService HBaseService;
 
     @Override
     public void process(ResultItems resultItems, Task task) {
@@ -36,7 +36,7 @@ public class GGZYHeBeiPipeline implements Pipeline {
             log.info("ggzyHeBei save {} to mongodb", dataItemList.size());
 
             List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
-            dataItemService.save2BidNewsOriginalTable(dtoList);
+            HBaseService.save2BidNewsOriginalTable(dtoList);
         }
     }
 }

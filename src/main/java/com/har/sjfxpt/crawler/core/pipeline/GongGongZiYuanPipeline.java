@@ -2,7 +2,7 @@ package com.har.sjfxpt.crawler.core.pipeline;
 
 import com.har.sjfxpt.crawler.core.model.DataItem;
 import com.har.sjfxpt.crawler.core.model.DataItemDTO;
-import com.har.sjfxpt.crawler.core.service.DataItemService;
+import com.har.sjfxpt.crawler.core.service.HBaseService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_
 public class GongGongZiYuanPipeline implements Pipeline {
 
     @Autowired
-    DataItemService dataItemService;
+    HBaseService HBaseService;
 
     @Override
     public void process(ResultItems resultItems, Task task) {
@@ -33,7 +33,7 @@ public class GongGongZiYuanPipeline implements Pipeline {
             log.warn("ggzy save nothing, {}", task.getSite());
         } else {
             List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
-            dataItemService.save2BidNewsOriginalTable(dtoList);
+            HBaseService.save2BidNewsOriginalTable(dtoList);
         }
     }
 

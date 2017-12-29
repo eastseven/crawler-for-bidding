@@ -1,14 +1,12 @@
 package com.har.sjfxpt.crawler.core.model;
 
-import lombok.Builder;
+import com.har.sjfxpt.crawler.core.annotation.DataItemRepository;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.springframework.beans.BeanUtils;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -22,10 +20,10 @@ import static com.har.sjfxpt.crawler.core.model.DataItem.T_NAME;
  */
 @Getter
 @Setter
-@Builder
 @ToString
 @Document(collection = T_NAME)
-public class DataItem {
+@DataItemRepository(repository = com.har.sjfxpt.crawler.core.repository.DataItemRepository.class)
+public class DataItem extends DataItemDTO {
 
     public static final String T_NAME = "data_item_ggzy";
 
@@ -33,45 +31,23 @@ public class DataItem {
 
     public static final String T_NAME_HTML_HISTORY = "bid_news_original_history";
 
-    @Id
-    private String id;
+    public DataItem(String url) {
+        super(url);
+        this.source = SourceCode.GGZY.getValue();
+        this.sourceCode = SourceCode.GGZY.name();
+    }
 
-    private String url;
-
-    private Date createTime = new Date();
-
-    private String province;
-
-    private String source;
+    private Date fetchTime = new Date();
 
     private String businessType;
-
-    private String infoType;
-
-    private String industry;
 
     @Indexed
     private String pubDate;
 
-    @Indexed
-    private String date;
-
-    @Indexed
-    private String title;
-
-    @Transient
-    private String html;
-
-    @Transient
-    private String formatContent;
-
-    @Transient
-    private String textContent;
-
+    @Deprecated
     public DataItemDTO dto() {
         DataItemDTO dto = new DataItemDTO();
         BeanUtils.copyProperties(this, dto);
-        dto.setOriginalIndustryCategory(StringUtils.defaultString(this.industry, ""));
         dto.setCreateTime(new DateTime(this.getCreateTime()).toString("yyyyMMddHH"));
         if (StringUtils.isNotBlank(pubDate)) {
             dto.setDate(pubDate);
@@ -80,7 +56,6 @@ public class DataItem {
         }
 
         dto.setProvince(StringUtils.defaultString(province, "全国"));
-        dto.setType(StringUtils.defaultString(infoType, "其他"));
         dto.setSource(SourceCode.GGZY.getValue());
         dto.setSourceCode(SourceCode.GGZY.toString());
         return dto;

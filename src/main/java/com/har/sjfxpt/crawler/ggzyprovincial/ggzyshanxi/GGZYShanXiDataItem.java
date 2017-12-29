@@ -1,20 +1,20 @@
 package com.har.sjfxpt.crawler.ggzyprovincial.ggzyshanxi;
 
+import com.har.sjfxpt.crawler.core.annotation.DataItemRepository;
 import com.har.sjfxpt.crawler.core.model.DataItemDTO;
 import com.har.sjfxpt.crawler.core.model.SourceCode;
-import com.har.sjfxpt.crawler.core.processor.DataItemRepository;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.joda.time.DateTime;
 import org.jsoup.nodes.Element;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.model.AfterExtractor;
+import us.codecraft.webmagic.selector.Html;
+
+import java.util.Date;
 
 import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyshanxi.GGZYShanXiDataItem.COLLECTION_NAME;
 
@@ -34,24 +34,28 @@ public class GGZYShanXiDataItem extends DataItemDTO implements AfterExtractor {
     public static final String COLLECTION_NAME = "data_item_ggzy_shanxi";
 
     public GGZYShanXiDataItem(String url) {
-        this.id = DigestUtils.md5Hex(url);
-        this.url = url;
+        super(url);
         this.province = "山西";
         this.source = SourceCode.GGZYSHANXI.getValue();
         this.sourceCode = SourceCode.GGZYSHANXI.name();
-        this.createTime = DateTime.now().toString("yyyyMMddHH");
     }
-
-    @Id
-    private String id;
 
     @Field("code")
     private String projectCode;
 
+    private Date fetchTime = new Date();
+
     @Override
     public void afterProcess(Page page) {
+        download(page.getHtml());
+    }
 
-        Element body = page.getHtml().getDocument().body();
+    public void download(Html html) {
+        Element body = html.getDocument().body();
+        download(body);
+    }
+
+    public void download(Element body) {
         if (!body.select("div.jiaoyihuanjie.ct").isEmpty()) {
             for (Element td : body.select("div.table_project_container table.table_content tr td")) {
                 String text = td.text();
@@ -66,8 +70,8 @@ public class GGZYShanXiDataItem extends DataItemDTO implements AfterExtractor {
         }
 
         if (!body.select("div.notice_content").isEmpty()) {
-            String html = PageProcessorUtil.formatElementsByWhitelist(body.select("div.notice_content").first());
-            this.setFormatContent(html);
+            String formatContent = PageProcessorUtil.formatElementsByWhitelist(body.select("div.notice_content").first());
+            this.setFormatContent(formatContent);
         }
     }
 }
