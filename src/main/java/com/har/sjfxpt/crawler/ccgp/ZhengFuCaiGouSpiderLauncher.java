@@ -51,7 +51,7 @@ public class ZhengFuCaiGouSpiderLauncher extends BaseSpiderLauncher {
     ExecutorService executorService;
 
     @Autowired
-    ZhengFuCaiGouDownloader downloader;
+    ZhengFuCaiGouDownloader zhengFuCaiGouDownloader;
 
     @Autowired
     ZhengFuCaiGouPipeline pipeline;
@@ -92,8 +92,8 @@ public class ZhengFuCaiGouSpiderLauncher extends BaseSpiderLauncher {
 
         spider = Spider.create(pageProcessor).addPipeline(pipeline);
 
-        downloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
-        spider.setDownloader(downloader);
+        zhengFuCaiGouDownloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
+        spider.setDownloader(zhengFuCaiGouDownloader);
         log.info("ccgp use proxy {}, fetch {}", Arrays.toString(proxyService.getAliyunProxies()), pageData.getDate());
 
         spider.setExitWhenComplete(true);
@@ -130,8 +130,8 @@ public class ZhengFuCaiGouSpiderLauncher extends BaseSpiderLauncher {
 
     public Spider getHistorySpider() {
         Spider historySpider = Spider.create(pageProcessor).addPipeline(pipeline);
-        downloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
-        historySpider.setDownloader(downloader);
+        zhengFuCaiGouDownloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
+        historySpider.setDownloader(zhengFuCaiGouDownloader);
         historySpider.thread(proxyService.getAliyunProxies().length);
         return historySpider;
     }
@@ -239,11 +239,11 @@ public class ZhengFuCaiGouSpiderLauncher extends BaseSpiderLauncher {
     public void getRedisUrl() {
         long total = stringRedisTemplate.boundSetOps(names).size();
         for (int i = 0; i < total; i++) {
-            String tabulationUrl = (String) stringRedisTemplate.boundSetOps(names).pop();
+            String tabulationUrl = stringRedisTemplate.boundSetOps(names).pop();
             log.debug("total=={},tabulationUrl=={}", total, tabulationUrl);
             Request request = new Request(tabulationUrl);
-            downloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
-            us.codecraft.webmagic.Page page = downloader.download(request, SiteUtil.get().toTask());
+            zhengFuCaiGouDownloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
+            us.codecraft.webmagic.Page page = zhengFuCaiGouDownloader.download(request, SiteUtil.get().toTask());
             Document document = page.getHtml().getDocument();
             Elements elements = document.body().select(cssQuery4List);
             List<ZhengFuCaiGouDataItem> dataItemList = pageProcessor.parseContent(elements);

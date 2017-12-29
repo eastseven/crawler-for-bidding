@@ -10,7 +10,7 @@ import us.codecraft.webmagic.Task;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
 
 @Slf4j
-@Component
+@Component(value = "zhengFuCaiGouDownloader")
 public class ZhengFuCaiGouDownloader extends HttpClientDownloader {
 
     @Autowired

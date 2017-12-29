@@ -34,7 +34,7 @@ public class ZGYeJinSpiderLauncher extends BaseSpiderLauncher {
     ZGYeJinPipeline zgYeJinPipeline;
 
     @Autowired
-    HttpClientDownloader downloader;
+    HttpClientDownloader httpClientDownloader;
 
     @Autowired
     ExecutorService executorService;
@@ -85,12 +85,12 @@ public class ZGYeJinSpiderLauncher extends BaseSpiderLauncher {
             requests[i] = requestGenerator(urls[i], "2013-01-01", date);
         }
 
-        downloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
+        httpClientDownloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
 
         Spider spider = Spider.create(zgYeJinPageProcessor)
                 .addRequest(requests)
                 .addPipeline(zgYeJinPipeline)
-                .setDownloader(downloader)
+                .setDownloader(httpClientDownloader)
                 .thread(2);
         spider.start();
         addSpider(spider);

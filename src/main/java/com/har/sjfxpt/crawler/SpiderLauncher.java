@@ -8,30 +8,29 @@ import com.har.sjfxpt.crawler.ccgp.ccgpsc.CCGPSiChuanSpiderLauncher;
 import com.har.sjfxpt.crawler.chengduconstruction.ChengDuConstructionSpiderLauncher;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
 import com.har.sjfxpt.crawler.chinaunicom.ChinaUnicomSpiderLauncher;
-import com.har.sjfxpt.crawler.dongfeng.DongFengSpiderLauncher;
 import com.har.sjfxpt.crawler.core.GongGongZiYuanSpiderLauncher;
+import com.har.sjfxpt.crawler.dongfeng.DongFengSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.GGZYCQSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyfujian.GGZYFuJianSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzygansu.GGZYGanSuSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.GGZYGZSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhebeinew.GGZYHeBeiSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhlj.GGZYHLJSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn.GGZYHNSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyjiangxi.GGZYJiangXiSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyningxia.GGZYNingXiaSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzysc.GGZYSCSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyshaanxi.GGZYShaanXiSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyshandong.GGZYShanDongSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyxjbt.GGZYXJBTSpiderLauncher;
-import com.har.sjfxpt.crawler.ggzyprovincial.hbebtp.HBEBTPSpiderLauncher;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhlj.GGZYHLJSpiderLauncher;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn.GGZYHNSpiderLauncher;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzysc.GGZYSCSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyxz.GGZYXZSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyyn.GGZYYNSpiderLauncher;
+import com.har.sjfxpt.crawler.ggzyprovincial.hbebtp.HBEBTPSpiderLauncher;
 import com.har.sjfxpt.crawler.jcw.JinCaiWangSpiderLauncher;
 import com.har.sjfxpt.crawler.petrochina.ZGShiYouSpiderLauncher;
 import com.har.sjfxpt.crawler.sgcc.StateGridSpiderLauncher;
 import com.har.sjfxpt.crawler.shenhua.ShenHuaSpiderLauncher;
 import com.har.sjfxpt.crawler.suning.SuNingSpiderLauncher;
-import com.har.sjfxpt.crawler.yibiao.YiBiaoSpiderLauncher;
 import com.har.sjfxpt.crawler.zgly.ZGLvYeSpiderLauncher;
 import com.har.sjfxpt.crawler.zgyj.ZGYeJinSpiderLauncher;
 import com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingLauncher;
@@ -84,9 +83,6 @@ public class SpiderLauncher implements CommandLineRunner {
 
     @Autowired
     CCGPSiChuanSpiderLauncher ccgpSiChuanSpiderLauncher;
-
-    @Autowired
-    YiBiaoSpiderLauncher yiBiaoSpiderLauncher;
 
     @Autowired
     SuNingSpiderLauncher suNingSpiderLauncher;
@@ -173,7 +169,6 @@ public class SpiderLauncher implements CommandLineRunner {
         chinaTenderingAndBiddingLauncher.printInfo();
         CCGPHaiNanSpiderLauncher.printInfo();
         ccgpSiChuanSpiderLauncher.printInfo();
-        yiBiaoSpiderLauncher.printInfo();
         suNingSpiderLauncher.printInfo();
         ggzyscSpiderLauncher.printInfo();
         ggzycqSpiderLauncher.printInfo();
@@ -259,15 +254,6 @@ public class SpiderLauncher implements CommandLineRunner {
                     break;
                 case "start-ccgpsc":
                     ccgpSiChuanSpiderLauncher.start();
-                    break;
-                case "start-yibiao":
-                    yiBiaoSpiderLauncher.start();
-                    break;
-                case "history-yibiao":
-                    yiBiaoSpiderLauncher.fetchHistory();
-                    break;
-                case "history-parseUrl":
-                    yiBiaoSpiderLauncher.beginScheduled();
                     break;
                 case "start-suning":
                     suNingSpiderLauncher.start();

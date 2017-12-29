@@ -1,12 +1,13 @@
 package com.har.sjfxpt.crawler.core.pipeline;
 
+import com.har.sjfxpt.crawler.core.processor.DataItemRepository;
 import com.har.sjfxpt.crawler.core.service.DataItemService;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzyshanxi.GGZYShanXiDataItem;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzyshanxi.GGZYShanXiDataItemRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.ResultItems;
 import us.codecraft.webmagic.Task;
@@ -37,9 +38,8 @@ public class DataItemDtoPipeline implements Pipeline {
             log.warn(">>> save nothing, {}", task.getSite());
         } else {
             Object object = dataItemList.stream().findFirst().get();
-            if (object instanceof GGZYShanXiDataItem) {
-                ctx.getBean(GGZYShanXiDataItemRepository.class).save(dataItemList);
-            }
+            DataItemRepository dataItemRepository = AnnotationUtils.findAnnotation(object.getClass(), DataItemRepository.class);
+            ((MongoRepository) ctx.getBean(dataItemRepository.repository())).save(dataItemList);
 
             dataItemService.save2BidNewsOriginalTable(dataItemList);
         }

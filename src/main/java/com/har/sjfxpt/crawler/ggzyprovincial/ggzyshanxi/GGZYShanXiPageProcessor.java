@@ -11,19 +11,20 @@ import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.Spider;
-import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.model.HttpRequestBody;
 import us.codecraft.webmagic.model.OOSpider;
 import us.codecraft.webmagic.utils.HttpConstant;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
 
 import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
 
@@ -35,7 +36,7 @@ import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_
  */
 @Slf4j
 @Component
-@SourceConfig(code = SourceCode.GGZYSHANXI, sources = {
+@SourceConfig(code = SourceCode.GGZYSHANXI, useProxy = true, sources = {
         @Source(url = "http://prec.sxzwfw.gov.cn/TenderProjectSx/ColTableInfoOther.do", post = true,
                 postParams = "{'date':'1day','huanJie':'NOTICE','pageIndex':1,'end_time':'','projectType':'gcjs','begin_time':'','projectName':''}"),
 
@@ -50,11 +51,12 @@ import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_
 })
 public class GGZYShanXiPageProcessor implements BasePageProcessor {
 
-    HttpClientDownloader httpClientDownloader;
-
     final static String PAGE_PARAMS = "pageParams";
 
     final static String PREFIX = "http://prec.sxzwfw.gov.cn";
+
+    @Autowired
+    ExecutorService executorService;
 
     @Override
     public void handlePaging(Page page) {
@@ -127,19 +129,24 @@ public class GGZYShanXiPageProcessor implements BasePageProcessor {
             dataItem.setProjectCode(projectCode);
 
             urls.add(url);
+
+            dataItems.add(dataItem);
+        }
+
+        dataItems.parallelStream().forEach(dataItem -> {
+            Spider spider = OOSpider.create(getSite(), GGZYShanXiDataItem.class);
+            spider.setExitWhenComplete(true);
             try {
-                Spider spider = OOSpider.create(getSite(), GGZYShanXiDataItem.class);
-                GGZYShanXiDataItem _dataItem = spider.get(url);
-                spider.close();
+                GGZYShanXiDataItem _dataItem = spider.get(dataItem.getUrl());
                 dataItem.setProjectName(_dataItem.getProjectName());
                 dataItem.setPurchaser(_dataItem.getPurchaser());
                 dataItem.setFormatContent(_dataItem.getFormatContent());
             } catch (Exception e) {
-                log.error("{} fetch content fail", url);
+                log.error("", e);
+                log.error("{} fetch content fail", dataItem.getUrl());
             }
+        });
 
-            dataItems.add(dataItem);
-        }
         return dataItems;
     }
 
@@ -151,7 +158,6 @@ public class GGZYShanXiPageProcessor implements BasePageProcessor {
 
     @Override
     public Site getSite() {
-        httpClientDownloader = new HttpClientDownloader();
         return SiteUtil.get().setSleepTime(10000);
     }
 }
