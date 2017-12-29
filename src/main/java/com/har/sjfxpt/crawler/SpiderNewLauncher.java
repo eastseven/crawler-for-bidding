@@ -82,6 +82,9 @@ public class SpiderNewLauncher implements CommandLineRunner {
             }
 
             SourceConfig config = AnnotationUtils.findAnnotation(pageProcessor.getClass(), SourceConfig.class);
+            if (config.disable()) {
+                continue;
+            }
 
             final String uuid = "spider_" + config.code().name().toLowerCase();
             if (spiderMap.containsKey(uuid)) {
