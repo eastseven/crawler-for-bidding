@@ -9,6 +9,8 @@ import com.har.sjfxpt.crawler.core.pipeline.DataItemDtoPipeline;
 import com.har.sjfxpt.crawler.core.service.ProxyService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.CommandLineRunner;
@@ -86,13 +88,21 @@ public class SpiderNewLauncher implements CommandLineRunner {
             List<Request> requestList = Lists.newArrayList();
             Source[] sources = config.sources();
             if (ArrayUtils.isNotEmpty(sources)) {
+                DateTime now = DateTime.now();
                 for (Source source : sources) {
                     String url = source.url();
                     Request request = new Request(url);
-                    boolean isPost = source.post();
-                    if (isPost) {
+
+                    if (source.post() && StringUtils.isNotBlank(source.postParams())) {
                         String json = source.postParams();
                         Map<String, Object> pageParams = JSONObject.parseObject(json, Map.class);
+
+                        if (ArrayUtils.isNotEmpty(source.needPlaceholderFields())) {
+                            for (String field : source.needPlaceholderFields()) {
+                                pageParams.put(field, now.toString(source.dayPattern()));
+                            }
+                        }
+
                         request.setMethod(HttpConstant.Method.POST);
                         request.setRequestBody(HttpRequestBody.form(pageParams, "UTF-8"));
                         request.putExtra("pageParams", pageParams);
@@ -103,7 +113,7 @@ public class SpiderNewLauncher implements CommandLineRunner {
             }
 
             Spider spider = Spider.create((PageProcessor) pageProcessor).setUUID(uuid)
-                    .setExecutorService(executorService).setExitWhenComplete(true)
+                    .thread(executorService, 10).setExitWhenComplete(true)
                     .addRequest(requestList.toArray(new Request[requestList.size()]))
                     .addPipeline(ctx.getBean(DataItemDtoPipeline.class));
 

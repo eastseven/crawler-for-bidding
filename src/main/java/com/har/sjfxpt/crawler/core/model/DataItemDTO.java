@@ -3,6 +3,13 @@ package com.har.sjfxpt.crawler.core.model;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.joda.time.DateTime;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+
+import java.util.Date;
 
 /**
  * 将爬虫数据转换为hbase需要的格式
@@ -12,15 +19,31 @@ import lombok.ToString;
 @Setter
 @Getter
 @ToString(exclude = {"formatContent"})
+@Document(collection = "bid_news_original")
 public class DataItemDTO {
 
     public static final int ROW_KEY_LENGTH = 41;
 
+    public DataItemDTO() {
+    }
+
+    /**
+     * 初始化 id, url, createTime
+     * @param url
+     */
+    public DataItemDTO(String url) {
+        this.id = DigestUtils.md5Hex(url);
+        this.url = url;
+        this.createTime = DateTime.now().toString("yyyyMMddHH");
+    }
+
     /**
      * hbase rowKey: yyyyMMdd:title
      */
+    @Field("row_key")
     protected String rowKey;
 
+    @Id
     protected String id;
 
     protected String url;
@@ -33,6 +56,7 @@ public class DataItemDTO {
 
     protected String source;
 
+    @Field("source_code")
     protected String sourceCode;
 
     /**
@@ -43,10 +67,13 @@ public class DataItemDTO {
     /**
      * yyyyMMddHH
      */
+    @Field("create_time")
     protected String createTime;
 
+    @Field("format_content")
     protected String formatContent;
 
+    @Field("text_content")
     protected String textContent;
 
     /**
@@ -59,20 +86,16 @@ public class DataItemDTO {
      * 项目名称，title 下划线前面的值
      * 中国移动
      */
+    @Field("project_name")
     protected String projectName;
-
-    /**
-     * 行业分类
-     * 通过配置文件中的关键字匹配，计算出的值
-     * 汉字，以英文逗号分隔
-     */
-    protected String industryCategory;
 
     /**
      * 原始的行业分类
      */
+    @Field("original_industry_category")
     protected String originalIndustryCategory;
 
+    @Field("force_update")
     protected boolean forceUpdate;
 
     /**
@@ -83,11 +106,18 @@ public class DataItemDTO {
     /**
      * 总成交金额 total_bid_money
      */
+    @Field("total_bid_money")
     protected String totalBidMoney;
 
     /**
      * 中标公司名称
      */
+    @Field("bid_company_name")
     protected String bidCompanyName;
 
+    @Field("fetch_time")
+    private Date fetchTime = DateTime.now().toDate();
+
+    @Field("project_code")
+    private String projectCode;
 }

@@ -12,6 +12,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanUtil.YYYYMMDD;
@@ -60,19 +61,10 @@ public class SpiderApplicationTests {
     @Test
     public void testDownload() {
         Assert.assertNotNull(gongGongZiYuanPageDownloader);
-        DataItem dataItem = repository.findTopByHtmlIsNull();
+        DataItem dataItem = repository.findAll(new PageRequest(0, 1)).iterator().next();
         Assert.assertNotNull(dataItem);
-        Assert.assertNull(dataItem.getHtml());
         gongGongZiYuanPageDownloader.download(dataItem);
 
-        Assert.assertNotNull(dataItem.getHtml());
-    }
-
-    @Test
-    public void testDownloadAll() throws InterruptedException {
-        Assert.assertNotNull(gongGongZiYuanPageDownloader);
-        gongGongZiYuanPageDownloader.download();
-        Thread.sleep(5000L);
     }
 
 }

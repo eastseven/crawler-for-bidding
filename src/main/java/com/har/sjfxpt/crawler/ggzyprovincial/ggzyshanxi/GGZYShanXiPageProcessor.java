@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.core.annotation.Source;
 import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
+import com.har.sjfxpt.crawler.core.model.DataItemDTO;
 import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
@@ -85,7 +86,7 @@ public class GGZYShanXiPageProcessor implements BasePageProcessor {
             log.error("fetch error, elements is empty");
             return;
         }
-        List<GGZYShanXiDataItem> dataItems = parseContent(elements);
+        List<DataItemDTO> dataItems = parseContent(elements);
         Object extra = page.getRequest().getExtra(PAGE_PARAMS);
         if (extra != null) {
             Map<String, Object> map = (Map<String, Object>) extra;
@@ -107,7 +108,7 @@ public class GGZYShanXiPageProcessor implements BasePageProcessor {
 
     @Override
     public List parseContent(Elements items) {
-        List<GGZYShanXiDataItem> dataItems = Lists.newArrayList();
+        List<DataItemDTO> dataItems = Lists.newArrayList();
         if (items.isEmpty()) {
             return dataItems;
         }
@@ -123,12 +124,15 @@ public class GGZYShanXiPageProcessor implements BasePageProcessor {
             date = PageProcessorUtil.dataTxt(date);
 
             String url = PREFIX + href;
-            GGZYShanXiDataItem dataItem = new GGZYShanXiDataItem(url);
+            DataItemDTO dataItem = new DataItemDTO(url);
+            dataItem.setProvince("山西");
+            dataItem.setSourceCode(SourceCode.GGZYSHANXI.name());
+            dataItem.setSource(SourceCode.GGZYSHANXI.getValue());
             dataItem.setDate(date);
             dataItem.setTitle(title);
             dataItem.setProjectCode(projectCode);
             try {
-                dataItem.download(Jsoup.connect(url).get().body());
+                download(Jsoup.connect(url).get().body(), dataItem);
             } catch (Exception e) {
                 log.error(">>> {} download fail", url);
             }
@@ -149,5 +153,25 @@ public class GGZYShanXiPageProcessor implements BasePageProcessor {
     @Override
     public Site getSite() {
         return SiteUtil.get().setSleepTime(10000);
+    }
+
+    public void download(Element body, DataItemDTO dataItem) {
+        if (!body.select("div.jiaoyihuanjie.ct").isEmpty()) {
+            for (Element td : body.select("div.table_project_container table.table_content tr td")) {
+                String text = td.text();
+                if (text.equalsIgnoreCase("项目名称")) {
+                    dataItem.setProjectName(td.nextElementSibling().text());
+                }
+
+                if (text.equalsIgnoreCase("招标人")) {
+                    dataItem.setPurchaser(td.nextElementSibling().text());
+                }
+            }
+        }
+
+        if (!body.select("div.notice_content").isEmpty()) {
+            String formatContent = PageProcessorUtil.formatElementsByWhitelist(body.select("div.notice_content").first());
+            dataItem.setFormatContent(formatContent);
+        }
     }
 }

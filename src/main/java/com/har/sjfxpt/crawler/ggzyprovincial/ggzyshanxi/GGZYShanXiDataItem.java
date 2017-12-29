@@ -7,10 +7,7 @@ import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.joda.time.DateTime;
 import org.jsoup.nodes.Element;
-import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import us.codecraft.webmagic.Page;
@@ -37,16 +34,11 @@ public class GGZYShanXiDataItem extends DataItemDTO implements AfterExtractor {
     public static final String COLLECTION_NAME = "data_item_ggzy_shanxi";
 
     public GGZYShanXiDataItem(String url) {
-        this.id = DigestUtils.md5Hex(url);
-        this.url = url;
+        super(url);
         this.province = "山西";
         this.source = SourceCode.GGZYSHANXI.getValue();
         this.sourceCode = SourceCode.GGZYSHANXI.name();
-        this.createTime = DateTime.now().toString("yyyyMMddHH");
     }
-
-    @Id
-    private String id;
 
     @Field("code")
     private String projectCode;

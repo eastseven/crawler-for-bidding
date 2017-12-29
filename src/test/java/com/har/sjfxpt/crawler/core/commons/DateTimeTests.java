@@ -1,6 +1,7 @@
 package com.har.sjfxpt.crawler.core.commons;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.google.common.collect.Maps;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
@@ -48,5 +49,27 @@ public class DateTimeTests {
 
         Map<String, Object> map = JSONObject.parseObject(jsonString, Map.class);
         log.info(">>> {}", map);
+
+        String date = "#";//DateTime.now().toString("yyyy-MM-dd");
+        pageParams = Maps.newHashMap();
+        pageParams.put("TIMEBEGIN", date);
+        pageParams.put("TIMEBEGIN_SHOW", date);
+        pageParams.put("TIMEEND", date);
+        pageParams.put("TIMEEND_SHOW", date);
+        pageParams.put("DEAL_TIME", "01");
+        //00 不限 01 工程建设 02 政府采购
+        pageParams.put("DEAL_CLASSIFY", "01");
+        pageParams.put("DEAL_STAGE", "0100");
+        pageParams.put("DEAL_PROVINCE", "0");
+        pageParams.put("DEAL_CITY", "0");
+        pageParams.put("DEAL_PLATFORM", "0");
+        pageParams.put("DEAL_TRADE", "0");
+        pageParams.put("isShowAll", "1");
+        pageParams.put("PAGENUMBER", 1);
+        pageParams.put("FINDTXT", "");
+        log.info(">>> original map {}", pageParams);
+        json = JSONObject.toJSONString(pageParams, SerializerFeature.UseSingleQuotes);
+        Assert.assertNotNull(json);
+        log.info(">>> {}", json);
     }
 }
