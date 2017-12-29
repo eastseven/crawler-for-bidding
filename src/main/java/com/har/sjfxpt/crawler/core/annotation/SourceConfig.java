@@ -19,4 +19,6 @@ public @interface SourceConfig {
     SourceCode code() default SourceCode.DEFAULT;
 
     boolean useProxy() default false;
+
+    boolean disable() default false;
 }
