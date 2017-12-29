@@ -154,6 +154,7 @@ public class ZGJiaoJianPageProcessor implements BasePageProcessor {
             case "goAdjustBidResultDetail":
                 href = "http://empm.ccccltd.cn/PMS/adjustdetail.shtml?id=" + value;
                 break;
+            default:
         }
         return href;
     }
