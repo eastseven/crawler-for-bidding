@@ -1,4 +1,4 @@
-package com.har.sjfxpt.crawler.core.processor;
+package com.har.sjfxpt.crawler.core.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -10,7 +10,11 @@ import java.lang.annotation.Target;
  */
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface DataItemRepository {
+public @interface Source {
 
-    Class repository();
+    String url() default "";
+
+    boolean post() default false;
+
+    String postParams() default "";
 }

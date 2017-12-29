@@ -2,10 +2,10 @@ package com.har.sjfxpt.crawler.ggzyprovincial.ggzyshanxi;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.har.sjfxpt.crawler.core.annotation.Source;
+import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
 import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
-import com.har.sjfxpt.crawler.core.processor.Source;
-import com.har.sjfxpt.crawler.core.processor.SourceConfig;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;

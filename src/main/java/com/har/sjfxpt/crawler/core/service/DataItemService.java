@@ -1,11 +1,8 @@
 package com.har.sjfxpt.crawler.core.service;
 
-import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.core.config.HBaseConfig;
-import com.har.sjfxpt.crawler.core.config.KeyWordsProperties;
 import com.har.sjfxpt.crawler.core.model.DataItem;
 import com.har.sjfxpt.crawler.core.model.DataItemDTO;
-import com.huaban.analysis.jieba.JiebaSegmenter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections.CollectionUtils;
@@ -15,8 +12,6 @@ import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
-import org.jsoup.Jsoup;
-import org.jsoup.safety.Whitelist;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
@@ -26,8 +21,6 @@ import javax.annotation.PreDestroy;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 import static com.har.sjfxpt.crawler.core.model.DataItemDTO.ROW_KEY_LENGTH;
 
@@ -37,9 +30,6 @@ import static com.har.sjfxpt.crawler.core.model.DataItemDTO.ROW_KEY_LENGTH;
 @Slf4j
 @Service
 public class DataItemService {
-
-    @Autowired
-    KeyWordsProperties keyWordsProperties;
 
     @Autowired
     StringRedisTemplate redisTemplate;
@@ -55,9 +45,6 @@ public class DataItemService {
     private Table originalTable;
     private Table historyTable;
 
-    private Map<String, String[]> keyWordsMap = Maps.newHashMap();
-    private JiebaSegmenter segmenter;
-
     @PostConstruct
     public void init() {
         try {
@@ -68,10 +55,6 @@ public class DataItemService {
             log.error("", e);
         }
 
-        segmenter = new JiebaSegmenter();
-
-        keyWordsMap = keyWordsProperties.getCategories().stream()
-                .collect(Collectors.toMap(line -> line.split(",")[0], line -> line.split(",")));
     }
 
     @PreDestroy
@@ -104,9 +87,6 @@ public class DataItemService {
                 redisTemplate.boundListOps("fetch_fail_url_" + dataItem.getSourceCode().toLowerCase()).leftPush(dataItem.getUrl());
                 continue;
             }
-
-            //计算 行业分类
-            //setIndustryCategory(dataItem);
 
             // 处理超前时间，大于当前时间，按当前时间记录
             try {
@@ -162,26 +142,6 @@ public class DataItemService {
     }
 
     /**
-     * 将title及textContent
-     * 先分词，再匹配行业关键字，找出对应的行业分类
-     *
-     * @param dataItem
-     * @return dataItem.industryCategory 以逗号结尾的行业分类
-     */
-    public DataItemDTO setIndustryCategory(DataItemDTO dataItem) {
-        dataItem.setTextContent(Jsoup.clean(dataItem.getFormatContent(), Whitelist.none()));
-        String text = dataItem.getTitle();
-        String words = segmenter.sentenceProcess(text).stream()
-                .filter(word -> StringUtils.isNotBlank(word) && word.length() > 1)
-                .map(word -> StringUtils.trim(word))
-                .collect(Collectors.joining(","));
-        String industryCategory = mark(words);
-        dataItem.setIndustryCategory(industryCategory);
-
-        return dataItem;
-    }
-
-    /**
      * 生成hbase row key
      *
      * @param dataItem
@@ -219,74 +179,4 @@ public class DataItemService {
         return put;
     }
 
-    @Deprecated
-    private void sourceCodeByDateCounter(String date, DataItemDTO dto) {
-        try {
-            redisTemplate.boundValueOps(date + ':' + dto.getSourceCode().toLowerCase()).increment(1L);
-        } catch (Exception e) {
-            log.error("", e);
-            log.error("sourceCodeByDateCounter count fail, {} mongo id {} ", dto.getSourceCode(), dto.getId());
-        }
-
-        hourlyCounter(dto);
-        hourlyCounterBySourceCode(dto);
-    }
-
-    private void hourlyCounter(DataItemDTO dto) {
-        try {
-            if (!DateTime.now().toString("yyyyMMddHH").equalsIgnoreCase(dto.getCreateTime())) return;
-            redisTemplate.boundValueOps(dto.getCreateTime()).increment(1);
-        } catch (Exception e) {
-            log.error("", e);
-            log.error("hourlyCounter count fail, {} mongo id {}", dto.getSourceCode(), dto.getId());
-        }
-    }
-
-    private void hourlyCounterBySourceCode(DataItemDTO dto) {
-        try {
-            if (!DateTime.now().toString("yyyyMMddHH").equalsIgnoreCase(dto.getCreateTime())) return;
-            redisTemplate.boundValueOps(dto.getCreateTime() + ':' + dto.getSourceCode().toLowerCase()).increment(1);
-        } catch (Exception e) {
-            log.error("", e);
-            log.error("hourlyCounter count fail, {} mongo id {}", dto.getSourceCode(), dto.getId());
-        }
-    }
-
-    /**
-     * 打分
-     *
-     * @param sources
-     * @return
-     */
-    public String mark(String... sources) {
-        try {
-            Map<Integer, String> map = Maps.newHashMap();
-            for (String industryCategoryLabel : keyWordsMap.keySet()) {
-                String[] industryCategoryKeyWords = keyWordsMap.get(industryCategoryLabel);
-                Integer score = 0;
-                for (String keyWords : industryCategoryKeyWords) {
-                    for (String source : sources) {
-                        if (StringUtils.isBlank(source)) continue;
-                        if (source.contains(StringUtils.trim(keyWords))) score++;
-                    }
-                }
-
-                if (!map.containsKey(score)) {
-                    map.put(score, industryCategoryLabel);
-                } else {
-                    String value = String.join(",", map.get(score), industryCategoryLabel);
-                    map.put(score, value);
-                }
-            }
-
-            Integer key = map.keySet().stream().max((a, b) -> Integer.compare(a, b)).get();
-            if (key > 0) return map.get(key);
-
-        } catch (Exception e) {
-            log.error("", e);
-            log.error("");
-        }
-
-        return "其他";
-    }
 }

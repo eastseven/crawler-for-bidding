@@ -1,6 +1,6 @@
 package com.har.sjfxpt.crawler.core.pipeline;
 
-import com.har.sjfxpt.crawler.core.processor.DataItemRepository;
+import com.har.sjfxpt.crawler.core.annotation.DataItemRepository;
 import com.har.sjfxpt.crawler.core.service.DataItemService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
