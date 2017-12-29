@@ -9,6 +9,7 @@ import com.har.sjfxpt.crawler.core.processor.SourceConfig;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,14 +18,12 @@ import org.springframework.util.CollectionUtils;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
-import us.codecraft.webmagic.Spider;
+import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.model.HttpRequestBody;
-import us.codecraft.webmagic.model.OOSpider;
 import us.codecraft.webmagic.utils.HttpConstant;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 
 import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
 
@@ -57,7 +56,7 @@ public class GGZYShanXiPageProcessor implements BasePageProcessor {
     final static String PREFIX = "http://prec.sxzwfw.gov.cn";
 
     @Autowired
-    ExecutorService executorService;
+    HttpClientDownloader httpClientDownloader;
 
     @Override
     public void handlePaging(Page page) {
@@ -128,26 +127,15 @@ public class GGZYShanXiPageProcessor implements BasePageProcessor {
             dataItem.setDate(date);
             dataItem.setTitle(title);
             dataItem.setProjectCode(projectCode);
-
+            try {
+                dataItem.download(Jsoup.connect(url).get().body());
+            } catch (Exception e) {
+                log.error(">>> {} download fail", url);
+            }
             urls.add(url);
 
             dataItems.add(dataItem);
         }
-
-        dataItems.parallelStream().forEach(dataItem -> {
-            Spider spider = OOSpider.create(getSite(), GGZYShanXiDataItem.class);
-            spider.setExitWhenComplete(true);
-            try {
-                String url = dataItem.getUrl();
-                GGZYShanXiDataItem _dataItem = spider.get(url);
-                dataItem.setProjectName(_dataItem.getProjectName());
-                dataItem.setPurchaser(_dataItem.getPurchaser());
-                dataItem.setFormatContent(_dataItem.getFormatContent());
-            } catch (Exception e) {
-                log.error("", e);
-                log.error("{} fetch content fail", dataItem.getUrl());
-            }
-        });
 
         return dataItems;
     }

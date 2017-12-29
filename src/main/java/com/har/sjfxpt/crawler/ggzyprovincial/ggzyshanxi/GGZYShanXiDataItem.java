@@ -15,6 +15,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.model.AfterExtractor;
+import us.codecraft.webmagic.selector.Html;
+
+import java.util.Date;
 
 import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyshanxi.GGZYShanXiDataItem.COLLECTION_NAME;
 
@@ -48,10 +51,19 @@ public class GGZYShanXiDataItem extends DataItemDTO implements AfterExtractor {
     @Field("code")
     private String projectCode;
 
+    private Date fetchTime = new Date();
+
     @Override
     public void afterProcess(Page page) {
+        download(page.getHtml());
+    }
 
-        Element body = page.getHtml().getDocument().body();
+    public void download(Html html) {
+        Element body = html.getDocument().body();
+        download(body);
+    }
+
+    public void download(Element body) {
         if (!body.select("div.jiaoyihuanjie.ct").isEmpty()) {
             for (Element td : body.select("div.table_project_container table.table_content tr td")) {
                 String text = td.text();
@@ -66,8 +78,8 @@ public class GGZYShanXiDataItem extends DataItemDTO implements AfterExtractor {
         }
 
         if (!body.select("div.notice_content").isEmpty()) {
-            String html = PageProcessorUtil.formatElementsByWhitelist(body.select("div.notice_content").first());
-            this.setFormatContent(html);
+            String formatContent = PageProcessorUtil.formatElementsByWhitelist(body.select("div.notice_content").first());
+            this.setFormatContent(formatContent);
         }
     }
 }

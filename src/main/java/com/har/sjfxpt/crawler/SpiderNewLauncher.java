@@ -66,7 +66,6 @@ public class SpiderNewLauncher implements CommandLineRunner {
         scanner.addIncludeFilter(new AnnotationTypeFilter(SourceConfig.class));
         for (BeanDefinition bd : scanner.findCandidateComponents(basePackage)) {
             String pageProcessorClassName = bd.getBeanClassName();
-            log.debug(">>> pageProcessorClassName [{}], {}, {}", pageProcessorClassName, bd.getParentName(), bd.getFactoryBeanName());
             Object pageProcessor = null;
 
             try {
@@ -118,14 +117,18 @@ public class SpiderNewLauncher implements CommandLineRunner {
     }
 
     public void start() {
-        init();
         if (spiderMap.isEmpty()) return;
 
-        spiderMap.forEach((s, spider) -> spider.start());
+        spiderMap.forEach((s, spider) -> {
+            if (!spider.getStatus().equals(Spider.Status.Running)) {
+                spider.start();
+            }
+            log.info(">>> uuid={}, status={}, startTime={}", s, spider.getStatus(), spider.getStartTime());
+        });
     }
 
     @Override
     public void run(String... args) {
-        start();
+        init();
     }
 }
