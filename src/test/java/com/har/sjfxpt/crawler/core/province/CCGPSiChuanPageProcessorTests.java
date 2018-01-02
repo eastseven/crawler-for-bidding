@@ -1,4 +1,4 @@
-package com.har.sjfxpt.crawler.core;
+package com.har.sjfxpt.crawler.core.province;
 
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.ccgp.ccgpsc.CCGPSiChuanPageProcessor;

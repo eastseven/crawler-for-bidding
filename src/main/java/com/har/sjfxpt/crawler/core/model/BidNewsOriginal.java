@@ -10,6 +10,8 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import java.util.Date;
 
 /**
@@ -46,28 +48,38 @@ public class BidNewsOriginal {
 
     protected String url;
 
+    @NotNull
     protected String title;
 
+    @NotNull
     protected String province="全国";
 
+    @NotNull
     protected String type;
 
+    @NotNull
     protected String source;
 
+    @NotNull
     @Field("source_code")
     protected String sourceCode;
 
     /**
      * yyyy-MM-dd HH:mm
      */
+    @NotNull
+    @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}")
     protected String date;
 
     /**
      * yyyyMMddHH
      */
+    @NotNull
+    @Pattern(regexp = "\\d{10}")
     @Field("create_time")
     protected String createTime;
 
+    @NotNull
     @Field("format_content")
     protected String formatContent;
 

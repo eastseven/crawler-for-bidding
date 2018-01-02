@@ -1,4 +1,4 @@
-package com.har.sjfxpt.crawler.core;
+package com.har.sjfxpt.crawler.core.province;
 
 import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanPageProcessor;
 import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanPipeline;

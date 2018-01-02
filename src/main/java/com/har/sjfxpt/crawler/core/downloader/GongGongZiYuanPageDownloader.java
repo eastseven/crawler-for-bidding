@@ -58,15 +58,18 @@ public class GongGongZiYuanPageDownloader {
             if (pubDate.contains("时间：")) {
                 pubDate = StringUtils.substringAfter(pubDate, "：");
             }
+
             if (pubDate.trim().length() == ten) {
                 pubDate = pubDate + " " + DateTime.now().toString("HH:mm");
             }
 
-            try {
-                DateTimeFormat.forPattern("yyyy-MM-dd HH:mm").parseDateTime(pubDate);
-                dataItem.setDate(pubDate);
-            } catch (Exception e) {
-                log.error("", e);
+            if (StringUtils.isNotBlank(pubDate)) {
+                try {
+                    DateTimeFormat.forPattern("yyyy-MM-dd HH:mm").parseDateTime(pubDate);
+                    dataItem.setDate(pubDate);
+                } catch (Exception e) {
+                    log.error(">>> pubDate=[{}], {}", pubDate, dataItem.getUrl());
+                }
             }
 
             if (document.body().select("#mycontent").isEmpty()) {

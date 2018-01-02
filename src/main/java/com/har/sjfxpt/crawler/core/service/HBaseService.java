@@ -16,12 +16,17 @@ import org.joda.time.format.DateTimeFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.har.sjfxpt.crawler.core.model.DataItemDTO.ROW_KEY_LENGTH;
@@ -47,6 +52,8 @@ public class HBaseService {
     private Table originalTable;
     private Table historyTable;
 
+    private Validator validator;
+
     @PostConstruct
     public void init() {
         try {
@@ -57,6 +64,7 @@ public class HBaseService {
             log.error("", e);
         }
 
+        validator = Validation.buildDefaultValidatorFactory().getValidator();
     }
 
     @PreDestroy
@@ -172,6 +180,10 @@ public class HBaseService {
     }
 
     private Put assemble(String rowKey, BidNewsOriginal dataItem) throws UnsupportedEncodingException {
+        Set<ConstraintViolation<BidNewsOriginal>> violations = validator.validate(dataItem);
+        violations.forEach(violation -> log.error(">>> {}, {}", violation.getPropertyPath(), violation.getMessage()));
+        Assert.isTrue(violations.isEmpty(), "");
+
         Put put = new Put(rowKey.getBytes());
         put.addColumn(family, "url".getBytes(), StringUtils.defaultString(dataItem.getUrl(), "").getBytes(charsetName));
         put.addColumn(family, "title".getBytes(), StringUtils.defaultString(dataItem.getTitle(), "").getBytes(charsetName));

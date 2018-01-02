@@ -39,10 +39,10 @@ import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_
 @SourceConfig(
         code = SourceCode.JC,
         sources = {
-                @Source(url = "http://www.cfcpn.com/plist/caigou?pageNo=1&kflag=0&keyword=&keywordType=&province=&city=&typeOne=&ptpTwo="),
-                @Source(url = "http://www.cfcpn.com/plist/zhengji?pageNo=1&kflag=0&keyword=&keywordType=&province=&city=&typeOne=&ptpTwo="),
-                @Source(url = "http://www.cfcpn.com/plist/jieguo?pageNo=1&kflag=0&keyword=&keywordType=&province=&city=&typeOne=&ptpTwo="),
-                @Source(url = "http://www.cfcpn.com/plist/biangeng?pageNo=1&kflag=0&keyword=&keywordType=&province=&city=&typeOne=&ptpTwo="),
+                @Source(url = "http://www.cfcpn.com/plist/caigou?pageNo=1&kflag=0&keyword=&keywordType=&province=&city=&typeOne=&ptpTwo=", type = "采购"),
+                @Source(url = "http://www.cfcpn.com/plist/zhengji?pageNo=1&kflag=0&keyword=&keywordType=&province=&city=&typeOne=&ptpTwo=", type = "征集"),
+                @Source(url = "http://www.cfcpn.com/plist/jieguo?pageNo=1&kflag=0&keyword=&keywordType=&province=&city=&typeOne=&ptpTwo=", type = "结果"),
+                @Source(url = "http://www.cfcpn.com/plist/biangeng?pageNo=1&kflag=0&keyword=&keywordType=&province=&city=&typeOne=&ptpTwo=", type = "变更"),
         }
 )
 public class JinCaiWangPageProcessor implements BasePageProcessor {
@@ -94,6 +94,11 @@ public class JinCaiWangPageProcessor implements BasePageProcessor {
         Element html = page.getHtml().getDocument().body();
         Elements items = html.select("body > div.container-fluid.cfcpn_container_list-bg > div > div > div.col-lg-9.cfcpn_padding_LR0.cfcpn_list_border-right > div.cfcpn_list_content.text-left");
         List<BidNewsOriginal> dataItemList = parseContent(items);
+        for (BidNewsOriginal dataItem : dataItemList) {
+            if (StringUtils.isBlank(dataItem.getType())) {
+                dataItem.setType(page.getRequest().getExtra("type").toString());
+            }
+        }
         if (dataItemList != null) {
             page.putField(KEY_DATA_ITEMS, dataItemList);
         }

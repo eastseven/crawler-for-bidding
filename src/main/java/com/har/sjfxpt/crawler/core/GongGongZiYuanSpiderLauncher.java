@@ -30,7 +30,7 @@ import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanUtil.YYYYMMDD;
  * @author dongqi
  */
 @Slf4j
-@Service
+@Service@Deprecated
 public class GongGongZiYuanSpiderLauncher extends BaseSpiderLauncher {
 
     final int num = Runtime.getRuntime().availableProcessors() * 4;
