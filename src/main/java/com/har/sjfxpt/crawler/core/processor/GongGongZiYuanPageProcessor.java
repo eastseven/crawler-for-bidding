@@ -4,7 +4,7 @@ import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.core.annotation.Source;
 import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
 import com.har.sjfxpt.crawler.core.downloader.GongGongZiYuanPageDownloader;
-import com.har.sjfxpt.crawler.core.model.BidNewOriginal;
+import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
 import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.service.PageDataService;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
@@ -73,8 +73,8 @@ public class GongGongZiYuanPageProcessor implements BasePageProcessor {
     }
 
     @Override
-    public List<BidNewOriginal> parseContent(Elements items) {
-        List<BidNewOriginal> dataItemList = Lists.newArrayList();
+    public List<BidNewsOriginal> parseContent(Elements items) {
+        List<BidNewsOriginal> dataItemList = Lists.newArrayList();
 
         for (Element item : items) {
             String title = item.select("h4 a").text();
@@ -82,7 +82,7 @@ public class GongGongZiYuanPageProcessor implements BasePageProcessor {
             href = StringUtils.replace(href, "/a/", "/b/");
             String date = item.select("h4 span").text();
 
-            BidNewOriginal dataItem = new BidNewOriginal(href);
+            BidNewsOriginal dataItem = new BidNewsOriginal(href);
             dataItem.setSource(SourceCode.GGZY.getValue());
             dataItem.setSourceCode(SourceCode.GGZY.name());
             dataItem.setTitle(title);
@@ -152,7 +152,7 @@ public class GongGongZiYuanPageProcessor implements BasePageProcessor {
     public void handleContent(Page page) {
         final String css = "div#publicl div.publicont div";
         Elements items = page.getHtml().getDocument().body().select(css);
-        List<BidNewOriginal> dataItemList = parseContent(items);
+        List<BidNewsOriginal> dataItemList = parseContent(items);
         if (!dataItemList.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItemList);
         }

@@ -5,6 +5,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.core.annotation.Source;
 import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
+import com.har.sjfxpt.crawler.core.annotation.SourceModel;
+import com.har.sjfxpt.crawler.core.model.BidNewsSpider;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.service.ProxyService;
 import lombok.extern.slf4j.Slf4j;
@@ -32,10 +34,11 @@ import us.codecraft.webmagic.utils.HttpConstant;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
+import java.util.stream.Collectors;
 
 /**
  * @author dongqi
- *
+ * <p>
  * https://stackoverflow.com/questions/259140/scanning-java-annotations-at-runtime
  */
 @Slf4j
@@ -57,15 +60,10 @@ public class SpiderNewLauncher implements CommandLineRunner {
 
     private static final String basePackage = "com.har.sjfxpt.crawler";
 
-    private Map<String, Spider> spiderMap = Maps.newConcurrentMap();
-    private Map<String, Request[]> spiderRequestsMap = Maps.newConcurrentMap();
+    private Map<String, BidNewsSpider> spiders = Maps.newConcurrentMap();
 
-    public Map<String, Spider> getSpiders() {
-        return this.spiderMap;
-    }
-
-    public Map<String, Request[]> getRequests() {
-        return this.spiderRequestsMap;
+    public Map<String, BidNewsSpider> getSpiders() {
+        return spiders;
     }
 
     public void init() {
@@ -87,20 +85,25 @@ public class SpiderNewLauncher implements CommandLineRunner {
             }
 
             final String uuid = "spider_" + config.code().name().toLowerCase();
-            if (spiderMap.containsKey(uuid)) {
-                log.warn(">>> spider uuid[{}] is exists, status is {}", uuid, spiderMap.get(uuid).getStatus());
+            if (spiders.containsKey(uuid)) {
+                log.warn(">>> spider uuid[{}] is exists, status is {}", uuid, spiders.get(uuid).getStatus());
                 continue;
             }
 
             // 创建 Request 对象集合
             List<Request> requestList = Lists.newArrayList();
+            List<SourceModel> sourceModelList = Lists.newArrayList();
             Source[] sources = config.sources();
             if (ArrayUtils.isNotEmpty(sources)) {
                 DateTime now = DateTime.now();
                 for (Source source : sources) {
-                    String url = source.url();
-                    Request request = new Request(url);
+                    SourceModel sourceModel = new SourceModel();
 
+                    String url = source.url();
+                    sourceModel.setUrl(url);
+                    sourceModel.setPost(source.post());
+
+                    Request request = new Request(url);
                     if (source.post() && StringUtils.isNotBlank(source.postParams())) {
                         String json = source.postParams();
                         Map<String, Object> pageParams = JSONObject.parseObject(json, Map.class);
@@ -114,14 +117,18 @@ public class SpiderNewLauncher implements CommandLineRunner {
                         request.setMethod(HttpConstant.Method.POST);
                         request.setRequestBody(HttpRequestBody.form(pageParams, "UTF-8"));
                         request.putExtra("pageParams", pageParams);
+
+                        sourceModel.setPostParams(pageParams);
                     }
+                    sourceModel.setNeedPlaceholderFields(source.needPlaceholderFields());
 
                     requestList.add(request);
+                    sourceModelList.add(sourceModel);
                 }
             }
 
             Request[] requests = requestList.toArray(new Request[requestList.size()]);
-            Spider spider = Spider.create((PageProcessor) pageProcessor).setUUID(uuid)
+            Spider spider = BidNewsSpider.create((PageProcessor) pageProcessor).setUUID(uuid)
                     .thread(executorService, 10)
                     .setExitWhenComplete(true)
                     .addRequest(requests)
@@ -132,17 +139,37 @@ public class SpiderNewLauncher implements CommandLineRunner {
                 spider.setDownloader(httpClientDownloader);
             }
 
-            spiderMap.put(uuid, spider);
-            spiderRequestsMap.put(uuid, requests);
+            BidNewsSpider bidNewsSpider = (BidNewsSpider) spider;
+            bidNewsSpider.setSourceModelList(sourceModelList);
+            spiders.put(uuid, bidNewsSpider);
+
         }
     }
 
     public void start() {
-        if (spiderMap.isEmpty()) return;
+        if (spiders.isEmpty()) return;
 
-        spiderMap.forEach((uuid, spider) -> {
+        spiders.forEach((uuid, spider) -> {
             if (!spider.getStatus().equals(Spider.Status.Running)) {
-                spider.addRequest(spiderRequestsMap.get(uuid));
+                List<SourceModel> sourceModelList = spider.getSourceModelList();
+                List<Request> requestList = sourceModelList.stream().map(source -> {
+                    Request request = new Request(source.getUrl());
+                    Map<String, Object> pageParams = source.getPostParams();
+                    if (!pageParams.isEmpty()) {
+                        if (ArrayUtils.isNotEmpty(source.getNeedPlaceholderFields())) {
+                            for (String field : source.getNeedPlaceholderFields()) {
+                                source.getPostParams().put(field, DateTime.now().toString(source.getDayPattern()));
+                            }
+                        }
+
+                        request.setMethod(HttpConstant.Method.POST);
+                        request.setRequestBody(HttpRequestBody.form(pageParams, "UTF-8"));
+                        request.putExtra("pageParams", pageParams);
+                    }
+                    return request;
+                }).collect(Collectors.toList());
+
+                spider.addRequest(requestList.toArray(new Request[requestList.size()]));
                 spider.start();
             }
             log.info(">>> uuid={}, status={}, startTime={}", uuid, spider.getStatus(), spider.getStartTime());

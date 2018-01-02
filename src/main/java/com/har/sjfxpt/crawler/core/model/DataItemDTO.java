@@ -14,7 +14,7 @@ import lombok.ToString;
 @Getter@NoArgsConstructor
 @ToString(exclude = {"formatContent"})
 @Deprecated
-public class DataItemDTO extends BidNewOriginal {
+public class DataItemDTO extends BidNewsOriginal {
 
     public static final int ROW_KEY_LENGTH = 41;
 

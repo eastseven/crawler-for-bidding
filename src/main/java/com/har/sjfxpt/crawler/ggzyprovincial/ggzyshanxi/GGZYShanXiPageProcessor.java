@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.core.annotation.Source;
 import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
-import com.har.sjfxpt.crawler.core.model.BidNewOriginal;
+import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
 import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
@@ -86,7 +86,7 @@ public class GGZYShanXiPageProcessor implements BasePageProcessor {
             log.error("fetch error, elements is empty");
             return;
         }
-        List<BidNewOriginal> dataItems = parseContent(elements);
+        List<BidNewsOriginal> dataItems = parseContent(elements);
         Object extra = page.getRequest().getExtra(PAGE_PARAMS);
         if (extra != null) {
             Map<String, Object> map = (Map<String, Object>) extra;
@@ -107,7 +107,7 @@ public class GGZYShanXiPageProcessor implements BasePageProcessor {
 
     @Override
     public List parseContent(Elements items) {
-        List<BidNewOriginal> dataItems = Lists.newArrayList();
+        List<BidNewsOriginal> dataItems = Lists.newArrayList();
         if (items.isEmpty()) {
             return dataItems;
         }
@@ -123,7 +123,7 @@ public class GGZYShanXiPageProcessor implements BasePageProcessor {
             date = PageProcessorUtil.dataTxt(date);
 
             String url = PREFIX + href;
-            BidNewOriginal dataItem = new BidNewOriginal(url);
+            BidNewsOriginal dataItem = new BidNewsOriginal(url);
             dataItem.setProvince("山西");
             dataItem.setSourceCode(SourceCode.GGZYSHANXI.name());
             dataItem.setSource(SourceCode.GGZYSHANXI.getValue());
@@ -154,7 +154,7 @@ public class GGZYShanXiPageProcessor implements BasePageProcessor {
         return SiteUtil.get().setSleepTime(10000);
     }
 
-    public void download(Element body, BidNewOriginal dataItem) {
+    public void download(Element body, BidNewsOriginal dataItem) {
         if (!body.select("div.jiaoyihuanjie.ct").isEmpty()) {
             for (Element td : body.select("div.table_project_container table.table_content tr td")) {
                 String text = td.text();
