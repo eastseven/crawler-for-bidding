@@ -1,6 +1,6 @@
 package com.har.sjfxpt.crawler.core.downloader;
 
-import com.har.sjfxpt.crawler.core.model.BidNewOriginal;
+import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
 import com.har.sjfxpt.crawler.core.repository.DataItemRepository;
 import com.har.sjfxpt.crawler.core.service.ProxyService;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
@@ -47,7 +47,7 @@ public class GongGongZiYuanPageDownloader {
         return simpleHttpClient.get(url).getHtml().getDocument();
     }
 
-    public void download(BidNewOriginal dataItem) {
+    public void download(BidNewsOriginal dataItem) {
         String formatContent = null;
         Document document = null;
         try {

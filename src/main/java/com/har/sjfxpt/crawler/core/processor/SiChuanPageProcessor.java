@@ -18,7 +18,7 @@ import java.util.Map;
  * @author dongqi
  */
 @Slf4j
-@Component
+@Component@Deprecated
 public class SiChuanPageProcessor implements PageProcessor {
 
     @Override

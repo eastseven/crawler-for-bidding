@@ -22,14 +22,14 @@ import java.util.Date;
 @NoArgsConstructor
 @ToString(exclude = {"formatContent", "rowKey", "forceUpdate"})
 @Document(collection = "bid_news_original")
-public class BidNewOriginal {
+public class BidNewsOriginal {
 
     /**
      * 初始化 id, url, createTime
      *
      * @param url
      */
-    public BidNewOriginal(String url) {
+    public BidNewsOriginal(String url) {
         this.id = DigestUtils.md5Hex(url);
         this.url = url;
         this.createTime = DateTime.now().toString("yyyyMMddHH");

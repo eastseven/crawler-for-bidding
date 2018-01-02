@@ -1,6 +1,6 @@
 package com.har.sjfxpt.crawler.core.pipeline;
 
-import com.har.sjfxpt.crawler.core.repository.BidNewOriginalRepository;
+import com.har.sjfxpt.crawler.core.repository.BidNewsOriginalRepository;
 import com.har.sjfxpt.crawler.core.service.HBaseService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -37,7 +37,7 @@ public class HBasePipeline implements Pipeline {
         } else {
 
             // 只是为了快速查看数据，实际数据还是以HBase中的为准
-            ctx.getBean(BidNewOriginalRepository.class).save(dataItemList);
+            ctx.getBean(BidNewsOriginalRepository.class).save(dataItemList);
 
             HBaseService.saveBidNewsOriginals(dataItemList);
         }

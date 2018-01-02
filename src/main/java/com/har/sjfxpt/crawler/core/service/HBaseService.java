@@ -1,7 +1,7 @@
 package com.har.sjfxpt.crawler.core.service;
 
 import com.har.sjfxpt.crawler.core.config.HBaseConfig;
-import com.har.sjfxpt.crawler.core.model.BidNewOriginal;
+import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
 import com.har.sjfxpt.crawler.core.model.DataItem;
 import com.har.sjfxpt.crawler.core.model.DataItemDTO;
 import lombok.extern.slf4j.Slf4j;
@@ -80,18 +80,18 @@ public class HBaseService {
         if (CollectionUtils.isEmpty(dataItemList)) {
             return;
         }
-        List<BidNewOriginal> list = dataItemList.parallelStream().map(dataItem -> (BidNewOriginal) dataItem).collect(Collectors.toList());
+        List<BidNewsOriginal> list = dataItemList.parallelStream().map(dataItem -> (BidNewsOriginal) dataItem).collect(Collectors.toList());
         saveBidNewsOriginals(list);
     }
 
-    public void saveBidNewsOriginals(List<BidNewOriginal> dataItemList) {
+    public void saveBidNewsOriginals(List<BidNewsOriginal> dataItemList) {
         if (CollectionUtils.isEmpty(dataItemList)) {
             return;
         }
 
         String current = DateTime.now().toString("yyyyMMdd");
         int counter = 0;
-        for (BidNewOriginal original : dataItemList) {
+        for (BidNewsOriginal original : dataItemList) {
             if (StringUtils.isBlank(original.getFormatContent())) {
                 log.error("{} {} save to hbase fail, formatContent is empty, {}", original.getSourceCode(), original.getId(), original.getUrl());
                 redisTemplate.boundListOps("fetch_fail_url_" + original.getSourceCode().toLowerCase()).leftPush(original.getUrl());
@@ -162,7 +162,7 @@ public class HBaseService {
      * @param dataItem
      * @return rowKey 格式 yyyyMMdd:md5(title)
      */
-    private String getRowKey(BidNewOriginal dataItem) {
+    private String getRowKey(BidNewsOriginal dataItem) {
         String date = StringUtils.substring(dataItem.getDate(), 0, 10).replace("-", "");
         return getRowKey(date, dataItem.getTitle());
     }
@@ -171,7 +171,7 @@ public class HBaseService {
         return String.join(":", date, DigestUtils.md5Hex(StringUtils.trim(title)));
     }
 
-    private Put assemble(String rowKey, BidNewOriginal dataItem) throws UnsupportedEncodingException {
+    private Put assemble(String rowKey, BidNewsOriginal dataItem) throws UnsupportedEncodingException {
         Put put = new Put(rowKey.getBytes());
         put.addColumn(family, "url".getBytes(), StringUtils.defaultString(dataItem.getUrl(), "").getBytes(charsetName));
         put.addColumn(family, "title".getBytes(), StringUtils.defaultString(dataItem.getTitle(), "").getBytes(charsetName));
