@@ -18,7 +18,7 @@ import java.util.Date;
  * Created by Administrator on 2017/12/27.
  */
 @Data
-@ToString
+@ToString@Deprecated
 @Document(collection = "data_item_china_unicom")
 public class ChinaUnicomDataItem {
 

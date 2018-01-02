@@ -1,6 +1,10 @@
 package com.har.sjfxpt.crawler.chinaunicom;
 
 import com.google.common.collect.Lists;
+import com.har.sjfxpt.crawler.core.annotation.Source;
+import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
+import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.ProvinceUtil;
@@ -24,6 +28,14 @@ import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_
  */
 @Slf4j
 @Component
+@SourceConfig(
+        code = SourceCode.CU,
+        sources = {
+                @Source(url = "http://www.chinaunicombidding.cn/jsp/cnceb/web/info1/infoList.jsp?page=1&type=1"),
+                @Source(url = "http://www.chinaunicombidding.cn/jsp/cnceb/web/info1/infoList.jsp?page=1&type=2"),
+                @Source(url = "http://www.chinaunicombidding.cn/jsp/cnceb/web/info1/infoList.jsp?page=1&type=3"),
+        }
+)
 public class ChinaUnicomPageProcessor implements BasePageProcessor {
 
     HttpClientDownloader httpClientDownloader;
@@ -48,7 +60,7 @@ public class ChinaUnicomPageProcessor implements BasePageProcessor {
     public void handleContent(Page page) {
         String url = page.getUrl().get();
         Elements elements = page.getHtml().getDocument().body().select("#div1 > table > tbody > tr");
-        List<ChinaUnicomDataItem> dataItems = parseContent(elements);
+        List<BidNewsOriginal> dataItems = parseContent(elements);
         String typeId = StringUtils.substringAfter(url, "type=");
         String type = null;
         if ("1".equalsIgnoreCase(typeId)) {
@@ -71,7 +83,7 @@ public class ChinaUnicomPageProcessor implements BasePageProcessor {
 
     @Override
     public List parseContent(Elements items) {
-        List<ChinaUnicomDataItem> dataItems = Lists.newArrayList();
+        List<BidNewsOriginal> dataItems = Lists.newArrayList();
         for (Element element : items) {
             String onclick = element.select("td:nth-child(1) > span").attr("onclick");
             String href = StringUtils.substringBetween(onclick, "window.open(\"", "\",\"\",\"height");
@@ -83,7 +95,9 @@ public class ChinaUnicomPageProcessor implements BasePageProcessor {
                 String date = element.select("td:nth-child(2)").text();
                 String provice = element.select("td:nth-child(3)").text();
 
-                ChinaUnicomDataItem chinaUnicomDataItem = new ChinaUnicomDataItem(href);
+                BidNewsOriginal chinaUnicomDataItem = new BidNewsOriginal(href);
+                chinaUnicomDataItem.setSourceCode(SourceCode.CU.name());
+                chinaUnicomDataItem.setSource(SourceCode.CU.getValue());
                 chinaUnicomDataItem.setUrl(href);
                 chinaUnicomDataItem.setTitle(title);
                 chinaUnicomDataItem.setDate(PageProcessorUtil.dataTxt(date));
@@ -100,6 +114,7 @@ public class ChinaUnicomPageProcessor implements BasePageProcessor {
                     Elements elements = page.getHtml().getDocument().body().select("body > div > p:nth-child(4)");
                     String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
                     if (StringUtils.isNotBlank(formatContent)) {
+                        log.info("title={},formatcontent=", chinaUnicomDataItem.getTitle(), chinaUnicomDataItem.getFormatContent());
                         chinaUnicomDataItem.setFormatContent(formatContent);
                         dataItems.add(chinaUnicomDataItem);
                     } else {

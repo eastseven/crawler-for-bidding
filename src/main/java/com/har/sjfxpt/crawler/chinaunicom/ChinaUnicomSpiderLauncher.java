@@ -14,6 +14,7 @@ import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.THREAD_NU
  */
 @Slf4j
 @Component
+@Deprecated
 public class ChinaUnicomSpiderLauncher extends BaseSpiderLauncher {
 
     private final String uuid = SourceCode.CU.toString().toLowerCase() + "-current";

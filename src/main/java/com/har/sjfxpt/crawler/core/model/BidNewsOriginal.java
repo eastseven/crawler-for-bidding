@@ -48,7 +48,7 @@ public class BidNewsOriginal {
 
     protected String title;
 
-    protected String province;
+    protected String province="全国";
 
     protected String type;
 
