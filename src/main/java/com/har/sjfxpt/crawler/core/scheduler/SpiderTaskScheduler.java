@@ -6,6 +6,7 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +15,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-//@Profile({"test", "prod"})
+@Profile({"test", "prod"})
 public class SpiderTaskScheduler {
 
     @Value("${app.fetch.current.day:false}")
