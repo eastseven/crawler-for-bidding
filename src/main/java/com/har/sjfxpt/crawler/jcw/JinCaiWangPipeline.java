@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  * Created by Administrator on 2017/10/25.
  */
 @Slf4j
-@Component
+@Component@Deprecated
 public class JinCaiWangPipeline implements Pipeline{
 
     @Autowired

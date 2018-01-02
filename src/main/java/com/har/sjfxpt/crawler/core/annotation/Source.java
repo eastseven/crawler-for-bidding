@@ -19,6 +19,12 @@ public @interface Source {
     String url() default "";
 
     /**
+     * 公告栏目对应的类型，如中标，招标等字样
+     * @return
+     */
+    String type() default "";
+
+    /**
      * 是否 是post方式提交
      * @return
      */
