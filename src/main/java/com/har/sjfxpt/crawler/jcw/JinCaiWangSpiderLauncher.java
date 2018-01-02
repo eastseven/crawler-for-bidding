@@ -11,7 +11,7 @@ import us.codecraft.webmagic.Spider;
  *
  * @author luofei
  */
-@Service
+@Service@Deprecated
 public class JinCaiWangSpiderLauncher extends BaseSpiderLauncher {
 
     @Autowired

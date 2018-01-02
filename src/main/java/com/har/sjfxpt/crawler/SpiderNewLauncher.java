@@ -1,6 +1,5 @@
 package com.har.sjfxpt.crawler;
 
-import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.core.annotation.Source;
@@ -11,8 +10,6 @@ import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.service.ProxyService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.CommandLineRunner;
@@ -26,10 +23,8 @@ import org.springframework.stereotype.Service;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
-import us.codecraft.webmagic.model.HttpRequestBody;
 import us.codecraft.webmagic.processor.PageProcessor;
 import us.codecraft.webmagic.proxy.SimpleProxyProvider;
-import us.codecraft.webmagic.utils.HttpConstant;
 
 import java.util.List;
 import java.util.Map;
@@ -95,33 +90,19 @@ public class SpiderNewLauncher implements CommandLineRunner {
             List<SourceModel> sourceModelList = Lists.newArrayList();
             Source[] sources = config.sources();
             if (ArrayUtils.isNotEmpty(sources)) {
-                DateTime now = DateTime.now();
                 for (Source source : sources) {
+                    String url = source.url();
+
                     SourceModel sourceModel = new SourceModel();
 
-                    String url = source.url();
                     sourceModel.setUrl(url);
+                    sourceModel.setType(source.type());
                     sourceModel.setPost(source.post());
-
-                    Request request = new Request(url);
-                    if (source.post() && StringUtils.isNotBlank(source.postParams())) {
-                        String json = source.postParams();
-                        Map<String, Object> pageParams = JSONObject.parseObject(json, Map.class);
-
-                        if (ArrayUtils.isNotEmpty(source.needPlaceholderFields())) {
-                            for (String field : source.needPlaceholderFields()) {
-                                pageParams.put(field, now.toString(source.dayPattern()));
-                            }
-                        }
-
-                        request.setMethod(HttpConstant.Method.POST);
-                        request.setRequestBody(HttpRequestBody.form(pageParams, "UTF-8"));
-                        request.putExtra("pageParams", pageParams);
-
-                        sourceModel.setPostParams(pageParams);
-                    }
+                    sourceModel.setJsonPostParams(source.postParams());
+                    sourceModel.setDayPattern(source.dayPattern());
                     sourceModel.setNeedPlaceholderFields(source.needPlaceholderFields());
 
+                    Request request = sourceModel.createRequest();
                     requestList.add(request);
                     sourceModelList.add(sourceModel);
                 }
@@ -152,24 +133,9 @@ public class SpiderNewLauncher implements CommandLineRunner {
         spiders.forEach((uuid, spider) -> {
             if (!spider.getStatus().equals(Spider.Status.Running)) {
                 List<SourceModel> sourceModelList = spider.getSourceModelList();
-                List<Request> requestList = sourceModelList.stream().map(source -> {
-                    Request request = new Request(source.getUrl());
-                    Map<String, Object> pageParams = source.getPostParams();
-                    if (!pageParams.isEmpty()) {
-                        if (ArrayUtils.isNotEmpty(source.getNeedPlaceholderFields())) {
-                            for (String field : source.getNeedPlaceholderFields()) {
-                                source.getPostParams().put(field, DateTime.now().toString(source.getDayPattern()));
-                            }
-                        }
-
-                        request.setMethod(HttpConstant.Method.POST);
-                        request.setRequestBody(HttpRequestBody.form(pageParams, "UTF-8"));
-                        request.putExtra("pageParams", pageParams);
-                    }
-                    return request;
-                }).collect(Collectors.toList());
-
+                List<Request> requestList = sourceModelList.stream().map(source -> source.createRequest()).collect(Collectors.toList());
                 spider.addRequest(requestList.toArray(new Request[requestList.size()]));
+
                 spider.start();
             }
             log.info(">>> uuid={}, status={}, startTime={}", uuid, spider.getStatus(), spider.getStartTime());

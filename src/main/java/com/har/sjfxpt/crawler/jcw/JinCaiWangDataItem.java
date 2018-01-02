@@ -20,7 +20,7 @@ import java.util.Date;
  * @author luofei
  */
 @Data
-@ToString
+@ToString@Deprecated
 @Document(collection = "data_item_jin_cai_wang")
 public class JinCaiWangDataItem {
 
