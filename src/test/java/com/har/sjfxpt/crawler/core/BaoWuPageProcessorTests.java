@@ -2,8 +2,11 @@ package com.har.sjfxpt.crawler.core;
 
 import com.har.sjfxpt.crawler.baowu.BaoWuPageProcessor;
 import com.har.sjfxpt.crawler.baowu.BaoWuPipeline;
+import com.har.sjfxpt.crawler.core.annotation.SourceModel;
+import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +15,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 
+import static com.har.sjfxpt.crawler.baowu.BaoWuPageProcessor.*;
 import static com.har.sjfxpt.crawler.baowu.BaoWuSpiderLauncher.requestGenerator;
 import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.THREAD_NUM;
 
@@ -29,6 +33,9 @@ public class BaoWuPageProcessorTests {
     @Autowired
     BaoWuPipeline baoWuPipeline;
 
+    @Autowired
+    HBasePipeline hBasePipeline;
+
     String[] urls = {
             "http://baowu.ouyeelbuy.com/baowu-shp/notice/purchaseMore",
             "http://baowu.ouyeelbuy.com/baowu-shp/notice/moreBiddingNoticeList",
@@ -43,8 +50,23 @@ public class BaoWuPageProcessorTests {
         }
         Spider.create(baoWuPageProcessor)
                 .addRequest(requests)
-                .addPipeline(baoWuPipeline)
+//                .addPipeline(baoWuPipeline)
                 .thread(THREAD_NUM)
+                .run();
+    }
+
+    @Test
+    public void testAnnotationPageProcessors() {
+        Assert.assertNotNull(baoWuPageProcessor);
+
+        SourceModel sourceModel = new SourceModel();
+        sourceModel.setUrl(SEED_URL2);
+        sourceModel.setPost(true);
+        sourceModel.setJsonPostParams(POST_PARAMS_03);
+        Request request = sourceModel.createRequest();
+        Spider.create(baoWuPageProcessor)
+                .addRequest(request)
+                .addPipeline(hBasePipeline)
                 .run();
     }
 

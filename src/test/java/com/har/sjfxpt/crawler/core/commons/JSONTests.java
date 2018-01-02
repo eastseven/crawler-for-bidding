@@ -18,14 +18,14 @@ public class JSONTests {
 
     @Test
     public void mapTransformJson() {
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("VENUS_PAGE_NO_KEY", "1");
-        params.put("VENUS_PAGE_SIZE_KEY", "20");
-        params.put("channelId", "2013300100000000035");
-        String json = JSONObject.toJSONString(params, SerializerFeature.UseSingleQuotes);
+        Map<String, Object> pageParams = Maps.newHashMap();
+        pageParams.put("type", "0");
+        pageParams.put("pageNow", "1");
+        pageParams.put("jqMthod", "newsList");
+        String json = JSONObject.toJSONString(pageParams, SerializerFeature.UseSingleQuotes);
         log.debug("json=={}", json);
-        Map<String, Object> pageParams = JSONObject.parseObject(json, Map.class);
-        log.debug("pageParams={}", pageParams);
+        Map<String, Object> Params = JSONObject.parseObject(json, Map.class);
+        log.debug("pageParams={}", Params);
     }
 
 

@@ -114,7 +114,6 @@ public class ChinaUnicomPageProcessor implements BasePageProcessor {
                     Elements elements = page.getHtml().getDocument().body().select("body > div > p:nth-child(4)");
                     String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
                     if (StringUtils.isNotBlank(formatContent)) {
-                        log.info("title={},formatcontent=", chinaUnicomDataItem.getTitle(), chinaUnicomDataItem.getFormatContent());
                         chinaUnicomDataItem.setFormatContent(formatContent);
                         dataItems.add(chinaUnicomDataItem);
                     } else {
