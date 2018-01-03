@@ -123,6 +123,9 @@ public class CCGPSiChuanPageProcessor implements BasePageProcessor {
             ccgpSiChuanDataItem.setDate(date);
             ccgpSiChuanDataItem.setUrl(href);
             ccgpSiChuanDataItem.setType(title);
+            ccgpSiChuanDataItem.setProvince("四川");
+            ccgpSiChuanDataItem.setSource(SourceCode.CCGPSC.getValue());
+            ccgpSiChuanDataItem.setSourceCode(SourceCode.CCGPSC.name());
 
             long value = stringRedisTemplate.boundSetOps(KEY_URLS).add(href);
             if (value == 0L) {

@@ -92,6 +92,7 @@ public class CCGPHaiNanPageProcessor implements BasePageProcessor {
             haiNanDataItem.setUrl(url);
             haiNanDataItem.setTitle(title);
             haiNanDataItem.setDate(date);
+            haiNanDataItem.setProvince("海南");
             haiNanDataItem.setProjectName(StringUtils.defaultString(projectName, ""));
             haiNanDataItem.setSourceCode(SourceCode.CCGPHN.name());
             haiNanDataItem.setSource(SourceCode.CCGPHN.getValue());

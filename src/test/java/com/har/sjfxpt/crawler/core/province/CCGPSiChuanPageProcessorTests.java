@@ -1,10 +1,12 @@
 package com.har.sjfxpt.crawler.core.province;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.ccgp.ccgpsc.CCGPSiChuanPageProcessor;
 import com.har.sjfxpt.crawler.ccgp.ccgpsc.CCGPSiChuanPipeline;
 import com.har.sjfxpt.crawler.core.annotation.SourceModel;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
+import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import com.sun.org.apache.regexp.internal.RE;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -17,6 +19,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -51,9 +54,23 @@ public class CCGPSiChuanPageProcessorTests {
     }
 
     @Test
-    public void testString() {
-        String text = "２　　１";
-        log.debug("text=={}", StringUtils.removeAll(text, "　"));
+    public void testCCGPSiChuanPageProcessor() {
+        List<SourceModel> list = SourceConfigAnnotationUtils.find(ccgpSiChuanPageProcessor.getClass());
+        List<Request> requests = Lists.newArrayList();
+        for (SourceModel sourceModel : list) {
+            Request request = sourceModel.createRequest();
+            requests.add(request);
+        }
+        if (!requests.isEmpty()) {
+            Spider.create(ccgpSiChuanPageProcessor)
+                    .addRequest(requests.toArray(new Request[requests.size()]))
+                    .addPipeline(hBasePipeline)
+                    .thread(8)
+                    .run();
+
+        } else {
+            log.warn("request is empty!");
+        }
     }
 
 }
