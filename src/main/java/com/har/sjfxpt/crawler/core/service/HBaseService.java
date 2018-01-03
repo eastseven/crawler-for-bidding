@@ -162,7 +162,6 @@ public class HBaseService {
 
                 if (!current.equalsIgnoreCase(date)) {
                     historyTable.put(row);
-                    redisTemplate.boundValueOps(date + ':' + sourceCode.toLowerCase()).increment(1L);
                     log.info("save {} {} to {}", sourceCode, rowKey, DataItem.T_NAME_HTML_HISTORY);
                 }
 

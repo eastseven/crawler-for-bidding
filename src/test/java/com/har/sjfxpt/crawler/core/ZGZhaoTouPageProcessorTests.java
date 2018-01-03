@@ -4,19 +4,22 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.google.common.collect.Maps;
+import com.har.sjfxpt.crawler.core.annotation.SourceModel;
+import com.har.sjfxpt.crawler.core.model.BidNewsSpider;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
+import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingAnnouncement;
 import com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingContent;
 import com.har.sjfxpt.crawler.zgzt.ZGZhaoTouPageProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
-import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.model.HttpRequestBody;
 import us.codecraft.webmagic.utils.HttpConstant;
@@ -24,8 +27,8 @@ import us.codecraft.webmagic.utils.HttpConstant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
-import static com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingLauncher.requestGenerator;
 
 /**
  * Created by Administrator on 2017/11/1.
@@ -90,20 +93,24 @@ public class ZGZhaoTouPageProcessorTests extends SpiderApplicationTests {
 
     @Test
     public void testZGZhaoTouPageProcessor() {
-        String url = "http://www.cebpubservice.com/ctpsp_iiss/searchbusinesstypebeforedooraction/getStringMethod.do";
+        String[] types = {
+                "招标项目",
+                "招标公告",
+                "中标公告",
+                "开标记录",
+                "评标公示",};
 
-        Request[] requests = {
-//                requestGenerator(url, "招标项目", "今日"),
-                requestGenerator(url, "招标公告", "今日"),
-//                requestGenerator(url, "中标公告", "今日"),
-//                requestGenerator(url, "开标记录", "今日"),
-//                requestGenerator(url, "评标公示", "今日")
-        };
+        List<SourceModel> list = SourceConfigAnnotationUtils.find(zgZhaoTouPageProcessor.getClass());
+        list.forEach(sourceModel -> log.info(">>>\n{}", JSONObject.toJSONString(sourceModel, true)));
 
-        Spider.create(zgZhaoTouPageProcessor)
-                .addRequest(requests)
+        List<Request> requestList = list.parallelStream().map(SourceModel::createRequest)
+                .filter(request -> request.getExtra("type").equals("评标公示"))
+                .collect(Collectors.toList());
+
+        Assert.assertTrue(requestList.size() == 1);
+        BidNewsSpider.create(zgZhaoTouPageProcessor)
+                .addRequest(requestList.toArray(new Request[requestList.size()]))
                 .addPipeline(pipeline)
-                .thread(requests.length)
                 .run();
     }
 

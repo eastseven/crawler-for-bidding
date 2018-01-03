@@ -4,7 +4,7 @@ import java.util.List;
 
 /**
  * Created by Administrator on 2017/11/6.
- */
+ */@Deprecated
 public class ChinaTenderingAndBiddingOpenBidRecord {
 
     /**

@@ -1,15 +1,13 @@
 package com.har.sjfxpt.crawler;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.har.sjfxpt.crawler.core.annotation.Source;
 import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
 import com.har.sjfxpt.crawler.core.annotation.SourceModel;
 import com.har.sjfxpt.crawler.core.model.BidNewsSpider;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.service.ProxyService;
+import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.CommandLineRunner;
@@ -29,7 +27,6 @@ import us.codecraft.webmagic.proxy.SimpleProxyProvider;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.stream.Collectors;
 
 /**
  * @author dongqi
@@ -85,30 +82,11 @@ public class SpiderNewLauncher implements CommandLineRunner {
                 continue;
             }
 
+            List<SourceModel> sourceModelList = SourceConfigAnnotationUtils.find(pageProcessor.getClass());
+            if (sourceModelList.isEmpty()) continue;
+
             // 创建 Request 对象集合
-            List<Request> requestList = Lists.newArrayList();
-            List<SourceModel> sourceModelList = Lists.newArrayList();
-            Source[] sources = config.sources();
-            if (ArrayUtils.isNotEmpty(sources)) {
-                for (Source source : sources) {
-                    String url = source.url();
-
-                    SourceModel sourceModel = new SourceModel();
-
-                    sourceModel.setUrl(url);
-                    sourceModel.setType(source.type());
-                    sourceModel.setPost(source.post());
-                    sourceModel.setJsonPostParams(source.postParams());
-                    sourceModel.setDayPattern(source.dayPattern());
-                    sourceModel.setNeedPlaceholderFields(source.needPlaceholderFields());
-
-                    Request request = sourceModel.createRequest();
-                    requestList.add(request);
-                    sourceModelList.add(sourceModel);
-                }
-            }
-
-            Request[] requests = requestList.toArray(new Request[requestList.size()]);
+            Request[] requests = sourceModelList.stream().map(SourceModel::createRequest).toArray(Request[]::new);
             Spider spider = BidNewsSpider.create((PageProcessor) pageProcessor).setUUID(uuid)
                     .thread(executorService, 10)
                     .setExitWhenComplete(true)
@@ -133,8 +111,8 @@ public class SpiderNewLauncher implements CommandLineRunner {
         spiders.forEach((uuid, spider) -> {
             if (!spider.getStatus().equals(Spider.Status.Running)) {
                 List<SourceModel> sourceModelList = spider.getSourceModelList();
-                List<Request> requestList = sourceModelList.stream().map(source -> source.createRequest()).collect(Collectors.toList());
-                spider.addRequest(requestList.toArray(new Request[requestList.size()]));
+                Request[] requests = sourceModelList.stream().map(SourceModel::createRequest).toArray(Request[]::new);
+                spider.addRequest(requests);
 
                 spider.start();
             }

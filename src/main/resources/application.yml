@@ -17,7 +17,7 @@ spring:
       host: 192.168.3.108
       port: 6379
       password: 123456
-      database: 10
+      database: 11
   profiles:
     include: conf
 

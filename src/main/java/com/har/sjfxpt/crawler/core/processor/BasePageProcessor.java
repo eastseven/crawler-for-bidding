@@ -11,6 +11,8 @@ import java.util.List;
  */
 public interface BasePageProcessor extends PageProcessor {
 
+    String KEY_DATA_ITEMS = "dataItemList";
+
     /**
      * 处理分页
      * @param page
