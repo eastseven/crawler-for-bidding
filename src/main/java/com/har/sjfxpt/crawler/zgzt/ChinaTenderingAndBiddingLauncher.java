@@ -18,7 +18,7 @@ import java.util.concurrent.ExecutorService;
  * Created by Administrator on 2017/11/7.
  */
 @Slf4j
-@Component
+@Component@Deprecated
 public class ChinaTenderingAndBiddingLauncher extends BaseSpiderLauncher {
 
     final String uuid = SourceCode.ZGZT.toString().toLowerCase() + "-current";

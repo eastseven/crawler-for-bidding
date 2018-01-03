@@ -18,7 +18,7 @@ import java.util.Date;
  * Created by Administrator on 2017/10/27.
  * @author luofei
  */
-@Data
+@Data@Deprecated
 @ToString
 @Document(collection = "data_item_mcc")
 public class ZGYeJinDataItem {

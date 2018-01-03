@@ -22,7 +22,7 @@ import java.util.concurrent.ExecutorService;
  * Created by Administrator on 2017/10/30.
  */
 @Slf4j
-@Component
+@Component@Deprecated
 public class ZGYeJinSpiderLauncher extends BaseSpiderLauncher {
 
     final String uuid = SourceCode.ZGYJ.toString().toLowerCase() + "-current";

@@ -72,11 +72,12 @@ public class GongGongZiYuanPageDownloader {
                 }
             }
 
-            if (document.body().select("#mycontent").isEmpty()) {
+            final String cssQuery = "#mycontent";
+            if (document.body().select(cssQuery).isEmpty()) {
                 throw new Exception(dataItem.getUrl() + " can not access, maybe 403 or 404...");
             }
 
-            Element content = document.body().select("#mycontent").first();
+            Element content = document.body().select(cssQuery).first();
             boolean hasIframeTag = !content.getElementsByTag("iframe").isEmpty();
             boolean isImageTag = !content.getElementsByTag("img").isEmpty();
             if (hasIframeTag) {

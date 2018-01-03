@@ -38,6 +38,7 @@ public @interface Source {
 
     /**
      * 分页查询数据时，需要用到的日期格式。
+     * yyyy-MM-dd or TIMESTAMP
      * @return
      */
     String dayPattern() default "yyyy-MM-dd";

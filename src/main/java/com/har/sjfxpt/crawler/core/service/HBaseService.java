@@ -4,6 +4,7 @@ import com.har.sjfxpt.crawler.core.config.HBaseConfig;
 import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
 import com.har.sjfxpt.crawler.core.model.DataItem;
 import com.har.sjfxpt.crawler.core.model.DataItemDTO;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections.CollectionUtils;
@@ -29,8 +30,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.har.sjfxpt.crawler.core.model.DataItemDTO.ROW_KEY_LENGTH;
-
 /**
  * @author dongqi
  */
@@ -38,13 +37,15 @@ import static com.har.sjfxpt.crawler.core.model.DataItemDTO.ROW_KEY_LENGTH;
 @Service
 public class HBaseService {
 
+    final int ROW_KEY_LENGTH = 41;
+
     @Autowired
     StringRedisTemplate redisTemplate;
 
     @Autowired
     HBaseConfig config;
 
-    final byte[] family = "f".getBytes();
+    final byte[] family = Bytes.toBytes("f");
     final String charsetName = "utf-8";
 
     private Connection conn;
@@ -92,6 +93,10 @@ public class HBaseService {
         saveBidNewsOriginals(list);
     }
 
+    /**
+     *
+     * @param dataItemList
+     */
     public void saveBidNewsOriginals(List<BidNewsOriginal> dataItemList) {
         if (CollectionUtils.isEmpty(dataItemList)) {
             return;
@@ -100,13 +105,20 @@ public class HBaseService {
         String current = DateTime.now().toString("yyyyMMdd");
         int counter = 0;
         for (BidNewsOriginal original : dataItemList) {
+            Set<ConstraintViolation<BidNewsOriginal>> violations = validator.validate(original);
+            violations.forEach(violation -> log.error(">>> {}, {}, {}", violation.getPropertyPath(), violation.getMessage(), violation.getInvalidValue()));
+            Assert.isTrue(violations.isEmpty(), "");
+
             if (StringUtils.isBlank(original.getFormatContent())) {
                 log.error("{} {} save to hbase fail, formatContent is empty, {}", original.getSourceCode(), original.getId(), original.getUrl());
                 redisTemplate.boundListOps("fetch_fail_url_" + original.getSourceCode().toLowerCase()).leftPush(original.getUrl());
                 continue;
             }
-            if (StringUtils.isNotBlank(original.getUrl()) && !StringUtils.startsWith(original.getUrl(), "http")) {
-                log.error("{} {} save to hbase fail, formatContent is empty, {}", original.getSourceCode(), original.getId(), original.getUrl());
+
+            if (StringUtils.isNotBlank(original.getUrl())
+                    && !StringUtils.startsWith(original.getUrl(), "http")
+                    && !SourceCode.ZGZT.name().equals(original.getSourceCode())) {
+                log.error("{} {} save to hbase fail, url not start with http, {}", original.getSourceCode(), original.getId(), original.getUrl());
                 redisTemplate.boundListOps("fetch_fail_url_" + original.getSourceCode().toLowerCase()).leftPush(original.getUrl());
                 continue;
             }
@@ -179,11 +191,14 @@ public class HBaseService {
         return String.join(":", date, DigestUtils.md5Hex(StringUtils.trim(title)));
     }
 
+    /**
+     *
+     * @param rowKey
+     * @param dataItem
+     * @return
+     * @throws UnsupportedEncodingException
+     */
     private Put assemble(String rowKey, BidNewsOriginal dataItem) throws UnsupportedEncodingException {
-        Set<ConstraintViolation<BidNewsOriginal>> violations = validator.validate(dataItem);
-        violations.forEach(violation -> log.error(">>> {}, {}", violation.getPropertyPath(), violation.getMessage()));
-        Assert.isTrue(violations.isEmpty(), "");
-
         Put put = new Put(rowKey.getBytes());
         put.addColumn(family, "url".getBytes(), StringUtils.defaultString(dataItem.getUrl(), "").getBytes(charsetName));
         put.addColumn(family, "title".getBytes(), StringUtils.defaultString(dataItem.getTitle(), "").getBytes(charsetName));

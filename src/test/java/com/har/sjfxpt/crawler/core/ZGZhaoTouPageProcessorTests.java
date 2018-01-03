@@ -1,20 +1,19 @@
 package com.har.sjfxpt.crawler.core;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONPath;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.google.common.collect.Maps;
+import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingAnnouncement;
 import com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingContent;
 import com.har.sjfxpt.crawler.zgzt.ZGZhaoTouPageProcessor;
-import com.har.sjfxpt.crawler.zgzt.ZGZhaoTouPipeline;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
@@ -32,33 +31,79 @@ import static com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingLauncher.reque
  * Created by Administrator on 2017/11/1.
  */
 @Slf4j
-@RunWith(SpringRunner.class)
-@SpringBootTest
-public class ZGZhaoTouPageProcessorTests {
+public class ZGZhaoTouPageProcessorTests extends SpiderApplicationTests {
 
     @Autowired
     ZGZhaoTouPageProcessor zgZhaoTouPageProcessor;
 
     @Autowired
-    ZGZhaoTouPipeline zgZhaoTouPipeline;
+    HBasePipeline pipeline;
+
+    @Test
+    public void testPostParams() {
+        Map<String, Object> params = Maps.newHashMap();
+        String[][] data = new String[][]{
+                {"招标项目", "今日"},
+                {"招标公告", "今日"},
+                {"中标公告", "今日"},
+                {"开标记录", "今日"},
+                {"评标公示", "今日"},
+        };
+
+        for (String[] value : data) {
+            String type = value[0];
+            String date = value[1];
+            params.put("searchName", "");
+            params.put("searchArea", "");
+            params.put("searchIndustry", "");
+            params.put("centerPlat", "");
+            params.put("businessType", type);
+            params.put("searchTimeStart", "");
+            params.put("searchTimeStop", "");
+            params.put("timeTypeParam", "");
+            params.put("bulletinIssnTime", "");
+            params.put("bulletinIssnTimeStart", "");
+            params.put("bulletinIssnTimeStop", "");
+            params.put("pageNo", 1);
+            params.put("row", 15);
+
+            if ("招标公告".equalsIgnoreCase(type)) {
+                params.put("bulletinIssnTime", date);
+            } else {
+                params.put("timeTypeParam", date);
+            }
+
+            String json = JSONObject.toJSONString(params, SerializerFeature.UseSingleQuotes);
+            log.info(">>> {}, {}, {}", type, date, json);
+        }
+
+        String json = "{\"message\":\"\",\"success\":true,\"object\":{\"tenderProject\":[{\"tendererName\":\"深圳供电局有限公司\",\"tenderAgencyName\":\"广东律诚工程咨询有限公司\",\"tenderAgencyCodeType\":\"98\",\"bulletinContent\":\"深圳供电局有限公司2017年年中调整配网基建项目（第二批）（福田1-6标及宝安1-4标）施工招标，分布于福田区的21项、宝安区的65项配网基建工程，本招标项目分为2组，共10个标段,施工图纸范围内的配电网建筑、安装及调试工程，安健环制作安装，完成营配一体化信息采集和数据测量，并配合完成营配一体化信息资料录入，负责办理相关施工许可手续，配合招标人完成青苗赔偿洽谈工作。全面开展样板点的标准建设工作。\",\"bulletinName\":\"深圳供电局有限公司2017年年中调整配网基建项目（第二批）（福田1-6标及宝安1-4标）施工招标(第4标段)\",\"transactionPlatfCode\":\"E4401000002\",\"superviseDeptCodeType\":\"96\",\"tendererCode\":\"100015\",\"tenderAgencyCode\":\"914420007287418645\",\"tenderOrganizeForm\":\"委托招标\",\"industriesType\":\"建筑工程\",\"superviseDeptCode\":\"ZL3383\",\"schemaVersion\":\"V0.0\",\"bulletinssueTime\":1514517139000},{\"tendererName\":\"深圳供电局有限公司\",\"tenderAgencyName\":\"广东律诚工程咨询有限公司\",\"tenderAgencyCodeType\":\"98\",\"bulletinContent\":\"深圳供电局有限公司2017年年中调整配网基建项目（第二批）（福田1-6标及宝安1-4标）施工招标，分布于福田区的21项、宝安区的65项配网基建工程，本招标项目分为2组，共10个标段,施工图纸范围内的配电网建筑、安装及调试工程，安健环制作安装，完成营配一体化信息采集和数据测量，并配合完成营配一体化信息资料录入，负责办理相关施工许可手续，配合招标人完成青苗赔偿洽谈工作。全面开展样板点的标准建设工作。\",\"bulletinName\":\"深圳供电局有限公司2017年年中调整配网基建项目（第二批）（福田1-6标及宝安1-4标）施工招标(第4标段)\",\"transactionPlatfCode\":\"E4401000002\",\"superviseDeptCodeType\":\"96\",\"tendererCode\":\"100015\",\"tenderAgencyCode\":\"914420007287418645\",\"tenderOrganizeForm\":\"委托招标\",\"industriesType\":\"建筑工程\",\"superviseDeptCode\":\"ZL3383\",\"schemaVersion\":\"V0.0\",\"bulletinssueTime\":1514858463000}]}}";
+
+        JSONObject root = (JSONObject) JSONObject.parse(json);
+        Object tenderProject = JSONPath.eval(root, "$.object.tenderProject[0]");
+        Object bulletinContent = JSONPath.eval(root, "$.object.tenderProject[0].bulletinContent");
+
+        log.info(">>> tender {}", tenderProject);
+        log.info(">>> content {}", bulletinContent);
+
+    }
 
     @Test
     public void testZGZhaoTouPageProcessor() {
-
         String url = "http://www.cebpubservice.com/ctpsp_iiss/searchbusinesstypebeforedooraction/getStringMethod.do";
 
         Request[] requests = {
-                requestGenerator(url, "招标项目", ""),
-                requestGenerator(url, "招标公告", ""),
-                requestGenerator(url, "中标公告", ""),
-                requestGenerator(url, "开标记录", ""),
-                requestGenerator(url, "评标公示", "")
+//                requestGenerator(url, "招标项目", "今日"),
+                requestGenerator(url, "招标公告", "今日"),
+//                requestGenerator(url, "中标公告", "今日"),
+//                requestGenerator(url, "开标记录", "今日"),
+//                requestGenerator(url, "评标公示", "今日")
         };
 
         Spider.create(zgZhaoTouPageProcessor)
                 .addRequest(requests)
-                .addPipeline(zgZhaoTouPipeline)
-                .thread(4)
+                .addPipeline(pipeline)
+                .thread(requests.length)
                 .run();
     }
 

@@ -2,6 +2,10 @@ package com.har.sjfxpt.crawler.zgyj;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.har.sjfxpt.crawler.core.annotation.Source;
+import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
+import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
 import com.har.sjfxpt.crawler.core.service.ProxyService;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
@@ -25,15 +29,33 @@ import java.util.List;
 import java.util.Map;
 
 import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
+import static com.har.sjfxpt.crawler.zgyj.ZGYeJinPageProcessor.*;
 
 /**
  * Created by Administrator on 2017/10/27.
  *
  * @author luofei
+ * @author dongqi
  */
 @Slf4j
 @Component
+@SourceConfig(code = SourceCode.ZGYJ, useProxy = true, sources = {
+        @Source(type = "采购公告", url = URL_01, post = true, postParams = POST_PARAMS_01, needPlaceholderFields = {"sbsj1", "sbsj2"}),
+        @Source(type = "采购信息", url = URL_02, post = true, postParams = POST_PARAMS_02),
+        @Source(type = "变更公告", url = URL_03, post = true, postParams = POST_PARAMS_03, needPlaceholderFields = {"audittime", "audittime2"}),
+        @Source(type = "结果公告", url = URL_04, post = true, postParams = POST_PARAMS_04, needPlaceholderFields = {"releasedate1", "releasedate2"}),
+})
 public class ZGYeJinPageProcessor implements BasePageProcessor {
+
+    public static final String URL_01 = "http://ec.mcc.com.cn/b2b/web/two/indexinfoAction.do?actionType=showMoreZbs&xxposition=zbgg";
+    public static final String URL_02 = "http://ec.mcc.com.cn/b2b/web/two/indexinfoAction.do?actionType=showMoreCgxx&xxposition=cgxx";
+    public static final String URL_03 = "http://ec.mcc.com.cn/b2b/web/two/indexinfoAction.do?actionType=showMoreClarifypub&xxposition=cqgg";
+    public static final String URL_04 = "http://ec.mcc.com.cn/b2b/web/two/indexinfoAction.do?actionType=showMorePub&xxposition=zhongbgg";
+
+    public static final String POST_PARAMS_01 = "{'currpage':1,'sbsj1':'','xxposition':'zbgg','sbsj2':''}";
+    public static final String POST_PARAMS_02 = "{'currpage':1,'fbrq1':'','xxposition':'cgxx','fbrq2':''}";
+    public static final String POST_PARAMS_03 = "{'currpage':1,'audittime':'','xxposition':'cqgg','audittime2':''}";
+    public static final String POST_PARAMS_04 = "{'currpage':1,'releasedate1':'','xxposition':'zhongbgg','releasedate2':''}";
 
     final static String PAGE_PARAMS = "pageParams";
 
@@ -45,7 +67,7 @@ public class ZGYeJinPageProcessor implements BasePageProcessor {
 
     @Override
     public void handlePaging(Page page) {
-
+        String type = (String) page.getRequest().getExtra("type");
         Map<String, Object> pageParams = (Map<String, Object>) page.getRequest().getExtras().get(PAGE_PARAMS);
         int currentPage = (int) pageParams.get("currpage");
         if (currentPage == 1) {
@@ -61,8 +83,13 @@ public class ZGYeJinPageProcessor implements BasePageProcessor {
                     request.setMethod(HttpConstant.Method.POST);
                     request.setRequestBody(HttpRequestBody.form(params, "UTF-8"));
                     request.putExtra(PAGE_PARAMS, params);
+                    request.putExtra("type", type);
                     log.debug("request=={}", request);
                     page.addTargetRequest(request);
+
+                    if ("采购信息".equalsIgnoreCase(type) && i >= 10) {
+                        break;
+                    }
                 }
             }
 
@@ -72,7 +99,6 @@ public class ZGYeJinPageProcessor implements BasePageProcessor {
 
     @Override
     public void handleContent(Page page) {
-        Map<String, Object> pageParams = (Map<String, Object>) page.getRequest().getExtras().get(PAGE_PARAMS);
         Elements elements = page.getHtml().getDocument().body().select("body > div.main_1 > div.rightbx > div.datalb > table > tbody >tr");
 
         if (elements.isEmpty()) {
@@ -80,8 +106,8 @@ public class ZGYeJinPageProcessor implements BasePageProcessor {
             return;
         }
 
-        List<ZGYeJinDataItem> dataItems = parseContent(elements);
-        String type = (String) pageParams.get("type");
+        List<BidNewsOriginal> dataItems = parseContent(elements);
+        String type = (String) page.getRequest().getExtra("type");
         log.debug("type=={}", type);
         dataItems.forEach(dataItem -> dataItem.setType(type));
         if (!dataItems.isEmpty()) {
@@ -94,13 +120,15 @@ public class ZGYeJinPageProcessor implements BasePageProcessor {
 
     @Override
     public List parseContent(Elements items) {
-        List<ZGYeJinDataItem> dataItems = Lists.newArrayList();
+        List<BidNewsOriginal> dataItems = Lists.newArrayList();
         for (Element a : items) {
             String title = a.select("td.txtLeft > a").text();
             String date = a.select("td:nth-child(2)").text();
             String url = urlParser(a.select("a").attr("onclick"));
             if (StringUtils.isNotBlank(url)) {
-                ZGYeJinDataItem zgYeJinDataItem = new ZGYeJinDataItem(url);
+                BidNewsOriginal zgYeJinDataItem = new BidNewsOriginal(url);
+                zgYeJinDataItem.setSourceCode(SourceCode.ZGYJ.name());
+                zgYeJinDataItem.setSource(SourceCode.ZGYJ.getValue());
                 zgYeJinDataItem.setTitle(title);
 
                 if (StringUtils.contains(title, "资格预审：")) {
@@ -109,7 +137,7 @@ public class ZGYeJinPageProcessor implements BasePageProcessor {
                 if (StringUtils.contains(title, "招标公告：")) {
                     zgYeJinDataItem.setProjectName(StringUtils.substringAfter(title, "招标公告："));
                 }
-                zgYeJinDataItem.setDate(date);
+                zgYeJinDataItem.setDate(PageProcessorUtil.dataTxt(date));
                 zgYeJinDataItem.setUrl(url);
                 zgYeJinDataItem.setProvince(ProvinceUtil.get(title));
 
@@ -117,10 +145,16 @@ public class ZGYeJinPageProcessor implements BasePageProcessor {
 
                 log.debug(">>> download {}", url);
                 httpClientDownloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
-                Element root = httpClientDownloader.download(url).getDocument().body().select("body > div.main-news").first();
-                String formatContent = PageProcessorUtil.formatElementsByWhitelist(root);
+                try {
+                    Element root = httpClientDownloader.download(new Request(url), getSite().toTask())
+                            .getHtml().getDocument().body().select("body > div.main-news").first();
+                    String formatContent = PageProcessorUtil.formatElementsByWhitelist(root);
+                    zgYeJinDataItem.setFormatContent(formatContent);
+                } catch (Exception e) {
+                    log.error("", e);
+                    log.error(">>> {} fetch content fail", url);
+                }
 
-                zgYeJinDataItem.setFormatContent(formatContent);
                 dataItems.add(zgYeJinDataItem);
             }
         }
@@ -129,11 +163,9 @@ public class ZGYeJinPageProcessor implements BasePageProcessor {
 
     @Override
     public void process(Page page) {
-
+        log.debug(">>> url {}", page.getUrl().get());
         handlePaging(page);
-
         handleContent(page);
-
     }
 
     @Override

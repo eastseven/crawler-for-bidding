@@ -20,6 +20,7 @@ import java.util.Date;
 @Data
 @ToString
 @Document(collection = "data_item_ctba")
+@Deprecated
 public class ZGZhaoTouDataItem {
 
     public ZGZhaoTouDataItem(String url) {
