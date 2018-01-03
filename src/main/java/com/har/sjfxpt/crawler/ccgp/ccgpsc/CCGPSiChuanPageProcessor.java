@@ -1,6 +1,10 @@
 package com.har.sjfxpt.crawler.ccgp.ccgpsc;
 
 import com.google.common.collect.Lists;
+import com.har.sjfxpt.crawler.core.annotation.Source;
+import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
+import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
@@ -26,11 +30,25 @@ import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_
  */
 @Slf4j
 @Component
+@SourceConfig(
+        code = SourceCode.CCGPSC,
+        sources = {
+                @Source(url = "http://www.sczfcg.com/CmsNewsController.do?method=recommendBulletinList&moreType=provincebuyBulletinMore&channelCode=cggg&rp=25&page=1", type = "采购公告"),
+                @Source(url = "http://www.sczfcg.com/CmsNewsController.do?method=recommendBulletinList&moreType=provincebuyBulletinMore&channelCode=jggg&rp=25&page=1", type = "结果公告"),
+                @Source(url = "http://www.sczfcg.com/CmsNewsController.do?method=recommendBulletinList&moreType=provincebuyBulletinMore&channelCode=gzgg&rp=25&page=1", type = "更正公告"),
+
+                @Source(url = "http://www.sczfcg.com/CmsNewsController.do?method=recommendBulletinList&moreType=provincebuyBulletinMore&channelCode=shiji_cggg1&rp=25&page=1", type = "资格预审公告"),
+                @Source(url = "http://www.sczfcg.com/CmsNewsController.do?method=recommendBulletinList&moreType=provincebuyBulletinMore&channelCode=shiji_cggg&rp=25&page=1", type = "采购公告"),
+                @Source(url = "http://www.sczfcg.com/CmsNewsController.do?method=recommendBulletinList&moreType=provincebuyBulletinMore&channelCode=shiji_jggg&rp=25&page=1", type = "中标公告"),
+                @Source(url = "http://www.sczfcg.com/CmsNewsController.do?method=recommendBulletinList&moreType=provincebuyBulletinMore&channelCode=shiji_cjgg&rp=25&page=1", type = "成交公告"),
+                @Source(url = "http://www.sczfcg.com/CmsNewsController.do?method=recommendBulletinList&moreType=provincebuyBulletinMore&channelCode=shiji_gzgg&rp=25&page=1", type = "更正公告"),
+                @Source(url = "http://www.sczfcg.com/CmsNewsController.do?method=recommendBulletinList&moreType=provincebuyBulletinMore&channelCode=shiji_fblbgg&rp=25&page=1", type = "废标流标公告"),
+                @Source(url = "http://www.sczfcg.com/CmsNewsController.do?method=recommendBulletinList&moreType=provincebuyBulletinMore&channelCode=shiji_qtgg&rp=25&page=1", type = "其他公告"),
+        }
+)
 public class CCGPSiChuanPageProcessor implements BasePageProcessor {
 
     private HttpClientDownloader httpClientDownloader;
-
-    final static String PAGE_PARAMS = "pageParams";
 
     final String KEY_URLS = "ccgp_sichuan";
 
@@ -54,42 +72,33 @@ public class CCGPSiChuanPageProcessor implements BasePageProcessor {
 
     @Override
     public void handlePaging(Page page) {
-        Map<String, Object> pageParams = (Map<String, Object>) page.getRequest().getExtras().get(PAGE_PARAMS);
+        String type = (String) page.getRequest().getExtra("type");
         String url = page.getUrl().toString();
         int num = Integer.parseInt(StringUtils.substringAfter(url, "page="));
         log.debug("pageNum=={}", num);
         if (num == 1) {
             Elements pageNum = page.getHtml().getDocument().body().select("#QuotaList_paginate>span");
             int totalPageNum = Integer.parseInt(StringUtils.substringBetween(pageNum.text(), "页次：1/", "页"));
-            log.debug("totalPageNum=={}", totalPageNum);
-            if (totalPageNum >= 40) {
-                for (int i = 2; i <= 40; i++) {
-                    String targetUrl = StringUtils.replace(url, "page=1", "page=" + i);
-                    Request request = new Request(targetUrl);
-                    request.putExtra(PAGE_PARAMS, pageParams);
-                    page.addTargetRequest(request);
-                }
-            } else {
-                for (int i = 2; i <= totalPageNum; i++) {
-                    String targetUrl = StringUtils.replace(url, "page=1", "page=" + i);
-                    Request request = new Request(targetUrl);
-                    request.putExtra(PAGE_PARAMS, pageParams);
-                    page.addTargetRequest(request);
-                }
+            int cycleNum = totalPageNum >= 40 ? 40 : totalPageNum;
+            log.debug("cycleNum={}", cycleNum);
+            for (int i = 2; i <= cycleNum; i++) {
+                String targetUrl = StringUtils.replace(url, "page=1", "page=" + i);
+                Request request = new Request(targetUrl);
+                request.putExtra("type", type);
+                page.addTargetRequest(request);
             }
         }
     }
 
     @Override
     public void handleContent(Page page) {
-        Map<String, Object> pageParams = (Map<String, Object>) page.getRequest().getExtras().get(PAGE_PARAMS);
+        String type = (String) page.getRequest().getExtra("type");
         Elements elements = page.getHtml().getDocument().body().select("body > div.main > div.colsList > ul >li");
         if (elements.isEmpty()) {
             log.error("fetch error, elements is empty");
             return;
         }
-        String type = (String) pageParams.get("type");
-        List<CCGPSiChuanDataItem> dataItems = parseContent(elements);
+        List<BidNewsOriginal> dataItems = parseContent(elements);
         dataItems.forEach(dataItem -> dataItem.setType(type));
         if (!dataItems.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItems);
@@ -100,7 +109,7 @@ public class CCGPSiChuanPageProcessor implements BasePageProcessor {
 
     @Override
     public List parseContent(Elements items) {
-        List<CCGPSiChuanDataItem> dataItems = Lists.newArrayList();
+        List<BidNewsOriginal> dataItems = Lists.newArrayList();
         for (Element a : items) {
             Elements target = a.select("a");
             String href = target.attr("href");
@@ -109,7 +118,7 @@ public class CCGPSiChuanPageProcessor implements BasePageProcessor {
             if (!href.contains("http://")) {
                 href = "http://www.sczfcg.com" + href;
             }
-            CCGPSiChuanDataItem ccgpSiChuanDataItem = new CCGPSiChuanDataItem(href);
+            BidNewsOriginal ccgpSiChuanDataItem = new BidNewsOriginal(href);
             ccgpSiChuanDataItem.setTitle(title);
             ccgpSiChuanDataItem.setDate(date);
             ccgpSiChuanDataItem.setUrl(href);
@@ -133,7 +142,6 @@ public class CCGPSiChuanPageProcessor implements BasePageProcessor {
                     Element formatContentHtml = element.select("#myPrintArea").first();
                     String formatContent = PageProcessorUtil.formatElementsByWhitelist(formatContentHtml);
                     if (StringUtils.isNotBlank(html)) {
-                        ccgpSiChuanDataItem.setHtml(html);
                         ccgpSiChuanDataItem.setFormatContent(formatContent);
                     }
                     dataItems.add(ccgpSiChuanDataItem);

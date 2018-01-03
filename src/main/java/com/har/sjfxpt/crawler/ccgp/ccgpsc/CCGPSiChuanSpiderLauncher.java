@@ -17,6 +17,7 @@ import java.util.Map;
  */
 @Slf4j
 @Component
+@Deprecated
 public class CCGPSiChuanSpiderLauncher extends BaseSpiderLauncher {
 
     private final String uuid = SourceCode.CCGPSC.toString().toLowerCase() + "-current";
