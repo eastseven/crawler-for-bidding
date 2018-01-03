@@ -45,7 +45,8 @@ public class SourceModel {
         if (!post && ArrayUtils.isNotEmpty(needPlaceholderFields)) {
             if ("TIMESTAMP".equalsIgnoreCase(dayPattern)) {
                 for (String field : needPlaceholderFields) {
-                    StringUtils.replace(request.getUrl(), field, String.valueOf(DateTime.now().getMillis()));
+                    String url = StringUtils.replace(request.getUrl(), field, String.valueOf(DateTime.now().getMillis()));
+                    request.setUrl(url);
                 }
             }
         }

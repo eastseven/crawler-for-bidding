@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.core.annotation.SourceModel;
+import com.har.sjfxpt.crawler.core.model.BidNewsSpider;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.service.ProxyService;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
@@ -26,8 +27,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 
-import static com.har.sjfxpt.crawler.zgyj.ZGYeJinPageProcessor.POST_PARAMS_01;
-import static com.har.sjfxpt.crawler.zgyj.ZGYeJinPageProcessor.URL_01;
+import static com.har.sjfxpt.crawler.zgyj.ZGYeJinPageProcessor.*;
 import static com.har.sjfxpt.crawler.zgyj.ZGYeJinSpiderLauncher.requestGenerator;
 
 /**
@@ -75,9 +75,29 @@ public class ZGYeJinPageProcessorTests extends SpiderApplicationTests {
         source.setJsonPostParams(POST_PARAMS_01);
         source.setNeedPlaceholderFields(new String[]{"sbsj1", "sbsj2"});
 
+        source = new SourceModel();
+        source.setUrl(URL_03);
+        source.setType("变更公告");
+        source.setPost(true);
+        source.setJsonPostParams(POST_PARAMS_03);
+        source.setNeedPlaceholderFields(new String[]{"audittime", "audittime2"});
+
+        source = new SourceModel();
+        source.setUrl(URL_04);
+        source.setType("结果公告");
+        source.setPost(true);
+        source.setJsonPostParams(POST_PARAMS_04);
+        source.setNeedPlaceholderFields(new String[]{"releasedate1", "releasedate2"});
+
+        source = new SourceModel();
+        source.setUrl(URL_02);
+        source.setType("采购信息");
+        source.setPost(true);
+        source.setJsonPostParams(POST_PARAMS_02);
+
         HttpClientDownloader test = new HttpClientDownloader();
         test.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxy()));
-        Spider.create(zgYeJinPageProcessor)
+        BidNewsSpider.create(zgYeJinPageProcessor)
                 .addRequest(source.createRequest())
                 .addPipeline(pipeline)
                 .setDownloader(test)
