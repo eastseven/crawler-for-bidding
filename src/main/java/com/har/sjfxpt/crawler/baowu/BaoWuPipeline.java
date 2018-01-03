@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Component
+@Deprecated
 public class BaoWuPipeline implements Pipeline {
 
     @Autowired

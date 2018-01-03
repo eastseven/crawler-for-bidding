@@ -1,6 +1,6 @@
 logging:
   level:
-    com.har.sjfxpt.crawler: debug
+    com.har.sjfxpt.crawler: info
     com.har.sjfxpt.crawler.ggzyprovincial.ggzyyn: debug
     com.har.sjfxpt.crawler.core.utils: error
     us.codecraft.webmagic.downloader: error

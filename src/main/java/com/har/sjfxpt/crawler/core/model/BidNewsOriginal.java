@@ -52,7 +52,7 @@ public class BidNewsOriginal {
     protected String title;
 
     @NotNull
-    protected String province;
+    protected String province="全国";
 
     @NotNull
     protected String type;

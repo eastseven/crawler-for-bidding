@@ -21,6 +21,7 @@ import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.THREAD_NU
  */
 @Slf4j
 @Component
+@Deprecated
 public class BaoWuSpiderLauncher extends BaseSpiderLauncher {
 
     private final String uuid = SourceCode.BAOWU.toString().toLowerCase() + "-current";

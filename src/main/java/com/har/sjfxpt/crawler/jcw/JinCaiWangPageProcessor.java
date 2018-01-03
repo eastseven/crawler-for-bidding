@@ -123,7 +123,7 @@ public class JinCaiWangPageProcessor implements BasePageProcessor {
                 date = StringUtils.substringAfter(date, "时间：");
                 log.debug("time=={}", date);
 
-                BidNewsOriginal jinCaiWangDataItem = new BidNewsOriginal(DigestUtils.md5Hex(href));
+                BidNewsOriginal jinCaiWangDataItem = new BidNewsOriginal(href);
                 jinCaiWangDataItem.setSourceCode(SourceCode.JC.name());
                 jinCaiWangDataItem.setSource(SourceCode.JC.getValue());
                 jinCaiWangDataItem.setUrl(href);
