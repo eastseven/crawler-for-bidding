@@ -39,7 +39,7 @@ public class HBasePipeline implements Pipeline {
             // 只是为了快速查看数据，实际数据还是以HBase中的为准
             ctx.getBean(BidNewsOriginalRepository.class).save(dataItemList);
 
-//            HBaseService.saveBidNewsOriginals(dataItemList);
+            HBaseService.saveBidNewsOriginals(dataItemList);
         }
     }
 }
