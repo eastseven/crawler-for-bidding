@@ -60,9 +60,9 @@ public class BaoWuPageProcessorTests {
         Assert.assertNotNull(baoWuPageProcessor);
 
         SourceModel sourceModel = new SourceModel();
-        sourceModel.setUrl(SEED_URL2);
+        sourceModel.setUrl(SEED_URL1);
         sourceModel.setPost(true);
-        sourceModel.setJsonPostParams(POST_PARAMS_03);
+        sourceModel.setJsonPostParams(POST_PARAMS_01);
         Request request = sourceModel.createRequest();
         Spider.create(baoWuPageProcessor)
                 .addRequest(request)

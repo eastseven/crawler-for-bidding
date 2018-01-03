@@ -4,12 +4,15 @@ import com.alibaba.fastjson.JSONObject;
 import com.har.sjfxpt.crawler.ccgp.ccgpcq.CCGPCQDetailAnnouncement;
 import com.har.sjfxpt.crawler.ccgp.ccgpcq.CCGPCQPageProcessor;
 import com.har.sjfxpt.crawler.ccgp.ccgpcq.CCGPCQPipeline;
+import com.har.sjfxpt.crawler.core.annotation.SourceModel;
+import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +43,9 @@ public class CCGPCQPageProcessorTests {
     @Autowired
     CCGPCQPipeline ccgpcqPipeline;
 
+    @Autowired
+    HBasePipeline hBasePipeline;
+
     String[] urls = {
             "https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable?pi=1&ps=20&startDate=&timestamp=" + DateTime.now().getMillis() + "&type=100,200,201,202,203,204,205,206,207,309,400,401,402,3091,4001",
             "https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable?pi=1&ps=20&startDate=&timestamp=" + DateTime.now().getMillis() + "&type=301,303",
@@ -60,6 +66,20 @@ public class CCGPCQPageProcessorTests {
                 .run();
     }
 
+    @Test
+    public void testCCGPCQAnnotation() {
+        Assert.assertNotNull(ccgpcqPageProcessor);
+
+        SourceModel sourceModel = new SourceModel();
+        sourceModel.setUrl("https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable?pi=1&ps=20&startDate=&timestamp=" + DateTime.now().getMillis() + "&type=300,302,304,3041,305,306,307,308");
+        sourceModel.setType("采购结果公告");
+        Request request = sourceModel.createRequest();
+        Spider.create(ccgpcqPageProcessor)
+                .addRequest(request)
+                .addPipeline(hBasePipeline)
+                .run();
+    }
+
 
     @Test
     public void testHref() throws UnsupportedEncodingException {
@@ -72,8 +92,9 @@ public class CCGPCQPageProcessorTests {
     @Test
     public void testPageDownload() {
         HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
-        Page page = httpClientDownloader.download(new Request("https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable/512584282552680449"), SiteUtil.get().setTimeOut(30000).toTask());
+        Page page = httpClientDownloader.download(new Request("https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable/524551196971855872"), SiteUtil.get().setTimeOut(30000).toTask());
         CCGPCQDetailAnnouncement ccgpcqDetailAnnouncement = JSONObject.parseObject(page.getRawText(), CCGPCQDetailAnnouncement.class);
+        log.info("rawText={}", page.getRawText());
         String html = ccgpcqDetailAnnouncement.getNotice().getHtml();
         Whitelist whitelist = Whitelist.relaxed();
         whitelist.removeTags("style");
@@ -82,7 +103,7 @@ public class CCGPCQPageProcessorTests {
         whitelist.removeAttributes("td", "style", "width", "height");
         String formatContent = Jsoup.clean(html, whitelist);
         formatContent = StringUtils.removeAll(formatContent, "<!-{2,}.*?-{2,}>|(&nbsp;)|<o:p>|</o:p>");
-        log.debug("formatContent=={}", formatContent);
+        log.info("formatContent=={}", formatContent);
     }
 
 

@@ -2,11 +2,16 @@ package com.har.sjfxpt.crawler.ccgp.ccgpcq;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
+import com.har.sjfxpt.crawler.core.annotation.Source;
+import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
+import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import org.jsoup.select.Elements;
@@ -29,6 +34,14 @@ import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_
  */
 @Slf4j
 @Component
+@SourceConfig(
+        code = SourceCode.CCGPCQ,
+        sources = {
+                @Source(url = "https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable?pi=1&ps=20&startDate=&type=100,200,201,202,203,204,205,206,207,309,400,401,402,3091,4001&timestamp=TIMESTAMP", type = "采购公告", needPlaceholderFields = {"TIMESTAMP"}),
+                @Source(url = "https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable?pi=1&ps=20&startDate=&type=301,303&timestamp=TIMESTAMP", type = "采购预公示", needPlaceholderFields = {"TIMESTAMP"}),
+                @Source(url = "https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable?pi=1&ps=20&startDate=&type=300,302,304,3041,305,306,307,308&timestamp=TIMESTAMP", type = "采购结果公告", needPlaceholderFields = {"TIMESTAMP"})
+        }
+)
 public class CCGPCQPageProcessor implements BasePageProcessor {
 
     final static String PAGE_PARAMS = "pageParams";
@@ -40,17 +53,19 @@ public class CCGPCQPageProcessor implements BasePageProcessor {
 
     @Override
     public void handlePaging(Page page) {
-        Map<String, String> pageParams = (Map<String, String>) page.getRequest().getExtras().get(PAGE_PARAMS);
+        String type = (String) page.getRequest().getExtra("type");
         int count = Integer.parseInt(StringUtils.substringBetween(page.getUrl().toString(), "pi=", "&ps="));
         if (count == 1) {
             CCGPCQAnnouncement ccgpcqAnnouncement = JSONObject.parseObject(page.getRawText(), CCGPCQAnnouncement.class);
             int announcementNum = ccgpcqAnnouncement.getTotal();
             int pageNum = announcementNum % ARTICLE_NUM == 0 ? announcementNum / ARTICLE_NUM : announcementNum / ARTICLE_NUM + 1;
             if (pageNum >= 2) {
-                for (int i = 2; i <= pageNum; i++) {
+                int cycleNum = pageNum >= 10 ? 10 : pageNum;
+                log.info("cycleNum={}", cycleNum);
+                for (int i = 2; i <= cycleNum; i++) {
                     String url = page.getUrl().toString().replace("pi=1", "pi=" + i);
                     Request request = new Request(url);
-                    request.putExtra(PAGE_PARAMS, pageParams);
+                    request.putExtra("type", type);
                     page.addTargetRequest(request);
                 }
             }
@@ -61,12 +76,10 @@ public class CCGPCQPageProcessor implements BasePageProcessor {
 
     @Override
     public void handleContent(Page page) {
+        String type = (String) page.getRequest().getExtra("type");
         log.info("pageUrl=={}", page.getUrl().get());
-        Map<String, String> pageParams = (Map<String, String>) page.getRequest().getExtras().get(PAGE_PARAMS);
-        List<CCGPCQDataItem> dataItems = parseContent(page);
-        String type = pageParams.get("type");
+        List<BidNewsOriginal> dataItems = parseContent(page);
         dataItems.forEach(dataItem -> dataItem.setType(type));
-//        dataItems.forEach(dataItem -> dataItem.setForceUpdate(true));
         if (!dataItems.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItems);
         } else {
@@ -80,14 +93,13 @@ public class CCGPCQPageProcessor implements BasePageProcessor {
     }
 
     public List parseContent(Page page) {
-        List<CCGPCQDataItem> dataItems = Lists.newArrayList();
+        List<BidNewsOriginal> dataItems = Lists.newArrayList();
         CCGPCQAnnouncement ccgpcqAnnouncement = JSONObject.parseObject(page.getRawText(), CCGPCQAnnouncement.class);
         List<CCGPCQAnnouncement.NoticesBean> tenderBulletin = ccgpcqAnnouncement.getNotices();
         for (CCGPCQAnnouncement.NoticesBean noticesBean : tenderBulletin) {
             String id = noticesBean.getId();
             String title = noticesBean.getTitle();
             String purchaser = noticesBean.getBuyerName();
-            String industryCategory = noticesBean.getProjectDirectoryName();
             String source = noticesBean.getAgentName();
             String date = noticesBean.getIssueTime();
 
@@ -99,29 +111,38 @@ public class CCGPCQPageProcessor implements BasePageProcessor {
             }
             String hrefLook = "https://www.cqgp.gov.cn/notices/detail/" + id + "?title=" + code;
             String href = "https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable/" + id;
-            CCGPCQDataItem ccgpcqDataItem = new CCGPCQDataItem(href);
+            BidNewsOriginal ccgpcqDataItem = new BidNewsOriginal(href);
             ccgpcqDataItem.setTitle(title);
             ccgpcqDataItem.setPurchaser(purchaser);
             ccgpcqDataItem.setSource(source);
-            ccgpcqDataItem.setIndustryCategory(industryCategory);
+            ccgpcqDataItem.setProvince("重庆");
             ccgpcqDataItem.setDate(PageProcessorUtil.dataTxt(date));
             ccgpcqDataItem.setUrl(hrefLook);
-
-            Page page1 = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(20000).toTask());
-            CCGPCQDetailAnnouncement ccgpcqDetailAnnouncement = JSONObject.parseObject(page1.getRawText(), CCGPCQDetailAnnouncement.class);
-            String html = ccgpcqDetailAnnouncement.getNotice().getHtml();
-            Whitelist whitelist = Whitelist.relaxed();
-            whitelist.removeTags("style");
-            whitelist.removeTags("script");
-            whitelist.removeAttributes("table", "style", "width", "height");
-            whitelist.removeAttributes("td", "style", "width", "height");
-            String formatContent = Jsoup.clean(html, whitelist);
-            formatContent = StringUtils.removeAll(formatContent, "<!-{2,}.*?-{2,}>|(&nbsp;)|<o:p>|</o:p>");
-            if (StringUtils.isNotBlank(formatContent)) {
-                ccgpcqDataItem.setFormatContent(formatContent);
-                dataItems.add(ccgpcqDataItem);
+            ccgpcqDataItem.setSourceCode(SourceCode.CCGPCQ.name());
+            ccgpcqDataItem.setSource(SourceCode.CCGPCQ.getValue());
+            if (PageProcessorUtil.timeCompare(ccgpcqDataItem.getDate())) {
+                log.warn("{} is not the same day", ccgpcqDataItem.getUrl());
+            } else {
+                try {
+                    log.debug("href={}", href);
+                    Page page1 = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
+                    CCGPCQDetailAnnouncement ccgpcqDetailAnnouncement = JSONObject.parseObject(page1.getRawText(), CCGPCQDetailAnnouncement.class);
+                    String html = ccgpcqDetailAnnouncement.getNotice().getHtml();
+                    Whitelist whitelist = Whitelist.relaxed();
+                    whitelist.removeTags("style");
+                    whitelist.removeTags("script");
+                    whitelist.removeAttributes("table", "style", "width", "height");
+                    whitelist.removeAttributes("td", "style", "width", "height");
+                    String formatContent = Jsoup.clean(html, whitelist);
+                    formatContent = StringUtils.removeAll(formatContent, "<!-{2,}.*?-{2,}>|(&nbsp;)|<o:p>|</o:p>");
+                    if (StringUtils.isNotBlank(formatContent)) {
+                        ccgpcqDataItem.setFormatContent(formatContent);
+                        dataItems.add(ccgpcqDataItem);
+                    }
+                } catch (Exception e) {
+                    log.warn("{}", e);
+                }
             }
-
         }
         return dataItems;
     }
@@ -134,6 +155,7 @@ public class CCGPCQPageProcessor implements BasePageProcessor {
 
     @Override
     public Site getSite() {
-        return SiteUtil.get();
+        httpClientDownloader = new HttpClientDownloader();
+        return SiteUtil.get().setTimeOut(10000);
     }
 }
