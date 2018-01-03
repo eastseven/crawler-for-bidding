@@ -1,5 +1,6 @@
 package com.har.sjfxpt.crawler.baowu;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -21,6 +22,7 @@ import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.model.HttpRequestBody;
+import us.codecraft.webmagic.selector.Selectable;
 import us.codecraft.webmagic.utils.HttpConstant;
 
 import java.util.List;
@@ -168,6 +170,13 @@ public class BaoWuPageProcessor implements BasePageProcessor {
         String typeField = pageParams.get("type").toString();
         if ("purchase".equalsIgnoreCase(typeField)) {
             if (pageParams.get("pageNow").toString().equalsIgnoreCase("1")) {
+                Selectable newsPage = page.getJson().jsonPath("$.obj.newsPage");
+                List<String> stringList = newsPage.all();
+                for (String field : stringList) {
+                    log.info("field={}", field);
+                    JSONArray json = JSONObject.parseArray(field);
+                    log.info("json={}", json);
+                }
                 BaoWuAnnouncementPageOne baoWuAnnouncementPageOne = JSONObject.parseObject(page.getRawText(), BaoWuAnnouncementPageOne.class);
                 List<BaoWuAnnouncementPageOne.ObjBean.NewsPageBean> newsPageBeanList = baoWuAnnouncementPageOne.getObj().getNewsPage();
                 for (BaoWuAnnouncementPageOne.ObjBean.NewsPageBean newsPageBean : newsPageBeanList) {

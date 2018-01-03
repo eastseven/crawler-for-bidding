@@ -26,6 +26,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "data_item_ccgp_hn")
+@Deprecated
 public class CCGPHaiNanDataItem {
 
     public CCGPHaiNanDataItem(String url) {

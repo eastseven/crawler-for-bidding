@@ -2,9 +2,12 @@ package com.har.sjfxpt.crawler.core.province;
 
 import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanPageProcessor;
 import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanPipeline;
+import com.har.sjfxpt.crawler.core.annotation.SourceModel;
+import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,10 +27,13 @@ import java.util.Date;
 public class CCGPCCGPHaiNanPageProcessorTests {
 
     @Autowired
-    CCGPHaiNanPageProcessor CCGPHaiNanPageProcessor;
+    CCGPHaiNanPageProcessor ccgpHaiNanPageProcessor;
 
     @Autowired
     CCGPHaiNanPipeline CCGPHaiNanPipeline;
+
+    @Autowired
+    HBasePipeline hBasePipeline;
 
     @Test
     public void testHaiNanPageProcessor() {
@@ -37,12 +43,27 @@ public class CCGPCCGPHaiNanPageProcessorTests {
 
         Request request = new Request(url);
 
-        Spider.create(CCGPHaiNanPageProcessor)
+        Spider.create(ccgpHaiNanPageProcessor)
                 .addRequest(request)
                 .addPipeline(CCGPHaiNanPipeline)
                 .thread(4)
                 .run();
     }
+
+    @Test
+    public void testCCGPHaiNanAnnouncation() {
+        Assert.assertNotNull(ccgpHaiNanPageProcessor);
+
+        String date = new DateTime(new Date()).toString("yyyy-MM-dd");
+        SourceModel sourceModel = new SourceModel();
+        sourceModel.setUrl("http://www.ccgp-hainan.gov.cn/cgw/cgw_list.jsp?currentPage=1&begindate=" + date + "&enddate=" + date + "&title=&bid_type=&proj_number=&zone=");
+        Request request = sourceModel.createRequest();
+        Spider.create(ccgpHaiNanPageProcessor)
+                .addRequest(request)
+                .addPipeline(hBasePipeline)
+                .run();
+    }
+
 
     @Test
     public void testString() {

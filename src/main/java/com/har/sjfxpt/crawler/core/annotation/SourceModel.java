@@ -49,6 +49,12 @@ public class SourceModel {
                     request.setUrl(url);
                 }
             }
+            if ("YYYY-MM-DD".equalsIgnoreCase(dayPattern)) {
+                for (String field : needPlaceholderFields) {
+                    String url = StringUtils.replaceAll(request.getUrl(), field, DateTime.now().toString(dayPattern));
+                    request.setUrl(url);
+                }
+            }
         }
 
         request.putExtra("type", this.getType());

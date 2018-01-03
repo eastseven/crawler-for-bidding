@@ -1,6 +1,10 @@
 package com.har.sjfxpt.crawler.ccgp.ccgphn;
 
 import com.google.common.collect.Lists;
+import com.har.sjfxpt.crawler.core.annotation.Source;
+import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
+import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
@@ -26,6 +30,12 @@ import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_
  */
 @Slf4j
 @Component
+@SourceConfig(
+        code = SourceCode.CCGPHN,
+        sources = {
+                @Source(url = "http://www.ccgp-hainan.gov.cn/cgw/cgw_list.jsp?currentPage=1&begindate=YYYY-MM-DD&enddate=YYYY-MM-DD&title=&bid_type=&proj_number=&zone=", needPlaceholderFields = "YYYY-MM-DD")
+        }
+)
 public class CCGPHaiNanPageProcessor implements BasePageProcessor {
 
     private HttpClientDownloader httpClientDownloader;
@@ -52,7 +62,7 @@ public class CCGPHaiNanPageProcessor implements BasePageProcessor {
             log.error("fetch error, elements is empty");
             return;
         }
-        List<CCGPHaiNanDataItem> dataItems = parseContent(elements);
+        List<BidNewsOriginal> dataItems = parseContent(elements);
         if (!dataItems.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItems);
         } else {
@@ -62,7 +72,7 @@ public class CCGPHaiNanPageProcessor implements BasePageProcessor {
 
     @Override
     public List parseContent(Elements items) {
-        List<CCGPHaiNanDataItem> dataItems = Lists.newArrayList();
+        List<BidNewsOriginal> dataItems = Lists.newArrayList();
         for (Element a : items) {
             Elements element = a.select("em>a");
             Elements type = a.select("span>tt");
@@ -77,13 +87,14 @@ public class CCGPHaiNanPageProcessor implements BasePageProcessor {
             }
             String title = element.text();
             String projectName = StringUtils.substringBeforeLast(title, "-");
-            CCGPHaiNanDataItem haiNanDataItem = new CCGPHaiNanDataItem(url);
+            BidNewsOriginal haiNanDataItem = new BidNewsOriginal(url);
             haiNanDataItem.setType(typeTxt);
             haiNanDataItem.setUrl(url);
             haiNanDataItem.setTitle(title);
             haiNanDataItem.setDate(date);
             haiNanDataItem.setProjectName(StringUtils.defaultString(projectName, ""));
-
+            haiNanDataItem.setSourceCode(SourceCode.CCGPHN.name());
+            haiNanDataItem.setSource(SourceCode.CCGPHN.getValue());
             // 正文处理
             try {
                 Request request = new Request(url);
@@ -91,10 +102,6 @@ public class CCGPHaiNanPageProcessor implements BasePageProcessor {
 
                 Element body = page.getHtml().getDocument().body();
                 Elements source = body.select("body > div.neibox > div.neibox02 > div.box > div > div.nei03_02 > div.basic");
-
-                String purchaserAgent = StringUtils.substringBetween(source.text(), "信息来源：", " 公告类型：");
-                purchaserAgent = StringUtils.strip(purchaserAgent);
-                haiNanDataItem.setPurchaserAgent(purchaserAgent);
 
                 String dateDetail = StringUtils.substringAfter(source.text(), "发表时间：");
                 dateDetail = StringUtils.trim(dateDetail);
@@ -126,12 +133,6 @@ public class CCGPHaiNanPageProcessor implements BasePageProcessor {
                             StringUtils.contains(tdText, "成交供应商名称")) {
                         log.debug(">>> {}, {}", tdText, td.nextElementSibling().text());
                         haiNanDataItem.setBidCompanyName(StringUtils.trim(td.nextElementSibling().text()));
-                    }
-
-                    if (StringUtils.endsWithIgnoreCase(tdText, "中标供应商地址") ||
-                            StringUtils.contains(tdText, "成交供应商地址")) {
-                        log.debug(">>> {}, {}", tdText, td.nextElementSibling().text());
-                        haiNanDataItem.setBidCompanyAddress(StringUtils.trim(td.nextElementSibling().text()));
                     }
 
                     if (StringUtils.endsWithIgnoreCase(tdText, "采购人单位名称")) {

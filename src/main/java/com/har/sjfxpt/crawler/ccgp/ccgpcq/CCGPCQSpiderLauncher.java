@@ -17,7 +17,7 @@ import java.util.Map;
  * Created by Administrator on 2017/12/1.
  */
 @Slf4j
-@Component
+@Component@Deprecated
 public class CCGPCQSpiderLauncher extends BaseSpiderLauncher {
 
     private final String uuid = SourceCode.CCGPCQ.toString().toLowerCase() + "-current";

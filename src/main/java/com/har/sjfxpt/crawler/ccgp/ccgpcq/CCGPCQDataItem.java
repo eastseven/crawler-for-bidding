@@ -20,7 +20,7 @@ import java.util.Date;
  */
 @Data
 @ToString
-@Document(collection = "data_item_ccgp_cq")
+@Document(collection = "data_item_ccgp_cq")@Deprecated
 public class CCGPCQDataItem {
 
     public CCGPCQDataItem(String url) {

@@ -16,6 +16,7 @@ import java.util.Date;
  */
 @Slf4j
 @Component
+@Deprecated
 public class CCGPHaiNanSpiderLauncher extends BaseSpiderLauncher {
 
     private final String uuid = SourceCode.CCGPHN.toString().toLowerCase() + "-current";
