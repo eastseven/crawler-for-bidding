@@ -30,8 +30,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.har.sjfxpt.crawler.core.model.DataItemDTO.ROW_KEY_LENGTH;
-
 /**
  * @author dongqi
  */
@@ -39,13 +37,15 @@ import static com.har.sjfxpt.crawler.core.model.DataItemDTO.ROW_KEY_LENGTH;
 @Service
 public class HBaseService {
 
+    final int ROW_KEY_LENGTH = 41;
+
     @Autowired
     StringRedisTemplate redisTemplate;
 
     @Autowired
     HBaseConfig config;
 
-    final byte[] family = "f".getBytes();
+    final byte[] family = Bytes.toBytes("f");
     final String charsetName = "utf-8";
 
     private Connection conn;
@@ -93,6 +93,10 @@ public class HBaseService {
         saveBidNewsOriginals(list);
     }
 
+    /**
+     *
+     * @param dataItemList
+     */
     public void saveBidNewsOriginals(List<BidNewsOriginal> dataItemList) {
         if (CollectionUtils.isEmpty(dataItemList)) {
             return;
@@ -187,6 +191,13 @@ public class HBaseService {
         return String.join(":", date, DigestUtils.md5Hex(StringUtils.trim(title)));
     }
 
+    /**
+     *
+     * @param rowKey
+     * @param dataItem
+     * @return
+     * @throws UnsupportedEncodingException
+     */
     private Put assemble(String rowKey, BidNewsOriginal dataItem) throws UnsupportedEncodingException {
         Put put = new Put(rowKey.getBytes());
         put.addColumn(family, "url".getBytes(), StringUtils.defaultString(dataItem.getUrl(), "").getBytes(charsetName));
