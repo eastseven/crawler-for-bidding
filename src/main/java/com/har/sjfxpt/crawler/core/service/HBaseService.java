@@ -106,7 +106,7 @@ public class HBaseService {
         int counter = 0;
         for (BidNewsOriginal original : dataItemList) {
             Set<ConstraintViolation<BidNewsOriginal>> violations = validator.validate(original);
-            violations.forEach(violation -> log.error(">>> {}, {}", violation.getPropertyPath(), violation.getMessage()));
+            violations.forEach(violation -> log.error(">>> {}, {}, {}", violation.getPropertyPath(), violation.getMessage(), violation.getInvalidValue()));
             Assert.isTrue(violations.isEmpty(), "");
 
             if (StringUtils.isBlank(original.getFormatContent())) {

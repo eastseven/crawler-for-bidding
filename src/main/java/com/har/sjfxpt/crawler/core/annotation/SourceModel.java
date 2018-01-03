@@ -22,7 +22,7 @@ public class SourceModel {
     private boolean post;
     private String jsonPostParams;
     private Map<String, Object> postParams;
-    private String dayPattern;
+    private String dayPattern = "yyyy-MM-dd";
     private String[] needPlaceholderFields;
 
     public Request createRequest() {
@@ -40,6 +40,14 @@ public class SourceModel {
             request.setMethod(HttpConstant.Method.POST);
             request.setRequestBody(HttpRequestBody.form(pageParams, "UTF-8"));
             request.putExtra("pageParams", pageParams);
+        }
+
+        if (!post && ArrayUtils.isNotEmpty(needPlaceholderFields)) {
+            if ("TIMESTAMP".equalsIgnoreCase(dayPattern)) {
+                for (String field : needPlaceholderFields) {
+                    StringUtils.replace(request.getUrl(), field, String.valueOf(DateTime.now().getMillis()));
+                }
+            }
         }
 
         request.putExtra("type", this.getType());
