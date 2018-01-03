@@ -18,7 +18,7 @@ import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_
  * Created by Administrator on 2017/11/2.
  */
 @Slf4j
-@Component
+@Component@Deprecated
 public class ZGZhaoTouPipeline implements Pipeline{
 
     @Autowired

@@ -41,15 +41,15 @@ public class ChinaTenderingAndBiddingAnnouncement {
     }
 
     public static class ObjectBean {
-        private List<?> qualifyBulletin;
+        private List<TenderBulletinBean> qualifyBulletin;
         private List<TenderBulletinBean> tenderBulletin;
         private List<?> amendBulletin;
 
-        public List<?> getQualifyBulletin() {
+        public List<TenderBulletinBean> getQualifyBulletin() {
             return qualifyBulletin;
         }
 
-        public void setQualifyBulletin(List<?> qualifyBulletin) {
+        public void setQualifyBulletin(List<TenderBulletinBean> qualifyBulletin) {
             this.qualifyBulletin = qualifyBulletin;
         }
 

@@ -1,14 +1,20 @@
 package com.har.sjfxpt.crawler.zgzt;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONPath;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.har.sjfxpt.crawler.core.annotation.Source;
+import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
+import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.ProvinceUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,13 +31,34 @@ import java.util.List;
 import java.util.Map;
 
 import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
+import static com.har.sjfxpt.crawler.zgzt.ZGZhaoTouPageProcessor.*;
 
 /**
  * Created by Administrator on 2017/11/1.
+ *
+ * @author luofei
+ * @author dongqi
  */
 @Slf4j
 @Component
+@SourceConfig(code = SourceCode.ZGZT,
+        sources = {
+                @Source(url = SEED_URL, type = "招标项目", post = true, postParams = POST_PARAMS_01),
+                @Source(url = SEED_URL, type = "招标公告", post = true, postParams = POST_PARAMS_02),
+                @Source(url = SEED_URL, type = "中标公告", post = true, postParams = POST_PARAMS_03),
+                @Source(url = SEED_URL, type = "开标记录", post = true, postParams = POST_PARAMS_04),
+                @Source(url = SEED_URL, type = "评标公示", post = true, postParams = POST_PARAMS_05),
+        }
+)
 public class ZGZhaoTouPageProcessor implements BasePageProcessor {
+
+    public static final String SEED_URL = "http://www.cebpubservice.com/ctpsp_iiss/searchbusinesstypebeforedooraction/getStringMethod.do";
+
+    public static final String POST_PARAMS_01 = "{'searchTimeStop':'','centerPlat':'','timeTypeParam':'今日','searchArea':'','bulletinIssnTimeStop':'','bulletinIssnTimeStart':'','bulletinIssnTime':'','pageNo':1,'searchName':'','searchIndustry':'','row':15,'businessType':'招标项目','searchTimeStart':''}";
+    public static final String POST_PARAMS_02 = "{'searchTimeStop':'','centerPlat':'','timeTypeParam':'','searchArea':'','bulletinIssnTimeStop':'','bulletinIssnTimeStart':'','bulletinIssnTime':'今日','pageNo':1,'searchName':'','searchIndustry':'','row':15,'businessType':'招标公告','searchTimeStart':''}";
+    public static final String POST_PARAMS_03 = "{'searchTimeStop':'','centerPlat':'','timeTypeParam':'今日','searchArea':'','bulletinIssnTimeStop':'','bulletinIssnTimeStart':'','bulletinIssnTime':'','pageNo':1,'searchName':'','searchIndustry':'','row':15,'businessType':'中标公告','searchTimeStart':''}";
+    public static final String POST_PARAMS_04 = "{'searchTimeStop':'','centerPlat':'','timeTypeParam':'今日','searchArea':'','bulletinIssnTimeStop':'','bulletinIssnTimeStart':'','bulletinIssnTime':'','pageNo':1,'searchName':'','searchIndustry':'','row':15,'businessType':'开标记录','searchTimeStart':''}";
+    public static final String POST_PARAMS_05 = "{'searchTimeStop':'','centerPlat':'','timeTypeParam':'今日','searchArea':'','bulletinIssnTimeStop':'','bulletinIssnTimeStart':'','bulletinIssnTime':'','pageNo':1,'searchName':'','searchIndustry':'','row':15,'businessType':'评标公示','searchTimeStart':''}";
 
     final String KEY_URLS = "zhong_guo_zhao_tou";
 
@@ -71,18 +98,19 @@ public class ZGZhaoTouPageProcessor implements BasePageProcessor {
 
     @Override
     public void handlePaging(Page page) {
-        Map<String, Object> PageParams = (Map<String, Object>) page.getRequest().getExtras().get(PAGE_PARAMS);
-        int currentPage = (int) PageParams.get("pageNo");
+        Map<String, Object> pageParams = (Map<String, Object>) page.getRequest().getExtras().get(PAGE_PARAMS);
+        int currentPage = (int) pageParams.get("pageNo");
         if (currentPage == 1) {
             ChinaTenderingAndBidding data = JSONObject.parseObject(page.getRawText(), ChinaTenderingAndBidding.class);
             int size = data.getObject().getPage().getTotalPage();
             log.debug("size=={}", size);
             for (int i = 2; i <= size; i++) {
-                PageParams.put("pageNo", i);
+                Map<String, Object> nextPage = Maps.newHashMap(pageParams);
+                nextPage.put("pageNo", i);
                 Request request = new Request(URL);
                 request.setMethod(HttpConstant.Method.POST);
-                request.setRequestBody(HttpRequestBody.form(PageParams, "UTF-8"));
-                request.putExtra(PAGE_PARAMS, PageParams);
+                request.setRequestBody(HttpRequestBody.form(nextPage, "UTF-8"));
+                request.putExtra(PAGE_PARAMS, nextPage);
                 page.addTargetRequest(request);
             }
         }
@@ -90,7 +118,7 @@ public class ZGZhaoTouPageProcessor implements BasePageProcessor {
 
     @Override
     public void handleContent(Page page) {
-        List<ZGZhaoTouDataItem> dataItems = parseContent(page);
+        List<BidNewsOriginal> dataItems = parseContent(page);
         if (!dataItems.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItems);
         } else {
@@ -124,6 +152,7 @@ public class ZGZhaoTouPageProcessor implements BasePageProcessor {
             case "评标公示":
                 param.put("businessKeyWord", "winCandidateBulletin");
                 break;
+            default:
         }
         param.put("tenderProjectCode", row.getTenderProjectCode());
         request.setMethod(HttpConstant.Method.POST);
@@ -131,8 +160,7 @@ public class ZGZhaoTouPageProcessor implements BasePageProcessor {
         Page page = httpClientDownloader.download(request, SiteUtil.get().setTimeOut(30000).toTask());
         return page;
     }
-
-
+    
     public String businessKeyWord(String type) {
         String businessKeyWord = null;
         switch (type) {
@@ -151,19 +179,19 @@ public class ZGZhaoTouPageProcessor implements BasePageProcessor {
             case "评标公示":
                 businessKeyWord = "winCandidateBulletin";
                 break;
+            default:
         }
         return businessKeyWord;
     }
 
-
     public List parseContent(Page page) {
-        Map<String, Object> PageParams = (Map<String, Object>) page.getRequest().getExtras().get(PAGE_PARAMS);
+        Map<String, Object> pageParams = (Map<String, Object>) page.getRequest().getExtras().get(PAGE_PARAMS);
 
         ChinaTenderingAndBidding data = JSONObject.parseObject(page.getRawText(), ChinaTenderingAndBidding.class);
         List<ChinaTenderingAndBidding.ObjectBean.ReturnlistBean> lists = data.getObject().getReturnlist();
-        List<ZGZhaoTouDataItem> dataItems = Lists.newArrayList();
+        List<BidNewsOriginal> dataItems = Lists.newArrayList();
         for (ChinaTenderingAndBidding.ObjectBean.ReturnlistBean row : lists) {
-            String type = (String) PageParams.get("businessType");
+            String type = (String) pageParams.get("businessType");
             String id = row.getSchemaVersion() + businessKeyWord(type) + row.getTenderProjectCode();
             long value = stringRedisTemplate.boundSetOps(KEY_URLS).add(id);
             if (value == 0L) {
@@ -171,232 +199,255 @@ public class ZGZhaoTouPageProcessor implements BasePageProcessor {
                 continue;
             } else {
                 String title = row.getBusinessObjectName();
-                String professional = row.getIndustriesType();
                 String province = row.getRegionName() + "";
-                String platform = row.getTransactionPlatfName();
                 String date = row.getReceiveTime();
-                ZGZhaoTouDataItem zgZhaoTouDataItem = new ZGZhaoTouDataItem(id);
-                zgZhaoTouDataItem.setTitle(title);
-                zgZhaoTouDataItem.setProfessional(professional);
-                zgZhaoTouDataItem.setProvince(ProvinceUtil.get(province));
-                zgZhaoTouDataItem.setPlatform(platform);
-                zgZhaoTouDataItem.setDate(PageProcessorUtil.dataTxt(date));
-                zgZhaoTouDataItem.setType(type);
 
-                log.debug("ZGZhaoTouDataItem=={}", zgZhaoTouDataItem);
+                BidNewsOriginal dataItem = new BidNewsOriginal(id);
+                dataItem.setSource(SourceCode.ZGZT.getValue());
+                dataItem.setSourceCode(SourceCode.ZGZT.name());
+                dataItem.setTitle(title);
+                dataItem.setProvince(ProvinceUtil.get(province));
+                dataItem.setDate(PageProcessorUtil.dataTxt(date));
+                dataItem.setType(type);
 
-                if (type.equals("招标项目")) {
-                    Page page1 = pageGenerator(row, type);
-                    ChinaTenderingAndBiddingContent data1 = JSONObject.parseObject(page1.getRawText(), ChinaTenderingAndBiddingContent.class);
-                    List<ChinaTenderingAndBiddingContent.ObjectBean.TenderProjectBean> tenderProjectBeanList = data1.getObject().getTenderProject();
+                log.debug("ZGZhaoTouDataItem=={}", dataItem);
 
-                    Map<String, String> map = Maps.newHashMap();
-
-                    map.put("createTime", tenderProjectBeanList.get(0).getCreateTime());
-                    map.put("regionCode", tenderProjectBeanList.get(0).getRegionCode());
-                    map.put("tendererName", tenderProjectBeanList.get(0).getTendererName());
-                    map.put("approveDeptName", tenderProjectBeanList.get(0).getApproveDeptName());
-                    map.put("tenderAgencyName", tenderProjectBeanList.get(0).getTenderAgencyName());
-                    map.put("tenderAgencyCodeType", tenderProjectBeanList.get(0).getTenderAgencyCodeType());
-                    map.put("superviseDeptName", tenderProjectBeanList.get(0).getSuperviseDeptName());
-                    map.put("bulletinContent", tenderProjectBeanList.get(0).getBulletinContent());
-                    map.put("approveDeptCode", tenderProjectBeanList.get(0).getApproveDeptCode());
-                    map.put("attachmentCode", tenderProjectBeanList.get(0).getAttachmentCode());
-                    map.put("tenderProjectCode", tenderProjectBeanList.get(0).getTenderProjectCode());
-                    map.put("bulletinName", tenderProjectBeanList.get(0).getBulletinName());
-                    map.put("superviseDeptCodeType", tenderProjectBeanList.get(0).getSuperviseDeptCodeType());
-                    map.put("tendererCode", tenderProjectBeanList.get(0).getTendererCode());
-                    map.put("tenderAgencyCode", tenderProjectBeanList.get(0).getTenderAgencyCode());
-                    map.put("tenderOrganizeForm", tenderProjectBeanList.get(0).getTenderOrganizeForm());
-                    map.put("industriesType", tenderProjectBeanList.get(0).getIndustriesType());
-                    map.put("superviseDeptCode", tenderProjectBeanList.get(0).getSuperviseDeptCode());
-                    map.put("schemaVersion", tenderProjectBeanList.get(0).getSchemaVersion());
-                    map.put("bulletinssueTime", tenderProjectBeanList.get(0).getBulletinssueTime());
-
-                    String test = formTemplate;
-                    for (Map.Entry<String, String> entry : map.entrySet()) {
-                        if (StringUtils.isNotBlank(entry.getValue())) {
-                            test = StringUtils.replace(test, "{" + entry.getKey() + "}", entry.getValue());
-                        }
-                    }
-
-                    if (StringUtils.isNotBlank(test)) {
-                        zgZhaoTouDataItem.setFormatContent(PageProcessorUtil.removeField(test));
-                        dataItems.add(zgZhaoTouDataItem);
-                    }
-                }
-
-                if (type.equals("招标公告")) {
-                    Page page1 = pageGenerator(row, type);
-                    ChinaTenderingAndBiddingAnnouncement data1 = JSONObject.parseObject(page1.getRawText(), ChinaTenderingAndBiddingAnnouncement.class);
-                    List<ChinaTenderingAndBiddingAnnouncement.ObjectBean.TenderBulletinBean> tenderBulletin = data1.getObject().getTenderBulletin();
-
-                    if (tenderBulletin.size() > 0) {
-                        Map<String, String> map = Maps.newHashMap();
-                        String formatContent = "";
-                        map.put("attachmentCode", tenderBulletin.get(0).getAttachmentCode());
-                        map.put("bulletinName", tenderBulletin.get(0).getBulletinName());
-                        map.put("bulletinssueTime", tenderBulletin.get(0).getBulletinssueTime());
-                        map.put("schemaVersion", tenderBulletin.get(0).getSchemaVersion());
-                        map.put("sourceUrl", tenderBulletin.get(0).getSourceUrl());
-                        map.put("tenderProjectCode", tenderBulletin.get(0).getTenderProjectCode());
-                        map.put("transactionPlatfCode", tenderBulletin.get(0).getTransactionPlatfCode());
-                        for (ChinaTenderingAndBiddingAnnouncement.ObjectBean.TenderBulletinBean tenderBulletinBean : tenderBulletin) {
-                            formatContent = formatContent + "<p>" + tenderBulletinBean.getBulletinContent() + "<p>";
-                        }
-                        if (StringUtils.isNotBlank(formatContent)) {
-                            map.put("formatContent", formatContent);
-                        }
-
-                        String test = formTemplateAnnouncement;
-                        for (Map.Entry<String, String> entry : map.entrySet()) {
-                            log.debug("key=={}value=={}", entry.getKey(), entry.getValue());
-                            if (StringUtils.isNotBlank(entry.getValue())) {
-                                test = StringUtils.replace(test, "{" + entry.getKey() + "}", entry.getValue());
-                            }
-                        }
-                        log.debug("test=={}", test);
-                        if (StringUtils.isNotBlank(test)) {
-                            zgZhaoTouDataItem.setFormatContent(PageProcessorUtil.removeField(test));
-                            dataItems.add(zgZhaoTouDataItem);
-                        }
-                    }
-                }
-
-                if (type.equals("中标公告")) {
-                    Page page1 = pageGenerator(row, type);
-                    ChinaTenderingAndBinddingWinBidBulletin data1 = JSONObject.parseObject(page1.getRawText(), ChinaTenderingAndBinddingWinBidBulletin.class);
-                    try {
-                        List<ChinaTenderingAndBinddingWinBidBulletin.ObjectBean.WinBidBulletinBean> winBidBulletinBeanList = data1.getObject().getWinBidBulletin();
-                        log.debug("winBidBulletinBeanList=={}", winBidBulletinBeanList.size());
-                        if (winBidBulletinBeanList.size() > 0) {
-                            Map<String, String> map = Maps.newHashMap();
-                            String formatContent = "";
-                            map.put("transactionPlatfCode", winBidBulletinBeanList.get(0).getTransactionPlatfCode());
-                            map.put("attachmentCode", winBidBulletinBeanList.get(0).getAttachmentCode());
-                            map.put("sourceUrl", winBidBulletinBeanList.get(0).getSourceUrl());
-                            map.put("tenderProjectCode", winBidBulletinBeanList.get(0).getTenderProjectCode());
-                            map.put("bulletinssueTime", winBidBulletinBeanList.get(0).getBulletinssueTime());
-                            map.put("bulletinName", winBidBulletinBeanList.get(0).getBulletinName());
-                            for (ChinaTenderingAndBinddingWinBidBulletin.ObjectBean.WinBidBulletinBean winBidBulletinBean : winBidBulletinBeanList) {
-                                formatContent = formatContent + "<p>" + winBidBulletinBean.getBulletinContent() + "</p>";
-                            }
-                            if (StringUtils.isNotBlank(formatContent)) {
-                                map.put("formatContent", formatContent);
-                            }
-                            String test = formTemplateAnnouncement;
-                            for (Map.Entry<String, String> entry : map.entrySet()) {
-                                log.debug("key=={}value=={}", entry.getKey(), entry.getValue());
-                                if (StringUtils.isNotBlank(entry.getValue())) {
-                                    test = StringUtils.replace(test, "{" + entry.getKey() + "}", entry.getValue());
-                                }
-                            }
-                            log.debug("test=={}", test);
-                            if (StringUtils.isNotBlank(test)) {
-                                zgZhaoTouDataItem.setFormatContent(PageProcessorUtil.removeField(test));
-                                dataItems.add(zgZhaoTouDataItem);
-                            }
-
-                        }
-
-                    } catch (Exception e) {
-                        log.debug("The json data is empty, {}", page1);
-                    }
-
-                }
-
-                if (type.equals("开标记录")) {
-                    Page page1 = pageGenerator(row, type);
-                    ChinaTenderingAndBiddingOpenBidRecord data1 = JSONObject.parseObject(page1.getRawText(), ChinaTenderingAndBiddingOpenBidRecord.class);
-                    try {
-                        List<ChinaTenderingAndBiddingOpenBidRecord.ObjectBean.OpenBidRecordBeanX> openBidRecordBeanList = data1.getObject().getOpenBidRecord();
-                        if (openBidRecordBeanList != null) {
-                            Map<String, String> map = Maps.newHashMap();
-                            String formatContent = "";
-                            map.put("transactionPlatfCode", openBidRecordBeanList.get(0).getOpenBidRecord().getTransactionPlatfCode());
-                            map.put("bidSectionCodes", openBidRecordBeanList.get(0).getOpenBidRecord().getBidSectionCodes());
-                            map.put("bidOpeningTime", openBidRecordBeanList.get(0).getOpenBidRecord().getBidOpeningTime());
-                            map.put("openBidRecordName", openBidRecordBeanList.get(0).getOpenBidRecord().getOpenBidRecordName());
-                            if (openBidRecordBeanList.get(0).getServiceOpenBidList() != null) {
-                                for (int i = 0; i < openBidRecordBeanList.get(0).getServiceOpenBidList().size(); i++) {
-                                    String table = "<tr><td>" + openBidRecordBeanList.get(0).getServiceOpenBidList().get(i).getBidderName() + "</td><td>" + openBidRecordBeanList.get(0).getServiceOpenBidList().get(i).getBidSectionName() + "</td><td>" + openBidRecordBeanList.get(0).getServiceOpenBidList().get(i).getVerifyTime() + "</td></tr>";
-                                    formatContent = formatContent + table;
-                                }
-                            }
-                            if (openBidRecordBeanList.get(0).getProjectOpenBidList() != null) {
-                                for (int i = 0; i < openBidRecordBeanList.get(0).getProjectOpenBidList().size(); i++) {
-                                    String table = "<tr><td>" + openBidRecordBeanList.get(0).getProjectOpenBidList().get(i).getBidderName() + "</td><td>" + openBidRecordBeanList.get(0).getProjectOpenBidList().get(i).getBidAmount() + "</td><td>" + openBidRecordBeanList.get(0).getProjectOpenBidList().get(i).getVerifyTime() + "</td></tr>";
-                                    formatContent = formatContent + table;
-                                }
-                            }
-                            if (StringUtils.isNotBlank(formatContent)) {
-                                map.put("formatContent", formatContent);
-                            }
-                            String test = formTemplateBidOpen;
-                            for (Map.Entry<String, String> entry : map.entrySet()) {
-                                log.debug("key=={}value=={}", entry.getKey(), entry.getValue());
-                                if (StringUtils.isNotBlank(entry.getValue())) {
-                                    test = StringUtils.replace(test, "{" + entry.getKey() + "}", entry.getValue());
-                                }
-                            }
-                            log.debug("test=={}", test);
-                            if (StringUtils.isNotBlank(test)) {
-                                zgZhaoTouDataItem.setFormatContent(PageProcessorUtil.removeField(test));
-                                dataItems.add(zgZhaoTouDataItem);
-                            }
-
-                        }
-
-                    } catch (Exception e) {
-                        log.debug("The json data is empty");
-                    }
-                }
-
-                if (type.equals("评标公示")) {
-                    Page page1 = pageGenerator(row, type);
-                    ChinaTenderingAndBiddingEvaluation data1 = JSONObject.parseObject(page1.getRawText(), ChinaTenderingAndBiddingEvaluation.class);
-                    try {
-                        List<ChinaTenderingAndBiddingEvaluation.ObjectBean.WinCandidateBulletinBean> winCandidateBulletinBeanList = data1.getObject().getWinCandidateBulletin();
-                        log.debug("winBidBulletinBeanList=={}", winCandidateBulletinBeanList.size());
-                        if (winCandidateBulletinBeanList.size() > 0) {
-                            Map<String, String> map = Maps.newHashMap();
-                            String formatContent = "";
-                            map.put("transactionPlatfCode", winCandidateBulletinBeanList.get(0).getTransactionPlatfCode());
-                            map.put("attachmentCode", winCandidateBulletinBeanList.get(0).getAttachmentCode());
-                            map.put("sourceUrl", winCandidateBulletinBeanList.get(0).getSourceUrl());
-                            map.put("tenderProjectCode", winCandidateBulletinBeanList.get(0).getTenderProjectCode());
-                            map.put("bulletinssueTime", winCandidateBulletinBeanList.get(0).getBulletinssueTime());
-                            map.put("bulletinName", winCandidateBulletinBeanList.get(0).getBulletinName());
-                            for (ChinaTenderingAndBiddingEvaluation.ObjectBean.WinCandidateBulletinBean winBidBulletinBean : winCandidateBulletinBeanList) {
-                                formatContent = formatContent + "<p>" + winBidBulletinBean.getBulletinContent() + "</p>";
-                            }
-                            if (StringUtils.isNotBlank(formatContent)) {
-                                map.put("formatContent", formatContent);
-                            }
-                            String test = formTemplateAnnouncement;
-                            for (Map.Entry<String, String> entry : map.entrySet()) {
-                                log.debug("key=={}value=={}", entry.getKey(), entry.getValue());
-                                if (StringUtils.isNotBlank(entry.getValue())) {
-                                    test = StringUtils.replace(test, "{" + entry.getKey() + "}", entry.getValue());
-                                }
-                            }
-                            log.debug("test=={}", test);
-                            if (StringUtils.isNotBlank(test)) {
-                                zgZhaoTouDataItem.setFormatContent(PageProcessorUtil.removeField(test));
-                                dataItems.add(zgZhaoTouDataItem);
-                            }
-                        }
-
-                    } catch (Exception e) {
-                        log.debug("The json data is empty");
-                    }
+                switch (type) {
+                    case "招标项目":
+                        type01(dataItems, row, type, dataItem);
+                        break;
+                    case "招标公告":
+                        type02(dataItems, row, type, dataItem);
+                        break;
+                    case "中标公告":
+                        type03(dataItems, row, type, dataItem);
+                        break;
+                    case "开标记录":
+                        type04(dataItems, row, type, dataItem);
+                        break;
+                    case "评标公示":
+                        type05(dataItems, row, type, dataItem);
+                        break;
+                    default:
                 }
 
             }
 
-
         }
         return dataItems;
+    }
+
+    /**
+     * 评标公示
+     *
+     * @param dataItems
+     * @param row
+     * @param type
+     * @param dataItem
+     */
+    private void type05(List<BidNewsOriginal> dataItems, ChinaTenderingAndBidding.ObjectBean.ReturnlistBean row, String type, BidNewsOriginal dataItem) {
+        Page page1 = pageGenerator(row, type);
+        ChinaTenderingAndBiddingEvaluation data1 = JSONObject.parseObject(page1.getRawText(), ChinaTenderingAndBiddingEvaluation.class);
+        try {
+            List<ChinaTenderingAndBiddingEvaluation.ObjectBean.WinCandidateBulletinBean> winCandidateBulletinBeanList = data1.getObject().getWinCandidateBulletin();
+            log.debug("winBidBulletinBeanList=={}", winCandidateBulletinBeanList.size());
+            if (winCandidateBulletinBeanList.size() > 0) {
+                Map<String, String> map = Maps.newHashMap();
+                String formatContent = "";
+                map.put("transactionPlatfCode", winCandidateBulletinBeanList.get(0).getTransactionPlatfCode());
+                map.put("attachmentCode", winCandidateBulletinBeanList.get(0).getAttachmentCode());
+                map.put("sourceUrl", winCandidateBulletinBeanList.get(0).getSourceUrl());
+                map.put("tenderProjectCode", winCandidateBulletinBeanList.get(0).getTenderProjectCode());
+                map.put("bulletinssueTime", winCandidateBulletinBeanList.get(0).getBulletinssueTime());
+                map.put("bulletinName", winCandidateBulletinBeanList.get(0).getBulletinName());
+                for (ChinaTenderingAndBiddingEvaluation.ObjectBean.WinCandidateBulletinBean winBidBulletinBean : winCandidateBulletinBeanList) {
+                    formatContent = formatContent + "<p>" + winBidBulletinBean.getBulletinContent() + "</p>";
+                }
+                if (StringUtils.isNotBlank(formatContent)) {
+                    map.put("formatContent", formatContent);
+                }
+                String test = new String(formTemplateAnnouncement);
+                for (Map.Entry<String, String> entry : map.entrySet()) {
+                    log.debug("key=={}value=={}", entry.getKey(), entry.getValue());
+                    if (StringUtils.isNotBlank(entry.getValue())) {
+                        test = StringUtils.replace(test, "{" + entry.getKey() + "}", entry.getValue());
+                    }
+                }
+                log.debug("test=={}", test);
+                if (StringUtils.isNotBlank(test)) {
+                    dataItem.setFormatContent(PageProcessorUtil.removeField(test));
+                    dataItems.add(dataItem);
+                }
+            }
+
+        } catch (Exception e) {
+            log.debug("The json data is empty");
+        }
+    }
+
+    private void type04(List<BidNewsOriginal> dataItems, ChinaTenderingAndBidding.ObjectBean.ReturnlistBean row, String type, BidNewsOriginal dataItem) {
+        Page page1 = pageGenerator(row, type);
+        ChinaTenderingAndBiddingOpenBidRecord data1 = JSONObject.parseObject(page1.getRawText(), ChinaTenderingAndBiddingOpenBidRecord.class);
+        try {
+            List<ChinaTenderingAndBiddingOpenBidRecord.ObjectBean.OpenBidRecordBeanX> openBidRecordBeanList = data1.getObject().getOpenBidRecord();
+            if (openBidRecordBeanList != null) {
+                Map<String, String> map = Maps.newHashMap();
+                String formatContent = "";
+                map.put("transactionPlatfCode", openBidRecordBeanList.get(0).getOpenBidRecord().getTransactionPlatfCode());
+                map.put("bidSectionCodes", openBidRecordBeanList.get(0).getOpenBidRecord().getBidSectionCodes());
+                map.put("bidOpeningTime", openBidRecordBeanList.get(0).getOpenBidRecord().getBidOpeningTime());
+                map.put("openBidRecordName", openBidRecordBeanList.get(0).getOpenBidRecord().getOpenBidRecordName());
+                if (openBidRecordBeanList.get(0).getServiceOpenBidList() != null) {
+                    for (int i = 0; i < openBidRecordBeanList.get(0).getServiceOpenBidList().size(); i++) {
+                        String table = "<tr><td>" + openBidRecordBeanList.get(0).getServiceOpenBidList().get(i).getBidderName() + "</td><td>" + openBidRecordBeanList.get(0).getServiceOpenBidList().get(i).getBidSectionName() + "</td><td>" + openBidRecordBeanList.get(0).getServiceOpenBidList().get(i).getVerifyTime() + "</td></tr>";
+                        formatContent = formatContent + table;
+                    }
+                }
+                if (openBidRecordBeanList.get(0).getProjectOpenBidList() != null) {
+                    for (int i = 0; i < openBidRecordBeanList.get(0).getProjectOpenBidList().size(); i++) {
+                        String table = "<tr><td>" + openBidRecordBeanList.get(0).getProjectOpenBidList().get(i).getBidderName() + "</td><td>" + openBidRecordBeanList.get(0).getProjectOpenBidList().get(i).getBidAmount() + "</td><td>" + openBidRecordBeanList.get(0).getProjectOpenBidList().get(i).getVerifyTime() + "</td></tr>";
+                        formatContent = formatContent + table;
+                    }
+                }
+                if (StringUtils.isNotBlank(formatContent)) {
+                    map.put("formatContent", formatContent);
+                }
+                String test = new String(formTemplateBidOpen);
+                for (Map.Entry<String, String> entry : map.entrySet()) {
+                    log.debug("key=={}value=={}", entry.getKey(), entry.getValue());
+                    if (StringUtils.isNotBlank(entry.getValue())) {
+                        test = StringUtils.replace(test, "{" + entry.getKey() + "}", entry.getValue());
+                    }
+                }
+                log.debug("test=={}", test);
+                if (StringUtils.isNotBlank(test)) {
+                    dataItem.setFormatContent(PageProcessorUtil.removeField(test));
+                    dataItems.add(dataItem);
+                }
+
+            }
+
+        } catch (Exception e) {
+            log.debug("The json data is empty");
+        }
+    }
+
+    private void type03(List<BidNewsOriginal> dataItems, ChinaTenderingAndBidding.ObjectBean.ReturnlistBean row, String type, BidNewsOriginal dataItem) {
+        Page page1 = pageGenerator(row, type);
+        ChinaTenderingAndBinddingWinBidBulletin data1 = JSONObject.parseObject(page1.getRawText(), ChinaTenderingAndBinddingWinBidBulletin.class);
+        try {
+            List<ChinaTenderingAndBinddingWinBidBulletin.ObjectBean.WinBidBulletinBean> winBidBulletinBeanList = data1.getObject().getWinBidBulletin();
+            log.debug("winBidBulletinBeanList=={}", winBidBulletinBeanList.size());
+            if (winBidBulletinBeanList.size() > 0) {
+                Map<String, String> map = Maps.newHashMap();
+                String formatContent = "";
+                map.put("transactionPlatfCode", winBidBulletinBeanList.get(0).getTransactionPlatfCode());
+                map.put("attachmentCode", winBidBulletinBeanList.get(0).getAttachmentCode());
+                map.put("sourceUrl", winBidBulletinBeanList.get(0).getSourceUrl());
+                map.put("tenderProjectCode", winBidBulletinBeanList.get(0).getTenderProjectCode());
+                map.put("bulletinssueTime", winBidBulletinBeanList.get(0).getBulletinssueTime());
+                map.put("bulletinName", winBidBulletinBeanList.get(0).getBulletinName());
+                for (ChinaTenderingAndBinddingWinBidBulletin.ObjectBean.WinBidBulletinBean winBidBulletinBean : winBidBulletinBeanList) {
+                    formatContent = formatContent + "<p>" + winBidBulletinBean.getBulletinContent() + "</p>";
+                }
+                if (StringUtils.isNotBlank(formatContent)) {
+                    map.put("formatContent", formatContent);
+                }
+                String test = new String(formTemplateAnnouncement);
+                for (Map.Entry<String, String> entry : map.entrySet()) {
+                    log.debug("key=={}value=={}", entry.getKey(), entry.getValue());
+                    if (StringUtils.isNotBlank(entry.getValue())) {
+                        test = StringUtils.replace(test, "{" + entry.getKey() + "}", entry.getValue());
+                    }
+                }
+                log.debug("test=={}", test);
+                if (StringUtils.isNotBlank(test)) {
+                    dataItem.setFormatContent(PageProcessorUtil.removeField(test));
+                    dataItems.add(dataItem);
+                }
+
+            }
+
+        } catch (Exception e) {
+            log.debug("The json data is empty, {}", page1);
+        }
+    }
+
+    private void type02(List<BidNewsOriginal> dataItems, ChinaTenderingAndBidding.ObjectBean.ReturnlistBean row, String type, BidNewsOriginal dataItem) {
+        Page page = pageGenerator(row, type);
+        ChinaTenderingAndBiddingAnnouncement data = JSONObject.parseObject(page.getRawText(), ChinaTenderingAndBiddingAnnouncement.class);
+        List<ChinaTenderingAndBiddingAnnouncement.ObjectBean.TenderBulletinBean> tenderBulletin = data.getObject().getTenderBulletin();
+
+        String formatContent = "";
+        if (tenderBulletin.size() > 0) {
+            ChinaTenderingAndBiddingAnnouncement.ObjectBean.TenderBulletinBean bean = tenderBulletin.get(0);
+            Map<String, String> map = Maps.newHashMap();
+            map.put("attachmentCode", bean.getAttachmentCode());
+            map.put("bulletinName", bean.getBulletinName());
+            map.put("bulletinssueTime", bean.getBulletinssueTime());
+            map.put("schemaVersion", bean.getSchemaVersion());
+            map.put("sourceUrl", bean.getSourceUrl());
+            map.put("tenderProjectCode", bean.getTenderProjectCode());
+            map.put("transactionPlatfCode", bean.getTransactionPlatfCode());
+
+            formatContent = bean.getBulletinContent();
+            if (StringUtils.isNotBlank(formatContent)) {
+                map.put("formatContent", formatContent);
+            }
+
+        } else if (data.getObject().getQualifyBulletin().size() > 0) {
+            ChinaTenderingAndBiddingAnnouncement.ObjectBean.TenderBulletinBean bean = data.getObject().getQualifyBulletin().get(0);
+            formatContent = bean.getBulletinContent();
+        }
+
+        if (StringUtils.isNotBlank(formatContent) && !"F".equalsIgnoreCase(formatContent)) {
+            if (!formatContent.contains("<html")) {
+                formatContent = "<html>" + formatContent + "</html>";
+            }
+            formatContent = PageProcessorUtil.formatElementsByWhitelist(Jsoup.parse(formatContent));
+            dataItem.setFormatContent(formatContent);
+            dataItems.add(dataItem);
+        }
+
+    }
+
+    private void type01(List<BidNewsOriginal> dataItems, ChinaTenderingAndBidding.ObjectBean.ReturnlistBean row, String type, BidNewsOriginal dataItem) {
+        Page page = pageGenerator(row, type);
+        log.debug(">>> {}\n", page.getRawText());
+
+        String json = page.getRawText();
+        JSONObject root = (JSONObject) JSONObject.parse(json);
+        boolean success = (boolean) JSONPath.eval(root, "$.success");
+        if (!success) return;
+
+        JSONObject tenderProject = (JSONObject) JSONPath.eval(root, "$.object.tenderProject[0]");
+        Map<String, Object> map = JSONPath.paths(tenderProject);
+
+        String content = new String(formTemplate);
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            String key = entry.getKey().replace("/", "");
+            String value = "" + entry.getValue();
+            content = StringUtils.replace(content, key, value);
+
+            switch (key) {
+                case "tendererName":
+                    dataItem.setPurchaser(value);
+                    break;
+                case "tenderProjectCode":
+                    dataItem.setProjectCode(value);
+                    break;
+                default:
+            }
+        }
+
+        log.debug(">>> {}\n{}\n", map, content);
+        if (StringUtils.isNotBlank(content)) {
+            dataItem.setFormatContent(content);
+        } else {
+            log.error(">>> {}\n{}\n", map, content);
+        }
+
+        dataItems.add(dataItem);
     }
 
 }
