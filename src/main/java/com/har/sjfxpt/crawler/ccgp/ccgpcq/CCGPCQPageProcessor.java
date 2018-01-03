@@ -1,6 +1,8 @@
 package com.har.sjfxpt.crawler.ccgp.ccgpcq;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONPath;
 import com.google.common.collect.Lists;
 import com.har.sjfxpt.crawler.core.annotation.Source;
 import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
@@ -94,14 +96,14 @@ public class CCGPCQPageProcessor implements BasePageProcessor {
 
     public List parseContent(Page page) {
         List<BidNewsOriginal> dataItems = Lists.newArrayList();
-        CCGPCQAnnouncement ccgpcqAnnouncement = JSONObject.parseObject(page.getRawText(), CCGPCQAnnouncement.class);
-        List<CCGPCQAnnouncement.NoticesBean> tenderBulletin = ccgpcqAnnouncement.getNotices();
-        for (CCGPCQAnnouncement.NoticesBean noticesBean : tenderBulletin) {
-            String id = noticesBean.getId();
-            String title = noticesBean.getTitle();
-            String purchaser = noticesBean.getBuyerName();
-            String source = noticesBean.getAgentName();
-            String date = noticesBean.getIssueTime();
+        JSONObject root = (JSONObject) JSONObject.parse(page.getRawText());
+        JSONArray jsonArray = (JSONArray) JSONPath.eval(root, "$.notices");
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JSONObject project = (JSONObject) JSONObject.parse(jsonArray.get(i).toString());
+            String id = JSONPath.eval(project, "$.id").toString();
+            String title = JSONPath.eval(project, "$.title").toString();
+            String purchaser = JSONPath.eval(project, "$.buyerName").toString();
+            String date = JSONPath.eval(project, "$.issueTime").toString();
 
             String code = null;
             try {
@@ -114,7 +116,6 @@ public class CCGPCQPageProcessor implements BasePageProcessor {
             BidNewsOriginal ccgpcqDataItem = new BidNewsOriginal(href);
             ccgpcqDataItem.setTitle(title);
             ccgpcqDataItem.setPurchaser(purchaser);
-            ccgpcqDataItem.setSource(source);
             ccgpcqDataItem.setProvince("重庆");
             ccgpcqDataItem.setDate(PageProcessorUtil.dataTxt(date));
             ccgpcqDataItem.setUrl(hrefLook);
@@ -124,16 +125,15 @@ public class CCGPCQPageProcessor implements BasePageProcessor {
                 log.warn("{} is not the same day", ccgpcqDataItem.getUrl());
             } else {
                 try {
-                    log.debug("href={}", href);
                     Page page1 = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
-                    CCGPCQDetailAnnouncement ccgpcqDetailAnnouncement = JSONObject.parseObject(page1.getRawText(), CCGPCQDetailAnnouncement.class);
-                    String html = ccgpcqDetailAnnouncement.getNotice().getHtml();
+                    JSONObject pageJson = (JSONObject) JSONObject.parse(page1.getRawText());
+                    String htmlJson = (String) JSONPath.eval(pageJson, "$.notice.html");
                     Whitelist whitelist = Whitelist.relaxed();
                     whitelist.removeTags("style");
                     whitelist.removeTags("script");
                     whitelist.removeAttributes("table", "style", "width", "height");
                     whitelist.removeAttributes("td", "style", "width", "height");
-                    String formatContent = Jsoup.clean(html, whitelist);
+                    String formatContent = Jsoup.clean(htmlJson, whitelist);
                     formatContent = StringUtils.removeAll(formatContent, "<!-{2,}.*?-{2,}>|(&nbsp;)|<o:p>|</o:p>");
                     if (StringUtils.isNotBlank(formatContent)) {
                         ccgpcqDataItem.setFormatContent(formatContent);

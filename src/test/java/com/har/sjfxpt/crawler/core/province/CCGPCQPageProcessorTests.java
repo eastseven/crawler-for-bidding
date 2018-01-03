@@ -71,8 +71,8 @@ public class CCGPCQPageProcessorTests {
         Assert.assertNotNull(ccgpcqPageProcessor);
 
         SourceModel sourceModel = new SourceModel();
-        sourceModel.setUrl("https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable?pi=1&ps=20&startDate=&timestamp=" + DateTime.now().getMillis() + "&type=300,302,304,3041,305,306,307,308");
-        sourceModel.setType("采购结果公告");
+        sourceModel.setUrl("https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable?pi=1&ps=20&startDate=&timestamp=" + DateTime.now().getMillis() + "&type=100,200,201,202,203,204,205,206,207,309,400,401,402,3091,4001");
+        sourceModel.setType("采购公告");
         Request request = sourceModel.createRequest();
         Spider.create(ccgpcqPageProcessor)
                 .addRequest(request)
