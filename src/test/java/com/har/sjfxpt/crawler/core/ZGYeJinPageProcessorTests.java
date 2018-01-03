@@ -1,5 +1,10 @@
 package com.har.sjfxpt.crawler.core;
 
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.google.common.collect.Maps;
+import com.har.sjfxpt.crawler.core.annotation.SourceModel;
+import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.service.ProxyService;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
@@ -11,10 +16,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
@@ -22,22 +24,26 @@ import us.codecraft.webmagic.proxy.SimpleProxyProvider;
 
 import java.io.IOException;
 import java.util.Date;
+import java.util.Map;
 
+import static com.har.sjfxpt.crawler.zgyj.ZGYeJinPageProcessor.POST_PARAMS_01;
+import static com.har.sjfxpt.crawler.zgyj.ZGYeJinPageProcessor.URL_01;
 import static com.har.sjfxpt.crawler.zgyj.ZGYeJinSpiderLauncher.requestGenerator;
 
 /**
  * Created by Administrator on 2017/10/27.
  */
 @Slf4j
-@RunWith(SpringRunner.class)
-@SpringBootTest
-public class ZGYeJinPageProcessorTests {
+public class ZGYeJinPageProcessorTests extends SpiderApplicationTests {
 
     @Autowired
     ZGYeJinPageProcessor zgYeJinPageProcessor;
 
     @Autowired
     ZGYeJinPipeline zgYeJinPipeline;
+
+    @Autowired
+    HBasePipeline pipeline;
 
     String[] urls = {
             "http://ec.mcc.com.cn/b2b/web/two/indexinfoAction.do?actionType=showMoreZbs&xxposition=zbgg",
@@ -46,25 +52,35 @@ public class ZGYeJinPageProcessorTests {
             "http://ec.mcc.com.cn/b2b/web/two/indexinfoAction.do?actionType=showMorePub&xxposition=zhongbgg"
     };
 
+    @Test
+    public void testPostParams() {
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("xxposition", "zbgg");
+        params.put("currpage", 1);
+        params.put("sbsj1", "#");
+        params.put("sbsj2", "#");
+
+        String json = JSONObject.toJSONString(params, SerializerFeature.UseSingleQuotes);
+        log.info(">>> {}", json);
+    }
+
     //爬去当日的数据
     @Test
     public void testZGYeJinPageProcessor() {
 
-        Request[] requests = new Request[urls.length];
-
-        String date=DateTime.now().toString("yyyy-MM-dd");
-
-        for (int i = 0; i < urls.length; i++) {
-            requests[i] = requestGenerator(urls[i], date, date);
-        }
+        SourceModel source = new SourceModel();
+        source.setUrl(URL_01);
+        source.setType("采购公告");
+        source.setPost(true);
+        source.setJsonPostParams(POST_PARAMS_01);
+        source.setNeedPlaceholderFields(new String[]{"sbsj1", "sbsj2"});
 
         HttpClientDownloader test = new HttpClientDownloader();
         test.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxy()));
         Spider.create(zgYeJinPageProcessor)
-                .addRequest(requests)
-                .addPipeline(zgYeJinPipeline)
+                .addRequest(source.createRequest())
+                .addPipeline(pipeline)
                 .setDownloader(test)
-                .thread(4)
                 .run();
     }
 
