@@ -1,30 +1,30 @@
 package com.har.sjfxpt.crawler.core;
 
+import com.har.sjfxpt.crawler.core.annotation.SourceModel;
+import com.har.sjfxpt.crawler.core.model.BidNewsSpider;
+import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
+import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import com.har.sjfxpt.crawler.shenhua.ShenHuaPageProcessor;
-import com.har.sjfxpt.crawler.shenhua.ShenHuaPipeline;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
+import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
-import us.codecraft.webmagic.Spider;
+import us.codecraft.webmagic.Request;
 
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.THREAD_NUM;
+import java.util.List;
 
 /**
  * Created by Administrator on 2017/12/22.
  */
 @Slf4j
-@SpringBootTest
-@RunWith(SpringRunner.class)
-public class ShenHuaPageProcessorTests {
+public class ShenHuaPageProcessorTests extends SpiderApplicationTests {
 
     @Autowired
     ShenHuaPageProcessor shenHuaPageProcessor;
 
     @Autowired
-    ShenHuaPipeline shenHuaPipeline;
+    HBasePipeline pipeline;
 
     String[] urls = {
             "http://www.shenhuabidding.com.cn/bidweb/001/001001/1.html",
@@ -39,10 +39,10 @@ public class ShenHuaPageProcessorTests {
 
     @Test
     public void testShenHuaPageProcessors() {
-        Spider.create(shenHuaPageProcessor)
-                .addUrl(urls)
-                .thread(THREAD_NUM)
-                .addPipeline(shenHuaPipeline)
-                .run();
+        List<SourceModel> list = SourceConfigAnnotationUtils.find(shenHuaPageProcessor.getClass());
+        Assert.assertTrue(CollectionUtils.isNotEmpty(list));
+
+        Request[] requests = list.parallelStream().map(SourceModel::createRequest).toArray(Request[]::new);
+        BidNewsSpider.create(shenHuaPageProcessor).addRequest(requests).thread(list.size()).addPipeline(pipeline).run();
     }
 }
