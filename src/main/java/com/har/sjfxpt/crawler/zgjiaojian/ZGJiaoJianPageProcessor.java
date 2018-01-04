@@ -24,23 +24,28 @@ import us.codecraft.webmagic.utils.HttpConstant;
 import java.util.List;
 import java.util.Map;
 
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
+import static com.har.sjfxpt.crawler.zgjiaojian.ZGJiaoJianPageProcessor.*;
 
 
 /**
  * Created by Administrator on 2017/12/28.
+ *
+ * @author luofei
+ * @author dongqi
  */
 @Slf4j
 @Component
 @SourceConfig(code = SourceCode.ZGJIAOJIAN, sources = {
-        @Source(url = "http://empm.ccccltd.cn/PMS/downpage.shtml?id=J8Gis7a8zFp0/0+cu62h4ufCdjRQ/t9M5buuVsVwZbmhKSxRhbdvSgqcr+4yWYEPz0JTUNvOCTs=", post = true,
-                postParams = "{'VENUS_PAGE_NO_KEY':'1','VENUS_PAGE_SIZE_KEY':'20','channelId':'2013300100000000035'}"
-        ),
-        @Source(url = "http://empm.ccccltd.cn/PMS/downpage.shtml?id=J8Gis7a8zFp0/0+cu62h4ufCdjRQ/t9M5buuVsVwZbmhKSxRhbdvSgqcr+4yWYEPeVgXu6xroO0=", post = true,
-                postParams = "{'VENUS_PAGE_NO_KEY':'1','VENUS_PAGE_SIZE_KEY':'20','channelId':'2013300100000000034'}"
-        )
+        @Source(url = URL_01, post = true, postParams = POST_PARAMS_01),
+        @Source(url = URL_02, post = true, postParams = POST_PARAMS_02)
 })
 public class ZGJiaoJianPageProcessor implements BasePageProcessor {
+
+    public static final String URL_01 = "http://empm.ccccltd.cn/PMS/downpage.shtml?id=J8Gis7a8zFp0/0+cu62h4ufCdjRQ/t9M5buuVsVwZbmhKSxRhbdvSgqcr+4yWYEPz0JTUNvOCTs=";
+    public static final String URL_02 = "http://empm.ccccltd.cn/PMS/downpage.shtml?id=J8Gis7a8zFp0/0+cu62h4ufCdjRQ/t9M5buuVsVwZbmhKSxRhbdvSgqcr+4yWYEPeVgXu6xroO0=";
+
+    public static final String POST_PARAMS_01 = "{'VENUS_PAGE_NO_KEY':'1','VENUS_PAGE_SIZE_KEY':'20','channelId':'2013300100000000035'}";
+    public static final String POST_PARAMS_02 = "{'VENUS_PAGE_NO_KEY':'1','VENUS_PAGE_SIZE_KEY':'20','channelId':'2013300100000000034'}";
 
     HttpClientDownloader httpClientDownloader;
 
