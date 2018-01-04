@@ -145,7 +145,7 @@ public class ChinaMobilePageProcessor implements BasePageProcessor {
             date = new DateTime(date).toString(YYYYMMDD);
 
             BidNewsOriginal dataItem = new BidNewsOriginal(url);
-            dataItem.setDate(date);
+            dataItem.setDate(PageProcessorUtil.dataTxt(date));
             dataItem.setTitle(title);
             dataItem.setProjectName(StringUtils.defaultString(projectName, ""));
             dataItem.setType(type);
@@ -153,6 +153,7 @@ public class ChinaMobilePageProcessor implements BasePageProcessor {
             dataItem.setProvince(ProvinceUtil.get(purchaser + title));
             dataItem.setSource(SourceCode.CM.getValue());
             dataItem.setSourceCode(SourceCode.CM.name());
+            log.debug("date={}", dataItem.getDate());
 
             log.debug(">>> download {}", url);
             Document document = httpClientDownloader.download(new Request(url), SiteUtil.get().setTimeOut(60000).toTask()).getHtml().getDocument();
