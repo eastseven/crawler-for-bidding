@@ -9,26 +9,24 @@ import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.service.ProxyService;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
+import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import com.har.sjfxpt.crawler.zgyj.ZGYeJinPageProcessor;
-import com.har.sjfxpt.crawler.zgyj.ZGYeJinPipeline;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import us.codecraft.webmagic.Request;
-import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.proxy.SimpleProxyProvider;
 
 import java.io.IOException;
-import java.util.Date;
+import java.util.List;
 import java.util.Map;
-
-import static com.har.sjfxpt.crawler.zgyj.ZGYeJinPageProcessor.*;
-import static com.har.sjfxpt.crawler.zgyj.ZGYeJinSpiderLauncher.requestGenerator;
 
 /**
  * Created by Administrator on 2017/10/27.
@@ -38,9 +36,6 @@ public class ZGYeJinPageProcessorTests extends SpiderApplicationTests {
 
     @Autowired
     ZGYeJinPageProcessor zgYeJinPageProcessor;
-
-    @Autowired
-    ZGYeJinPipeline zgYeJinPipeline;
 
     @Autowired
     HBasePipeline pipeline;
@@ -67,61 +62,12 @@ public class ZGYeJinPageProcessorTests extends SpiderApplicationTests {
     //爬去当日的数据
     @Test
     public void testZGYeJinPageProcessor() {
-
-        SourceModel source = new SourceModel();
-        source.setUrl(URL_01);
-        source.setType("采购公告");
-        source.setPost(true);
-        source.setJsonPostParams(POST_PARAMS_01);
-        source.setNeedPlaceholderFields(new String[]{"sbsj1", "sbsj2"});
-
-        source = new SourceModel();
-        source.setUrl(URL_03);
-        source.setType("变更公告");
-        source.setPost(true);
-        source.setJsonPostParams(POST_PARAMS_03);
-        source.setNeedPlaceholderFields(new String[]{"audittime", "audittime2"});
-
-        source = new SourceModel();
-        source.setUrl(URL_04);
-        source.setType("结果公告");
-        source.setPost(true);
-        source.setJsonPostParams(POST_PARAMS_04);
-        source.setNeedPlaceholderFields(new String[]{"releasedate1", "releasedate2"});
-
-        source = new SourceModel();
-        source.setUrl(URL_02);
-        source.setType("采购信息");
-        source.setPost(true);
-        source.setJsonPostParams(POST_PARAMS_02);
-
-        HttpClientDownloader test = new HttpClientDownloader();
-        test.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxy()));
-        BidNewsSpider.create(zgYeJinPageProcessor)
-                .addRequest(source.createRequest())
-                .addPipeline(pipeline)
-                .setDownloader(test)
-                .run();
+        List<SourceModel> sourceModelList = SourceConfigAnnotationUtils.find(zgYeJinPageProcessor.getClass());
+        Assert.assertFalse(CollectionUtils.isEmpty(sourceModelList));
+        sourceModelList.forEach(sourceModel -> log.debug(">>> {}", sourceModel));
+        Request[] requests = sourceModelList.parallelStream().map(SourceModel::createRequest).toArray(Request[]::new);
+        BidNewsSpider.create(zgYeJinPageProcessor).addRequest(requests).addPipeline(pipeline).thread(requests.length).run();
     }
-
-    //爬取13年至今的历史数据
-    @Test
-    public void testZGYeJinHistoryPageProcessor() {
-        Request[] requests = new Request[urls.length];
-
-        String date = new DateTime(new Date()).toString("yyyy-MM-dd");
-
-        for (int i = 0; i < urls.length; i++) {
-            requests[i] = requestGenerator(urls[i], "2013-01-01", date);
-        }
-
-        Spider.create(zgYeJinPageProcessor)
-                .addRequest(requests)
-                .addPipeline(zgYeJinPipeline)
-                .thread(8)
-                .run();
-    }
-
 
     @Test
     public void testPageProcessor() {
