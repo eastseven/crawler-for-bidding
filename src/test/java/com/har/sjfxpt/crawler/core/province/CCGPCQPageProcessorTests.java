@@ -1,12 +1,14 @@
 package com.har.sjfxpt.crawler.core.province;
 
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Lists;
 import com.har.sjfxpt.crawler.ccgp.ccgpcq.CCGPCQDetailAnnouncement;
 import com.har.sjfxpt.crawler.ccgp.ccgpcq.CCGPCQPageProcessor;
 import com.har.sjfxpt.crawler.ccgp.ccgpcq.CCGPCQPipeline;
 import com.har.sjfxpt.crawler.core.annotation.SourceModel;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
+import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -25,6 +27,7 @@ import us.codecraft.webmagic.downloader.HttpClientDownloader;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.List;
 
 import static com.har.sjfxpt.crawler.ccgp.ccgpcq.CCGPCQSpiderLauncher.requestGenerator;
 
@@ -68,16 +71,21 @@ public class CCGPCQPageProcessorTests {
 
     @Test
     public void testCCGPCQAnnotation() {
-        Assert.assertNotNull(ccgpcqPageProcessor);
-
-        SourceModel sourceModel = new SourceModel();
-        sourceModel.setUrl("https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable?pi=1&ps=20&startDate=&timestamp=" + DateTime.now().getMillis() + "&type=100,200,201,202,203,204,205,206,207,309,400,401,402,3091,4001");
-        sourceModel.setType("采购公告");
-        Request request = sourceModel.createRequest();
-        Spider.create(ccgpcqPageProcessor)
-                .addRequest(request)
-                .addPipeline(hBasePipeline)
-                .run();
+        List<SourceModel> list = SourceConfigAnnotationUtils.find(ccgpcqPageProcessor.getClass());
+        List<Request> requests = Lists.newArrayList();
+        for (SourceModel sourceModel : list) {
+            Request request = sourceModel.createRequest();
+            requests.add(request);
+        }
+        if (!requests.isEmpty()) {
+            Spider.create(ccgpcqPageProcessor)
+                    .addRequest(requests.toArray(new Request[requests.size()]))
+                    .addPipeline(hBasePipeline)
+                    .thread(8)
+                    .run();
+        } else {
+            log.warn("request is empty!");
+        }
     }
 
 

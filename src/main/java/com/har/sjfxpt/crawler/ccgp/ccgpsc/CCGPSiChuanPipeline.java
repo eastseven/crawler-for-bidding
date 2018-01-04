@@ -21,6 +21,7 @@ import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_
  */
 @Slf4j
 @Component
+@Deprecated
 public class CCGPSiChuanPipeline implements Pipeline{
 
     @Autowired

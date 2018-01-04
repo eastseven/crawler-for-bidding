@@ -1,9 +1,13 @@
 package com.har.sjfxpt.crawler.core;
 
+import com.google.common.collect.Lists;
 import com.har.sjfxpt.crawler.ccgp.*;
+import com.har.sjfxpt.crawler.core.annotation.SourceModel;
+import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.service.HBaseService;
 import com.har.sjfxpt.crawler.core.service.ProxyService;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
+import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.joda.time.DateTime;
@@ -41,6 +45,9 @@ public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
 
     @Autowired
     ZhengFuCaiGouPageProcessor pageProcessor;
+
+    @Autowired
+    HBasePipeline hBasePipeline;
 
     @Autowired
     PageDataProcessor pageDataProcessor;
@@ -85,14 +92,22 @@ public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
     }
 
     @Test
-    public void testPageList() throws Exception {
-        File file = Paths.get("target", "ccgp.html").toFile();
-        Assert.assertNotNull(file);
-        Elements elements = Jsoup.parse(file, "utf-8").body().select(ZhengFuCaiGouPageProcessor.cssQuery4List);
-        List<ZhengFuCaiGouDataItem> dataItemList = pageProcessor.parseContent(elements);
-        Assert.assertNotNull(dataItemList);
-        Assert.assertFalse(dataItemList.isEmpty());
-        dataItemList.forEach(System.out::println);
+    public void testCCGPAnnotation() {
+        List<SourceModel> list = SourceConfigAnnotationUtils.find(pageProcessor.getClass());
+        List<Request> requests = Lists.newArrayList();
+        for (SourceModel sourceModel : list) {
+            Request request = sourceModel.createRequest();
+            requests.add(request);
+        }
+        if (!requests.isEmpty()) {
+            Spider.create(pageProcessor)
+                    .addRequest(requests.toArray(new Request[requests.size()]))
+                    .addPipeline(hBasePipeline)
+                    .thread(8)
+                    .run();
+        } else {
+            log.warn("request is empty!");
+        }
     }
 
     @Test
@@ -161,24 +176,6 @@ public class ZhengFuCaiGouPageProcessorTests extends SpiderApplicationTests {
 
     @Autowired
     HBaseService HBaseService;
-
-    @Test
-    public void getRedisUrl() {
-        long total = stringRedisTemplate.boundSetOps(names).size();
-        for (int i = 0; i < 3; i++) {
-            String tabulationUrl = stringRedisTemplate.boundSetOps(names).pop();
-            log.debug("total=={},tabulationUrl=={}", total, tabulationUrl);
-            Request request = new Request(tabulationUrl);
-            zhengFuCaiGouDownloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
-            us.codecraft.webmagic.Page page = zhengFuCaiGouDownloader.download(request, SiteUtil.get().toTask());
-            Document document = page.getHtml().getDocument();
-            Elements elements = document.body().select(cssQuery4List);
-            List<ZhengFuCaiGouDataItem> dataItemList = pageProcessor.parseContent(elements);
-            if (!dataItemList.isEmpty()) {
-                repository.save(dataItemList);
-            }
-        }
-    }
 
 
 }

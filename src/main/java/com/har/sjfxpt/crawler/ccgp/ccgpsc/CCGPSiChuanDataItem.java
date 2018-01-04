@@ -21,6 +21,7 @@ import java.util.Date;
 @Data
 @ToString
 @Document(collection = "data_item_ccgp_sc")
+@Deprecated
 public class CCGPSiChuanDataItem {
 
     public CCGPSiChuanDataItem(String url) {
