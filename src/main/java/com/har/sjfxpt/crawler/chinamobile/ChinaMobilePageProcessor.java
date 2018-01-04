@@ -32,6 +32,7 @@ import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanUtil.YYYYMMDD;
  */
 @Slf4j
 @Component
+
 public class ChinaMobilePageProcessor implements BasePageProcessor {
 
     final static String PAGE_PARAMS = "pageParams";

@@ -20,7 +20,7 @@ import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_
  * @author dongqi
  */
 @Slf4j
-@Component
+@Component@Deprecated
 public class ChinaMobilePipeline implements Pipeline {
 
     @Autowired

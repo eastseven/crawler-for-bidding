@@ -19,7 +19,7 @@ import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanUtil.YYYYMMDD;
  * @author dongqi
  */
 @Slf4j
-@Service
+@Service@Deprecated
 public class ChinaMobileSpiderLauncher extends BaseSpiderLauncher {
 
     final String SEED_URL = "https://b2b.10086.cn/b2b/main/listVendorNoticeResult.html?noticeBean.noticeType=";
