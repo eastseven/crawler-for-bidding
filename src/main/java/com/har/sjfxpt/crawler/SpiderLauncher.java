@@ -7,7 +7,6 @@ import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanSpiderLauncher;
 import com.har.sjfxpt.crawler.ccgp.ccgpsc.CCGPSiChuanSpiderLauncher;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
 import com.har.sjfxpt.crawler.chinaunicom.ChinaUnicomSpiderLauncher;
-import com.har.sjfxpt.crawler.core.GongGongZiYuanSpiderLauncher;
 import com.har.sjfxpt.crawler.dongfeng.DongFengSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.GGZYCQSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyfujian.GGZYFuJianSpiderLauncher;
@@ -30,8 +29,6 @@ import com.har.sjfxpt.crawler.petrochina.ZGShiYouSpiderLauncher;
 import com.har.sjfxpt.crawler.sgcc.StateGridSpiderLauncher;
 import com.har.sjfxpt.crawler.shenhua.ShenHuaSpiderLauncher;
 import com.har.sjfxpt.crawler.suning.SuNingSpiderLauncher;
-import com.har.sjfxpt.crawler.zgly.ZGLvYeSpiderLauncher;
-import com.har.sjfxpt.crawler.zgyj.ZGYeJinSpiderLauncher;
 import com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingLauncher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,9 +55,6 @@ public class SpiderLauncher implements CommandLineRunner {
     ApplicationContext context;
 
     @Autowired
-    GongGongZiYuanSpiderLauncher gongGongZiYuanSpiderLauncher;
-
-    @Autowired
     ChinaMobileSpiderLauncher chinaMobileSpiderLauncher;
 
     @Autowired
@@ -71,9 +65,6 @@ public class SpiderLauncher implements CommandLineRunner {
 
     @Autowired
     ZGShiYouSpiderLauncher zhongGuoShiYouSpiderLauncher;
-
-    @Autowired
-    ZGYeJinSpiderLauncher zhongGuoYeJinSpiderLauncher;
 
     @Autowired
     ChinaTenderingAndBiddingLauncher chinaTenderingAndBiddingLauncher;
@@ -142,9 +133,6 @@ public class SpiderLauncher implements CommandLineRunner {
     DongFengSpiderLauncher dongFengSpiderLauncher;
 
     @Autowired
-    ZGLvYeSpiderLauncher zgLvYeSpiderLauncher;
-
-    @Autowired
     ShenHuaSpiderLauncher shenHuaSpiderLauncher;
 
     @Autowired
@@ -157,12 +145,10 @@ public class SpiderLauncher implements CommandLineRunner {
     ChinaUnicomSpiderLauncher chinaUnicomSpiderLauncher;
 
     public void info() {
-        gongGongZiYuanSpiderLauncher.printInfo();
         chinaMobileSpiderLauncher.printInfo();
         zhengFuCaiGouSpiderLauncher.printInfo();
         jinCaiWangSpiderLauncher.printInfo();
         zhongGuoShiYouSpiderLauncher.printInfo();
-        zhongGuoYeJinSpiderLauncher.printInfo();
         chinaTenderingAndBiddingLauncher.printInfo();
         CCGPHaiNanSpiderLauncher.printInfo();
         ccgpSiChuanSpiderLauncher.printInfo();
@@ -185,7 +171,6 @@ public class SpiderLauncher implements CommandLineRunner {
         ggzyNingXiaSpiderLauncher.printInfo();
         ggzyxjbtSpiderLauncher.printInfo();
         dongFengSpiderLauncher.printInfo();
-        zgLvYeSpiderLauncher.printInfo();
         shenHuaSpiderLauncher.printInfo();
         baoWuSpiderLauncher.printInfo();
         ggzyHeBeiSpiderLauncher.printInfo();
@@ -197,12 +182,6 @@ public class SpiderLauncher implements CommandLineRunner {
         log.info(">>> SpiderLauncher {}", Arrays.toString(args));
         for (String arg : args) {
             switch (arg) {
-                case "start-ggzy":
-                    gongGongZiYuanSpiderLauncher.start();
-                    break;
-                case "history-ggzy":
-                    gongGongZiYuanSpiderLauncher.fetchHistory();
-                    break;
                 case "start-cm":
                     chinaMobileSpiderLauncher.start();
                     break;
@@ -220,12 +199,6 @@ public class SpiderLauncher implements CommandLineRunner {
                     break;
                 case "start-jcw":
                     jinCaiWangSpiderLauncher.start();
-                    break;
-                case "start-zgyj":
-                    zhongGuoYeJinSpiderLauncher.start();
-                    break;
-                case "history-zgyj":
-                    zhongGuoYeJinSpiderLauncher.fetchHistory();
                     break;
                 case "start-zsy":
                     zhongGuoShiYouSpiderLauncher.start();
@@ -307,9 +280,6 @@ public class SpiderLauncher implements CommandLineRunner {
                     break;
                 case "start-dongfeng":
                     dongFengSpiderLauncher.start();
-                    break;
-                case "start-zglvye":
-                    zgLvYeSpiderLauncher.start();
                     break;
                 case "start-shenhua":
                     shenHuaSpiderLauncher.start();

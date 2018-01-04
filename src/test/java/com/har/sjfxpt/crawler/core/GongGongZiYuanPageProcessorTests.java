@@ -7,8 +7,6 @@ import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.processor.GongGongZiYuanPageProcessor;
 import com.har.sjfxpt.crawler.core.repository.DataItemRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.RandomUtils;
-import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,13 +16,9 @@ import us.codecraft.webmagic.Spider;
 
 import static com.har.sjfxpt.crawler.core.processor.GongGongZiYuanPageProcessor.POST_PARAMS_01;
 import static com.har.sjfxpt.crawler.core.processor.GongGongZiYuanPageProcessor.SEED_URL;
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanUtil.YYYYMMDD;
 
 @Slf4j
 public class GongGongZiYuanPageProcessorTests extends SpiderApplicationTests {
-
-    @Autowired
-    GongGongZiYuanSpiderLauncher launcher;
 
     @Autowired
     GongGongZiYuanPageDownloader gongGongZiYuanPageDownloader;
@@ -51,30 +45,6 @@ public class GongGongZiYuanPageProcessorTests extends SpiderApplicationTests {
 
         Request request = sourceModel.createRequest();
         Spider.create(pageProcessor).addRequest(request).addPipeline(pipeline).run();
-    }
-
-    @Test
-    public void testLauncher() {
-        Assert.assertNotNull(launcher);
-        launcher.start();
-        try {
-            Thread.sleep(10000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Test
-    public void testStartByDate() {
-        Assert.assertNotNull(launcher);
-        String date = DateTime.now().minusDays(RandomUtils.nextInt(1, 80)).toString(YYYYMMDD);
-        launcher.startByDate(date);
-    }
-
-    @Test
-    public void testFetchHistory() {
-        Assert.assertNotNull(launcher);
-        launcher.fetchHistory();
     }
 
     @Test

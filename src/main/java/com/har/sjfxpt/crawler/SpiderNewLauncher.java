@@ -35,7 +35,7 @@ import java.util.concurrent.ExecutorService;
  */
 @Slf4j
 @Service
-@Order(Ordered.LOWEST_PRECEDENCE - 2)
+@Order(Ordered.LOWEST_PRECEDENCE - 5)
 public class SpiderNewLauncher implements CommandLineRunner {
 
     @Autowired
@@ -65,8 +65,11 @@ public class SpiderNewLauncher implements CommandLineRunner {
             String pageProcessorClassName = bd.getBeanClassName();
             Object pageProcessor = null;
 
+            log.debug(">>> {}, {}, {}, {}", bd.getParentName(), pageProcessorClassName, bd.getDescription(), bd.getResourceDescription());
+
             try {
-                pageProcessor = ctx.getBean(Class.forName(pageProcessorClassName));
+                Class cls = Class.forName(pageProcessorClassName);
+                pageProcessor = ctx.getBean(cls);
             } catch (ClassNotFoundException e) {
                 log.error("", e);
             }
