@@ -15,7 +15,7 @@ import us.codecraft.webmagic.processor.PageProcessor;
  * @author dongqi
  */
 @Slf4j
-@Component
+@Component@Deprecated
 public class PageDataProcessor implements PageProcessor {
 
     @Autowired

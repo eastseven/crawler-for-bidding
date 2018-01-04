@@ -1,9 +1,11 @@
 package com.har.sjfxpt.crawler.core.province;
 
+import com.google.common.collect.Lists;
 import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanPageProcessor;
 import com.har.sjfxpt.crawler.ccgp.ccgphn.CCGPHaiNanPipeline;
 import com.har.sjfxpt.crawler.core.annotation.SourceModel;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
+import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -17,6 +19,7 @@ import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * Created by Administrator on 2017/11/7.
@@ -52,16 +55,21 @@ public class CCGPCCGPHaiNanPageProcessorTests {
 
     @Test
     public void testCCGPHaiNanAnnouncation() {
-        Assert.assertNotNull(ccgpHaiNanPageProcessor);
-
-        String date = new DateTime(new Date()).toString("yyyy-MM-dd");
-        SourceModel sourceModel = new SourceModel();
-        sourceModel.setUrl("http://www.ccgp-hainan.gov.cn/cgw/cgw_list.jsp?currentPage=1&begindate=" + date + "&enddate=" + date + "&title=&bid_type=&proj_number=&zone=");
-        Request request = sourceModel.createRequest();
-        Spider.create(ccgpHaiNanPageProcessor)
-                .addRequest(request)
-                .addPipeline(hBasePipeline)
-                .run();
+        List<SourceModel> list = SourceConfigAnnotationUtils.find(ccgpHaiNanPageProcessor.getClass());
+        List<Request> requests = Lists.newArrayList();
+        for (SourceModel sourceModel : list) {
+            Request request = sourceModel.createRequest();
+            requests.add(request);
+        }
+        if (!requests.isEmpty()) {
+            Spider.create(ccgpHaiNanPageProcessor)
+                    .addRequest(requests.toArray(new Request[requests.size()]))
+                    .addPipeline(hBasePipeline)
+                    .thread(8)
+                    .run();
+        } else {
+            log.warn("request is empty!");
+        }
     }
 
 

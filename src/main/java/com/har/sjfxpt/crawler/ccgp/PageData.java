@@ -11,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.io.Serializable;
 
 @Data@Builder@NoArgsConstructor@AllArgsConstructor
-@Document(collection = "data_item_ccgp_page")
+@Document(collection = "data_item_ccgp_page")@Deprecated
 public class PageData implements Serializable {
 
     @Id

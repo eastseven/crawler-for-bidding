@@ -1,5 +1,9 @@
 package com.har.sjfxpt.crawler.ccgp;
 
+import com.har.sjfxpt.crawler.core.annotation.Source;
+import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
+import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
@@ -30,17 +34,17 @@ import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_
  */
 @Slf4j
 @Component
+@SourceConfig(
+        code = SourceCode.CCGP,
+        sources = {
+                @Source(url = "http://search.ccgp.gov.cn/bxsearch?searchtype=1&bidSort=&buyerName=&projectId=&pinMu=&bidType=&dbselect=bidx&kw=&timeType=6&displayZone=&zoneId=&pppStatus=0&agentName=&start_time=yyyy:MM:dd&end_time=yyyy:MM:dd&page_index=1", dayPattern = "yyyy:MM:dd", needPlaceholderFields = {"yyyy:MM:dd"})
+        }
+)
 public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
 
     public static final String cssQuery4List = "div.vT_z div.vT-srch-result div.vT-srch-result-list-con2 div.vT-srch-result-list ul.vT-srch-result-list-bid li";
 
     private SimpleHttpClient simpleHttpClient;
-
-    @Autowired
-    PageDataRepository repository;
-
-    @Autowired
-    ZhengFuCaiGouRepository zhengFuCaiGouRepository;
 
     @Override
     public void process(Page page) {
@@ -69,19 +73,6 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
         String totalPageText = pager.html();
         totalPageText = StringUtils.substringBetween(totalPageText, "size: ", ",");
 
-        try {
-            //记录每天数据总数及分页总数，便于后面排查及统计
-            PageData pageData = (PageData) page.getRequest().getExtra(PageData.class.getSimpleName());
-            if (pageData != null) {
-                pageData.setPage(Integer.parseInt(totalPageText));
-                pageData.setSize(Integer.parseInt(totalPageText) * 20);
-                repository.save(pageData);
-                log.debug("{}", pageData);
-            }
-        } catch (Exception e) {
-            log.error("", e);
-        }
-
         String pageIndexText = StringUtils.substringAfterLast(url, "=");
         String firstPage = "1";
         if (firstPage.equalsIgnoreCase(pageIndexText)) {
@@ -99,13 +90,13 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
         //提取列表字段内容
         Document document = page.getHtml().getDocument();
         Elements elements = document.body().select(cssQuery4List);
-        List<ZhengFuCaiGouDataItem> dataItemList = parseContent(elements);
+        List<BidNewsOriginal> dataItemList = parseContent(elements);
         if (!dataItemList.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItemList);
         }
     }
 
-    private ZhengFuCaiGouDataItem download(ZhengFuCaiGouDataItem dataItem) {
+    private BidNewsOriginal download(BidNewsOriginal dataItem) {
         if (simpleHttpClient == null) {
             simpleHttpClient = new SimpleHttpClient(SiteUtil.get().setTimeOut(60000));
         }
@@ -128,12 +119,7 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
             return dataItem;
         }
 
-        String summaryFormatContent = PageProcessorUtil.formatElementsByWhitelist(element.select(summaryCssQuery).first());
-        String detailTextContent = PageProcessorUtil.extractTextByWhitelist(element.select(detailCssQuery).first());
-
-        dataItem.setSummaryFormatContent(summaryFormatContent);
         dataItem.setFormatContent(detailFormatContent);
-        dataItem.setTextContent(detailTextContent);
 
         //公告概要 table #detail > div.main > div > div.vF_deail_maincontent > div > div.table
         for (Element td : element.select(summaryCssQuery).select("tr td")) {
@@ -151,8 +137,8 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
     }
 
     @Override
-    public List<ZhengFuCaiGouDataItem> parseContent(Elements items) {
-        List<ZhengFuCaiGouDataItem> dataItemList = Lists.newArrayList();
+    public List<BidNewsOriginal> parseContent(Elements items) {
+        List<BidNewsOriginal> dataItemList = Lists.newArrayList();
         for (Element element : items) {
             String href = element.select("a").attr("href");
             String id = DigestUtils.md5Hex(href);
@@ -163,9 +149,12 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
                 continue;
             }
 
-            ZhengFuCaiGouDataItem dataItem = ZhengFuCaiGouDataItem.builder()
-                    .id(id).url(href).title(title)
-                    .build();
+            BidNewsOriginal dataItem = new BidNewsOriginal(href);
+            dataItem.setUrl(href);
+            dataItem.setTitle(title);
+            dataItem.setSourceCode(SourceCode.CCGP.name());
+            dataItem.setSource(SourceCode.CCGP.getValue());
+
             log.debug("href=={}", dataItem.getUrl());
             String text = element.select("span").text();
             String[] lines = text.split("\\|");
@@ -178,9 +167,7 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
                 switch (index) {
                     case 0:
                         DateTime dt = DateTime.parse(line.trim(), DateTimeFormat.forPattern("yyyy.MM.dd HH:mm:ss"));
-                        pubDate = dt.toString("yyyy-MM-dd HH:mm");
-                        dataItem.setPubDate(pubDate);
-                        dataItem.setDate(dt.toString("yyyy-MM-dd"));
+                        dataItem.setDate(dt.toString("yyyy-MM-dd HH:mm"));
                         break;
                     case 1:
                         purchaser = StringUtils.removeAll(line, "采购人：");
@@ -192,7 +179,6 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
                             if (StringUtils.isBlank(value)) continue;
                             if (StringUtils.contains(value, "代理机构：")) {
                                 purchaserAgent = StringUtils.removeAll(value, "代理机构：");
-                                dataItem.setPurchaserAgent(purchaserAgent);
                             } else {
                                 type = StringUtils.trim(value);
                                 dataItem.setType(type);
@@ -202,10 +188,6 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
                     case 3:
                         province = StringUtils.trim(line);
                         dataItem.setProvince(province);
-                        break;
-                    case 4:
-                        industry = StringUtils.trim(line);
-                        dataItem.setIndustry(industry);
                         break;
                     default:
                         break;
@@ -218,7 +200,6 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
                 log.error("", e);
                 log.error("ccgp {} download fail", dataItem.getId());
             }
-
             dataItemList.add(dataItem);
         }
         return dataItemList;

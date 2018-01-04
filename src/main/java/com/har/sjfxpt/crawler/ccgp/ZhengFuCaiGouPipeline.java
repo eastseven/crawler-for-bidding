@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
 
 @Slf4j
-@Component
+@Component@Deprecated
 public class ZhengFuCaiGouPipeline implements Pipeline {
 
     @Autowired

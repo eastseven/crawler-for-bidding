@@ -220,9 +220,6 @@ public class SpiderLauncher implements CommandLineRunner {
                 case "history-ccgp":
                     zhengFuCaiGouSpiderLauncher.history().start();
                     break;
-                case "history-url":
-                    zhengFuCaiGouSpiderLauncher.getRedisUrl();
-                    break;
                 case "page-ccgp":
                     zhengFuCaiGouSpiderLauncher.countPageData().start();
                     break;

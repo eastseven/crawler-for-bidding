@@ -21,7 +21,7 @@ import static com.har.sjfxpt.crawler.ccgp.ZhengFuCaiGouDataItem.T_NAME;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@Document(collection = T_NAME)
+@Document(collection = T_NAME)@Deprecated
 public class ZhengFuCaiGouDataItem {
 
     public static final String T_NAME = "data_item_ccgp";

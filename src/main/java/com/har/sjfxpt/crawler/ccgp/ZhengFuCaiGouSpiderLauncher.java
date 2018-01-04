@@ -1,6 +1,7 @@
 package com.har.sjfxpt.crawler.ccgp;
 
 import com.har.sjfxpt.crawler.BaseSpiderLauncher;
+import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
 import com.har.sjfxpt.crawler.core.model.DataItemDTO;
 import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.service.HBaseService;
@@ -34,6 +35,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @Service
+@Deprecated
 public class ZhengFuCaiGouSpiderLauncher extends BaseSpiderLauncher {
 
     final String URL_PREFIX = "http://search.ccgp.gov.cn/bxsearch?searchtype=1&bidSort=&buyerName=&projectId=&pinMu=&bidType=&dbselect=bidx&kw=&timeType=6&displayZone=&zoneId=&pppStatus=0&agentName=";
@@ -236,23 +238,4 @@ public class ZhengFuCaiGouSpiderLauncher extends BaseSpiderLauncher {
     @Autowired
     HBaseService HBaseService;
 
-    public void getRedisUrl() {
-        long total = stringRedisTemplate.boundSetOps(names).size();
-        for (int i = 0; i < total; i++) {
-            String tabulationUrl = stringRedisTemplate.boundSetOps(names).pop();
-            log.debug("total=={},tabulationUrl=={}", total, tabulationUrl);
-            Request request = new Request(tabulationUrl);
-            zhengFuCaiGouDownloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
-            us.codecraft.webmagic.Page page = zhengFuCaiGouDownloader.download(request, SiteUtil.get().toTask());
-            Document document = page.getHtml().getDocument();
-            Elements elements = document.body().select(cssQuery4List);
-            List<ZhengFuCaiGouDataItem> dataItemList = pageProcessor.parseContent(elements);
-            if (!dataItemList.isEmpty()) {
-                repository.save(dataItemList);
-                log.info("ccgp save {} to mongodb", dataItemList.size());
-                List<DataItemDTO> dtoList = dataItemList.stream().map(dataItem -> dataItem.dto()).collect(Collectors.toList());
-                HBaseService.save2BidNewsOriginalTable(dtoList);
-            }
-        }
-    }
 }

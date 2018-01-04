@@ -2,6 +2,7 @@ package com.har.sjfxpt.crawler.core.annotation;
 
 import com.alibaba.fastjson.JSONObject;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -9,12 +10,15 @@ import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.model.HttpRequestBody;
 import us.codecraft.webmagic.utils.HttpConstant;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Map;
 
 /**
  * @author dongqi
  */
 @Data
+@Slf4j
 public class SourceModel {
 
     private String url;
@@ -52,6 +56,18 @@ public class SourceModel {
             if ("YYYY-MM-DD".equalsIgnoreCase(dayPattern)) {
                 for (String field : needPlaceholderFields) {
                     String url = StringUtils.replaceAll(request.getUrl(), field, DateTime.now().toString(dayPattern));
+                    request.setUrl(url);
+                }
+            }
+            if ("yyyy:MM:dd".equalsIgnoreCase(dayPattern)) {
+                for (String field : needPlaceholderFields) {
+                    String url = null;
+                    try {
+                        url = StringUtils.replaceAll(request.getUrl(), field, URLEncoder.encode(DateTime.now().toString(dayPattern), "utf-8"));
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
+                    log.debug("url={}", url);
                     request.setUrl(url);
                 }
             }
