@@ -8,7 +8,6 @@ import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +18,6 @@ import us.codecraft.webmagic.Spider;
 
 import java.util.List;
 
-import static com.har.sjfxpt.crawler.baowu.BaoWuPageProcessor.*;
 import static com.har.sjfxpt.crawler.baowu.BaoWuSpiderLauncher.requestGenerator;
 import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.THREAD_NUM;
 

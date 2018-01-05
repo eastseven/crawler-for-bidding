@@ -53,6 +53,8 @@ public class SourceModel {
     public Request createRequest() {
         Request request = new Request(this.getUrl());
         if (StringUtils.isNotBlank(this.jsonPostParams)) {
+            //TODO 分页 带日期范围的查询，需要重构
+
             Map<String, Object> pageParams = JSONObject.parseObject(this.jsonPostParams, Map.class);
             this.setPostParams(pageParams);
 

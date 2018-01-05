@@ -22,6 +22,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>1.8</java.version>
+
+        <selenium.version>3.5.3</selenium.version>
     </properties>
 
     <dependencies>
@@ -170,6 +172,34 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpcore</artifactId>
             <version>4.4.4</version>
+        </dependency>
+        <dependency>
+            <groupId>us.codecraft</groupId>
+            <artifactId>webmagic-selenium</artifactId>
+            <version>0.7.3</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>commons-io</artifactId>
+                    <groupId>commons-io</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>cssparser</artifactId>
+                    <groupId>net.sourceforge.cssparser</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>htmlunit-core-js</artifactId>
+                    <groupId>net.sourceforge.htmlunit</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>neko-htmlunit</artifactId>
+                    <groupId>net.sourceforge.htmlunit</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.seleniumhq.selenium</groupId>
+            <artifactId>selenium-api</artifactId>
+            <version>${selenium.version}</version>
         </dependency>
 
         <dependency>

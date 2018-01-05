@@ -1,6 +1,5 @@
 package com.har.sjfxpt.crawler.baowu;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.google.common.collect.Lists;
@@ -29,8 +28,8 @@ import us.codecraft.webmagic.utils.HttpConstant;
 import java.util.List;
 import java.util.Map;
 
-import static com.har.sjfxpt.crawler.baowu.BaoWuPageProcessor.*;
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
+import static com.har.sjfxpt.crawler.baowu.BaoWuPageProcessor.POST_PARAMS_01;
+import static com.har.sjfxpt.crawler.baowu.BaoWuPageProcessor.SEED_URL1;
 
 /**
  * Created by Administrator on 2017/12/22.
