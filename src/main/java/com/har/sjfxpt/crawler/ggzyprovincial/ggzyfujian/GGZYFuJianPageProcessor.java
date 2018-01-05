@@ -9,6 +9,7 @@ import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
 import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
 import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
+import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -74,6 +75,8 @@ public class GGZYFuJianPageProcessor implements BasePageProcessor {
         }
     }
 
+
+
     @Override
     public void handleContent(Page page) {
         List<BidNewsOriginal> dataItems = Lists.newArrayList();
@@ -83,124 +86,101 @@ public class GGZYFuJianPageProcessor implements BasePageProcessor {
             JSONObject dataBean = (JSONObject) JSONObject.parse(field);
             String kind = JSONPath.eval(dataBean, "$.KIND").toString();
             String type = JSONPath.eval(dataBean, "$.TITLE").toString();
-            String ggtype = JSONPath.eval(dataBean, "$.GGTYPE").toString();
+            String ggType = JSONPath.eval(dataBean, "$.GGTYPE").toString();
             String title = JSONPath.eval(dataBean, "$.NAME").toString();
             String m_id = JSONPath.eval(dataBean, "$.M_ID").toString();
-            String source = JSONPath.eval(dataBean, "$.PLATFORM_NAME").toString();
             String date = JSONPath.eval(dataBean, "$.TM").toString();
 
             if (StringUtils.endsWithIgnoreCase(kind, "GCJS")) {
-                String href = "https://www.fjggfw.gov.cn/Website/JYXX_" + kind + ".aspx?ID=" + m_id + "&GGTYPE=" + ggtype;
+                if (StringUtils.containsIgnoreCase(m_id, ".0")) {
+                    m_id = StringUtils.substringBefore(m_id, ".0");
+                }
+                String href = "https://www.fjggfw.gov.cn/Website/JYXX_" + kind + ".aspx?ID=" + m_id + "&GGTYPE=" + ggType;
                 BidNewsOriginal ggzyFuJianDataItem = new BidNewsOriginal(href);
+                ggzyFuJianDataItem.setProvince("福建");
+                ggzyFuJianDataItem.setSourceCode(SourceCode.GGZYFUJIAN.name());
+                ggzyFuJianDataItem.setSource(SourceCode.GGZYFUJIAN.getValue());
                 ggzyFuJianDataItem.setUrl(href);
                 ggzyFuJianDataItem.setTitle(title);
                 ggzyFuJianDataItem.setType(type);
-                ggzyFuJianDataItem.setSource(source);
                 ggzyFuJianDataItem.setDate(DateTime.parse(date, DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss")).toString("yyyy-MM-dd HH:mm"));
-                String getFormContentUrl = "https://www.fjggfw.gov.cn/Website/AjaxHandler/BuilderHandler.ashx?OPtype=GetGGInfoPC&ID=" + m_id + "&GGTYPE=" + ggtype + "&url=AjaxHandler%2FBuilderHandler.ashx";
+                String getFormContentUrl = "https://www.fjggfw.gov.cn/Website/AjaxHandler/BuilderHandler.ashx?OPtype=GetGGInfoPC&ID=" + m_id + "&GGTYPE=" + ggType + "&url=AjaxHandler%2FBuilderHandler.ashx";
                 Page page1 = httpClientDownloader.download(new Request(getFormContentUrl), SiteUtil.get().setTimeOut(50000).toTask());
-                GGZYFuJianContentAnnouncement ggzyFuJianContentAnnouncement = JSONObject.parseObject(page1.getRawText(), GGZYFuJianContentAnnouncement.class);
-                log.debug("getFormContentUrl=={}", getFormContentUrl);
-                int resultNum = ggzyFuJianContentAnnouncement.getResult2();
-                String formatContent = ggzyFuJianContentAnnouncement.getData().get(resultNum - 1).toString();
-                if (StringUtils.isNotBlank(formatContent)) {
-                    ggzyFuJianDataItem.setFormatContent(formatContent);
+                Selectable dataDetail = page1.getJson().jsonPath("$.data");
+                List<String> stringDetailList = dataDetail.all();
+                Selectable resultJsonNum = page1.getJson().jsonPath("$.result2");
+                int num = Integer.parseInt(resultJsonNum.toString());
+                String formatContentJson = stringDetailList.get(num - 1);
+                if (StringUtils.isNotBlank(formatContentJson)) {
+                    ggzyFuJianDataItem.setFormatContent(PageProcessorUtil.formatElementsByWhitelist(formatContentJson));
                     dataItems.add(ggzyFuJianDataItem);
                 }
             }
+
+            if (StringUtils.endsWithIgnoreCase(kind, "ZFCG")) {
+                String procode = JSONPath.eval(dataBean, "$.PROCODE").toString();
+                String href = "https://www.fjggfw.gov.cn/Website/JYXX_Content/ZFCG.aspx?PROCODE=" + procode + "&GGTYPE=" + ggType;
+                BidNewsOriginal ggzyFuJianDataItem = new BidNewsOriginal(href);
+                ggzyFuJianDataItem.setProvince("福建");
+                ggzyFuJianDataItem.setSourceCode(SourceCode.GGZYFUJIAN.name());
+                ggzyFuJianDataItem.setSource(SourceCode.GGZYFUJIAN.getValue());
+                ggzyFuJianDataItem.setUrl(href);
+                ggzyFuJianDataItem.setTitle(title);
+                ggzyFuJianDataItem.setType(type);
+                ggzyFuJianDataItem.setDate(DateTime.parse(date, DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss")).toString("yyyy-MM-dd HH:mm"));
+                Request request = new Request("https://www.fjggfw.gov.cn/Website/AjaxHandler/BuilderHandler.ashx");
+                Map<String, Object> pageParams = Maps.newHashMap();
+                pageParams.put("OPtype", "GetJYXXContentZFCG");
+                pageParams.put("PROCODE", procode);
+                request.setMethod(HttpConstant.Method.POST);
+                request.setRequestBody(HttpRequestBody.form(pageParams, "UTF-8"));
+                int filedCount = Integer.parseInt(ggType);
+                Page page1 = httpClientDownloader.download(request, SiteUtil.get().setTimeOut(30000).toTask());
+                String jsonContent = "";
+                if (filedCount == 3) {
+                    Selectable data3 = page1.getJson().jsonPath("$.data3");
+                    List<String> data3list = data3.all();
+                    String context = data3list.get(0);
+                    JSONObject jsonObject = (JSONObject) JSONObject.parse(context);
+                    String purchaser_name = JSONPath.eval(jsonObject, "$.PURCHASER_NAME").toString();
+                    String supplier_name = JSONPath.eval(jsonObject, "$.SUPPLIER_NAME").toString();
+                    String contract_amount = JSONPath.eval(jsonObject, "$.CONTRACT_AMOUNT").toString();
+                    String price_unit_text = JSONPath.eval(jsonObject, "$.PRICE_UNIT_TEXT").toString();
+                    String currency_code_text = JSONPath.eval(jsonObject, "$.CURRENCY_CODE_TEXT").toString();
+                    String contract_term = JSONPath.eval(jsonObject, "$.CONTRACT_TERM").toString();
+                    String formatContent = "<div class=\"detail_content\"><table class=\"detail_Table\" cellspacing=\"1\" cellpadding=\"1\"><tbody><tr><th>采购人名称</th><td>" + purchaser_name + "</td></tr><tr><th>中标（成交）供应商名称</th><td>" + supplier_name + "</td></tr><tr><th>合同金额</th><td>" + contract_amount + price_unit_text + currency_code_text + "</td></tr><tr><th>合同期限</th><td>" + contract_term + "</td></tr></tbody></table></div>";
+                    if (StringUtils.isNotBlank(purchaser_name) || StringUtils.isNotBlank(supplier_name)) {
+                        ggzyFuJianDataItem.setTotalBidMoney(contract_amount + price_unit_text + currency_code_text);
+                        ggzyFuJianDataItem.setFormatContent(PageProcessorUtil.formatElementsByWhitelist(formatContent));
+                        dataItems.add(ggzyFuJianDataItem);
+                    }
+                } else {
+                    Selectable dataList = page1.getJson().jsonPath("$.data");
+                    List<String> datalist = dataList.all();
+                    if (filedCount == 1 || filedCount == 4) {
+                        jsonContent = datalist.get(0);
+                    }
+                    if (filedCount == 2) {
+                        if (datalist.size() == 1) {
+                            jsonContent = datalist.get(0).toString();
+                        } else {
+                            jsonContent = datalist.get(1).toString();
+                        }
+                    }
+                    JSONObject jsonObject = (JSONObject) JSONObject.parse(jsonContent);
+                    String formatContent = JSONPath.eval(jsonObject, "$.CONTENT").toString();
+                    if (StringUtils.isNotBlank(formatContent)) {
+                        ggzyFuJianDataItem.setFormatContent(PageProcessorUtil.formatElementsByWhitelist(formatContent));
+                        dataItems.add(ggzyFuJianDataItem);
+                    }
+                }
+            }
         }
-//        List<GGZYFuJianDataItem> dataItems = Lists.newArrayList();
-//        GGZYFuJianAnnouncement ggzyFuJianAnnouncement = JSONObject.parseObject(page.getRawText(), GGZYFuJianAnnouncement.class);
-//        List<GGZYFuJianAnnouncement.DataBean> dataBeanList = ggzyFuJianAnnouncement.getData();
-//        for (GGZYFuJianAnnouncement.DataBean dataBean : dataBeanList) {
-//            String kind = dataBean.getKIND();
-//            String type = dataBean.getTITLE();
-//            String ggtype = dataBean.getGGTYPE();
-//            String title = dataBean.getNAME();
-//            int m_id = dataBean.getM_ID();
-//            String source = dataBean.getPLATFORM_NAME();
-//            String date = dataBean.getTM();
-//            String procode = (String) dataBean.getPROCODE();
-//
-//            if (StringUtils.endsWithIgnoreCase(kind, "GCJS")) {
-//                String href = "https://www.fjggfw.gov.cn/Website/JYXX_" + kind + ".aspx?ID=" + m_id + "&GGTYPE=" + ggtype;
-//                GGZYFuJianDataItem ggzyFuJianDataItem = new GGZYFuJianDataItem(href);
-//                ggzyFuJianDataItem.setUrl(href);
-//                ggzyFuJianDataItem.setTitle(title);
-//                ggzyFuJianDataItem.setType(type);
-//                ggzyFuJianDataItem.setSource(source);
-//                ggzyFuJianDataItem.setDate(DateTime.parse(date, DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss")).toString("yyyy-MM-dd HH:mm"));
-//                ggzyFuJianDataItem.setBusinessType("工程建设");
-//                String getFormContentUrl = "https://www.fjggfw.gov.cn/Website/AjaxHandler/BuilderHandler.ashx?OPtype=GetGGInfoPC&ID=" + m_id + "&GGTYPE=" + ggtype + "&url=AjaxHandler%2FBuilderHandler.ashx";
-//                Page page1 = httpClientDownloader.download(new Request(getFormContentUrl), SiteUtil.get().setTimeOut(50000).toTask());
-//                GGZYFuJianContentAnnouncement ggzyFuJianContentAnnouncement = JSONObject.parseObject(page1.getRawText(), GGZYFuJianContentAnnouncement.class);
-//                log.debug("getFormContentUrl=={}", getFormContentUrl);
-//                int resultNum = ggzyFuJianContentAnnouncement.getResult2();
-//                String formatContent = ggzyFuJianContentAnnouncement.getData().get(resultNum - 1).toString();
-//                if (StringUtils.isNotBlank(formatContent)) {
-//                    ggzyFuJianDataItem.setFormatContent(formatContent);
-//                    dataItems.add(ggzyFuJianDataItem);
-//                }
-//            }
-//            if (StringUtils.endsWithIgnoreCase(kind, "ZFCG")) {
-//                String href = "https://www.fjggfw.gov.cn/Website/JYXX_Content/ZFCG.aspx?PROCODE=" + procode + "&GGTYPE=" + ggtype;
-//                GGZYFuJianDataItem ggzyFuJianDataItem = new GGZYFuJianDataItem(href);
-//                ggzyFuJianDataItem.setUrl(href);
-//                ggzyFuJianDataItem.setTitle(title);
-//                ggzyFuJianDataItem.setType(type);
-//                ggzyFuJianDataItem.setSource(source);
-//                ggzyFuJianDataItem.setDate(DateTime.parse(date, DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss")).toString("yyyy-MM-dd HH:mm"));
-//                ggzyFuJianDataItem.setBusinessType("政府采购");
-//                Request request = new Request("https://www.fjggfw.gov.cn/Website/AjaxHandler/BuilderHandler.ashx");
-//                Map<String, Object> pageParams = Maps.newHashMap();
-//                pageParams.put("OPtype", "GetJYXXContentZFCG");
-//                pageParams.put("PROCODE", procode);
-//                request.setMethod(HttpConstant.Method.POST);
-//                request.setRequestBody(HttpRequestBody.form(pageParams, "UTF-8"));
-//                Page page1 = httpClientDownloader.download(request, SiteUtil.get().setTimeOut(30000).toTask());
-//                GGZYFuJianZFCGContentAnnouncement ggzyFuJianZFCGContentAnnouncement = JSONObject.parseObject(page1.getRawText(), GGZYFuJianZFCGContentAnnouncement.class);
-//                int filedCount = Integer.parseInt(ggtype);
-//                String content = "";
-//                if (filedCount == 3) {
-//                    GGZYFuJianZFCGContentAnnouncement.Data3Bean data3Bean = ggzyFuJianZFCGContentAnnouncement.getData3().get(0);
-//                    String purchaser_name = data3Bean.getPURCHASER_NAME();
-//                    String supplier_name = data3Bean.getSUPPLIER_NAME();
-//                    int contract_amount = data3Bean.getCONTRACT_AMOUNT();
-//                    String price_unit_text = data3Bean.getPRICE_UNIT_TEXT();
-//                    String currency_code_text = data3Bean.getCURRENCY_CODE_TEXT();
-//                    String contract_term = data3Bean.getCONTRACT_TERM();
-//                    String formatContent = "<div class=\"detail_content\"><table class=\"detail_Table\" cellspacing=\"1\" cellpadding=\"1\"><tbody><tr><th>采购人名称</th><td>" + purchaser_name + "</td></tr><tr><th>中标（成交）供应商名称</th><td>" + supplier_name + "</td></tr><tr><th>合同金额</th><td>" + contract_amount + price_unit_text + currency_code_text + "</td></tr><tr><th>合同期限</th><td>" + contract_term + "</td></tr></tbody></table></div>";
-//                    if (StringUtils.isNotBlank(formatContent)) {
-//                        ggzyFuJianDataItem.setFormatContent(formatContent);
-//                        dataItems.add(ggzyFuJianDataItem);
-//                    }
-//                } else {
-//                    if (filedCount == 1 || filedCount == 4) {
-//                        content = ggzyFuJianZFCGContentAnnouncement.getData().get(0).toString();
-//                    }
-//                    if (filedCount == 2) {
-//                        if (ggzyFuJianZFCGContentAnnouncement.getData().size() == 1) {
-//                            content = ggzyFuJianZFCGContentAnnouncement.getData().get(0).toString();
-//                        } else {
-//                            content = ggzyFuJianZFCGContentAnnouncement.getData().get(1).toString();
-//                        }
-//                    }
-//                    GGZYFuJianZFCGDetailAnnouncement ggzyFuJianZFCGDetailAnnouncement = JSONObject.parseObject(content, GGZYFuJianZFCGDetailAnnouncement.class);
-//                    String formatContent = ggzyFuJianZFCGDetailAnnouncement.getCONTENT();
-//                    if (StringUtils.isNotBlank(formatContent)) {
-//                        ggzyFuJianDataItem.setFormatContent(formatContent);
-//                        dataItems.add(ggzyFuJianDataItem);
-//                    }
-//                }
-//
-//            }
-//
-//            if (!dataItems.isEmpty()) {
-//                page.putField(KEY_DATA_ITEMS, dataItems);
-//            } else {
-//                log.warn("fetch {} no data", page.getUrl().get());
-//            }
-//        }
+        if (!dataItems.isEmpty()) {
+            page.putField(KEY_DATA_ITEMS, dataItems);
+        } else {
+            log.warn("fetch {} no data", page.getUrl().get());
+        }
     }
 
     @Override

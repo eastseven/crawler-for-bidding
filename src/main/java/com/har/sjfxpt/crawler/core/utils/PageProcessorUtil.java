@@ -7,6 +7,7 @@ import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Element;
 import org.jsoup.safety.Whitelist;
+import org.jsoup.select.Elements;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -35,9 +36,21 @@ public final class PageProcessorUtil {
     public static String formatElementsByWhitelist(Element root) {
         log.debug("\n{}", root);
         if (root == null) return null;
+        if (root.isBlock()) return null;
         String html = root.html();
+        return formatElementsByWhitelist(html);
+    }
+
+    public static String formatElementsByWhitelist(Elements elements) {
+        log.debug("\n{}", elements);
+        if (elements == null) return null;
+        if (elements.isEmpty()) return null;
+        return formatElementsByWhitelist(elements.html());
+    }
+
+    public static String formatElementsByWhitelist(String html) {
         Whitelist whitelist = Whitelist.relaxed();
-        whitelist.removeTags("style", "script");
+        whitelist.removeTags("style", "script", "form", "a");
         whitelist.removeAttributes("table", "style", "width", "height");
         whitelist.removeAttributes("td", "style", "width", "height");
         String formatContent = Jsoup.clean(html, whitelist);

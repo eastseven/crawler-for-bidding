@@ -73,7 +73,7 @@ public class GGZYFuJianPageProcessorTests {
         log.debug("requestList={}", requestList);
         Spider.create(ggzyFuJianPageProcessor)
                 .addRequest(requestList.toArray(new Request[requestList.size()]))
-//                .addPipeline(hBasePipeline)
+                .addPipeline(hBasePipeline)
                 .run();
     }
 
