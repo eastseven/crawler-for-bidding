@@ -38,11 +38,24 @@ public @interface Source {
 
     /**
      * 分页查询数据时，需要用到的日期格式。
-     * yyyy-MM-dd or TIMESTAMP
+     * yyyy-MM-dd or TIMESTAMP or yyyy-MM-dd HH:mm:ss
      * @return
      */
     String dayPattern() default "yyyy-MM-dd";
 
+    /**
+     * 分页查询数据时，需要用到的日期范围。
+     *
+     * 1D 一天, yyyy-MM-dd，2018-01-01 to 2018-01-02
+     * 1D 一天, yyyy-MM-dd HH:mm:ss，2018-01-01 00:00:00 to 2018-01-02 23:59:59
+     *
+     * @return 1D,3D,10D,1M,3M
+     */
+    String dayScope() default "";
+
+    String dateStartField() default "";
+
+    String dateEndField() default "";
     /**
      * 需要替换的字段名称，必须对应 postParams 中的字段名字
      * @return

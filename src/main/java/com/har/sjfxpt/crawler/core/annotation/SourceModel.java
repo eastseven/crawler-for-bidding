@@ -27,6 +27,9 @@ public class SourceModel {
     private String jsonPostParams;
     private Map<String, Object> postParams;
     private String dayPattern = "yyyy-MM-dd";
+    private String dayScope;
+    private String dateStartField;
+    private String dateEndField;
     private String[] needPlaceholderFields;
 
     public Request createRequest() {
@@ -37,7 +40,28 @@ public class SourceModel {
 
             if (ArrayUtils.isNotEmpty(this.getNeedPlaceholderFields())) {
                 for (String field : this.getNeedPlaceholderFields()) {
-                    this.getPostParams().put(field, DateTime.now().toString(this.getDayPattern()));
+                    String value = DateTime.now().toString(this.getDayPattern());
+                    this.getPostParams().put(field, value);
+                }
+            }
+
+            if (StringUtils.isNotBlank(dateStartField) && StringUtils.isNotBlank(dateEndField)) {
+                DateTime now = DateTime.now();
+                String start = "", end = "";
+                if (StringUtils.isNotBlank(dayScope)) {
+                    switch (dayScope) {
+                        case "1D":
+                            start = now.toString(dayPattern) + " 00:00:00";
+                            end = now.toString(dayPattern) + " 23:59:59";
+                            postParams.put(dateStartField, start);
+                            postParams.put(dateEndField, end);
+                            break;
+                        case "3D": break;
+                        case "10D": break;
+                        case "1M": break;
+                        case "3M": break;
+                        default:
+                    }
                 }
             }
 
