@@ -33,10 +33,10 @@ import java.util.List;
 @Slf4j
 @Component
 @SourceConfig(code = SourceCode.ZSY, sources = {
-        @Source(type = "公开招标公告", url = "http://eportal.energyahead.com/wps/portal/ebid/wcm_search/bidnotice_publish"),
-        @Source(type = "资格预审公告", url = "http://eportal.energyahead.com/wps/portal/ebid/wcm_search/bidnotice_zgys"),
-        @Source(type = "中标公示公告", url = "http://eportal.energyahead.com/wps/portal/ebid/wcm_search/bidresult_publish"),
-        @Source(type = "中标结果公告", url = "http://eportal.energyahead.com/wps/portal/ebid/wcm_search/bidresult_publish_1")
+        @Source(type = "公开招标", url = "http://eportal.energyahead.com/wps/portal/ebid/wcm_search/bidnotice_publish"),
+        @Source(type = "资格预审", url = "http://eportal.energyahead.com/wps/portal/ebid/wcm_search/bidnotice_zgys"),
+        @Source(type = "中标公示", url = "http://eportal.energyahead.com/wps/portal/ebid/wcm_search/bidresult_publish"),
+        @Source(type = "中标结果", url = "http://eportal.energyahead.com/wps/portal/ebid/wcm_search/bidresult_publish_1")
 })
 public class PetroChinaPageProcessor implements BasePageProcessor {
 
