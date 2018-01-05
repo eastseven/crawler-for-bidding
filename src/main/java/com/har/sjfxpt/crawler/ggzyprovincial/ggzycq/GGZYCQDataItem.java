@@ -18,7 +18,7 @@ import java.util.Date;
  * Created by Administrator on 2017/11/28.
  */
 @Data
-@ToString
+@ToString@Deprecated
 @Document(collection = "data_item_ggzy_cq")
 public class GGZYCQDataItem {
 

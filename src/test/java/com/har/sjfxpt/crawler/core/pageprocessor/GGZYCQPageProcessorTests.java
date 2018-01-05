@@ -1,7 +1,10 @@
 package com.har.sjfxpt.crawler.core.pageprocessor;
 
+import com.har.sjfxpt.crawler.core.annotation.SourceModel;
+import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
+import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.GGZYCQPageProcessor;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.GGZYCQPipeline;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +24,9 @@ import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
  * Created by Administrator on 2017/11/28.
  */
@@ -30,10 +36,27 @@ import us.codecraft.webmagic.downloader.HttpClientDownloader;
 public class GGZYCQPageProcessorTests {
 
     @Autowired
-    GGZYCQPageProcessor GGZYCQPageProcessor;
+    GGZYCQPageProcessor ggzycqPageProcessor;
 
     @Autowired
     GGZYCQPipeline GGZYCQPipeline;
+
+    @Autowired
+    HBasePipeline hBasePipeline;
+
+    @Test
+    public void testGGZYCQAnnotation() {
+        List<SourceModel> list = SourceConfigAnnotationUtils.find(ggzycqPageProcessor.getClass());
+        list.forEach(sourceModel -> log.debug(">>>{}", sourceModel.getUrl()));
+
+        List<Request> requestList = list.parallelStream().map(SourceModel::createRequest)
+                .collect(Collectors.toList());
+        Spider.create(ggzycqPageProcessor)
+                .addRequest(requestList.toArray(new Request[requestList.size()]))
+                .addPipeline(hBasePipeline)
+                .run();
+    }
+
 
     @Test
     public void testCQPageProcessor() {
@@ -41,7 +64,7 @@ public class GGZYCQPageProcessorTests {
                 "http://www.cqggzy.com/web/services/PortalsWebservice/getInfoList?response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014005001&title=&infoC=&_=1511837748941",
                 "http://www.cqggzy.com/web/services/PortalsWebservice/getInfoList?response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014001001&title=&infoC=&_=1511837779151"
         };
-        Spider.create(GGZYCQPageProcessor)
+        Spider.create(ggzycqPageProcessor)
                 .addPipeline(GGZYCQPipeline)
                 .addUrl(urls)
                 .thread(4)
@@ -66,21 +89,5 @@ public class GGZYCQPageProcessorTests {
         String time = DateTime.now().toString(" HH:mm");
         log.debug("time=={}", time);
     }
-
-    @Test
-    public void testGGZYCQPage() throws Exception {
-        String url = "http://www.cqggzy.com/xxhz/014005/014005001/20171205/514185232283561984.html";
-        Elements elements = Jsoup.connect(url).get().select("#mainContent div.wrap-post");
-        String html = PageProcessorUtil.formatElementsByWhitelist(elements.first());
-
-        Document doc = Jsoup.parse(html);
-        for (Element h : doc.select("h4")) {
-            if (StringUtils.containsIgnoreCase(h.text(), "预算金额")) {
-                log.info("\n{}, {}\n", h, h.children().text());
-                break;
-            }
-        }
-    }
-
 
 }
