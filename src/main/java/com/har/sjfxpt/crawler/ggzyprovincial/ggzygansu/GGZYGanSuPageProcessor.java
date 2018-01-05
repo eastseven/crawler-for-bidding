@@ -2,6 +2,10 @@ package com.har.sjfxpt.crawler.ggzyprovincial.ggzygansu;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.har.sjfxpt.crawler.core.annotation.Source;
+import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
+import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
@@ -20,14 +24,47 @@ import us.codecraft.webmagic.utils.HttpConstant;
 import java.util.List;
 import java.util.Map;
 
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
+import static com.har.sjfxpt.crawler.ggzyprovincial.ggzygansu.GGZYGanSuPageProcessor.*;
 
 /**
  * Created by Administrator on 2017/12/17.
  */
 @Slf4j
 @Component
+@SourceConfig(
+        code = SourceCode.GGZYGANSU,
+        sources = {
+                @Source(url = GGZYGANSU_URL1, post = true, postParams = POST_PARAMS_01, type = "资格预审公告"),
+                @Source(url = GGZYGANSU_URL1, post = true, postParams = POST_PARAMS_02, type = "招标公告"),
+                @Source(url = GGZYGANSU_URL1, post = true, postParams = POST_PARAMS_03, type = "更正公告"),
+
+                @Source(url = GGZYGANSU_URL2, post = true, postParams = POST_PARAMS_04, type = "资格预审公示"),
+                @Source(url = GGZYGANSU_URL3, post = true, postParams = POST_PARAMS_05, type = "中标结果公告"),
+
+                @Source(url = GGZYGANSU_URL3, post = true, postParams = POST_PARAMS_06, type = "中标结果更正公告"),
+                @Source(url = GGZYGANSU_URL4, post = true, postParams = POST_PARAMS_07, type = "采购（资格预审）公告"),
+                @Source(url = GGZYGANSU_URL5, post = true, postParams = POST_PARAMS_07, type = "更正事项"),
+                @Source(url = GGZYGANSU_URL6, post = true, postParams = POST_PARAMS_07, type = "中标(成交)结果公告"),
+        }
+)
 public class GGZYGanSuPageProcessor implements BasePageProcessor {
+
+    final static String GGZYGANSU_URL1 = "http://www.gsggfw.cn/w/bid/tenderAnnQuaInqueryAnn/pageList?pageNo=1&pageSize=20";
+    final static String GGZYGANSU_URL2 = "http://www.gsggfw.cn/w/bid/qualiInqueryResult/pageList?pageNo=1&pageSize=20";
+    final static String GGZYGANSU_URL3 = "http://www.gsggfw.cn/w/bid/winResultAnno/pageList?pageNo=1&pageSize=20";
+
+    final static String GGZYGANSU_URL4 = "http://www.gsggfw.cn/w/bid/purchaseQualiInqueryAnn/pageList?pageNo=1&pageSize=20";
+    final static String GGZYGANSU_URL5 = "http://www.gsggfw.cn/w/bid/correctionItem/pageList?pageNo=1&pageSize=20";
+    final static String GGZYGANSU_URL6 = "http://www.gsggfw.cn/w/bid/bidDealAnnounce/pageList?pageNo=1&pageSize=20";
+
+    public static final String POST_PARAMS_01 = "{'filterparam':'{\\'areaCode\\':\\'620000\\',\\'assortmentindex\\':\\'0\\',\\'workNotice\\':{\\'bulletinType\\':\\'2\\',\\'noticeNature\\':\\'1\\'}}'}";
+    public static final String POST_PARAMS_02 = "{'filterparam':'{\\'areaCode\\':\\'620000\\',\\'assortmentindex\\':\\'1\\',\\'workNotice\\':{\\'bulletinType\\':\\'1\\',\\'noticeNature\\':\\'1\\'}}'}";
+    public static final String POST_PARAMS_03 = "{'filterparam':'{\\'areaCode\\':\\'620000\\',\\'assortmentindex\\':\\'1\\',\\'workNotice\\':{\\'bulletinType\\':\\'\\',\\'noticeNature\\':\\'2\\'}}'}";
+    public static final String POST_PARAMS_04 = "{'filterparam':'{\\'areaCode\\':\\'620000\\',\\'assortmentindex\\':\\'3\\',\\'workNotice\\':{\\'bulletinType\\':\\'\\',\\'noticeNature\\':\\'2\\'}}'}";
+    public static final String POST_PARAMS_05 = "{'filterparam':'{\\'areaCode\\':\\'620000\\',\\'assortmentindex\\':\\'3\\',\\'workNotice\\':{\\'bulletinType\\':\\'3\\',\\'noticeNature\\':\\'1\\'}}'}";
+    public static final String POST_PARAMS_06 = "{'filterparam':'{\\'areaCode\\':\\'620000\\',\\'assortmentindex\\':\\'3\\',\\'workNotice\\':{\\'bulletinType\\':\\'3\\',\\'noticeNature\\':\\'2\\'}}'}";
+
+    public static final String POST_PARAMS_07 = "{'filterparam':'{\\'areaCode\\':\\'620000\\',\\'assortmentindex\\':\\'\\',\\'workNotice\\':{\\'bulletinType\\':\\'1\\',\\'noticeNature\\':\\'1\\'}}'}";
 
     final static int PAGE_SIZE = 20;
 
@@ -61,19 +98,12 @@ public class GGZYGanSuPageProcessor implements BasePageProcessor {
 
     @Override
     public void handleContent(Page page) {
-        Map<String, Object> pageParams = (Map<String, Object>) page.getRequest().getExtras().get("pageParams");
         Elements elements = page.getHtml().getDocument().body().select("body > div.trad-sear-con > ul > li");
         if (elements.isEmpty()) {
             log.warn("{} elements is empty", page.getUrl().get());
             return;
         }
-        String type = (String) pageParams.get("type");
-        String businessType = (String) pageParams.get("businessType");
-        List<GGZYGanSuDataItem> dataItems = parseContent(elements);
-        dataItems.forEach(dataItem -> {
-            dataItem.setType(type);
-            dataItem.setBusinessType(businessType);
-        });
+        List<BidNewsOriginal> dataItems = parseContent(elements);
         if (!dataItems.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItems);
         } else {
@@ -84,7 +114,7 @@ public class GGZYGanSuPageProcessor implements BasePageProcessor {
 
     @Override
     public List parseContent(Elements items) {
-        List<GGZYGanSuDataItem> dataItems = Lists.newArrayList();
+        List<BidNewsOriginal> dataItems = Lists.newArrayList();
         for (Element element : items) {
             String hrefFiled = element.select("a").attr("onclick");
             String href = StringUtils.substringBetween(hrefFiled, "='", "'");
@@ -94,7 +124,9 @@ public class GGZYGanSuPageProcessor implements BasePageProcessor {
                 }
                 String title = element.select("a").attr("title");
                 String date = element.select("span").text();
-                GGZYGanSuDataItem ggzyGanSuDataItem = new GGZYGanSuDataItem(href);
+                BidNewsOriginal ggzyGanSuDataItem = new BidNewsOriginal(href);
+                ggzyGanSuDataItem.setSourceCode(SourceCode.GGZYGANSU.name());
+                ggzyGanSuDataItem.setSource(SourceCode.GGZYGANSU.getValue());
                 ggzyGanSuDataItem.setUrl(href);
                 ggzyGanSuDataItem.setTitle(title);
                 ggzyGanSuDataItem.setDate(PageProcessorUtil.dataTxt(date));

@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
  * Created by Administrator on 2017/12/17.
  */
 @Slf4j
-@Component
+@Component@Deprecated
 public class GGZYGanSuPipeline implements Pipeline{
 
     @Autowired
