@@ -1,6 +1,10 @@
 package com.har.sjfxpt.crawler.sgcc;
 
 import com.google.common.collect.Lists;
+import com.har.sjfxpt.crawler.core.annotation.Source;
+import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
+import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.ProvinceUtil;
@@ -20,14 +24,22 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
+import static com.har.sjfxpt.crawler.sgcc.StateGridPageProcessor.URL_01;
+import static com.har.sjfxpt.crawler.sgcc.StateGridPageProcessor.URL_02;
 
 /**
  * @author dongqi
  */
 @Slf4j
 @Component
+@SourceConfig(code = SourceCode.SGCC, sources = {
+        @Source(type = "招标", url = URL_01),
+        @Source(type = "中标", url = URL_02)
+})
 public class StateGridPageProcessor implements BasePageProcessor {
+
+    public static final String URL_01 = "http://ecp.sgcc.com.cn/topic_project_list.jsp?columnName=topic10";
+    public static final String URL_02 = "http://ecp.sgcc.com.cn/topic_news_list.jsp?columnName=topic23&column_code1=014001007&column_code2=014002003";
 
     @Override
     public void process(Page page) {
@@ -79,7 +91,7 @@ public class StateGridPageProcessor implements BasePageProcessor {
             return;
         }
 
-        List<StateGridDataItem> dataItems = Lists.newArrayList();
+        List<BidNewsOriginal> dataItems = Lists.newArrayList();
         String css = "";
         if ("招标".equalsIgnoreCase(type.toString())) {
             css = "div.contentRight table tr";
@@ -109,10 +121,12 @@ public class StateGridPageProcessor implements BasePageProcessor {
                     log.error("", e);
                 }
 
-                StateGridDataItem dataItem = new StateGridDataItem(url);
+                BidNewsOriginal dataItem = new BidNewsOriginal(url);
+                dataItem.setSource(SourceCode.SGCC.getValue());
+                dataItem.setSourceCode(SourceCode.SGCC.name());
+
                 dataItem.setTitle(title);
-                dataItem.setDate(date);
-                dataItem.setDownload(StringUtils.isNotBlank(html));
+                dataItem.setDate(PageProcessorUtil.dataTxt(date));
                 dataItem.setFormatContent(html);
                 dataItem.setProvince(ProvinceUtil.get(title));
                 dataItem.setUrl(url);
@@ -128,7 +142,7 @@ public class StateGridPageProcessor implements BasePageProcessor {
 
     @Override
     public List parseContent(Elements items) {
-        List<StateGridDataItem> dataItems = Lists.newArrayList();
+        List<BidNewsOriginal> dataItems = Lists.newArrayList();
 
         for (Element tr : items) {
             Elements row = tr.select("td.black40");
@@ -146,7 +160,7 @@ public class StateGridPageProcessor implements BasePageProcessor {
 
             log.debug("\n{},{},{},{},{}\n", status, code, name, date, url);
 
-            String html = null, purchaser = null, purchaserAgent = null;
+            String html = null, purchaser = null;
             try {
                 Element body = Jsoup.parse(new URL(url), 60 * 1000).body();
                 html = PageProcessorUtil.formatElementsByWhitelist(body.select("div.article").first());
@@ -158,29 +172,25 @@ public class StateGridPageProcessor implements BasePageProcessor {
                     if (StringUtils.contains(rightTd.text(), "招标人")) {
                         purchaser = rightTd.first().nextElementSibling().text();
                     }
-
-                    if (StringUtils.contains(rightTd.text(), "代理机构")) {
-                        purchaserAgent = rightTd.first().nextElementSibling().text();
-                    }
                 }
             } catch (IOException e) {
                 log.error("", e);
                 log.error("{} fetch fail", url);
             }
 
-            StateGridDataItem dataItem = new StateGridDataItem(url);
-            dataItem.setCode(code);
+            BidNewsOriginal dataItem = new BidNewsOriginal(url);
+            dataItem.setSource(SourceCode.SGCC.getValue());
+            dataItem.setSourceCode(SourceCode.SGCC.name());
+
+            dataItem.setProjectCode(code);
             dataItem.setTitle(name);
-            dataItem.setStatus(status);
-            dataItem.setDate(date);
-            dataItem.setDownload(StringUtils.isNotBlank(html));
+            dataItem.setDate(PageProcessorUtil.dataTxt(date));
             dataItem.setFormatContent(html);
             dataItem.setProvince(ProvinceUtil.get(name));
             dataItem.setUrl(url);
             dataItem.setType("招标");
 
             dataItem.setPurchaser(purchaser);
-            dataItem.setPurchaserAgent(purchaserAgent);
 
             dataItems.add(dataItem);
         }

@@ -13,7 +13,7 @@ import us.codecraft.webmagic.pipeline.Pipeline;
 
 import java.util.List;
 
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
+import static com.har.sjfxpt.crawler.core.processor.BasePageProcessor.KEY_DATA_ITEMS;
 
 /**
  * @author dongqi

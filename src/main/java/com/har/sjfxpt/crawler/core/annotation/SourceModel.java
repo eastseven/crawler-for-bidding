@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.springframework.data.annotation.Transient;
+import org.springframework.data.mongodb.core.mapping.Field;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.model.HttpRequestBody;
 import us.codecraft.webmagic.utils.HttpConstant;
@@ -22,14 +24,30 @@ import java.util.Map;
 public class SourceModel {
 
     private String url;
+
     private String type;
+
     private boolean post;
+
+    @Field("post_params")
     private String jsonPostParams;
+
+    @Transient
     private Map<String, Object> postParams;
+
+    @Field("day_pattern")
     private String dayPattern = "yyyy-MM-dd";
+
+    @Field("day_scope")
     private String dayScope;
+
+    @Field("day_start_field")
     private String dateStartField;
+
+    @Field("day_end_field")
     private String dateEndField;
+
+    @Field("post_params_replace_fields")
     private String[] needPlaceholderFields;
 
     public Request createRequest() {
@@ -89,9 +107,8 @@ public class SourceModel {
                     try {
                         url = StringUtils.replaceAll(request.getUrl(), field, URLEncoder.encode(DateTime.now().toString(dayPattern), "utf-8"));
                     } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
+                        log.error("", e);
                     }
-                    log.debug("url={}", url);
                     request.setUrl(url);
                 }
             }

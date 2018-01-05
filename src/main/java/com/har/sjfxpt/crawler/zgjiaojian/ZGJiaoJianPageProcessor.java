@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.core.annotation.Source;
 import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
+import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
 import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
@@ -76,7 +77,7 @@ public class ZGJiaoJianPageProcessor implements BasePageProcessor {
     public void handleContent(Page page) {
         Map<String, Object> pageParams = (Map<String, Object>) page.getRequest().getExtras().get("pageParams");
         Elements elements = page.getHtml().getDocument().body().select("#aspnetForm > div > div.List_Right_Main > div > div.Context_Middle > div:nth-child(1) > ul > li");
-        List<ZGJiaoJianDataItem> dataItems = parseContent(elements);
+        List<BidNewsOriginal> dataItems = parseContent(elements);
         String channelId = pageParams.get("channelId").toString();
         String type = null;
         if (channelId.equalsIgnoreCase("2013300100000000035")) {
@@ -85,7 +86,7 @@ public class ZGJiaoJianPageProcessor implements BasePageProcessor {
         if (channelId.equalsIgnoreCase("2013300100000000034")) {
             type = "招标信息";
         }
-        String finalType = type;
+        final String finalType = type;
         dataItems.forEach(dataItem -> dataItem.setType(finalType));
         if (!dataItems.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItems);
@@ -96,7 +97,7 @@ public class ZGJiaoJianPageProcessor implements BasePageProcessor {
 
     @Override
     public List parseContent(Elements items) {
-        List<ZGJiaoJianDataItem> dataItems = Lists.newArrayList();
+        List<BidNewsOriginal> dataItems = Lists.newArrayList();
         for (Element element : items) {
             String hrefField = element.select("span.dotspan > a").attr("href");
             String href = hrefParse(hrefField);
@@ -106,7 +107,9 @@ public class ZGJiaoJianPageProcessor implements BasePageProcessor {
                 if (StringUtils.containsIgnoreCase(date, "(")) {
                     date = StringUtils.substringBetween(date, "(", ")");
                 }
-                ZGJiaoJianDataItem zgJiaoJianDataItem = new ZGJiaoJianDataItem(href);
+                BidNewsOriginal zgJiaoJianDataItem = new BidNewsOriginal(href);
+                zgJiaoJianDataItem.setSource(SourceCode.ZGJIAOJIAN.getValue());
+                zgJiaoJianDataItem.setSourceCode(SourceCode.ZGJIAOJIAN.name());
                 zgJiaoJianDataItem.setUrl(href);
                 zgJiaoJianDataItem.setTitle(title);
                 zgJiaoJianDataItem.setProvince(ProvinceUtil.get(title));

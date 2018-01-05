@@ -1,6 +1,10 @@
 package com.har.sjfxpt.crawler.shenhua;
 
 import com.google.common.collect.Lists;
+import com.har.sjfxpt.crawler.core.annotation.Source;
+import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
+import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.ProvinceUtil;
@@ -17,13 +21,21 @@ import us.codecraft.webmagic.downloader.HttpClientDownloader;
 
 import java.util.List;
 
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
-
 /**
  * Created by Administrator on 2017/12/22.
  */
 @Slf4j
 @Component
+@SourceConfig(code = SourceCode.SHENHUA, sources = {
+        @Source(url = "http://www.shenhuabidding.com.cn/bidweb/001/001001/1.html", type = "资格预审公告"),
+        @Source(url = "http://www.shenhuabidding.com.cn/bidweb/001/001002/1.html", type = "招标公告"),
+        @Source(url = "http://www.shenhuabidding.com.cn/bidweb/001/001003/1.html", type = "非招标公告"),
+        @Source(url = "http://www.shenhuabidding.com.cn/bidweb/001/001004/1.html", type = "变更公告"),
+        @Source(url = "http://www.shenhuabidding.com.cn/bidweb/001/001005/1.html", type = "候选人公示"),
+        @Source(url = "http://www.shenhuabidding.com.cn/bidweb/001/001006/1.html", type = "中标公告"),
+        @Source(url = "http://www.shenhuabidding.com.cn/bidweb/001/001007/1.html", type = "终止公告"),
+        @Source(url = "http://www.shenhuabidding.com.cn/bidweb/001/001008/1.html", type = "拟单一来源公示"),
+})
 public class ShenHuaPageProcessor implements BasePageProcessor {
 
     HttpClientDownloader httpClientDownloader;
@@ -47,7 +59,7 @@ public class ShenHuaPageProcessor implements BasePageProcessor {
     public void handleContent(Page page) {
         String url = page.getUrl().get();
         Elements elements = page.getHtml().getDocument().body().select("body > div.container.mt20 > div > div.right.ml20 > div.right-bd > ul.right-items > li");
-        List<ShenHuaDataItem> dataItems = parseContent(elements);
+        List<BidNewsOriginal> dataItems = parseContent(elements);
         String type = typeJudgement(url);
         dataItems.forEach(dataItem -> dataItem.setType(type));
         if (!dataItems.isEmpty()) {
@@ -59,7 +71,7 @@ public class ShenHuaPageProcessor implements BasePageProcessor {
 
     @Override
     public List parseContent(Elements items) {
-        List<ShenHuaDataItem> dataItems = Lists.newArrayList();
+        List<BidNewsOriginal> dataItems = Lists.newArrayList();
         for (Element element : items) {
             String href = element.select("div > a.infolink").attr("href");
             if (StringUtils.isNotBlank(href)) {
@@ -68,7 +80,9 @@ public class ShenHuaPageProcessor implements BasePageProcessor {
                 }
                 String title = element.select("div > a.infolink").attr("title");
                 String date = element.select("span").text();
-                ShenHuaDataItem shenHuaDataItem = new ShenHuaDataItem(href);
+                BidNewsOriginal shenHuaDataItem = new BidNewsOriginal(href);
+                shenHuaDataItem.setSource(SourceCode.SHENHUA.getValue());
+                shenHuaDataItem.setSourceCode(SourceCode.SHENHUA.name());
                 shenHuaDataItem.setUrl(href);
                 shenHuaDataItem.setTitle(title);
                 shenHuaDataItem.setProvince(ProvinceUtil.get(title));
@@ -138,6 +152,7 @@ public class ShenHuaPageProcessor implements BasePageProcessor {
             case "001008":
                 type = "拟单一来源公示";
                 break;
+            default:
         }
         return type;
     }

@@ -1,9 +1,10 @@
 package com.har.sjfxpt.crawler.core;
 
-import com.google.common.collect.Maps;
+import com.har.sjfxpt.crawler.core.model.BidNewsSpider;
+import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
+import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import com.har.sjfxpt.crawler.sgcc.StateGridPageProcessor;
-import com.har.sjfxpt.crawler.sgcc.StateGridSpiderLauncher;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
@@ -13,14 +14,9 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import us.codecraft.webmagic.Request;
-import us.codecraft.webmagic.Spider;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.Map;
-
-import static com.har.sjfxpt.crawler.sgcc.StateGridSpiderLauncher.WIN_URL;
 
 /**
  * 国家电网
@@ -31,31 +27,18 @@ import static com.har.sjfxpt.crawler.sgcc.StateGridSpiderLauncher.WIN_URL;
 public class StateGridTests {
 
     @Autowired
-    StateGridSpiderLauncher spiderLauncher;
-
-    @Autowired
     StateGridPageProcessor pageProcessor;
 
-    @Test
-    public void testStart() throws Exception {
-        Assert.assertNotNull(spiderLauncher);
-        spiderLauncher.start();
-        Thread.sleep(10 * 1000L);
-    }
+    @Autowired
+    HBasePipeline pipeline;
 
     @Test
     public void testPageProcessor() {
         Assert.assertNotNull(pageProcessor);
 
-        Map<String, String> types = Maps.newHashMap();
-        //types.put("招标", BID_URL);
-        types.put("中标", WIN_URL);
-
-        for (String type : types.keySet()) {
-            Request request = new Request(types.get(type));
-            request.putExtra("type", type);
-            Spider.create(pageProcessor).addRequest(request).run();
-        }
+        BidNewsSpider.create(pageProcessor).addPipeline(pipeline)
+                .addRequest(SourceConfigAnnotationUtils.toRequests(pageProcessor.getClass()))
+                .run();
     }
 
     @Test

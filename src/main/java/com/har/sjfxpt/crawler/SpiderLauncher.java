@@ -26,8 +26,6 @@ import com.har.sjfxpt.crawler.ggzyprovincial.ggzyyn.GGZYYNSpiderLauncher;
 import com.har.sjfxpt.crawler.ggzyprovincial.hbebtp.HBEBTPSpiderLauncher;
 import com.har.sjfxpt.crawler.jcw.JinCaiWangSpiderLauncher;
 import com.har.sjfxpt.crawler.petrochina.ZGShiYouSpiderLauncher;
-import com.har.sjfxpt.crawler.sgcc.StateGridSpiderLauncher;
-import com.har.sjfxpt.crawler.shenhua.ShenHuaSpiderLauncher;
 import com.har.sjfxpt.crawler.suning.SuNingSpiderLauncher;
 import com.har.sjfxpt.crawler.zgzt.ChinaTenderingAndBiddingLauncher;
 import lombok.extern.slf4j.Slf4j;
@@ -97,9 +95,6 @@ public class SpiderLauncher implements CommandLineRunner {
     GGZYYNSpiderLauncher ggzyynSpiderLauncher;
 
     @Autowired
-    StateGridSpiderLauncher stateGridSpiderLauncher;
-
-    @Autowired
     GGZYXZSpiderLauncher ggzyxzSpiderLauncher;
 
     @Autowired
@@ -133,9 +128,6 @@ public class SpiderLauncher implements CommandLineRunner {
     DongFengSpiderLauncher dongFengSpiderLauncher;
 
     @Autowired
-    ShenHuaSpiderLauncher shenHuaSpiderLauncher;
-
-    @Autowired
     BaoWuSpiderLauncher baoWuSpiderLauncher;
 
     @Autowired
@@ -157,7 +149,6 @@ public class SpiderLauncher implements CommandLineRunner {
         ggzycqSpiderLauncher.printInfo();
         ggzyhnSpiderLauncher.printInfo();
         ggzygzSpiderLauncher.printInfo();
-        stateGridSpiderLauncher.printInfo();
         ccgpcqSpiderLauncher.printInfo();
         ggzyynSpiderLauncher.printInfo();
         ggzyxzSpiderLauncher.printInfo();
@@ -171,7 +162,6 @@ public class SpiderLauncher implements CommandLineRunner {
         ggzyNingXiaSpiderLauncher.printInfo();
         ggzyxjbtSpiderLauncher.printInfo();
         dongFengSpiderLauncher.printInfo();
-        shenHuaSpiderLauncher.printInfo();
         baoWuSpiderLauncher.printInfo();
         ggzyHeBeiSpiderLauncher.printInfo();
         chinaUnicomSpiderLauncher.printInfo();
@@ -227,9 +217,6 @@ public class SpiderLauncher implements CommandLineRunner {
                 case "history-suning":
                     suNingSpiderLauncher.fetchHistory();
                     break;
-                case "history-sgcc":
-                    stateGridSpiderLauncher.fetchAll();
-                    break;
                 case "start-ggzysc":
                     ggzyscSpiderLauncher.start();
                     break;
@@ -280,9 +267,6 @@ public class SpiderLauncher implements CommandLineRunner {
                     break;
                 case "start-dongfeng":
                     dongFengSpiderLauncher.start();
-                    break;
-                case "start-shenhua":
-                    shenHuaSpiderLauncher.start();
                     break;
                 case "start-baowu":
                     baoWuSpiderLauncher.start();
