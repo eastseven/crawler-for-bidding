@@ -21,4 +21,6 @@ public @interface SourceConfig {
     boolean useProxy() default false;
 
     boolean disable() default false;
+
+    boolean useSelenium() default false;
 }

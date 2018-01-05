@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
+import us.codecraft.webmagic.downloader.selenium.SeleniumDownloader;
 import us.codecraft.webmagic.processor.PageProcessor;
 import us.codecraft.webmagic.proxy.SimpleProxyProvider;
 
@@ -50,6 +51,9 @@ public class SpiderNewLauncher implements CommandLineRunner {
 
     @Autowired
     HttpClientDownloader httpClientDownloader;
+
+    @Autowired
+    SeleniumDownloader seleniumDownloader;
 
     @Autowired
     SourceConfigModelRepository sourceConfigModelRepository;
@@ -105,7 +109,11 @@ public class SpiderNewLauncher implements CommandLineRunner {
                     .addRequest(requests)
                     .addPipeline(ctx.getBean(HBasePipeline.class));
 
-            if (config.isUseProxy()) {
+            // 由于SeleniumDownloader 不能使用代理，所以useSelenium 属性跟useProxy属性 互斥，都为true配置无效
+            if (config.isUseSelenium() && !config.isUseProxy()) {
+                spider.setDownloader(seleniumDownloader);
+                log.debug(">>> {} use selenium downloader", config.getSourceCode());
+            } else if (config.isUseProxy() && !config.isUseSelenium()) {
                 httpClientDownloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
                 spider.setDownloader(httpClientDownloader);
             }

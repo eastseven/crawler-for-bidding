@@ -32,7 +32,7 @@ public class PetroChinaPageProcessor implements BasePageProcessor {
     }
 
     @Override
-    public void handleContent(Page page) throws Exception {
+    public void handleContent(Page page) {
 
     }
 

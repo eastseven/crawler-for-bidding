@@ -29,5 +29,7 @@ public class SourceConfigModel {
 
     private boolean disable;
 
+    private boolean useSelenium;
+
     private List<SourceModel> sources = Lists.newArrayList();
 }

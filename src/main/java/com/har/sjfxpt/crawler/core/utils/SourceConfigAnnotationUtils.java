@@ -28,6 +28,7 @@ public final class SourceConfigAnnotationUtils {
         configModel.setSourceCode(config.code());
         configModel.setId(config.code().name());
         configModel.setName(config.code().getValue());
+        configModel.setUseSelenium(config.useSelenium());
 
         Source[] sources = config.sources();
         if (ArrayUtils.isNotEmpty(sources)) {
@@ -42,6 +43,9 @@ public final class SourceConfigAnnotationUtils {
                 sourceModel.setJsonPostParams(source.postParams());
                 sourceModel.setDayPattern(source.dayPattern());
                 sourceModel.setNeedPlaceholderFields(source.needPlaceholderFields());
+                sourceModel.setDayScope(source.dayScope());
+                sourceModel.setDateStartField(source.dateStartField());
+                sourceModel.setDateEndField(source.dateEndField());
 
                 sourceModelList.add(sourceModel);
             }
