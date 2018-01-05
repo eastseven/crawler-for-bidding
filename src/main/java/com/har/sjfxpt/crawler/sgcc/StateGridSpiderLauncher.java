@@ -15,7 +15,7 @@ import java.util.concurrent.ExecutorService;
  * 国家电网公司 电子商务平台
  */
 @Slf4j
-@Service
+@Service@Deprecated
 public class StateGridSpiderLauncher extends BaseSpiderLauncher {
 
     public static final String BID_URL = "http://ecp.sgcc.com.cn/topic_project_list.jsp?columnName=topic10";

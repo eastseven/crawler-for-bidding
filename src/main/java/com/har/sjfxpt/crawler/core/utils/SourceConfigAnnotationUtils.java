@@ -8,6 +8,7 @@ import com.har.sjfxpt.crawler.core.annotation.SourceModel;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.core.annotation.AnnotationUtils;
+import us.codecraft.webmagic.Request;
 
 import java.util.List;
 
@@ -60,4 +61,7 @@ public final class SourceConfigAnnotationUtils {
         return configModel.getSources();
     }
 
+    public static Request[] toRequests(Class pageProcessorClass) {
+        return  find(pageProcessorClass).stream().map(SourceModel::createRequest).toArray(Request[]::new);
+    }
 }
