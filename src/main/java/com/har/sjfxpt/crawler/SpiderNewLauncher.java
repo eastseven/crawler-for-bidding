@@ -2,6 +2,8 @@ package com.har.sjfxpt.crawler;
 
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
+import com.har.sjfxpt.crawler.core.annotation.SourceConfigModel;
+import com.har.sjfxpt.crawler.core.annotation.SourceConfigModelRepository;
 import com.har.sjfxpt.crawler.core.annotation.SourceModel;
 import com.har.sjfxpt.crawler.core.model.BidNewsSpider;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
@@ -14,7 +16,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider;
 import org.springframework.core.Ordered;
-import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.stereotype.Service;
@@ -50,7 +51,10 @@ public class SpiderNewLauncher implements CommandLineRunner {
     @Autowired
     HttpClientDownloader httpClientDownloader;
 
-    private static final String basePackage = "com.har.sjfxpt.crawler";
+    @Autowired
+    SourceConfigModelRepository sourceConfigModelRepository;
+
+    private static final String BASE_PACKAGE = "com.har.sjfxpt.crawler";
 
     private Map<String, BidNewsSpider> spiders = Maps.newConcurrentMap();
 
@@ -61,7 +65,7 @@ public class SpiderNewLauncher implements CommandLineRunner {
     public void init() {
         ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
         scanner.addIncludeFilter(new AnnotationTypeFilter(SourceConfig.class));
-        for (BeanDefinition bd : scanner.findCandidateComponents(basePackage)) {
+        for (BeanDefinition bd : scanner.findCandidateComponents(BASE_PACKAGE)) {
             String pageProcessorClassName = bd.getBeanClassName();
             Object pageProcessor = null;
 
@@ -74,18 +78,23 @@ public class SpiderNewLauncher implements CommandLineRunner {
                 log.error("", e);
             }
 
-            SourceConfig config = AnnotationUtils.findAnnotation(pageProcessor.getClass(), SourceConfig.class);
-            if (config.disable()) {
+            if (pageProcessor == null) {
+                log.warn(">>> {} is null", pageProcessorClassName);
                 continue;
             }
 
-            final String uuid = "spider_" + config.code().name().toLowerCase();
+            SourceConfigModel config = SourceConfigAnnotationUtils.get(pageProcessor.getClass());
+            if (config.isDisable()) {
+                continue;
+            }
+
+            final String uuid = "spider_" + config.getSourceCode().name().toLowerCase();
             if (spiders.containsKey(uuid)) {
                 log.warn(">>> spider uuid[{}] is exists, status is {}", uuid, spiders.get(uuid).getStatus());
                 continue;
             }
 
-            List<SourceModel> sourceModelList = SourceConfigAnnotationUtils.find(pageProcessor.getClass());
+            List<SourceModel> sourceModelList = config.getSources();
             if (sourceModelList.isEmpty()) continue;
 
             // 创建 Request 对象集合
@@ -96,7 +105,7 @@ public class SpiderNewLauncher implements CommandLineRunner {
                     .addRequest(requests)
                     .addPipeline(ctx.getBean(HBasePipeline.class));
 
-            if (config.useProxy()) {
+            if (config.isUseProxy()) {
                 httpClientDownloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
                 spider.setDownloader(httpClientDownloader);
             }
@@ -105,7 +114,12 @@ public class SpiderNewLauncher implements CommandLineRunner {
             bidNewsSpider.setSourceModelList(sourceModelList);
             spiders.put(uuid, bidNewsSpider);
 
+            saveConfig(config);
         }
+    }
+
+    private void saveConfig(SourceConfigModel config) {
+        sourceConfigModelRepository.save(config);
     }
 
     public void start() {
