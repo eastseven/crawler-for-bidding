@@ -3,6 +3,7 @@ package com.har.sjfxpt.crawler.ggzyprovincial.ggzyfujian;
 /**
  * Created by Administrator on 2017/12/13.
  */
+@Deprecated
 public class GGZYFuJianZFCGDetailAnnouncement {
 
     /**

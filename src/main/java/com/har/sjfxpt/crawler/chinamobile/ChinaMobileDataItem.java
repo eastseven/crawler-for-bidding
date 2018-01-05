@@ -22,7 +22,7 @@ import java.util.Date;
 @Setter
 @Getter
 @ToString
-@Document(collection = "data_item_china_mobile")
+@Document(collection = "data_item_china_mobile")@Deprecated
 public class ChinaMobileDataItem {
 
     public ChinaMobileDataItem(String url) {

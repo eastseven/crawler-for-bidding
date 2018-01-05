@@ -5,6 +5,7 @@ import java.util.List;
 /**
  * Created by Administrator on 2018/1/2.
  */
+@Deprecated
 public class BaoWuAnnouncementPageAnother {
 
     /**

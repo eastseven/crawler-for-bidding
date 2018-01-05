@@ -1,6 +1,10 @@
 package com.har.sjfxpt.crawler.chinamobile;
 
 import com.google.common.collect.Maps;
+import com.har.sjfxpt.crawler.core.annotation.Source;
+import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
+import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.ProvinceUtil;
@@ -24,17 +28,34 @@ import us.codecraft.webmagic.utils.HttpConstant;
 import java.util.List;
 import java.util.Map;
 
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanUtil.YYYYMMDD;
+import static com.har.sjfxpt.crawler.chinamobile.ChinaMobilePageProcessor.*;
 
 /**
  * @author dongqi
  */
 @Slf4j
 @Component
+@SourceConfig(
+        code = SourceCode.CM,
+        sources = {
+                @Source(url = SEED_URL1, post = true, postParams = POST_PARAMS_01, needPlaceholderFields = {"noticeBean.startDate", "noticeBean.endDate"}),
+                @Source(url = SEED_URL2, post = true, postParams = POST_PARAMS_01, needPlaceholderFields = {"noticeBean.startDate", "noticeBean.endDate"}),
+                @Source(url = SEED_URL3, post = true, postParams = POST_PARAMS_01, needPlaceholderFields = {"noticeBean.startDate", "noticeBean.endDate"}),
+                @Source(url = SEED_URL4, post = true, postParams = POST_PARAMS_01, needPlaceholderFields = {"noticeBean.startDate", "noticeBean.endDate"}),
+        }
+)
 public class ChinaMobilePageProcessor implements BasePageProcessor {
 
+    final static String SEED_URL1 = "https://b2b.10086.cn/b2b/main/listVendorNoticeResult.html?noticeBean.noticeType=1";
+    final static String SEED_URL2 = "https://b2b.10086.cn/b2b/main/listVendorNoticeResult.html?noticeBean.noticeType=2";
+    final static String SEED_URL3 = "https://b2b.10086.cn/b2b/main/listVendorNoticeResult.html?noticeBean.noticeType=3";
+    final static String SEED_URL4 = "https://b2b.10086.cn/b2b/main/listVendorNoticeResult.html?noticeBean.noticeType=7";
+
+    public static final String POST_PARAMS_01 = "{'page.currentPage':'1','page.perPageSize':'20','noticeBean.sourceCH':'','noticeBean.source':'','noticeBean.title':'','noticeBean.startDate':'','noticeBean.endDate':''}";
+
     final static String PAGE_PARAMS = "pageParams";
+
+    public static final String YYYYMMDD = "yyyy-MM-dd";
 
     final static String URL = "https://b2b.10086.cn/b2b/main/viewNoticeContent.html?noticeBean.id=";
 
@@ -50,13 +71,14 @@ public class ChinaMobilePageProcessor implements BasePageProcessor {
 
     @Override
     public Site getSite() {
-        return SiteUtil.get();
+        httpClientDownloader = new HttpClientDownloader();
+        return SiteUtil.get().setSleepTime(10000);
     }
 
     @Override
     public void handlePaging(Page page) {
         Map<String, Object> pageParams = (Map<String, Object>) page.getRequest().getExtra(PAGE_PARAMS);
-        int currentPage = (int) pageParams.get("page.currentPage");
+        int currentPage = Integer.parseInt(pageParams.get("page.currentPage").toString());
         if (currentPage == 1) {
             Elements pager = page.getHtml().getDocument().body().select("div.da_content_div_bg1");
             String totalSizeText = pager.select("input#totalRecordNum").attr("value");
@@ -92,7 +114,7 @@ public class ChinaMobilePageProcessor implements BasePageProcessor {
             return;
         }
 
-        List<ChinaMobileDataItem> dataItemList = parseContent(elements);
+        List<BidNewsOriginal> dataItemList = parseContent(elements);
         if (!dataItemList.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItemList);
         } else {
@@ -102,7 +124,7 @@ public class ChinaMobilePageProcessor implements BasePageProcessor {
 
     @Override
     public List parseContent(Elements items) {
-        List<ChinaMobileDataItem> dataItems = Lists.newArrayList();
+        List<BidNewsOriginal> dataItems = Lists.newArrayList();
         for (Element element : items) {
             if (!element.hasText()) continue;
             if (element.hasClass("zb_table_tr")) continue;
@@ -122,33 +144,27 @@ public class ChinaMobilePageProcessor implements BasePageProcessor {
             String date = element.select("td").get(3).text();
             date = new DateTime(date).toString(YYYYMMDD);
 
-            ChinaMobileDataItem dataItem = new ChinaMobileDataItem(url);
-            dataItem.setDate(date);
+            BidNewsOriginal dataItem = new BidNewsOriginal(url);
+            dataItem.setDate(PageProcessorUtil.dataTxt(date));
             dataItem.setTitle(title);
             dataItem.setProjectName(StringUtils.defaultString(projectName, ""));
             dataItem.setType(type);
             dataItem.setPurchaser(purchaser);
             dataItem.setProvince(ProvinceUtil.get(purchaser + title));
+            dataItem.setSource(SourceCode.CM.getValue());
+            dataItem.setSourceCode(SourceCode.CM.name());
+            log.debug("date={}", dataItem.getDate());
 
-            try {
-                log.debug(">>> download {}", url);
-                Document document = httpClientDownloader.download(new Request(url), SiteUtil.get().setTimeOut(60000).toTask()).getHtml().getDocument();
-                String html = document.html();
-                Element root = null;
-                if (!document.body().select("div#mobanDiv").isEmpty()) {
-                    root = document.body().select("div#mobanDiv").first();
-                } else {
-                    root = document.body().select("div#container table").first();
-                }
-                String formatContent = PageProcessorUtil.formatElementsByWhitelist(root);
-                String textContent = PageProcessorUtil.extractTextByWhitelist(root);
-                dataItem.setHtml(html);
-                dataItem.setFormatContent(formatContent);
-                dataItem.setTextContent(textContent);
-            } finally {
-                dataItem.setDownload(StringUtils.isNotBlank(dataItem.getFormatContent()));
+            log.debug(">>> download {}", url);
+            Document document = httpClientDownloader.download(new Request(url), SiteUtil.get().setTimeOut(60000).toTask()).getHtml().getDocument();
+            Element root;
+            if (!document.body().select("div#mobanDiv").isEmpty()) {
+                root = document.body().select("div#mobanDiv").first();
+            } else {
+                root = document.body().select("div#container table").first();
             }
-
+            String formatContent = PageProcessorUtil.formatElementsByWhitelist(root);
+            dataItem.setFormatContent(formatContent);
             dataItems.add(dataItem);
             log.debug(">>> {}", dataItem);
         }

@@ -21,8 +21,6 @@ import us.codecraft.webmagic.downloader.HttpClientDownloader;
 
 import java.util.List;
 
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
-
 /**
  * Created by Administrator on 2017/12/27.
  */

@@ -2,6 +2,7 @@ package com.har.sjfxpt.crawler.baowu;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONPath;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.core.annotation.Source;
@@ -40,8 +41,9 @@ import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_
         code = SourceCode.BAOWU,
         sources = {
                 @Source(url = SEED_URL1, post = true, postParams = POST_PARAMS_01),
-                @Source(url = SEED_URL2, post = true, postParams = POST_PARAMS_02),
-                @Source(url = SEED_URL2, post = true, postParams = POST_PARAMS_03),
+                //数据有误暂时放弃抓取
+//                @Source(url = SEED_URL2, post = true, postParams = POST_PARAMS_02),
+//                @Source(url = SEED_URL2, post = true, postParams = POST_PARAMS_03),
         }
 )
 public class BaoWuPageProcessor implements BasePageProcessor {
@@ -67,8 +69,9 @@ public class BaoWuPageProcessor implements BasePageProcessor {
         Map<String, Object> pageParams = (Map<String, Object>) page.getRequest().getExtras().get(PAGE_PARAMS);
         int pageNow = Integer.parseInt(pageParams.get("pageNow").toString());
         if (pageNow == 1) {
-            BaoWuAnnouncementPageOne baoWuAnnouncementPageOne = JSONObject.parseObject(page.getRawText(), BaoWuAnnouncementPageOne.class);
-            int pages = baoWuAnnouncementPageOne.getObj().getPages();
+            JSONObject root = (JSONObject) JSONObject.parse(page.getRawText());
+            int pages = (int) JSONPath.eval(root, "$.obj.pages");
+            log.debug("pages={}", pages);
             int cycleNum = pages >= 3 ? 3 : pages;
             for (int i = 2; i <= cycleNum; i++) {
                 Map<String, Object> pageParamsNew = Maps.newHashMap();
@@ -95,23 +98,28 @@ public class BaoWuPageProcessor implements BasePageProcessor {
         }
     }
 
-    public BidNewsOriginal bidNewsOriginalGenerate(String href, String title, String purchaser, String date, String type) {
-        if (StringUtils.isNotBlank(href)) {
-            href = "http://rfq.ouyeelbuy.com/rfqNotice/bidListInfo?id=" + href;
-            BidNewsOriginal baoWuDataItem = new BidNewsOriginal(href);
-            baoWuDataItem.setUrl(href);
+    public BidNewsOriginal bidNewsOriginalGenerate(String field, String type) {
+        JSONObject pageBean = (JSONObject) JSONObject.parse(field);
+        String id = JSONPath.eval(pageBean, "$.id").toString();
+        String title = JSONPath.eval(pageBean, "$.title").toString();
+        String ouName = JSONPath.eval(pageBean, "$.ouName").toString();
+        String issueDate = JSONPath.eval(pageBean, "$.issueDate").toString();
+        if (StringUtils.isNotBlank(id)) {
+            id = "http://rfq.ouyeelbuy.com/rfqNotice/bidListInfo?id=" + id;
+            BidNewsOriginal baoWuDataItem = new BidNewsOriginal(id);
+            baoWuDataItem.setUrl(id);
             baoWuDataItem.setSourceCode(SourceCode.BAOWU.name());
             baoWuDataItem.setSource(SourceCode.BAOWU.getValue());
             baoWuDataItem.setTitle(title);
-            baoWuDataItem.setPurchaser(purchaser);
-            baoWuDataItem.setDate(PageProcessorUtil.dataTxt(date));
+            baoWuDataItem.setPurchaser(ouName);
+            baoWuDataItem.setDate(PageProcessorUtil.dataTxt(issueDate));
             baoWuDataItem.setProvince(ProvinceUtil.get(title));
             baoWuDataItem.setType(type);
 
             if (PageProcessorUtil.timeCompare(baoWuDataItem.getDate())) {
                 log.info("{} is not the same day", baoWuDataItem.getUrl());
             } else {
-                Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
+                Page page = httpClientDownloader.download(new Request(id), SiteUtil.get().setTimeOut(30000).toTask());
                 Elements elements = page.getHtml().getDocument().body().select("body > div.xj_content > div > div.left");
                 String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
                 if (StringUtils.isNotBlank(formatContent)) {
@@ -123,23 +131,28 @@ public class BaoWuPageProcessor implements BasePageProcessor {
         return null;
     }
 
-    public BidNewsOriginal bidNewsOriginalGenerateOther(String href, String title, String purchaser, String date, String typeField) {
-        if (StringUtils.isNotBlank(href)) {
-            BidNewsOriginal baoWuDataItem = new BidNewsOriginal(href);
-            baoWuDataItem.setUrl(href);
-            baoWuDataItem.setTitle(title);
-            baoWuDataItem.setPurchaser(purchaser);
+    public BidNewsOriginal bidNewsOriginalGenerateOther(String field, String typeField) {
+        JSONObject pageBean = (JSONObject) JSONObject.parse(field);
+        String noticeUrl = JSONPath.eval(pageBean, "$.noticeUrl").toString();
+        String noticeName = JSONPath.eval(pageBean, "$.noticeName").toString();
+        String ouName = JSONPath.eval(pageBean, "$.ouName").toString();
+        String issueDate = JSONPath.eval(pageBean, "$.issueDate").toString();
+        if (StringUtils.isNotBlank(noticeUrl)) {
+            BidNewsOriginal baoWuDataItem = new BidNewsOriginal(noticeUrl);
+            baoWuDataItem.setUrl(noticeUrl);
+            baoWuDataItem.setTitle(noticeName);
+            baoWuDataItem.setPurchaser(ouName);
             baoWuDataItem.setSourceCode(SourceCode.BAOWU.name());
             baoWuDataItem.setSource(SourceCode.BAOWU.getValue());
-            baoWuDataItem.setDate(PageProcessorUtil.dataTxt(date));
-            baoWuDataItem.setProvince(ProvinceUtil.get(title));
+            baoWuDataItem.setDate(PageProcessorUtil.dataTxt(issueDate));
+            baoWuDataItem.setProvince(ProvinceUtil.get(noticeName));
 
             if (PageProcessorUtil.timeCompare(baoWuDataItem.getDate())) {
                 log.info("{} is not the same day", baoWuDataItem.getUrl());
             } else {
                 if ("0".equalsIgnoreCase(typeField)) {
                     baoWuDataItem.setType("招标公告");
-                    Page page1 = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
+                    Page page1 = httpClientDownloader.download(new Request(noticeUrl), SiteUtil.get().setTimeOut(30000).toTask());
                     Element element = page1.getHtml().getDocument().body();
                     String formatContent = PageProcessorUtil.formatElementsByWhitelist(element);
                     if (StringUtils.isNotBlank(formatContent)) {
@@ -149,7 +162,7 @@ public class BaoWuPageProcessor implements BasePageProcessor {
                 }
                 if ("1".equalsIgnoreCase(typeField)) {
                     baoWuDataItem.setType("中标结果");
-                    Page page1 = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
+                    Page page1 = httpClientDownloader.download(new Request(noticeUrl), SiteUtil.get().setTimeOut(30000).toTask());
                     Elements elements = page1.getHtml().getDocument().body().select("body > div > div > table:nth-child(1) > tbody > tr > th > div > table > tbody > tr > td > div");
                     String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
                     if (StringUtils.isNotBlank(formatContent)) {
@@ -173,30 +186,24 @@ public class BaoWuPageProcessor implements BasePageProcessor {
                 Selectable newsPage = page.getJson().jsonPath("$.obj.newsPage");
                 List<String> stringList = newsPage.all();
                 for (String field : stringList) {
-                    log.info("field={}", field);
-                    JSONArray json = JSONObject.parseArray(field);
-                    log.info("json={}", json);
-                }
-                BaoWuAnnouncementPageOne baoWuAnnouncementPageOne = JSONObject.parseObject(page.getRawText(), BaoWuAnnouncementPageOne.class);
-                List<BaoWuAnnouncementPageOne.ObjBean.NewsPageBean> newsPageBeanList = baoWuAnnouncementPageOne.getObj().getNewsPage();
-                for (BaoWuAnnouncementPageOne.ObjBean.NewsPageBean newsPageBean : newsPageBeanList) {
-                    BidNewsOriginal baoWuDataItem = bidNewsOriginalGenerate(newsPageBean.getId(), newsPageBean.getTitle(), newsPageBean.getOuName(), newsPageBean.getIssueDate(), "采购公告");
+                    BidNewsOriginal baoWuDataItem = bidNewsOriginalGenerate(field, "采购公告");
                     if (baoWuDataItem != null) {
                         dataItems.add(baoWuDataItem);
                     }
                 }
-                List<BaoWuAnnouncementPageOne.ObjBean.ListBean> listBeans = baoWuAnnouncementPageOne.getObj().getList();
-                for (BaoWuAnnouncementPageOne.ObjBean.ListBean listBean : listBeans) {
-                    BidNewsOriginal baoWuDataItem = bidNewsOriginalGenerate(listBean.getId(), listBean.getTitle(), listBean.getOuName(), listBean.getIssueDate(), "采购公告");
+                Selectable list = page.getJson().jsonPath("$.obj.list");
+                List<String> lists = list.all();
+                for (String field : lists) {
+                    BidNewsOriginal baoWuDataItem = bidNewsOriginalGenerate(field, "采购公告");
                     if (baoWuDataItem != null) {
                         dataItems.add(baoWuDataItem);
                     }
                 }
             } else {
-                BaoWuAnnouncementPageAnother baoWuAnnouncementPageAnother = JSONObject.parseObject(page.getRawText(), BaoWuAnnouncementPageAnother.class);
-                List<BaoWuAnnouncementPageAnother.ObjBean.ListBean> listBeans = baoWuAnnouncementPageAnother.getObj().getList();
-                for (BaoWuAnnouncementPageAnother.ObjBean.ListBean listBean : listBeans) {
-                    BidNewsOriginal baoWuDataItem = bidNewsOriginalGenerate(listBean.getId(), listBean.getTitle(), listBean.getOuName(), listBean.getIssueDate(), "采购公告");
+                Selectable list = page.getJson().jsonPath("$.obj.list");
+                List<String> lists = list.all();
+                for (String field : lists) {
+                    BidNewsOriginal baoWuDataItem = bidNewsOriginalGenerate(field, "采购公告");
                     if (baoWuDataItem != null) {
                         dataItems.add(baoWuDataItem);
                     }
@@ -204,19 +211,19 @@ public class BaoWuPageProcessor implements BasePageProcessor {
             }
         } else {
             if (pageParams.get("pageNow").toString().equalsIgnoreCase("1")) {
-                BaoWuAnnouncementOther baoWuAnnouncementOther = JSONObject.parseObject(page.getRawText(), BaoWuAnnouncementOther.class);
-                List<BaoWuAnnouncementOther.ObjBean.NewsPageBean> newsPageBeanList = baoWuAnnouncementOther.getObj().getNewsPage();
-                for (BaoWuAnnouncementOther.ObjBean.NewsPageBean newsPageBean : newsPageBeanList) {
-                    BidNewsOriginal baoWuDataItem = bidNewsOriginalGenerateOther(newsPageBean.getNoticeUrl(), newsPageBean.getNoticeName(), newsPageBean.getOuName(), newsPageBean.getIssueDate(), typeField);
+                Selectable newsPage = page.getJson().jsonPath("$.obj.newsPage");
+                List<String> stringList = newsPage.all();
+                for (String field : stringList) {
+                    BidNewsOriginal baoWuDataItem = bidNewsOriginalGenerateOther(field, typeField);
                     if (baoWuDataItem != null) {
                         dataItems.add(baoWuDataItem);
                     }
                 }
             } else {
-                BaoWuAnnouncementOtherNext baoWuAnnouncementOtherNext = JSONObject.parseObject(page.getRawText(), BaoWuAnnouncementOtherNext.class);
-                List<BaoWuAnnouncementOtherNext.ObjBean.ListBean> listBeans = baoWuAnnouncementOtherNext.getObj().getList();
-                for (BaoWuAnnouncementOtherNext.ObjBean.ListBean listBean : listBeans) {
-                    BidNewsOriginal baoWuDataItem = bidNewsOriginalGenerateOther(listBean.getNoticeUrl(), listBean.getNoticeName(), listBean.getOuName(), listBean.getIssueDate(), typeField);
+                Selectable list = page.getJson().jsonPath("$.obj.list");
+                List<String> stringList = list.all();
+                for (String field : stringList) {
+                    BidNewsOriginal baoWuDataItem = bidNewsOriginalGenerateOther(field, typeField);
                     if (baoWuDataItem != null) {
                         dataItems.add(baoWuDataItem);
                     }

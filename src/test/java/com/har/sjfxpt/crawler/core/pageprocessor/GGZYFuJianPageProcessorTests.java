@@ -1,6 +1,7 @@
 package com.har.sjfxpt.crawler.core.pageprocessor;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyfujian.GGZYFuJianContentAnnouncement;
@@ -55,8 +56,20 @@ public class GGZYFuJianPageProcessorTests {
                 .run();
     }
 
+    @Test
+    public void testGGZYFuJianAnnotation(){
+        
+    }
 
 
+    @Test
+    public void testJsonGenerator() {
+        String url = "https://www.fjggfw.gov.cn/Website/AjaxHandler/BuilderHandler.ashx";
+        Request request = requestGenerator(url, DateTime.now().toString("yyyy-MM-dd"), "ZFCG");
+        Map<String, Object> pageParams = (Map<String, Object>) request.getExtras().get("pageParams");
+        String json = JSONObject.toJSONString(pageParams, SerializerFeature.UseSingleQuotes);
+        log.debug("json={}", json);
+    }
 
     @Test
     public void testFuJian() {
@@ -95,7 +108,7 @@ public class GGZYFuJianPageProcessorTests {
 //        DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss");
 //        DateTime dateTime = DateTime.parse(time, dateTimeFormat);
 //        log.info("time=={}",dateTime.toString("yyyy-MM-dd HH:mm"));
-        log.info("time=={}",DateTime.parse(time,DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss")).toString("yyyy-MM-dd HH:mm"));
+        log.info("time=={}", DateTime.parse(time, DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss")).toString("yyyy-MM-dd HH:mm"));
     }
 
 

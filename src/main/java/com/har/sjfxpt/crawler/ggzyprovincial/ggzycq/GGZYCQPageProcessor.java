@@ -2,6 +2,10 @@ package com.har.sjfxpt.crawler.ggzyprovincial.ggzycq;
 
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
+import com.har.sjfxpt.crawler.core.annotation.Source;
+import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
+import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
@@ -20,18 +24,30 @@ import us.codecraft.webmagic.downloader.HttpClientDownloader;
 
 import java.util.List;
 
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
+import static com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.GGZYCQPageProcessor.GGZYCQ_URl1;
+import static com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.GGZYCQPageProcessor.GGZYCQ_URl2;
 
 /**
  * Created by Administrator on 2017/11/28.
  */
 @Slf4j
 @Component
+@SourceConfig(
+        code = SourceCode.GGZYCQ,
+        sources = {
+                @Source(url = GGZYCQ_URl1),
+                @Source(url = GGZYCQ_URl2)
+        }
+)
 public class GGZYCQPageProcessor implements BasePageProcessor {
 
     HttpClientDownloader httpClientDownloader;
 
     final static int ARTICLE_NUM = 18;
+
+    final static String GGZYCQ_URl1 = "http://www.cqggzy.com/web/services/PortalsWebservice/getInfoList?response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014005001&title=&infoC=&_=1511837748941";
+
+    final static String GGZYCQ_URl2 = "http://www.cqggzy.com/web/services/PortalsWebservice/getInfoList?response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014001001&title=&infoC=&_=1511837779151";
 
     @Override
     public void handlePaging(Page page) {
@@ -70,7 +86,7 @@ public class GGZYCQPageProcessor implements BasePageProcessor {
 
     @Override
     public void handleContent(Page page) {
-        List<GGZYCQDataItem> dataItems = parseContent(page);
+        List<BidNewsOriginal> dataItems = parseContent(page);
         if (!dataItems.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItems);
         } else {
@@ -85,7 +101,7 @@ public class GGZYCQPageProcessor implements BasePageProcessor {
     }
 
     public List parseContent(Page page) {
-        List<GGZYCQDataItem> dataItems = Lists.newArrayList();
+        List<BidNewsOriginal> dataItems = Lists.newArrayList();
         String urlId = StringUtils.substringAfter(page.getUrl().toString(), "infoC=&_=");
         String Json = StringUtils.substringBetween(page.getRawText(), "\"[", "]\"");
         String targets[] = StringUtils.substringsBetween(Json, "{", "}");
@@ -96,22 +112,23 @@ public class GGZYCQPageProcessor implements BasePageProcessor {
             if (PageProcessorUtil.timeCompare(date)) {
                 log.info("{} is not on the same day", href);
             } else {
-                GGZYCQDataItem GGZYCQDataItem = new GGZYCQDataItem(href);
-                GGZYCQDataItem.setTitle(title);
-                GGZYCQDataItem.setUrl(href);
+                BidNewsOriginal ggzyCQDataItem = new BidNewsOriginal(href);
+                ggzyCQDataItem.setTitle(title);
+                ggzyCQDataItem.setUrl(href);
                 if (urlId.equalsIgnoreCase("1511837748941")) {
-                    GGZYCQDataItem.setBusinessType("政府采购");
-                    GGZYCQDataItem.setType("采购公告");
+                    ggzyCQDataItem.setType("采购公告");
                 }
                 if (urlId.equalsIgnoreCase("1511837779151")) {
-                    GGZYCQDataItem.setBusinessType("工程招投标");
-                    GGZYCQDataItem.setType("招标公告");
+                    ggzyCQDataItem.setType("招标公告");
                 }
                 if (date.length() == 10) {
                     date = date + DateTime.now().toString(" HH:mm");
                 }
-                GGZYCQDataItem.setDate(date);
-                Page page1 = httpClientDownloader.download(new Request(GGZYCQDataItem.getUrl()), SiteUtil.get().toTask());
+                ggzyCQDataItem.setDate(date);
+                ggzyCQDataItem.setSource(SourceCode.GGZYCQ.name());
+                ggzyCQDataItem.setSourceCode(SourceCode.GGZYCQ.getValue());
+                ggzyCQDataItem.setProvince("重庆");
+                Page page1 = httpClientDownloader.download(new Request(ggzyCQDataItem.getUrl()), SiteUtil.get().toTask());
                 Element element = page1.getHtml().getDocument().body();
                 Elements elements = element.select("body > div:nth-child(4) > div > div.detail-block");
                 String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
@@ -120,7 +137,7 @@ public class GGZYCQPageProcessor implements BasePageProcessor {
                     for (Element h : doc.select("h4")) {
                         if (StringUtils.containsIgnoreCase(h.text(), "预算金额")) {
                             if (StringUtils.isNotBlank(h.children().text())) {
-                                GGZYCQDataItem.setBudget(h.children().text());
+                                ggzyCQDataItem.setBudget(h.children().text());
                             }
                         }
                     }
@@ -128,8 +145,8 @@ public class GGZYCQPageProcessor implements BasePageProcessor {
                         formatContent = StringUtils.trim(StringUtils.removeAll(formatContent, "<li>(.+?)</li>"));
                         formatContent = StringUtils.removeAll(formatContent, "\\s");
                     }
-                    GGZYCQDataItem.setFormatContent(formatContent);
-                    dataItems.add(GGZYCQDataItem);
+                    ggzyCQDataItem.setFormatContent(formatContent);
+                    dataItems.add(ggzyCQDataItem);
                 }
             }
         }

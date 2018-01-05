@@ -1,10 +1,12 @@
 package com.har.sjfxpt.crawler.core;
 
+import com.google.common.collect.Lists;
 import com.har.sjfxpt.crawler.baowu.BaoWuPageProcessor;
 import com.har.sjfxpt.crawler.baowu.BaoWuPipeline;
 import com.har.sjfxpt.crawler.core.annotation.SourceModel;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
+import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
@@ -14,6 +16,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
+
+import java.util.List;
 
 import static com.har.sjfxpt.crawler.baowu.BaoWuPageProcessor.*;
 import static com.har.sjfxpt.crawler.baowu.BaoWuSpiderLauncher.requestGenerator;
@@ -57,17 +61,21 @@ public class BaoWuPageProcessorTests {
 
     @Test
     public void testAnnotationPageProcessors() {
-        Assert.assertNotNull(baoWuPageProcessor);
-
-        SourceModel sourceModel = new SourceModel();
-        sourceModel.setUrl(SEED_URL1);
-        sourceModel.setPost(true);
-        sourceModel.setJsonPostParams(POST_PARAMS_01);
-        Request request = sourceModel.createRequest();
-        Spider.create(baoWuPageProcessor)
-                .addRequest(request)
-                .addPipeline(hBasePipeline)
-                .run();
+        List<SourceModel> list = SourceConfigAnnotationUtils.find(baoWuPageProcessor.getClass());
+        List<Request> requests = Lists.newArrayList();
+        for (SourceModel sourceModel : list) {
+            Request request = sourceModel.createRequest();
+            requests.add(request);
+        }
+        if (!requests.isEmpty()) {
+            Spider.create(baoWuPageProcessor)
+                    .addRequest(requests.toArray(new Request[requests.size()]))
+                    .addPipeline(hBasePipeline)
+                    .thread(8)
+                    .run();
+        } else {
+            log.warn("request is empty!");
+        }
     }
 
     @Test

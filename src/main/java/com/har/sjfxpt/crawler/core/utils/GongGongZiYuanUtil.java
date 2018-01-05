@@ -10,7 +10,8 @@ import java.util.Map;
 /**
  * @author dongqi
  */
-@Slf4j@Deprecated
+@Slf4j
+@Deprecated
 public final class GongGongZiYuanUtil {
 
     public static final String DEAL_CLASSIFY = "DEAL_CLASSIFY";
@@ -26,6 +27,7 @@ public final class GongGongZiYuanUtil {
 
     /**
      * 当天的分页参数
+     *
      * @param type 01 工程建设 02 政府采购
      * @return
      */

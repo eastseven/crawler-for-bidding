@@ -3,6 +3,9 @@ package com.har.sjfxpt.crawler.ggzyprovincial.ggzyfujian;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.har.sjfxpt.crawler.core.annotation.Source;
+import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -21,14 +24,26 @@ import us.codecraft.webmagic.utils.HttpConstant;
 import java.util.List;
 import java.util.Map;
 
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
+import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyfujian.GGZYFuJianPageProcessor.*;
 
 /**
  * Created by Administrator on 2017/12/12.
  */
 @Slf4j
 @Component
+@SourceConfig(
+        code = SourceCode.GGZYFUJIAN,
+        sources = {
+                @Source(url = GGZYFUJIAN_URL, post = true, postParams = POST_PARAMS_01, dateStartField = "TopTime", dateEndField = "EndTime", dayScope = "1D"),
+                @Source(url = GGZYFUJIAN_URL, post = true, postParams = POST_PARAMS_02, dateStartField = "TopTime", dateEndField = "EndTime", dayScope = "1D"),
+        }
+)
 public class GGZYFuJianPageProcessor implements BasePageProcessor {
+
+    public final static String GGZYFUJIAN_URL = "https://www.fjggfw.gov.cn/Website/AjaxHandler/BuilderHandler.ashx";
+
+    public final static String POST_PARAMS_01 = "{'EndTime':'2018-01-05 23:59:59','TopTime':'2018-01-05 00:00:00','pageNo':'1','OPtype':'GetListNew','proArea':'-1','ProType':'-1','pageSize':'10','xmlx':'-1','announcementType':'-1','category':'GCJS','projectName':''}";
+    public final static String POST_PARAMS_02 = "{'EndTime':'2018-01-05 23:59:59','TopTime':'2018-01-05 00:00:00','pageNo':'1','OPtype':'GetListNew','proArea':'-1','ProType':'-1','pageSize':'10','xmlx':'-1','announcementType':'-1','category':'ZFCG','projectName':''}";
 
     HttpClientDownloader httpClientDownloader;
 

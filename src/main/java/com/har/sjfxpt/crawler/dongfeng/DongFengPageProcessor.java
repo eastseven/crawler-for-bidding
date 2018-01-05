@@ -1,6 +1,10 @@
 package com.har.sjfxpt.crawler.dongfeng;
 
 import com.google.common.collect.Lists;
+import com.har.sjfxpt.crawler.core.annotation.Source;
+import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
+import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.ProvinceUtil;
@@ -9,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
@@ -17,16 +22,31 @@ import us.codecraft.webmagic.downloader.HttpClientDownloader;
 
 import java.util.List;
 
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
+import static com.har.sjfxpt.crawler.dongfeng.DongFengPageProcessor.*;
 
 /**
  * Created by Administrator on 2017/11/13.
  */
 @Slf4j
 @Component
+@SourceConfig(
+        code = SourceCode.DONGFENG,
+        sources = {
+                @Source(url = DONGFENG_URL1),
+                @Source(url = DONGFENG_URL2),
+                @Source(url = DONGFENG_URL3),
+                @Source(url = DONGFENG_URL4),
+        }
+)
 public class DongFengPageProcessor implements BasePageProcessor {
 
+    @Autowired
     HttpClientDownloader httpClientDownloader;
+
+    public final static String DONGFENG_URL1 = "http://jyzx.dfmbidding.com/zbgg/index_1.jhtml";
+    public final static String DONGFENG_URL2 = "http://jyzx.dfmbidding.com/pbgs/index_1.jhtml";
+    public final static String DONGFENG_URL3 = "http://jyzx.dfmbidding.com/zgys/index_1.jhtml";
+    public final static String DONGFENG_URL4 = "http://jyzx.dfmbidding.com/bggg/index_1.jhtml";
 
     @Override
     public void handlePaging(Page page) {
@@ -47,7 +67,7 @@ public class DongFengPageProcessor implements BasePageProcessor {
     public void handleContent(Page page) {
         String url = page.getUrl().get();
         Elements elements = page.getHtml().getDocument().body().select("#main > div.listPage.wrap > div.wrap01 > div.mleft > div > div.m-bd > div > div > ul > li");
-        List<DongFengDataItem> dataItems = parseContent(elements);
+        List<BidNewsOriginal> dataItems = parseContent(elements);
         String type = typeJudgment(url);
         dataItems.forEach(dataItem -> dataItem.setType(type));
         if (!dataItems.isEmpty()) {
@@ -73,23 +93,26 @@ public class DongFengPageProcessor implements BasePageProcessor {
             case "bggg":
                 type = "变更公告";
                 break;
+            default:
         }
         return type;
     }
 
     @Override
     public List parseContent(Elements items) {
-        List<DongFengDataItem> dataItems = Lists.newArrayList();
+        List<BidNewsOriginal> dataItems = Lists.newArrayList();
         for (Element element : items) {
             String href = element.select("a").attr("href");
             if (StringUtils.isNotBlank(href)) {
                 String title = element.select("a").attr("title");
                 String date = element.select("a > span.bidDate").text();
-                DongFengDataItem dongFengDataItem = new DongFengDataItem(href);
+                BidNewsOriginal dongFengDataItem = new BidNewsOriginal(href);
                 dongFengDataItem.setUrl(href);
                 dongFengDataItem.setTitle(title);
                 dongFengDataItem.setProvince(ProvinceUtil.get(title));
                 dongFengDataItem.setDate(PageProcessorUtil.dataTxt(date));
+                dongFengDataItem.setSourceCode(SourceCode.DONGFENG.name());
+                dongFengDataItem.setSource(SourceCode.DONGFENG.getValue());
 
                 Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
                 Elements timeDetail = page.getHtml().getDocument().body().select("#main > div.listPage.wrap > div.wrap01 > div.mleft > div > div > div.ninfo-title > span");

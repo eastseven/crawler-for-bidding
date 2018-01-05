@@ -11,7 +11,7 @@ import us.codecraft.webmagic.Spider;
  * Created by Administrator on 2017/11/28.
  */
 @Slf4j
-@Component
+@Component@Deprecated
 public class GGZYCQSpiderLauncher extends BaseSpiderLauncher {
 
     private final String uuid = SourceCode.GGZYCQ.toString().toLowerCase() + "-current";

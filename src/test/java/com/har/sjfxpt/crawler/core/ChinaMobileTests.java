@@ -1,11 +1,15 @@
 package com.har.sjfxpt.crawler.core;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobilePageProcessor;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobilePipeline;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
+import com.har.sjfxpt.crawler.core.annotation.SourceModel;
+import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
+import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
@@ -22,6 +26,7 @@ import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.model.HttpRequestBody;
 import us.codecraft.webmagic.utils.HttpConstant;
 
+import java.util.List;
 import java.util.Map;
 
 import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanUtil.YYYYMMDD;
@@ -41,7 +46,30 @@ public class ChinaMobileTests {
     ChinaMobilePageProcessor pageProcessor;
 
     @Autowired
+    HBasePipeline hBasePipeline;
+
+    @Autowired
     ChinaMobilePipeline pipeline;
+
+    @Test
+    public void testAnnotation() {
+        List<SourceModel> list = SourceConfigAnnotationUtils.find(pageProcessor.getClass());
+        List<Request> requests = Lists.newArrayList();
+        for (SourceModel sourceModel : list) {
+            Request request = sourceModel.createRequest();
+            requests.add(request);
+        }
+        if (!requests.isEmpty()) {
+            Spider.create(pageProcessor)
+                    .addRequest(requests.toArray(new Request[requests.size()]))
+                    .addPipeline(hBasePipeline)
+                    .thread(8)
+                    .run();
+        } else {
+            log.warn("request is empty!");
+        }
+    }
+
 
     @Test
     public void test() {
