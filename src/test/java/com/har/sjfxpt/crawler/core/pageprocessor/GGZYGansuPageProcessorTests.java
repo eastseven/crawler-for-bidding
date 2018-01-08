@@ -27,6 +27,7 @@ import us.codecraft.webmagic.downloader.HttpClientDownloader;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.THREAD_NUM;
 import static com.har.sjfxpt.crawler.ggzyprovincial.ggzygansu.GGZYGanSuSpiderLauncher.jsonGenerator;
@@ -110,6 +111,13 @@ public class GGZYGansuPageProcessorTests {
     @Test
     public void testggzyGanSuAnnotation() {
         List<SourceModel> list = SourceConfigAnnotationUtils.find(ggzyGanSuPageProcessor.getClass());
+        List<Request> requestList = list.parallelStream().map(SourceModel::createRequest)
+                .collect(Collectors.toList());
+        log.debug("request={}", requestList);
+        Spider.create(ggzyGanSuPageProcessor)
+                .addRequest(requestList.toArray(new Request[requestList.size()]))
+                .addPipeline(hBasePipeline)
+                .run();
     }
 
 }

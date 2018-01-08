@@ -109,7 +109,6 @@ public class GGZYGanSuPageProcessor implements BasePageProcessor {
         } else {
             log.warn("fetch {} no data", page.getUrl().get());
         }
-
     }
 
     @Override
