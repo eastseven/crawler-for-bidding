@@ -212,9 +212,7 @@ public class ZGZhaoTouPageProcessor implements BasePageProcessor {
             if (!JSONPath.contains(object, "$.businessObjectName")) continue;
             log.debug(">>> \n{}", JSON.toJSONString(object, true));
 
-            BidNewsOriginal dataItem = new BidNewsOriginal(id);
-            dataItem.setSource(SourceCode.ZGZT.getValue());
-            dataItem.setSourceCode(SourceCode.ZGZT.name());
+            BidNewsOriginal dataItem = new BidNewsOriginal(id, SourceCode.ZGZT);
             dataItem.setTitle(JSONPath.eval(object, "$.businessObjectName").toString());
 
             if (!JSONPath.contains(object, "$.regionName")) {

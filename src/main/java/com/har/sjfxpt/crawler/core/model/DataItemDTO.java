@@ -19,7 +19,7 @@ public class DataItemDTO extends BidNewsOriginal {
     public static final int ROW_KEY_LENGTH = 41;
 
     public DataItemDTO(String url) {
-        super(url);
+        //super(url);
     }
 
 }

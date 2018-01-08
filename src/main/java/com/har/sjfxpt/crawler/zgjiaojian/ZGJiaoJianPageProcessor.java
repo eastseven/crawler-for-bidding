@@ -107,10 +107,7 @@ public class ZGJiaoJianPageProcessor implements BasePageProcessor {
                 if (StringUtils.containsIgnoreCase(date, "(")) {
                     date = StringUtils.substringBetween(date, "(", ")");
                 }
-                BidNewsOriginal zgJiaoJianDataItem = new BidNewsOriginal(href);
-                zgJiaoJianDataItem.setSource(SourceCode.ZGJIAOJIAN.getValue());
-                zgJiaoJianDataItem.setSourceCode(SourceCode.ZGJIAOJIAN.name());
-                zgJiaoJianDataItem.setUrl(href);
+                BidNewsOriginal zgJiaoJianDataItem = new BidNewsOriginal(href, SourceCode.ZGJIAOJIAN);
                 zgJiaoJianDataItem.setTitle(title);
                 zgJiaoJianDataItem.setProvince(ProvinceUtil.get(title));
                 zgJiaoJianDataItem.setDate(PageProcessorUtil.dataTxt(date));

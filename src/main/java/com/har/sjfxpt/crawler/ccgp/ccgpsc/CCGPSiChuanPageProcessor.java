@@ -21,9 +21,6 @@ import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
 
 import java.util.List;
-import java.util.Map;
-
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
 
 /**
  * Created by Administrator on 2017/11/8.
@@ -118,14 +115,11 @@ public class CCGPSiChuanPageProcessor implements BasePageProcessor {
             if (!href.contains("http://")) {
                 href = "http://www.sczfcg.com" + href;
             }
-            BidNewsOriginal ccgpSiChuanDataItem = new BidNewsOriginal(href);
+            BidNewsOriginal ccgpSiChuanDataItem = new BidNewsOriginal(href, SourceCode.CCGPSC);
             ccgpSiChuanDataItem.setTitle(title);
             ccgpSiChuanDataItem.setDate(date);
-            ccgpSiChuanDataItem.setUrl(href);
             ccgpSiChuanDataItem.setType(title);
             ccgpSiChuanDataItem.setProvince("四川");
-            ccgpSiChuanDataItem.setSource(SourceCode.CCGPSC.getValue());
-            ccgpSiChuanDataItem.setSourceCode(SourceCode.CCGPSC.name());
 
             long value = stringRedisTemplate.boundSetOps(KEY_URLS).add(href);
             if (value == 0L) {

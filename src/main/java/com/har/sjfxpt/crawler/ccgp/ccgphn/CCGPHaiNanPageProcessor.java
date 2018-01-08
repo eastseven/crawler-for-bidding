@@ -21,8 +21,6 @@ import us.codecraft.webmagic.downloader.HttpClientDownloader;
 
 import java.util.List;
 
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
-
 /**
  * Created by Administrator on 2017/11/7.
  *
@@ -87,15 +85,13 @@ public class CCGPHaiNanPageProcessor implements BasePageProcessor {
             }
             String title = element.text();
             String projectName = StringUtils.substringBeforeLast(title, "-");
-            BidNewsOriginal haiNanDataItem = new BidNewsOriginal(url);
+            BidNewsOriginal haiNanDataItem = new BidNewsOriginal(url, SourceCode.CCGPHN);
             haiNanDataItem.setType(typeTxt);
-            haiNanDataItem.setUrl(url);
             haiNanDataItem.setTitle(title);
             haiNanDataItem.setDate(date);
             haiNanDataItem.setProvince("海南");
             haiNanDataItem.setProjectName(StringUtils.defaultString(projectName, ""));
-            haiNanDataItem.setSourceCode(SourceCode.CCGPHN.name());
-            haiNanDataItem.setSource(SourceCode.CCGPHN.getValue());
+
             // 正文处理
             try {
                 Request request = new Request(url);

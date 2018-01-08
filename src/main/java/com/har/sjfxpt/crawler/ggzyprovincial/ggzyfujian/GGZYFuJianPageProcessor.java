@@ -96,14 +96,12 @@ public class GGZYFuJianPageProcessor implements BasePageProcessor {
                     m_id = StringUtils.substringBefore(m_id, ".0");
                 }
                 String href = "https://www.fjggfw.gov.cn/Website/JYXX_" + kind + ".aspx?ID=" + m_id + "&GGTYPE=" + ggType;
-                BidNewsOriginal ggzyFuJianDataItem = new BidNewsOriginal(href);
+                BidNewsOriginal ggzyFuJianDataItem = new BidNewsOriginal(href, SourceCode.GGZYFUJIAN);
                 ggzyFuJianDataItem.setProvince("福建");
-                ggzyFuJianDataItem.setSourceCode(SourceCode.GGZYFUJIAN.name());
-                ggzyFuJianDataItem.setSource(SourceCode.GGZYFUJIAN.getValue());
-                ggzyFuJianDataItem.setUrl(href);
                 ggzyFuJianDataItem.setTitle(title);
                 ggzyFuJianDataItem.setType(type);
                 ggzyFuJianDataItem.setDate(DateTime.parse(date, DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss")).toString("yyyy-MM-dd HH:mm"));
+
                 String getFormContentUrl = "https://www.fjggfw.gov.cn/Website/AjaxHandler/BuilderHandler.ashx?OPtype=GetGGInfoPC&ID=" + m_id + "&GGTYPE=" + ggType + "&url=AjaxHandler%2FBuilderHandler.ashx";
                 Page page1 = httpClientDownloader.download(new Request(getFormContentUrl), SiteUtil.get().setTimeOut(50000).toTask());
                 Selectable dataDetail = page1.getJson().jsonPath("$.data");
@@ -120,14 +118,12 @@ public class GGZYFuJianPageProcessor implements BasePageProcessor {
             if (StringUtils.endsWithIgnoreCase(kind, "ZFCG")) {
                 String procode = JSONPath.eval(dataBean, "$.PROCODE").toString();
                 String href = "https://www.fjggfw.gov.cn/Website/JYXX_Content/ZFCG.aspx?PROCODE=" + procode + "&GGTYPE=" + ggType;
-                BidNewsOriginal ggzyFuJianDataItem = new BidNewsOriginal(href);
+                BidNewsOriginal ggzyFuJianDataItem = new BidNewsOriginal(href, SourceCode.GGZYFUJIAN);
                 ggzyFuJianDataItem.setProvince("福建");
-                ggzyFuJianDataItem.setSourceCode(SourceCode.GGZYFUJIAN.name());
-                ggzyFuJianDataItem.setSource(SourceCode.GGZYFUJIAN.getValue());
-                ggzyFuJianDataItem.setUrl(href);
                 ggzyFuJianDataItem.setTitle(title);
                 ggzyFuJianDataItem.setType(type);
                 ggzyFuJianDataItem.setDate(DateTime.parse(date, DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss")).toString("yyyy-MM-dd HH:mm"));
+
                 Request request = new Request("https://www.fjggfw.gov.cn/Website/AjaxHandler/BuilderHandler.ashx");
                 Map<String, Object> pageParams = Maps.newHashMap();
                 pageParams.put("OPtype", "GetJYXXContentZFCG");
@@ -142,15 +138,15 @@ public class GGZYFuJianPageProcessor implements BasePageProcessor {
                     List<String> data3list = data3.all();
                     String context = data3list.get(0);
                     JSONObject jsonObject = (JSONObject) JSONObject.parse(context);
-                    String purchaser_name = JSONPath.eval(jsonObject, "$.PURCHASER_NAME").toString();
-                    String supplier_name = JSONPath.eval(jsonObject, "$.SUPPLIER_NAME").toString();
-                    String contract_amount = JSONPath.eval(jsonObject, "$.CONTRACT_AMOUNT").toString();
-                    String price_unit_text = JSONPath.eval(jsonObject, "$.PRICE_UNIT_TEXT").toString();
-                    String currency_code_text = JSONPath.eval(jsonObject, "$.CURRENCY_CODE_TEXT").toString();
-                    String contract_term = JSONPath.eval(jsonObject, "$.CONTRACT_TERM").toString();
-                    String formatContent = "<div class=\"detail_content\"><table class=\"detail_Table\" cellspacing=\"1\" cellpadding=\"1\"><tbody><tr><th>采购人名称</th><td>" + purchaser_name + "</td></tr><tr><th>中标（成交）供应商名称</th><td>" + supplier_name + "</td></tr><tr><th>合同金额</th><td>" + contract_amount + price_unit_text + currency_code_text + "</td></tr><tr><th>合同期限</th><td>" + contract_term + "</td></tr></tbody></table></div>";
-                    if (StringUtils.isNotBlank(purchaser_name) || StringUtils.isNotBlank(supplier_name)) {
-                        ggzyFuJianDataItem.setTotalBidMoney(contract_amount + price_unit_text + currency_code_text);
+                    String purchaserName = JSONPath.eval(jsonObject, "$.PURCHASER_NAME").toString();
+                    String supplierName = JSONPath.eval(jsonObject, "$.SUPPLIER_NAME").toString();
+                    String contractAmount = JSONPath.eval(jsonObject, "$.CONTRACT_AMOUNT").toString();
+                    String priceUnitText = JSONPath.eval(jsonObject, "$.PRICE_UNIT_TEXT").toString();
+                    String currencyCodeText = JSONPath.eval(jsonObject, "$.CURRENCY_CODE_TEXT").toString();
+                    String contractTerm = JSONPath.eval(jsonObject, "$.CONTRACT_TERM").toString();
+                    String formatContent = "<div class=\"detail_content\"><table class=\"detail_Table\" cellspacing=\"1\" cellpadding=\"1\"><tbody><tr><th>采购人名称</th><td>" + purchaserName + "</td></tr><tr><th>中标（成交）供应商名称</th><td>" + supplierName + "</td></tr><tr><th>合同金额</th><td>" + contractAmount + priceUnitText + currencyCodeText + "</td></tr><tr><th>合同期限</th><td>" + contractTerm + "</td></tr></tbody></table></div>";
+                    if (StringUtils.isNotBlank(purchaserName) || StringUtils.isNotBlank(supplierName)) {
+                        ggzyFuJianDataItem.setTotalBidMoney(contractAmount + priceUnitText + currencyCodeText);
                         ggzyFuJianDataItem.setFormatContent(PageProcessorUtil.formatElementsByWhitelist(formatContent));
                         dataItems.add(ggzyFuJianDataItem);
                     }

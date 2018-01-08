@@ -124,10 +124,7 @@ public class GGZYGanSuPageProcessor implements BasePageProcessor {
                 }
                 String title = element.select("a").attr("title");
                 String date = element.select("span").text();
-                BidNewsOriginal ggzyGanSuDataItem = new BidNewsOriginal(href);
-                ggzyGanSuDataItem.setSourceCode(SourceCode.GGZYGANSU.name());
-                ggzyGanSuDataItem.setSource(SourceCode.GGZYGANSU.getValue());
-                ggzyGanSuDataItem.setUrl(href);
+                BidNewsOriginal ggzyGanSuDataItem = new BidNewsOriginal(href, SourceCode.GGZYGANSU);
                 ggzyGanSuDataItem.setTitle(title);
                 ggzyGanSuDataItem.setDate(PageProcessorUtil.dataTxt(date));
                 if (PageProcessorUtil.timeCompare(ggzyGanSuDataItem.getDate())) {

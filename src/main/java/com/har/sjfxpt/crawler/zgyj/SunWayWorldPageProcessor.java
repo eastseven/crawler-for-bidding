@@ -120,9 +120,7 @@ public class SunWayWorldPageProcessor implements BasePageProcessor {
             String date = a.select("td:nth-child(2)").text();
             String url = urlParser(a.select("a").attr("onclick"));
             if (StringUtils.isNotBlank(url)) {
-                BidNewsOriginal dataItem = new BidNewsOriginal(url);
-                dataItem.setSourceCode(sourceCode.name());
-                dataItem.setSource(sourceCode.getValue());
+                BidNewsOriginal dataItem = new BidNewsOriginal(url, sourceCode);
                 dataItem.setTitle(title);
 
                 if (StringUtils.contains(title, "资格预审：")) {

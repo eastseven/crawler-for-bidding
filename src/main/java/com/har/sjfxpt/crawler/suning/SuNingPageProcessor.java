@@ -112,15 +112,12 @@ public class SuNingPageProcessor implements BasePageProcessor {
         for (Element a : items) {
             String href = "http://zb.suning.com/bid-web/" + a.select("td.tdsubject > a").attr("href");
 
-            BidNewsOriginal suNingDataItem = new BidNewsOriginal(href);
-            suNingDataItem.setSourceCode(SourceCode.SUNING.name());
-            suNingDataItem.setSource(SourceCode.SUNING.getValue());
+            BidNewsOriginal suNingDataItem = new BidNewsOriginal(href, SourceCode.SUNING);
 
             String title = a.select("td.tdsubject > a").text();
             String date = a.select("td:nth-child(3)").text();
             suNingDataItem.setTitle(title);
             suNingDataItem.setDate(PageProcessorUtil.dataTxt(date));
-            suNingDataItem.setUrl(href);
             suNingDataItem.setProvince(ProvinceUtil.get(title));
 
             log.debug(">>> download url {}", href);

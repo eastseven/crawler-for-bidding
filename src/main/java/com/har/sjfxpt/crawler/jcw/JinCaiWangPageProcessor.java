@@ -9,7 +9,6 @@ import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.ProvinceUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.util.Lists;
 import org.jsoup.Jsoup;
@@ -25,8 +24,6 @@ import us.codecraft.webmagic.Site;
 
 import java.io.IOException;
 import java.util.List;
-
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
 
 /**
  * Created by Administrator on 2017/10/24.
@@ -123,10 +120,7 @@ public class JinCaiWangPageProcessor implements BasePageProcessor {
                 date = StringUtils.substringAfter(date, "时间：");
                 log.debug("time=={}", date);
 
-                BidNewsOriginal jinCaiWangDataItem = new BidNewsOriginal(href);
-                jinCaiWangDataItem.setSourceCode(SourceCode.JC.name());
-                jinCaiWangDataItem.setSource(SourceCode.JC.getValue());
-                jinCaiWangDataItem.setUrl(href);
+                BidNewsOriginal jinCaiWangDataItem = new BidNewsOriginal(href, SourceCode.JC);
                 jinCaiWangDataItem.setTitle(titleTxt);
                 jinCaiWangDataItem.setDate(PageProcessorUtil.dataTxt(date));
 

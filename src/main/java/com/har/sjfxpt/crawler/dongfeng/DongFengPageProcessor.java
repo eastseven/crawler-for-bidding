@@ -106,13 +106,10 @@ public class DongFengPageProcessor implements BasePageProcessor {
             if (StringUtils.isNotBlank(href)) {
                 String title = element.select("a").attr("title");
                 String date = element.select("a > span.bidDate").text();
-                BidNewsOriginal dongFengDataItem = new BidNewsOriginal(href);
-                dongFengDataItem.setUrl(href);
+                BidNewsOriginal dongFengDataItem = new BidNewsOriginal(href, SourceCode.DONGFENG);
                 dongFengDataItem.setTitle(title);
                 dongFengDataItem.setProvince(ProvinceUtil.get(title));
                 dongFengDataItem.setDate(PageProcessorUtil.dataTxt(date));
-                dongFengDataItem.setSourceCode(SourceCode.DONGFENG.name());
-                dongFengDataItem.setSource(SourceCode.DONGFENG.getValue());
 
                 Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
                 Elements timeDetail = page.getHtml().getDocument().body().select("#main > div.listPage.wrap > div.wrap01 > div.mleft > div > div > div.ninfo-title > span");

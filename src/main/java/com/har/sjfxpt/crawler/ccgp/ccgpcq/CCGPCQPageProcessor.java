@@ -13,7 +13,6 @@ import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
 import org.jsoup.safety.Whitelist;
 import org.jsoup.select.Elements;
@@ -27,9 +26,6 @@ import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.List;
-import java.util.Map;
-
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
 
 /**
  * Created by Administrator on 2017/11/30.
@@ -113,14 +109,12 @@ public class CCGPCQPageProcessor implements BasePageProcessor {
             }
             String hrefLook = "https://www.cqgp.gov.cn/notices/detail/" + id + "?title=" + code;
             String href = "https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable/" + id;
-            BidNewsOriginal ccgpcqDataItem = new BidNewsOriginal(href);
+            BidNewsOriginal ccgpcqDataItem = new BidNewsOriginal(href, SourceCode.CCGPCQ);
             ccgpcqDataItem.setTitle(title);
             ccgpcqDataItem.setPurchaser(purchaser);
             ccgpcqDataItem.setProvince("重庆");
             ccgpcqDataItem.setDate(PageProcessorUtil.dataTxt(date));
             ccgpcqDataItem.setUrl(hrefLook);
-            ccgpcqDataItem.setSourceCode(SourceCode.CCGPCQ.name());
-            ccgpcqDataItem.setSource(SourceCode.CCGPCQ.getValue());
             if (PageProcessorUtil.timeCompare(ccgpcqDataItem.getDate())) {
                 log.warn("{} is not the same day", ccgpcqDataItem.getUrl());
             } else {
