@@ -129,7 +129,7 @@ public class ChinaMobilePageProcessor implements BasePageProcessor {
             if (!element.hasText()) continue;
             if (element.hasClass("zb_table_tr")) continue;
             if (!element.hasAttr("onclick")) continue;
-            log.debug("{}", element);
+
             String id = StringUtils.substringBetween(element.attr("onclick"), "('", "')");
             String url = URL + id;
             String purchaser = element.select("td").get(0).text();
@@ -144,18 +144,14 @@ public class ChinaMobilePageProcessor implements BasePageProcessor {
             String date = element.select("td").get(3).text();
             date = new DateTime(date).toString(YYYYMMDD);
 
-            BidNewsOriginal dataItem = new BidNewsOriginal(url);
+            BidNewsOriginal dataItem = new BidNewsOriginal(url, SourceCode.CM);
             dataItem.setDate(PageProcessorUtil.dataTxt(date));
             dataItem.setTitle(title);
             dataItem.setProjectName(StringUtils.defaultString(projectName, ""));
             dataItem.setType(type);
             dataItem.setPurchaser(purchaser);
-            dataItem.setProvince(ProvinceUtil.get(purchaser + title));
-            dataItem.setSource(SourceCode.CM.getValue());
-            dataItem.setSourceCode(SourceCode.CM.name());
-            log.debug("date={}", dataItem.getDate());
+            dataItem.setProvince(ProvinceUtil.get(purchaser + " " + title));
 
-            log.debug(">>> download {}", url);
             Document document = httpClientDownloader.download(new Request(url), SiteUtil.get().setTimeOut(60000).toTask()).getHtml().getDocument();
             Element root;
             if (!document.body().select("div#mobanDiv").isEmpty()) {

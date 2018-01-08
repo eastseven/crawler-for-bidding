@@ -78,9 +78,7 @@ public class PetroChinaPageProcessor implements BasePageProcessor {
 
             log.debug(">>> {}, {}, {}, {}, {}, {}", title, href, documentId, purchaser, text, text.split(" "));
 
-            BidNewsOriginal dataItem = new BidNewsOriginal(documentId);
-            dataItem.setSource(SourceCode.ZSY.getValue());
-            dataItem.setSourceCode(SourceCode.ZSY.name());
+            BidNewsOriginal dataItem = new BidNewsOriginal(documentId, SourceCode.ZSY);
             dataItem.setDate(date);
             dataItem.setTitle(title);
             dataItem.setProvince(ProvinceUtil.get(purchaser));

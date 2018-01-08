@@ -7,6 +7,7 @@ import com.har.sjfxpt.crawler.core.downloader.GongGongZiYuanPageDownloader;
 import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
 import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.service.PageDataService;
+import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.har.sjfxpt.crawler.core.processor.GongGongZiYuanPageProcessor.*;
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
 
 /**
  * 全国公共资源交易平台
@@ -82,11 +82,9 @@ public class GongGongZiYuanPageProcessor implements BasePageProcessor {
             href = StringUtils.replace(href, "/a/", "/b/");
             String date = item.select("h4 span").text();
 
-            BidNewsOriginal dataItem = new BidNewsOriginal(href);
-            dataItem.setSource(SourceCode.GGZY.getValue());
-            dataItem.setSourceCode(SourceCode.GGZY.name());
+            BidNewsOriginal dataItem = new BidNewsOriginal(href, SourceCode.GGZY);
             dataItem.setTitle(title);
-            dataItem.setDate(date);
+            dataItem.setDate(PageProcessorUtil.dataTxt(date));
 
             String cssQuery = "p.p_tw span";
             for (Element element : item.select(cssQuery)) {

@@ -80,10 +80,7 @@ public class ShenHuaPageProcessor implements BasePageProcessor {
                 }
                 String title = element.select("div > a.infolink").attr("title");
                 String date = element.select("span").text();
-                BidNewsOriginal shenHuaDataItem = new BidNewsOriginal(href);
-                shenHuaDataItem.setSource(SourceCode.SHENHUA.getValue());
-                shenHuaDataItem.setSourceCode(SourceCode.SHENHUA.name());
-                shenHuaDataItem.setUrl(href);
+                BidNewsOriginal shenHuaDataItem = new BidNewsOriginal(href, SourceCode.SHENHUA);
                 shenHuaDataItem.setTitle(title);
                 shenHuaDataItem.setProvince(ProvinceUtil.get(title));
                 shenHuaDataItem.setDate(PageProcessorUtil.dataTxt(date));

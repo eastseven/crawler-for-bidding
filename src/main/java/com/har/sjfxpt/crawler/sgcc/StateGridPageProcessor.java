@@ -121,16 +121,14 @@ public class StateGridPageProcessor implements BasePageProcessor {
                     log.error("", e);
                 }
 
-                BidNewsOriginal dataItem = new BidNewsOriginal(url);
-                dataItem.setSource(SourceCode.SGCC.getValue());
-                dataItem.setSourceCode(SourceCode.SGCC.name());
+                BidNewsOriginal dataItem = new BidNewsOriginal(url, SourceCode.SGCC);
 
                 dataItem.setTitle(title);
                 dataItem.setDate(PageProcessorUtil.dataTxt(date));
                 dataItem.setFormatContent(html);
                 dataItem.setProvince(ProvinceUtil.get(title));
-                dataItem.setUrl(url);
                 dataItem.setType("中标");
+
                 dataItems.add(dataItem);
             }
         }
@@ -178,18 +176,14 @@ public class StateGridPageProcessor implements BasePageProcessor {
                 log.error("{} fetch fail", url);
             }
 
-            BidNewsOriginal dataItem = new BidNewsOriginal(url);
-            dataItem.setSource(SourceCode.SGCC.getValue());
-            dataItem.setSourceCode(SourceCode.SGCC.name());
+            BidNewsOriginal dataItem = new BidNewsOriginal(url, SourceCode.SGCC);
 
             dataItem.setProjectCode(code);
             dataItem.setTitle(name);
             dataItem.setDate(PageProcessorUtil.dataTxt(date));
             dataItem.setFormatContent(html);
             dataItem.setProvince(ProvinceUtil.get(name));
-            dataItem.setUrl(url);
             dataItem.setType("招标");
-
             dataItem.setPurchaser(purchaser);
 
             dataItems.add(dataItem);

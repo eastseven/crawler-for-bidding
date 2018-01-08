@@ -105,10 +105,7 @@ public class BaoWuPageProcessor implements BasePageProcessor {
         String issueDate = JSONPath.eval(pageBean, "$.issueDate").toString();
         if (StringUtils.isNotBlank(id)) {
             id = "http://rfq.ouyeelbuy.com/rfqNotice/bidListInfo?id=" + id;
-            BidNewsOriginal baoWuDataItem = new BidNewsOriginal(id);
-            baoWuDataItem.setUrl(id);
-            baoWuDataItem.setSourceCode(SourceCode.BAOWU.name());
-            baoWuDataItem.setSource(SourceCode.BAOWU.getValue());
+            BidNewsOriginal baoWuDataItem = new BidNewsOriginal(id, SourceCode.BAOWU);
             baoWuDataItem.setTitle(title);
             baoWuDataItem.setPurchaser(ouName);
             baoWuDataItem.setDate(PageProcessorUtil.dataTxt(issueDate));
@@ -137,12 +134,9 @@ public class BaoWuPageProcessor implements BasePageProcessor {
         String ouName = JSONPath.eval(pageBean, "$.ouName").toString();
         String issueDate = JSONPath.eval(pageBean, "$.issueDate").toString();
         if (StringUtils.isNotBlank(noticeUrl)) {
-            BidNewsOriginal baoWuDataItem = new BidNewsOriginal(noticeUrl);
-            baoWuDataItem.setUrl(noticeUrl);
+            BidNewsOriginal baoWuDataItem = new BidNewsOriginal(noticeUrl, SourceCode.BAOWU);
             baoWuDataItem.setTitle(noticeName);
             baoWuDataItem.setPurchaser(ouName);
-            baoWuDataItem.setSourceCode(SourceCode.BAOWU.name());
-            baoWuDataItem.setSource(SourceCode.BAOWU.getValue());
             baoWuDataItem.setDate(PageProcessorUtil.dataTxt(issueDate));
             baoWuDataItem.setProvince(ProvinceUtil.get(noticeName));
 

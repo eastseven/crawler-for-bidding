@@ -93,10 +93,7 @@ public class ChinaUnicomPageProcessor implements BasePageProcessor {
                 String date = element.select("td:nth-child(2)").text();
                 String provice = element.select("td:nth-child(3)").text();
 
-                BidNewsOriginal chinaUnicomDataItem = new BidNewsOriginal(href);
-                chinaUnicomDataItem.setSourceCode(SourceCode.CU.name());
-                chinaUnicomDataItem.setSource(SourceCode.CU.getValue());
-                chinaUnicomDataItem.setUrl(href);
+                BidNewsOriginal chinaUnicomDataItem = new BidNewsOriginal(href, SourceCode.CU);
                 chinaUnicomDataItem.setTitle(title);
                 chinaUnicomDataItem.setDate(PageProcessorUtil.dataTxt(date));
                 chinaUnicomDataItem.setProvince(ProvinceUtil.get(provice));

@@ -26,8 +26,6 @@ import us.codecraft.webmagic.utils.HttpConstant;
 import java.util.List;
 import java.util.Map;
 
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
-
 /**
  * Created by Administrator on 2017/12/12.
  *
@@ -123,10 +121,8 @@ public class GGZYShanXiPageProcessor implements BasePageProcessor {
             date = PageProcessorUtil.dataTxt(date);
 
             String url = PREFIX + href;
-            BidNewsOriginal dataItem = new BidNewsOriginal(url);
+            BidNewsOriginal dataItem = new BidNewsOriginal(url, SourceCode.GGZYSHANXI);
             dataItem.setProvince("山西");
-            dataItem.setSourceCode(SourceCode.GGZYSHANXI.name());
-            dataItem.setSource(SourceCode.GGZYSHANXI.getValue());
             dataItem.setDate(date);
             dataItem.setTitle(title);
             dataItem.setProjectCode(projectCode);

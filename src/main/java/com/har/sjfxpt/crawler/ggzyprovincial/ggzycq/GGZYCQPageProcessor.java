@@ -112,9 +112,8 @@ public class GGZYCQPageProcessor implements BasePageProcessor {
             if (PageProcessorUtil.timeCompare(date)) {
                 log.info("{} is not on the same day", href);
             } else {
-                BidNewsOriginal ggzyCQDataItem = new BidNewsOriginal(href);
+                BidNewsOriginal ggzyCQDataItem = new BidNewsOriginal(href, SourceCode.GGZYCQ);
                 ggzyCQDataItem.setTitle(title);
-                ggzyCQDataItem.setUrl(href);
                 if (urlId.equalsIgnoreCase("1511837748941")) {
                     ggzyCQDataItem.setType("采购公告");
                 }
@@ -125,8 +124,6 @@ public class GGZYCQPageProcessor implements BasePageProcessor {
                     date = date + DateTime.now().toString(" HH:mm");
                 }
                 ggzyCQDataItem.setDate(date);
-                ggzyCQDataItem.setSource(SourceCode.GGZYCQ.name());
-                ggzyCQDataItem.setSourceCode(SourceCode.GGZYCQ.getValue());
                 ggzyCQDataItem.setProvince("重庆");
                 Page page1 = httpClientDownloader.download(new Request(ggzyCQDataItem.getUrl()), SiteUtil.get().toTask());
                 Element element = page1.getHtml().getDocument().body();
