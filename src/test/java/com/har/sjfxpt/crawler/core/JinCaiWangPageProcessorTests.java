@@ -1,6 +1,7 @@
 package com.har.sjfxpt.crawler.core;
 
 import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.jcw.JinCaiWangPageProcessor;
 import lombok.extern.slf4j.Slf4j;
@@ -62,7 +63,7 @@ public class JinCaiWangPageProcessorTests {
 
     @Test
     public void testJinCaiWangValidation() {
-        BidNewsOriginal bean = new BidNewsOriginal("http://www.cfcpn.com");
+        BidNewsOriginal bean = new BidNewsOriginal("http://www.cfcpn.com", SourceCode.JC);
         bean.setType("type");
         bean.setTitle("title");
         bean.setDate(DateTime.now().toString("yyyy-MM-dd HH:mm"));

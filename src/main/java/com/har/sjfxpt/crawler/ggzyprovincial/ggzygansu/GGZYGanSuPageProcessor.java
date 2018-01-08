@@ -75,7 +75,8 @@ public class GGZYGanSuPageProcessor implements BasePageProcessor {
     @Override
     public void handlePaging(Page page) {
         String url = page.getUrl().get();
-        Map<String, Object> pageParams = (Map<String, Object>) page.getRequest().getExtras().get(PAGE_PARAMS);
+        String type = (String) page.getRequest().getExtra("type");
+        Map<String, Object> pageParams = (Map<String, Object>) page.getRequest().getExtra(PAGE_PARAMS);
         int pageNum = Integer.parseInt(StringUtils.substringBetween(url, "pageNo=", "&pageSize="));
         if (pageNum == 1) {
             Elements elements = page.getHtml().getDocument().body().select("body > div.tradpage > ul > li.disabled.controls");
@@ -90,6 +91,7 @@ public class GGZYGanSuPageProcessor implements BasePageProcessor {
                 Map<String, Object> filterparam = Maps.newHashMap();
                 filterparam.put("filterparam", jsonFiled);
                 request.setRequestBody(HttpRequestBody.form(filterparam, "UTF-8"));
+                request.putExtra("type", type);
                 request.putExtra(PAGE_PARAMS, pageParams);
                 page.addTargetRequest(request);
             }
@@ -98,12 +100,14 @@ public class GGZYGanSuPageProcessor implements BasePageProcessor {
 
     @Override
     public void handleContent(Page page) {
+        String type = (String) page.getRequest().getExtra("type");
         Elements elements = page.getHtml().getDocument().body().select("body > div.trad-sear-con > ul > li");
         if (elements.isEmpty()) {
             log.warn("{} elements is empty", page.getUrl().get());
             return;
         }
         List<BidNewsOriginal> dataItems = parseContent(elements);
+        dataItems.forEach(dataItem -> dataItem.setType(type));
         if (!dataItems.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItems);
         } else {
@@ -124,6 +128,7 @@ public class GGZYGanSuPageProcessor implements BasePageProcessor {
                 String title = element.select("a").attr("title");
                 String date = element.select("span").text();
                 BidNewsOriginal ggzyGanSuDataItem = new BidNewsOriginal(href, SourceCode.GGZYGANSU);
+                ggzyGanSuDataItem.setProvince("甘肃");
                 ggzyGanSuDataItem.setTitle(title);
                 ggzyGanSuDataItem.setDate(PageProcessorUtil.dataTxt(date));
                 if (PageProcessorUtil.timeCompare(ggzyGanSuDataItem.getDate())) {
@@ -145,7 +150,6 @@ public class GGZYGanSuPageProcessor implements BasePageProcessor {
                         dataItems.add(ggzyGanSuDataItem);
                     }
                 }
-
             }
         }
         return dataItems;

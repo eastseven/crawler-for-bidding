@@ -36,7 +36,6 @@ public final class PageProcessorUtil {
     public static String formatElementsByWhitelist(Element root) {
         log.debug("\n{}", root);
         if (root == null) return null;
-        if (root.isBlock()) return null;
         String html = root.html();
         return formatElementsByWhitelist(html);
     }
@@ -50,7 +49,7 @@ public final class PageProcessorUtil {
 
     public static String formatElementsByWhitelist(String html) {
         Whitelist whitelist = Whitelist.relaxed();
-        whitelist.removeTags("style", "script", "form", "a");
+        whitelist.removeTags("style", "script", "a");
         whitelist.removeAttributes("table", "style", "width", "height");
         whitelist.removeAttributes("td", "style", "width", "height");
         String formatContent = Jsoup.clean(html, whitelist);
