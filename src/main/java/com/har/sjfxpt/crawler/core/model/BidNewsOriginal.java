@@ -31,10 +31,13 @@ public class BidNewsOriginal {
      *
      * @param url
      */
-    public BidNewsOriginal(String url) {
+    public BidNewsOriginal(String url, SourceCode code) {
         this.id = DigestUtils.md5Hex(url);
         this.url = url;
         this.createTime = DateTime.now().toString("yyyyMMddHH");
+
+        this.source = code.getValue();
+        this.sourceCode = code.name();
     }
 
     /**
