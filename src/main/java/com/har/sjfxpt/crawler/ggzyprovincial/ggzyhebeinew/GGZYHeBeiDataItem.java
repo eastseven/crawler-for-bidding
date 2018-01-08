@@ -19,7 +19,7 @@ import java.util.Date;
  */
 @Data
 @ToString
-@Document(collection = "data_item_ggzy_hebei")
+@Document(collection = "data_item_ggzy_hebei")@Deprecated
 public class GGZYHeBeiDataItem {
 
     public GGZYHeBeiDataItem(String url) {

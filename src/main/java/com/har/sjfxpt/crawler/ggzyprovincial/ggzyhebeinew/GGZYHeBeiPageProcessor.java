@@ -1,33 +1,58 @@
 package com.har.sjfxpt.crawler.ggzyprovincial.ggzyhebeinew;
 
 import com.alibaba.fastjson.JSONObject;
+import com.har.sjfxpt.crawler.core.annotation.Source;
+import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.util.Lists;
-import org.joda.time.DateTime;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
-import us.codecraft.webmagic.model.HttpRequestBody;
-import us.codecraft.webmagic.utils.HttpConstant;
 
 import java.util.List;
 import java.util.Map;
 
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
+import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyhebeinew.GGZYHeBeiPageProcessor.*;
+import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyhebeinew.GGZYHeBeiSpiderLauncher.requestGenerator;
 
 /**
  * Created by Administrator on 2017/12/26.
  */
 @Slf4j
 @Component
-public class GGZYHeBeiPageProcessorNew implements BasePageProcessor {
+@SourceConfig(
+        code = SourceCode.GGZYHEBEI,
+        sources = {
+                @Source(url = GGZYHEBEI_URL, post = true, postParams = POST_PARAMS_1),
+                @Source(url = GGZYHEBEI_URL, post = true, postParams = POST_PARAMS_2),
+                @Source(url = GGZYHEBEI_URL, post = true, postParams = POST_PARAMS_3),
+                @Source(url = GGZYHEBEI_URL, post = true, postParams = POST_PARAMS_4),
+                @Source(url = GGZYHEBEI_URL, post = true, postParams = POST_PARAMS_5),
+                @Source(url = GGZYHEBEI_URL, post = true, postParams = POST_PARAMS_6),
+                @Source(url = GGZYHEBEI_URL, post = true, postParams = POST_PARAMS_7),
+                @Source(url = GGZYHEBEI_URL, post = true, postParams = POST_PARAMS_8)
+        }
+)
+public class GGZYHeBeiPageProcessor implements BasePageProcessor {
+
+    final static String GGZYHEBEI_URL = "http://www.hebpr.cn/inteligentsearch/rest/inteligentSearch/getFullTextDataNew";
+
+    final static String POST_PARAMS_1 = "{'accuracy':'','cl':200,'condition':[{'equal':'003005002001','fieldName':'categorynum','isLike':true,'likeType':2}],'edt':'2018-01-08 23:59:59','fields':'title','highlights':'title','isBusiness':1,'noParticiple':'0','pn':0,'rn':10,'sdt':'2018-01-08 00:00:00','sort':'{\"showdate\":\"0\"}','ssort':'title','token':''}";
+    final static String POST_PARAMS_2 = "{'accuracy':'','cl':200,'condition':[{'equal':'003005002002','fieldName':'categorynum','isLike':true,'likeType':2}],'edt':'2018-01-08 23:59:59','fields':'title','highlights':'title','isBusiness':1,'noParticiple':'0','pn':0,'rn':10,'sdt':'2018-01-08 00:00:00','sort':'{\"showdate\":\"0\"}','ssort':'title','token':''}";
+    final static String POST_PARAMS_3 = "{'accuracy':'','cl':200,'condition':[{'equal':'003005002003','fieldName':'categorynum','isLike':true,'likeType':2}],'edt':'2018-01-08 23:59:59','fields':'title','highlights':'title','isBusiness':1,'noParticiple':'0','pn':0,'rn':10,'sdt':'2018-01-08 00:00:00','sort':'{\"showdate\":\"0\"}','ssort':'title','token':''}";
+    final static String POST_PARAMS_4 = "{'accuracy':'','cl':200,'condition':[{'equal':'003005002004','fieldName':'categorynum','isLike':true,'likeType':2}],'edt':'2018-01-08 23:59:59','fields':'title','highlights':'title','isBusiness':1,'noParticiple':'0','pn':0,'rn':10,'sdt':'2018-01-08 00:00:00','sort':'{\"showdate\":\"0\"}','ssort':'title','token':''}";
+    final static String POST_PARAMS_5 = "{'accuracy':'','cl':200,'condition':[{'equal':'003005001001','fieldName':'categorynum','isLike':true,'likeType':2}],'edt':'2018-01-08 23:59:59','fields':'title','highlights':'title','isBusiness':1,'noParticiple':'0','pn':0,'rn':10,'sdt':'2018-01-08 00:00:00','sort':'{\"showdate\":\"0\"}','ssort':'title','token':''}";
+    final static String POST_PARAMS_6 = "{'accuracy':'','cl':200,'condition':[{'equal':'003005001002','fieldName':'categorynum','isLike':true,'likeType':2}],'edt':'2018-01-08 23:59:59','fields':'title','highlights':'title','isBusiness':1,'noParticiple':'0','pn':0,'rn':10,'sdt':'2018-01-08 00:00:00','sort':'{\"showdate\":\"0\"}','ssort':'title','token':''}";
+    final static String POST_PARAMS_7 = "{'accuracy':'','cl':200,'condition':[{'equal':'003005001003','fieldName':'categorynum','isLike':true,'likeType':2}],'edt':'2018-01-08 23:59:59','fields':'title','highlights':'title','isBusiness':1,'noParticiple':'0','pn':0,'rn':10,'sdt':'2018-01-08 00:00:00','sort':'{\"showdate\":\"0\"}','ssort':'title','token':''}";
+    final static String POST_PARAMS_8 = "{'accuracy':'','cl':200,'condition':[{'equal':'003005001004','fieldName':'categorynum','isLike':true,'likeType':2}],'edt':'2018-01-08 23:59:59','fields':'title','highlights':'title','isBusiness':1,'noParticiple':'0','pn':0,'rn':10,'sdt':'2018-01-08 00:00:00','sort':'{\"showdate\":\"0\"}','ssort':'title','token':''}";
 
     HttpClientDownloader httpClientDownloader;
 
@@ -120,41 +145,5 @@ public class GGZYHeBeiPageProcessorNew implements BasePageProcessor {
             businessType = "工程建设";
         }
         return businessType;
-    }
-
-    public static Request requestGenerator(String url, String typeId, int pageCount) {
-        GGZYHeBeiPageParameter ggzyHeBeiPageParameter = new GGZYHeBeiPageParameter();
-        ggzyHeBeiPageParameter.setToken("");
-        ggzyHeBeiPageParameter.setPn(pageCount);
-        ggzyHeBeiPageParameter.setRn(10);
-        ggzyHeBeiPageParameter.setSdt(DateTime.now().minusDays(20).toString("yyyy-MM-dd") + " 00:00:00");
-        ggzyHeBeiPageParameter.setEdt(DateTime.now().toString("yyyy-MM-dd") + " 23:59:59");
-        ggzyHeBeiPageParameter.setFields("title");
-        ggzyHeBeiPageParameter.setSort("{\"showdate\":\"0\"}");
-        ggzyHeBeiPageParameter.setSsort("title");
-        ggzyHeBeiPageParameter.setCl(200);
-        List<GGZYHeBeiPageParameter.ConditionBean> conditionBeanList = Lists.newArrayList();
-        GGZYHeBeiPageParameter.ConditionBean conditionBean = new GGZYHeBeiPageParameter.ConditionBean();
-        conditionBean.setFieldName("categorynum");
-        conditionBean.setIsLike(true);
-        conditionBean.setLikeType(2);
-        conditionBean.setEqual(typeId);
-        conditionBeanList.add(conditionBean);
-        ggzyHeBeiPageParameter.setCondition(conditionBeanList);
-        ggzyHeBeiPageParameter.setTime(null);
-        ggzyHeBeiPageParameter.setHighlights("title");
-        ggzyHeBeiPageParameter.setStatistics(null);
-        ggzyHeBeiPageParameter.setUnionCondition(null);
-        ggzyHeBeiPageParameter.setAccuracy("");
-        ggzyHeBeiPageParameter.setNoParticiple("0");
-        ggzyHeBeiPageParameter.setSearchRange(null);
-        ggzyHeBeiPageParameter.setIsBusiness(1);
-        String json = JSONObject.toJSONString(ggzyHeBeiPageParameter);
-
-        Request request = new Request(url);
-        request.setMethod(HttpConstant.Method.POST);
-        request.setRequestBody(HttpRequestBody.json(json, "UTF-8"));
-        request.putExtra("pageParams", ggzyHeBeiPageParameter);
-        return request;
     }
 }

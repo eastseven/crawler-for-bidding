@@ -19,6 +19,7 @@ import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.THREAD_NU
  */
 @Slf4j
 @Component
+@Deprecated
 public class GGZYHLJSpiderLauncher extends BaseSpiderLauncher {
 
     private final String uuid = SourceCode.GGZYHLJ.toString().toLowerCase() + "-current";
@@ -76,6 +77,7 @@ public class GGZYHLJSpiderLauncher extends BaseSpiderLauncher {
             case "3":
                 pageParams.put("type", "交易证明书");
                 break;
+            default:
         }
         request.putExtra("pageParams", pageParams);
         return request;

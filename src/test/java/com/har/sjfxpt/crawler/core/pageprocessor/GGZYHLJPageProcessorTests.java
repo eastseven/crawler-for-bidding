@@ -1,5 +1,8 @@
 package com.har.sjfxpt.crawler.core.pageprocessor;
 
+import com.har.sjfxpt.crawler.core.annotation.SourceModel;
+import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
+import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhlj.GGZYHLJPageProcessor;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhlj.GGZYHLJPipeline;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +13,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyhlj.GGZYHLJSpiderLauncher.requestJudgment;
 
@@ -26,6 +32,9 @@ public class GGZYHLJPageProcessorTests {
 
     @Autowired
     GGZYHLJPipeline ggzyhljPipeline;
+
+    @Autowired
+    HBasePipeline hBasePipeline;
 
     @Test
     public void testGGZYHLJPageProcessor() {
@@ -50,5 +59,16 @@ public class GGZYHLJPageProcessorTests {
                 .run();
     }
 
+    @Test
+    public void testGGYZHLJAnnotation() {
+        List<SourceModel> sourceModelList = SourceConfigAnnotationUtils.find(ggzyhljPageProcessor.getClass());
+        List<Request> requestList = sourceModelList.parallelStream().map(SourceModel::createRequest)
+                .collect(Collectors.toList());
+        Spider.create(ggzyhljPageProcessor)
+                .addRequest(requestList.toArray(new Request[requestList.size()]))
+                .addPipeline(hBasePipeline)
+                .thread(8)
+                .run();
+    }
 
 }

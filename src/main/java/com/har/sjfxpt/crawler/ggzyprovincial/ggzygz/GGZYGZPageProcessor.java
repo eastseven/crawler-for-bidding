@@ -21,6 +21,8 @@ import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import java.util.List;
 import java.util.Map;
 
+import static com.har.sjfxpt.crawler.ggzyprovincial.ggzygz.GGZYGZPageProcessor.*;
+
 /**
  * Created by Administrator on 2017/11/29.
  */
@@ -29,17 +31,27 @@ import java.util.Map;
 @SourceConfig(
         code = SourceCode.GGZYGZ,
         sources = {
-                @Source(url = "http://www.gzjyfw.gov.cn/gcms/queryContent_1.jspx?title=&businessCatalog=GP&businessType=JYGG&inDates=1&ext=&origin=ALL", type = "交易公告"),
-                @Source(url = "http://www.gzjyfw.gov.cn/gcms/queryContent_1.jspx?title=&businessCatalog=GP&businessType=ZSJGGS&inDates=1&ext=&origin=ALL", type = "资审结果公示"),
-                @Source(url = "http://www.gzjyfw.gov.cn/gcms/queryContent_1.jspx?title=&businessCatalog=GP&businessType=JYJGGS&inDates=1&ext=&origin=ALL", type = "交易结果公示"),
-                @Source(url = "http://www.gzjyfw.gov.cn/gcms/queryContent_1.jspx?title=&businessCatalog=GP&businessType=FBGG&inDates=1&ext=&origin=ALL", type = "流标公示"),
-                @Source(url = "http://www.gzjyfw.gov.cn/gcms/queryContent_1.jspx?title=&businessCatalog=CE&businessType=JYGG&inDates=1&ext=&origin=ALL", type = "交易公告"),
-                @Source(url = "http://www.gzjyfw.gov.cn/gcms/queryContent_1.jspx?title=&businessCatalog=CE&businessType=ZSJGGS&inDates=1&ext=&origin=ALL", type = "资审结果公示"),
-                @Source(url = "http://www.gzjyfw.gov.cn/gcms/queryContent_1.jspx?title=&businessCatalog=CE&businessType=JYJGGS&inDates=1&ext=&origin=ALL", type = "交易结果公示"),
-                @Source(url = "http://www.gzjyfw.gov.cn/gcms/queryContent_1.jspx?title=&businessCatalog=CE&businessType=FBGG&inDates=1&ext=&origin=ALL", type = "流标公示")
+                @Source(url = GGZYGUIZHOU_URL1, type = "交易公告"),
+                @Source(url = GGZYGUIZHOU_URL2, type = "资审结果公示"),
+                @Source(url = GGZYGUIZHOU_URL3, type = "交易结果公示"),
+                @Source(url = GGZYGUIZHOU_URL4, type = "流标公示"),
+                @Source(url = GGZYGUIZHOU_URL5, type = "交易公告"),
+                @Source(url = GGZYGUIZHOU_URL6, type = "资审结果公示"),
+                @Source(url = GGZYGUIZHOU_URL7, type = "交易结果公示"),
+                @Source(url = GGZYGUIZHOU_URL8, type = "流标公示")
         }
 )
 public class GGZYGZPageProcessor implements BasePageProcessor {
+
+    final static String GGZYGUIZHOU_URL1 = "http://www.gzjyfw.gov.cn/gcms/queryContent_1.jspx?title=&businessCatalog=GP&businessType=JYGG&inDates=1&ext=&origin=ALL";
+    final static String GGZYGUIZHOU_URL2 = "http://www.gzjyfw.gov.cn/gcms/queryContent_1.jspx?title=&businessCatalog=GP&businessType=ZSJGGS&inDates=1&ext=&origin=ALL";
+    final static String GGZYGUIZHOU_URL3 = "http://www.gzjyfw.gov.cn/gcms/queryContent_1.jspx?title=&businessCatalog=GP&businessType=JYJGGS&inDates=1&ext=&origin=ALL";
+    final static String GGZYGUIZHOU_URL4 = "http://www.gzjyfw.gov.cn/gcms/queryContent_1.jspx?title=&businessCatalog=GP&businessType=FBGG&inDates=1&ext=&origin=ALL";
+    final static String GGZYGUIZHOU_URL5 = "http://www.gzjyfw.gov.cn/gcms/queryContent_1.jspx?title=&businessCatalog=CE&businessType=JYGG&inDates=1&ext=&origin=ALL";
+    final static String GGZYGUIZHOU_URL6 = "http://www.gzjyfw.gov.cn/gcms/queryContent_1.jspx?title=&businessCatalog=CE&businessType=ZSJGGS&inDates=1&ext=&origin=ALL";
+    final static String GGZYGUIZHOU_URL7 = "http://www.gzjyfw.gov.cn/gcms/queryContent_1.jspx?title=&businessCatalog=CE&businessType=JYJGGS&inDates=1&ext=&origin=ALL";
+    final static String GGZYGUIZHOU_URL8 = "http://www.gzjyfw.gov.cn/gcms/queryContent_1.jspx?title=&businessCatalog=CE&businessType=FBGG&inDates=1&ext=&origin=ALL";
+
 
     HttpClientDownloader httpClientDownloader;
 
@@ -85,7 +97,7 @@ public class GGZYGZPageProcessor implements BasePageProcessor {
             String href = element.select("a").attr("href");
             String title = element.select("a").attr("title");
             if (StringUtils.isNotBlank(href)) {
-                BidNewsOriginal ggzyGZDataItem = new BidNewsOriginal(href,SourceCode.GGZYGZ);
+                BidNewsOriginal ggzyGZDataItem = new BidNewsOriginal(href, SourceCode.GGZYGZ);
                 ggzyGZDataItem.setUrl(href);
                 ggzyGZDataItem.setTitle(title);
                 ggzyGZDataItem.setProvince("贵州");

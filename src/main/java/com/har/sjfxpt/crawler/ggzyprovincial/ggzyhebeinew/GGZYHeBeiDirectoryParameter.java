@@ -5,6 +5,7 @@ import java.util.List;
 /**
  * Created by Administrator on 2017/12/26.
  */
+@Deprecated
 public class GGZYHeBeiDirectoryParameter {
 
     /**
