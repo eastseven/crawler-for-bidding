@@ -16,7 +16,7 @@ import java.util.Map;
  * Created by Administrator on 2017/11/30.
  */
 @Slf4j
-@Component
+@Component@Deprecated
 public class GGZYGZSpiderLauncher extends BaseSpiderLauncher {
 
     private final String uuid = SourceCode.GGZYGZ.toString().toLowerCase() + "-current";
@@ -82,6 +82,7 @@ public class GGZYGZSpiderLauncher extends BaseSpiderLauncher {
             case "FBGG":
                 params.put("type", "流标公示");
                 break;
+            default:
         }
         request.putExtra("pageParams", params);
         return request;
