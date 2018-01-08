@@ -1,7 +1,15 @@
 package com.har.sjfxpt.crawler.core.pageprocessor;
 
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.google.common.collect.Maps;
+import com.har.sjfxpt.crawler.core.annotation.SourceModel;
+import com.har.sjfxpt.crawler.core.model.BidNewsSpider;
+import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
+import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
+import com.har.sjfxpt.crawler.ggzyprovincial.ggzygansu.GGZYGanSuFormJsonField;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzygansu.GGZYGanSuPageProcessor;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzygansu.GGZYGanSuPipeline;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +25,11 @@ import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
 
+import java.util.List;
+import java.util.Map;
+
 import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.THREAD_NUM;
+import static com.har.sjfxpt.crawler.ggzyprovincial.ggzygansu.GGZYGanSuSpiderLauncher.jsonGenerator;
 import static com.har.sjfxpt.crawler.ggzyprovincial.ggzygansu.GGZYGanSuSpiderLauncher.requestGenerator;
 
 /**
@@ -34,6 +46,43 @@ public class GGZYGansuPageProcessorTests {
     @Autowired
     GGZYGanSuPipeline ggzyGanSuPipeline;
 
+    @Autowired
+    HBasePipeline hBasePipeline;
+
+    @Test
+    public void testPostParams() {
+        String areaCode = "620000";
+        String noticeNature = "2";
+        String bulletinType = "";
+        String assortmentIndex = "3";
+
+        GGZYGanSuFormJsonField ggzyGanSuFormJsonField = new GGZYGanSuFormJsonField();
+        ggzyGanSuFormJsonField.setAreaCode(areaCode);
+        GGZYGanSuFormJsonField.WorkNoticeBean workNoticeBean = new GGZYGanSuFormJsonField.WorkNoticeBean();
+        workNoticeBean.setNoticeNature(noticeNature);
+        workNoticeBean.setBulletinType(bulletinType);
+        ggzyGanSuFormJsonField.setWorkNotice(workNoticeBean);
+        ggzyGanSuFormJsonField.setAssortmentindex(assortmentIndex);
+
+        String json = JSONObject.toJSONString(ggzyGanSuFormJsonField, SerializerFeature.UseSingleQuotes);
+        log.debug(">>> {}", json);
+
+        Map<String, Object> params = Maps.newHashMap();
+        params.put("filterparam", json);
+
+        log.debug(">>> {}", params);
+
+        String finalJson = JSONObject.toJSONString(params, SerializerFeature.UseSingleQuotes);
+        log.debug(">>> final post params {}", finalJson);
+    }
+
+    @Test
+    public void test() {
+        BidNewsSpider.create(ggzyGanSuPageProcessor)
+                .addRequest(SourceConfigAnnotationUtils.toRequests(ggzyGanSuPageProcessor.getClass()))
+                .addPipeline(hBasePipeline)
+                .run();
+    }
 
     @Test
     public void testggzyGansuPageProcessorTests() {
@@ -49,7 +98,6 @@ public class GGZYGansuPageProcessorTests {
                 requestGenerator("http://www.gsggfw.cn/w/bid/purchaseQualiInqueryAnn/pageList?pageNo=1&pageSize=20", "620000", "1", "1", "", "采购（资格预审）公告"),
                 requestGenerator("http://www.gsggfw.cn/w/bid/correctionItem/pageList?pageNo=1&pageSize=20", "620000", "1", "1", "", "更正事项"),
                 requestGenerator("http://www.gsggfw.cn/w/bid/bidDealAnnounce/pageList?pageNo=1&pageSize=20", "620000", "1", "1", "", "中标(成交)结果公告")
-
         };
 
         Spider.create(ggzyGanSuPageProcessor)
@@ -59,23 +107,9 @@ public class GGZYGansuPageProcessorTests {
                 .run();
     }
 
-
-
     @Test
-    public void testDownloadPage() {
-        HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
-        Page page = httpClientDownloader.download(new Request("http://www.gsggfw.cn/w/bid/tenderAnnQuaInqueryAnn/17113/details.html"), SiteUtil.get().setTimeOut(30000).toTask());
-        Elements elements = page.getHtml().getDocument().body().select("body > div.mod-content.clear > div.mod-cont-lft.clear > div.mod-arti-area > div.mod-arti-body");
-        String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
-        Elements elements1 = elements.select("iframe");
-        if (!elements1.isEmpty()) {
-            String iframeUrl = elements1.attr("src");
-            Page page1 = httpClientDownloader.download(new Request(iframeUrl), SiteUtil.get().setTimeOut(30000).toTask());
-            Element element = page1.getHtml().getDocument().body();
-            String formatContentAdd = PageProcessorUtil.formatElementsByWhitelist(element);
-            formatContent = formatContent + formatContentAdd;
-        }
-        log.info("elements=={}", formatContent);
+    public void testggzyGanSuAnnotation() {
+        List<SourceModel> list = SourceConfigAnnotationUtils.find(ggzyGanSuPageProcessor.getClass());
     }
 
 }

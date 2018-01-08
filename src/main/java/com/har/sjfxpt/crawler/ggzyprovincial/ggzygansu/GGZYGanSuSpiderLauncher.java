@@ -21,7 +21,7 @@ import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.THREAD_NU
  * Created by Administrator on 2017/12/17.
  */
 @Slf4j
-@Component
+@Component@Deprecated
 public class GGZYGanSuSpiderLauncher extends BaseSpiderLauncher {
 
     private final String uuid = SourceCode.GGZYGANSU.toString().toLowerCase() + "-current";

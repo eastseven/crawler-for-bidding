@@ -3,7 +3,10 @@ package com.har.sjfxpt.crawler.core.pageprocessor;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.google.common.collect.Maps;
+import com.har.sjfxpt.crawler.core.annotation.SourceModel;
+import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
+import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyfujian.GGZYFuJianContentAnnouncement;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyfujian.GGZYFuJianPageProcessor;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyfujian.GGZYFuJianPipeline;
@@ -23,7 +26,9 @@ import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.model.HttpRequestBody;
 import us.codecraft.webmagic.utils.HttpConstant;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.THREAD_NUM;
 import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyfujian.GGZYFuJianSpiderLauncher.requestGenerator;
@@ -42,6 +47,9 @@ public class GGZYFuJianPageProcessorTests {
     @Autowired
     GGZYFuJianPipeline ggzyFuJianPipeline;
 
+    @Autowired
+    HBasePipeline hBasePipeline;
+
     @Test
     public void testGGZYFuJianPageProcessor() {
         String url = "https://www.fjggfw.gov.cn/Website/AjaxHandler/BuilderHandler.ashx";
@@ -57,8 +65,16 @@ public class GGZYFuJianPageProcessorTests {
     }
 
     @Test
-    public void testGGZYFuJianAnnotation(){
-        
+    public void testGGZYFuJianAnnotation() {
+        List<SourceModel> list = SourceConfigAnnotationUtils.find(ggzyFuJianPageProcessor.getClass());
+
+        List<Request> requestList = list.parallelStream().map(SourceModel::createRequest)
+                .collect(Collectors.toList());
+        log.debug("requestList={}", requestList);
+        Spider.create(ggzyFuJianPageProcessor)
+                .addRequest(requestList.toArray(new Request[requestList.size()]))
+                .addPipeline(hBasePipeline)
+                .run();
     }
 
 
