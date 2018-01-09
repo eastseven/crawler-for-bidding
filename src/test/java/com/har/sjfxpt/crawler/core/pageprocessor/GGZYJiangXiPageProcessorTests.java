@@ -1,6 +1,9 @@
 package com.har.sjfxpt.crawler.core.pageprocessor;
 
+import com.har.sjfxpt.crawler.core.annotation.SourceModel;
+import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
+import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyjiangxi.GGZYJiangXiPageProcessor;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyjiangxi.GGZYJiangXiPipeline;
 import lombok.extern.slf4j.Slf4j;
@@ -16,6 +19,9 @@ import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.THREAD_NUM;
 import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyjiangxi.GGZYJiangXiSpiderLauncher.requestGenerator;
@@ -33,6 +39,9 @@ public class GGZYJiangXiPageProcessorTests {
 
     @Autowired
     GGZYJiangXiPipeline ggzyJiangXiPipeline;
+
+    @Autowired
+    HBasePipeline hBasePipeline;
 
     String[] urls = {
             "http://jxsggzy.cn/web/jyxx/002006/002006001/1.html",
@@ -76,7 +85,6 @@ public class GGZYJiangXiPageProcessorTests {
     }
 
 
-
     @Test
     public void testStringUtils() {
         String test = "http://jxsggzy.cn/web/jyxx/002006/002006005/20171212/3040460e-8619-4f09-b2a4-e4872058c04b.html";
@@ -91,6 +99,18 @@ public class GGZYJiangXiPageProcessorTests {
         HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
         Page page = httpClientDownloader.download(new Request("http://jxsggzy.cn/jxggzy/services/JyxxWebservice/getList?response=application/json&pageIndex=1&pageSize=22&area=&prepostDate=2017-12-14&nxtpostDate=2017-12-14&xxTitle=&categorynum=002006"), SiteUtil.get().toTask());
         String JsonContent = page.getRawText();
+    }
+
+    @Test
+    public void testAnnotation() {
+        List<SourceModel> sourceModelList = SourceConfigAnnotationUtils.find(ggzyJiangXiPageProcessor.getClass());
+        List<Request> requestList = sourceModelList.parallelStream().map(SourceModel::createRequest)
+                .collect(Collectors.toList());
+        Spider.create(ggzyJiangXiPageProcessor)
+                .addRequest(requestList.toArray(new Request[requestList.size()]))
+                .addPipeline(hBasePipeline)
+                .thread(8)
+                .run();
     }
 
 }
