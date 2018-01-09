@@ -26,29 +26,35 @@ import us.codecraft.webmagic.utils.HttpConstant;
 import java.util.List;
 import java.util.Map;
 
+import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyshanxi.GGZYShanXiPageProcessor.*;
+
 /**
  * Created by Administrator on 2017/12/12.
- *
+ * <p>
  * 山西公共资源 页面解析
+ *
  * @author luofei
  * @author dongqi
  */
 @Slf4j
 @Component
 @SourceConfig(code = SourceCode.GGZYSHANXI, useProxy = true, sources = {
-        @Source(url = "http://prec.sxzwfw.gov.cn/TenderProjectSx/ColTableInfoOther.do", post = true,
-                postParams = "{'date':'1day','huanJie':'NOTICE','pageIndex':1,'end_time':'','projectType':'gcjs','begin_time':'','projectName':''}"),
+        @Source(url = GGZYSHANXI_URL, post = true, postParams = GGZYSHANXI_POSTPARAMS1),
 
-        @Source(url = "http://prec.sxzwfw.gov.cn/TenderProjectSx/ColTableInfoOther.do", post = true,
-                postParams = "{'date':'1day','huanJie':'PUBLICITY','pageIndex':1,'end_time':'','projectType':'gcjs','begin_time':'','projectName':''}"),
+        @Source(url = GGZYSHANXI_URL, post = true, postParams = GGZYSHANXI_POSTPARAMS2),
 
-        @Source(url = "http://prec.sxzwfw.gov.cn/TenderProjectSx/ColTableInfoOther.do", post = true,
-                postParams = "{'date':'1day','huanJie':'NOTICE','pageIndex':1,'end_time':'','projectType':'zfcg','begin_time':'','projectName':''}"),
+        @Source(url = GGZYSHANXI_URL, post = true, postParams = GGZYSHANXI_POSTPARAMS3),
 
-        @Source(url = "http://prec.sxzwfw.gov.cn/TenderProjectSx/ColTableInfoOther.do", post = true,
-                postParams = "{'date':'1day','huanJie':'PUBLICITY','pageIndex':1,'end_time':'','projectType':'zfcg','begin_time':'','projectName':''}")
+        @Source(url = GGZYSHANXI_URL, post = true, postParams = GGZYSHANXI_POSTPARAMS4)
 })
 public class GGZYShanXiPageProcessor implements BasePageProcessor {
+
+    final static String GGZYSHANXI_URL = "http://prec.sxzwfw.gov.cn/TenderProjectSx/ColTableInfoOther.do";
+    final static String GGZYSHANXI_POSTPARAMS1 = "{'date':'1day','huanJie':'PUBLICITY','pageIndex':1,'end_time':'','projectType':'gcjs','begin_time':'','projectName':''}";
+    final static String GGZYSHANXI_POSTPARAMS2 = "{'date':'1day','huanJie':'NOTICE','pageIndex':1,'end_time':'','projectType':'zfcg','begin_time':'','projectName':''}";
+    final static String GGZYSHANXI_POSTPARAMS3 = "{'date':'1day','huanJie':'PUBLICITY','pageIndex':1,'end_time':'','projectType':'zfcg','begin_time':'','projectName':''}";
+    final static String GGZYSHANXI_POSTPARAMS4 = "{'date':'1day','huanJie':'NOTICE','pageIndex':1,'end_time':'','projectType':'gcjs','begin_time':'','projectName':''}";
+
 
     final static String PAGE_PARAMS = "pageParams";
 

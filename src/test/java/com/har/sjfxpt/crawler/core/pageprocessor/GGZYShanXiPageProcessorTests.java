@@ -1,7 +1,9 @@
 package com.har.sjfxpt.crawler.core.pageprocessor;
 
 import com.google.common.collect.Maps;
+import com.har.sjfxpt.crawler.core.annotation.SourceModel;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
+import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyshanxi.GGZYShanXiPageProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -14,7 +16,9 @@ import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.model.HttpRequestBody;
 import us.codecraft.webmagic.utils.HttpConstant;
 
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.THREAD_NUM;
 
@@ -33,6 +37,19 @@ public class GGZYShanXiPageProcessorTests {
     HBasePipeline pipeline;
 
     final String url = "http://prec.sxzwfw.gov.cn/TenderProjectSx/ColTableInfoOther.do";
+
+
+    @Test
+    public void testAnnotation() {
+        List<SourceModel> sourceModelList = SourceConfigAnnotationUtils.find(ggzyShanXiPageProcessor.getClass());
+        List<Request> requestList = sourceModelList.parallelStream().map(SourceModel::createRequest)
+                .collect(Collectors.toList());
+        Spider.create(ggzyShanXiPageProcessor)
+                .addRequest(requestList.toArray(new Request[requestList.size()]))
+                .addPipeline(pipeline)
+                .thread(8)
+                .run();
+    }
 
     @Test
     public void testShanXiPageProcessor() {
@@ -59,11 +76,10 @@ public class GGZYShanXiPageProcessorTests {
     }
 
     /**
-     *
      * @param url
-     * @param date 1day 3day
+     * @param date        1day 3day
      * @param projectType gcjs zfcg
-     * @param huanJie NOTICE 交易公告 PUBLICITY 交易结果
+     * @param huanJie     NOTICE 交易公告 PUBLICITY 交易结果
      * @return
      */
     public static Request requestGenerator(String url, String date, String projectType, String huanJie) {
