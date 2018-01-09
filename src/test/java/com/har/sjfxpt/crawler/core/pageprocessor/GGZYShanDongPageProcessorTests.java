@@ -1,5 +1,8 @@
 package com.har.sjfxpt.crawler.core.pageprocessor;
 
+import com.har.sjfxpt.crawler.core.annotation.SourceModel;
+import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
+import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyshandong.GGZYShanDongPageProcessor;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyshandong.GGZYShanDongPipeline;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +13,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.THREAD_NUM;
 
@@ -26,6 +32,9 @@ public class GGZYShanDongPageProcessorTests {
 
     @Autowired
     GGZYShanDongPipeline ggzyShanDongPipeline;
+
+    @Autowired
+    HBasePipeline hBasePipeline;
 
     String[] urls = {
             "http://www.sdggzyjy.gov.cn/queryContent_1-jyxx.jspx?title=&origin=&inDates=1&channelId=117&ext=",
@@ -54,4 +63,17 @@ public class GGZYShanDongPageProcessorTests {
                 .addPipeline(ggzyShanDongPipeline)
                 .run();
     }
+
+    @Test
+    public void testAnnotation() {
+        List<SourceModel> sourceModelList = SourceConfigAnnotationUtils.find(ggzyShanDongPageProcessor.getClass());
+        List<Request> requestList = sourceModelList.parallelStream().map(SourceModel::createRequest)
+                .collect(Collectors.toList());
+        Spider.create(ggzyShanDongPageProcessor)
+                .addRequest(requestList.toArray(new Request[requestList.size()]))
+                .addPipeline(hBasePipeline)
+                .thread(8)
+                .run();
+    }
+
 }

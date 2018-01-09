@@ -1,6 +1,10 @@
 package com.har.sjfxpt.crawler.ggzyprovincial.ggzyshandong;
 
 import com.google.common.collect.Lists;
+import com.har.sjfxpt.crawler.core.annotation.Source;
+import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
+import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
@@ -16,14 +20,41 @@ import us.codecraft.webmagic.downloader.HttpClientDownloader;
 
 import java.util.List;
 
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
+import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyshandong.GGZYShanDongPageProcessor.*;
 
 /**
  * Created by Administrator on 2017/12/15.
  */
 @Slf4j
 @Component
+@SourceConfig(
+        code = SourceCode.GGZYSHANDONG,
+        sources = {
+                @Source(url = GGZYSHANDONG_URL1),
+                @Source(url = GGZYSHANDONG_URL2),
+                @Source(url = GGZYSHANDONG_URL3),
+                @Source(url = GGZYSHANDONG_URL4),
+                @Source(url = GGZYSHANDONG_URL5),
+                @Source(url = GGZYSHANDONG_URL6),
+                @Source(url = GGZYSHANDONG_URL7),
+                @Source(url = GGZYSHANDONG_URL8),
+                @Source(url = GGZYSHANDONG_URL9),
+                @Source(url = GGZYSHANDONG_URL10)
+        }
+)
 public class GGZYShanDongPageProcessor implements BasePageProcessor {
+
+    final static String GGZYSHANDONG_URL1 = "http://www.sdggzyjy.gov.cn/queryContent_1-jyxx.jspx?title=&origin=&inDates=1&channelId=117&ext=";
+    final static String GGZYSHANDONG_URL2 = "http://www.sdggzyjy.gov.cn/queryContent_1-jyxx.jspx?title=&origin=&inDates=1&channelId=89&ext=";
+    final static String GGZYSHANDONG_URL3 = "http://www.sdggzyjy.gov.cn/queryContent_1-jyxx.jspx?title=&origin=&inDates=1&channelId=87&ext=";
+    final static String GGZYSHANDONG_URL4 = "http://www.sdggzyjy.gov.cn/queryContent_1-jyxx.jspx?title=&origin=&inDates=1&channelId=88&ext=";
+    final static String GGZYSHANDONG_URL5 = "http://www.sdggzyjy.gov.cn/queryContent_1-jyxx.jspx?title=&origin=&inDates=1&channelId=86&ext=";
+
+    final static String GGZYSHANDONG_URL6 = "http://www.sdggzyjy.gov.cn/queryContent_1-jyxx.jspx?title=&origin=&inDates=1&channelId=94&ext=";
+    final static String GGZYSHANDONG_URL7 = "http://www.sdggzyjy.gov.cn/queryContent_1-jyxx.jspx?title=&origin=&inDates=1&channelId=90&ext=";
+    final static String GGZYSHANDONG_URL8 = "http://www.sdggzyjy.gov.cn/queryContent_1-jyxx.jspx?title=&origin=&inDates=1&channelId=92&ext=";
+    final static String GGZYSHANDONG_URL9 = "http://www.sdggzyjy.gov.cn/queryContent_1-jyxx.jspx?title=&origin=&inDates=1&channelId=93&ext=";
+    final static String GGZYSHANDONG_URL10 = "http://www.sdggzyjy.gov.cn/queryContent_1-jyxx.jspx?title=&origin=&inDates=1&channelId=91&ext=";
 
     HttpClientDownloader httpClientDownloader;
 
@@ -37,7 +68,6 @@ public class GGZYShanDongPageProcessor implements BasePageProcessor {
             if (pageCount >= 2) {
                 for (int i = 2; i <= pageCount; i++) {
                     String urlTarget = StringUtils.replace(url, "queryContent_1", "queryContent_" + i);
-                    log.info("urlTarget=={}", urlTarget);
                     page.addTargetRequest(urlTarget);
                 }
             }
@@ -47,7 +77,7 @@ public class GGZYShanDongPageProcessor implements BasePageProcessor {
     @Override
     public void handleContent(Page page) {
         Elements elements = page.getHtml().getDocument().body().select("body > div.content > div.jyxxcontent > div > ul >li");
-        List<GGZYShanDongDataItem> dataItems = parseContent(elements);
+        List<BidNewsOriginal> dataItems = parseContent(elements);
         if (!dataItems.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItems);
         } else {
@@ -57,22 +87,19 @@ public class GGZYShanDongPageProcessor implements BasePageProcessor {
 
     @Override
     public List parseContent(Elements items) {
-        List<GGZYShanDongDataItem> dataItems = Lists.newArrayList();
+        List<BidNewsOriginal> dataItems = Lists.newArrayList();
         for (Element element : items) {
             String href = element.select("div.article-list3-t > a").attr("href");
             if (StringUtils.isNotBlank(href)) {
                 String title = element.select("div.article-list3-t > a").text();
                 String date = element.select("div.article-list3-t > div").text();
-                String source = element.select("div.article-list3-t2 > div:nth-child(1)").text();
-                String businessType = element.select("div.article-list3-t2 > div:nth-child(2)").text();
                 String type = element.select("div.article-list3-t2 > div:nth-child(3)").text();
 
-                GGZYShanDongDataItem ggzyShanDongDataItem = new GGZYShanDongDataItem(href);
+                BidNewsOriginal ggzyShanDongDataItem = new BidNewsOriginal(href, SourceCode.GGZYSHANDONG);
                 ggzyShanDongDataItem.setUrl(href);
                 ggzyShanDongDataItem.setTitle(title);
                 ggzyShanDongDataItem.setDate(PageProcessorUtil.dataTxt(date));
-                ggzyShanDongDataItem.setSource(StringUtils.substringAfter(source, "："));
-                ggzyShanDongDataItem.setBusinessType(StringUtils.substringAfter(businessType, "："));
+                ggzyShanDongDataItem.setProvince("山东");
                 ggzyShanDongDataItem.setType(StringUtils.substringAfter(type, "："));
                 if (PageProcessorUtil.timeCompare(ggzyShanDongDataItem.getDate())) {
                     log.warn("{} is not the same day", ggzyShanDongDataItem.getUrl());

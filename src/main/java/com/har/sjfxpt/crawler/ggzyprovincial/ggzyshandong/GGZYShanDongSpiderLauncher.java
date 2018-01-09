@@ -14,7 +14,7 @@ import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.THREAD_NU
  * Created by Administrator on 2017/12/15.
  */
 @Slf4j
-@Component
+@Component@Deprecated
 public class GGZYShanDongSpiderLauncher extends BaseSpiderLauncher {
 
     private final String uuid = SourceCode.GGZYSHANDONG.toString().toLowerCase() + "-current";
