@@ -68,7 +68,6 @@ public class GGZYHeBeiPageProcessor implements BasePageProcessor {
         if (pageCount == 0) {
             JSONObject jsonObject = (JSONObject) JSONObject.parse(page.getRawText());
             int totalCount = Integer.parseInt(JSONPath.eval(jsonObject, "$.result.totalcount").toString());
-            log.debug("totalCount={}", totalCount);
             if (totalCount >= 1) {
                 for (int i = 1; i <= totalCount; i++) {
                     Request request = new Request(page.getUrl().get());
