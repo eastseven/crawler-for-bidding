@@ -1,6 +1,10 @@
 package com.har.sjfxpt.crawler.ggzyprovincial.ggzyxjbt;
 
 import com.google.common.collect.Lists;
+import com.har.sjfxpt.crawler.core.annotation.Source;
+import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
+import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
@@ -17,23 +21,51 @@ import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import java.util.List;
 import java.util.Map;
 
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
+import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyxjbt.GGZYXJBTPageProcessor.*;
 
 /**
  * Created by Administrator on 2017/12/18.
  */
 @Slf4j
 @Component
+@SourceConfig(
+        code = SourceCode.GGZYXJBT,
+        sources = {
+                @Source(url = GGZYXJBT_URL1, type = "招标公告"),
+                @Source(url = GGZYXJBT_URL2, type = "答疑澄清"),
+                @Source(url = GGZYXJBT_URL3, type = "中标候选人公示"),
+                @Source(url = GGZYXJBT_URL4, type = "中标结果公告"),
+                @Source(url = GGZYXJBT_URL5, type = "资格预审公示"),
+                @Source(url = GGZYXJBT_URL6, type = "变更公告"),
+                @Source(url = GGZYXJBT_URL7, type = "单一来源公示"),
+                @Source(url = GGZYXJBT_URL8, type = "采购公告"),
+                @Source(url = GGZYXJBT_URL9, type = "变更公告"),
+                @Source(url = GGZYXJBT_URL10, type = "答疑澄清"),
+                @Source(url = GGZYXJBT_URL11, type = "结果公示"),
+                @Source(url = GGZYXJBT_URL12, type = "合同公示"),
+        }
+)
 public class GGZYXJBTPageProcessor implements BasePageProcessor {
 
-    HttpClientDownloader httpClientDownloader;
+    final static String GGZYXJBT_URL1 = "http://ggzy.xjbt.gov.cn/TPFront/jyxx/004001/004001002/?Paging=1";
+    final static String GGZYXJBT_URL2 = "http://ggzy.xjbt.gov.cn/TPFront/jyxx/004001/004001003/?Paging=1";
+    final static String GGZYXJBT_URL3 = "http://ggzy.xjbt.gov.cn/TPFront/jyxx/004001/004001004/?Paging=1";
+    final static String GGZYXJBT_URL4 = "http://ggzy.xjbt.gov.cn/TPFront/jyxx/004001/004001005/?Paging=1";
+    final static String GGZYXJBT_URL5 = "http://ggzy.xjbt.gov.cn/TPFront/jyxx/004001/004001006/?Paging=1";
+    final static String GGZYXJBT_URL6 = "http://ggzy.xjbt.gov.cn/TPFront/jyxx/004001/004001007/?Paging=1";
+    final static String GGZYXJBT_URL7 = "http://ggzy.xjbt.gov.cn/TPFront/jyxx/004002/004002006/?Paging=1";
+    final static String GGZYXJBT_URL8 = "http://ggzy.xjbt.gov.cn/TPFront/jyxx/004002/004002002/?Paging=1";
+    final static String GGZYXJBT_URL9 = "http://ggzy.xjbt.gov.cn/TPFront/jyxx/004002/004002003/?Paging=1";
+    final static String GGZYXJBT_URL10 = "http://ggzy.xjbt.gov.cn/TPFront/jyxx/004002/004002004/?Paging=1";
+    final static String GGZYXJBT_URL11 = "http://ggzy.xjbt.gov.cn/TPFront/jyxx/004002/004002005/?Paging=1";
+    final static String GGZYXJBT_URL12 = "http://ggzy.xjbt.gov.cn/TPFront/jyxx/004002/004002007/?Paging=1";
 
-    final static String PAGE_PARAMS = "pageParams";
+    HttpClientDownloader httpClientDownloader;
 
     @Override
     public void handlePaging(Page page) {
         String url = page.getUrl().get();
-        Map<String, String> pageParams = (Map<String, String>) page.getRequest().getExtras().get(PAGE_PARAMS);
+        String type = page.getRequest().getExtra("type").toString();
         int pageNum = Integer.parseInt(StringUtils.substringAfter(url, "Paging="));
         if (pageNum == 1) {
             String pageCountContent = page.getHtml().getDocument().body().select("body > table:nth-child(12) > tbody > tr > td:nth-child(3) > table.top10 > tbody > tr:nth-child(2) > td > div > div > div > table > tbody > tr > td:nth-child(25)").text();
@@ -43,7 +75,7 @@ public class GGZYXJBTPageProcessor implements BasePageProcessor {
                 for (int i = 2; i <= cycleCount; i++) {
                     String urlTarget = url.replace("Paging=1", "Paging=" + i);
                     Request request = new Request(urlTarget);
-                    request.putExtra(PAGE_PARAMS, pageParams);
+                    request.putExtra("type", type);
                     page.addTargetRequest(request);
                 }
             }
@@ -52,15 +84,10 @@ public class GGZYXJBTPageProcessor implements BasePageProcessor {
 
     @Override
     public void handleContent(Page page) {
-        Map<String, String> pageParams = (Map<String, String>) page.getRequest().getExtras().get(PAGE_PARAMS);
+        String type = page.getRequest().getExtra("type").toString();
         Elements elements = page.getHtml().getDocument().body().select("body > table:nth-child(12) > tbody > tr > td:nth-child(3) > table.top10 > tbody > tr:nth-child(2) > td > div > table > tbody > tr");
-        List<GGZYXJBTDataItem> dataItems = parseContent(elements);
-        String type = pageParams.get("type");
-        String businessType = pageParams.get("businessType");
-        dataItems.forEach(dataItem -> {
-            dataItem.setType(type);
-            dataItem.setBusinessType(businessType);
-        });
+        List<BidNewsOriginal> dataItems = parseContent(elements);
+        dataItems.forEach(dataItem -> dataItem.setType(type));
         if (!dataItems.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItems);
         } else {
@@ -70,9 +97,9 @@ public class GGZYXJBTPageProcessor implements BasePageProcessor {
 
     @Override
     public List parseContent(Elements items) {
-        List<GGZYXJBTDataItem> dataItems = Lists.newArrayList();
+        List<BidNewsOriginal> dataItems = Lists.newArrayList();
         for (Element element : items) {
-            String href = element.select("td:nth-child(2) >a ").attr("href");
+            String href = element.select("td:nth-child(2) >a").attr("href");
             if (StringUtils.isNotBlank(href)) {
                 if (!StringUtils.startsWith(href, "http://ggzy.xjbt.gov.cn")) {
                     href = "http://ggzy.xjbt.gov.cn" + href;
@@ -82,10 +109,11 @@ public class GGZYXJBTPageProcessor implements BasePageProcessor {
                 if (date.contains("[")) {
                     date = StringUtils.substringBetween(date, "[", "]");
                 }
-                GGZYXJBTDataItem ggzyxjbtDataItem = new GGZYXJBTDataItem(href);
+                BidNewsOriginal ggzyxjbtDataItem = new BidNewsOriginal(href, SourceCode.GGZYXJBT);
                 ggzyxjbtDataItem.setUrl(href);
                 ggzyxjbtDataItem.setTitle(title);
                 ggzyxjbtDataItem.setDate(PageProcessorUtil.dataTxt(date));
+                ggzyxjbtDataItem.setProvince("新疆");
 
                 if (PageProcessorUtil.timeCompare(ggzyxjbtDataItem.getDate())) {
                     log.info("{} is not the same day", ggzyxjbtDataItem.getUrl());
