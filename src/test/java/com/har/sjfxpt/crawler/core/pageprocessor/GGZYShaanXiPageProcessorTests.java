@@ -1,7 +1,10 @@
 package com.har.sjfxpt.crawler.core.pageprocessor;
 
+import com.har.sjfxpt.crawler.core.annotation.SourceModel;
+import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
+import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyshaanxi.GGZYShaanXiPageProcessor;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyshaanxi.GGZYShaanXiPipeline;
 import lombok.extern.slf4j.Slf4j;
@@ -15,6 +18,9 @@ import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.THREAD_NUM;
 import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyshaanxi.GGZYShaanXiSpiderLauncher.requestGenerator;
@@ -32,6 +38,9 @@ public class GGZYShaanXiPageProcessorTests {
 
     @Autowired
     GGZYShaanXiPipeline ggzyShaanXiPipeline;
+
+    @Autowired
+    HBasePipeline hBasePipeline;
 
     String[] urls = {
             "http://www.sxggzyjy.cn/jydt/001001/001001001/001001001001/1.html",
@@ -74,6 +83,18 @@ public class GGZYShaanXiPageProcessorTests {
         log.info("dataInformation=={}", dataInformation);
         String dataReal = StringUtils.substringBetween(dataInformation, "信息时间：", "】");
         log.info("dataReal=={}", dataReal);
+    }
+
+    @Test
+    public void testAnnotation() {
+        List<SourceModel> sourceModelList = SourceConfigAnnotationUtils.find(ggzyShaanXiPageProcessor.getClass());
+        List<Request> requestList = sourceModelList.parallelStream().map(SourceModel::createRequest)
+                .collect(Collectors.toList());
+        Spider.create(ggzyShaanXiPageProcessor)
+                .addRequest(requestList.toArray(new Request[requestList.size()]))
+                .addPipeline(hBasePipeline)
+                .thread(8)
+                .run();
     }
 
 

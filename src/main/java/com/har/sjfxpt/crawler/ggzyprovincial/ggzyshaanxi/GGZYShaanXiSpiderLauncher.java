@@ -18,7 +18,7 @@ import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.THREAD_NU
  * Created by Administrator on 2017/12/15.
  */
 @Slf4j
-@Component
+@Component@Deprecated
 public class GGZYShaanXiSpiderLauncher extends BaseSpiderLauncher {
 
     private final String uuid = SourceCode.GGZYSHAANXI.toString().toLowerCase() + "-current";
@@ -92,6 +92,7 @@ public class GGZYShaanXiSpiderLauncher extends BaseSpiderLauncher {
                 pageParams.put("type", "中标/成交公示");
                 pageParams.put("businessType", "政府采购");
                 break;
+            default:
         }
         request.putExtra("pageParams", pageParams);
         return request;
