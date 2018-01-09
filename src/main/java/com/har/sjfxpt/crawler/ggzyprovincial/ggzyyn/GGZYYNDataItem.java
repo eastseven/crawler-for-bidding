@@ -21,7 +21,7 @@ import java.util.Date;
  */
 @Data
 @ToString(exclude = {"formatContent"})
-@Document(collection = "data_item_ggzy_yn")
+@Document(collection = "data_item_ggzy_yn")@Deprecated
 public class GGZYYNDataItem {
 
     public GGZYYNDataItem(String url) {

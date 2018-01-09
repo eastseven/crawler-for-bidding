@@ -16,7 +16,7 @@ import java.util.Map;
  * Created by Administrator on 2017/12/4.
  */
 @Slf4j
-@Component
+@Component@Deprecated
 public class GGZYYNSpiderLauncher extends BaseSpiderLauncher {
 
     private final String uuid = SourceCode.GGZYYN.toString().toLowerCase() + "-current";

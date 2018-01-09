@@ -1,6 +1,10 @@
 package com.har.sjfxpt.crawler.ggzyprovincial.ggzyxz;
 
 import com.google.common.collect.Lists;
+import com.har.sjfxpt.crawler.core.annotation.Source;
+import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
+import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
@@ -15,24 +19,43 @@ import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
 
 import java.util.List;
-import java.util.Map;
 
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
+import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyxz.GGZYXZPageProcessor.*;
 
 /**
  * Created by Administrator on 2017/12/5.
  */
 @Slf4j
 @Component
+@SourceConfig(
+        code = SourceCode.GGZYXZ,
+        sources = {
+                @Source(url = GGZYXZ_URL1, type = "招标/资审公告"),
+                @Source(url = GGZYXZ_URL2, type = "交易结果公告"),
+                @Source(url = GGZYXZ_URL3, type = "招标/招标文件澄清"),
+                @Source(url = GGZYXZ_URL4, type = "资格预审结果"),
+                @Source(url = GGZYXZ_URL5, type = "采购/资审公告"),
+                @Source(url = GGZYXZ_URL6, type = "中标公告"),
+                @Source(url = GGZYXZ_URL7, type = "采购合同"),
+                @Source(url = GGZYXZ_URL8, type = "更正事项"),
+        }
+)
 public class GGZYXZPageProcessor implements BasePageProcessor {
+
+    final static String GGZYXZ_URL1 = "http://www.xzggzy.gov.cn:9090/zbzsgg/index_1.jhtml";
+    final static String GGZYXZ_URL2 = "http://www.xzggzy.gov.cn:9090/jyjggg/index_1.jhtml";
+    final static String GGZYXZ_URL3 = "http://www.xzggzy.gov.cn:9090/zbwjcq/index_1.jhtml";
+    final static String GGZYXZ_URL4 = "http://www.xzggzy.gov.cn:9090/zgysjg/index_1.jhtml";
+    final static String GGZYXZ_URL5 = "http://www.xzggzy.gov.cn:9090/cggg/index_1.jhtml";
+    final static String GGZYXZ_URL6 = "http://www.xzggzy.gov.cn:9090/zbgg/index_1.jhtml";
+    final static String GGZYXZ_URL7 = "http://www.xzggzy.gov.cn:9090/cght/index_1.jhtml";
+    final static String GGZYXZ_URL8 = "http://www.xzggzy.gov.cn:9090/gzsx/index_1.jhtml";
 
     HttpClientDownloader httpClientDownloader;
 
-    final static String PAGE_PARAMS = "pageParams";
-
     @Override
     public void handlePaging(Page page) {
-        Map<String, String> pageParams = (Map<String, String>) page.getRequest().getExtras().get(PAGE_PARAMS);
+        String type = page.getRequest().getExtra("type").toString();
         String url = page.getUrl().get();
         int count = Integer.parseInt(StringUtils.substringBetween(url, "/index_", ".jhtml"));
         if (count == 1) {
@@ -43,14 +66,14 @@ public class GGZYXZPageProcessor implements BasePageProcessor {
                     for (int i = 2; i <= 10; i++) {
                         String urlTarget = url.replace("index_1", "index_" + i);
                         Request request = new Request(urlTarget);
-                        request.putExtra(PAGE_PARAMS, pageParams);
+                        request.putExtra("type", type);
                         page.addTargetRequest(request);
                     }
                 } else {
                     for (int i = 2; i <= pageCount; i++) {
                         String urlTarget = url.replace("index_1", "index_" + i);
                         Request request = new Request(urlTarget);
-                        request.putExtra(PAGE_PARAMS, pageParams);
+                        request.putExtra("type", type);
                         page.addTargetRequest(request);
                     }
                 }
@@ -61,15 +84,10 @@ public class GGZYXZPageProcessor implements BasePageProcessor {
 
     @Override
     public void handleContent(Page page) {
-        Map<String, String> pageParams = (Map<String, String>) page.getRequest().getExtras().get(PAGE_PARAMS);
+        String type = page.getRequest().getExtra("type").toString();
         Elements elements = page.getHtml().getDocument().body().select("body > div.content-old > div.jyxxcontent-old > div.article-content-old > ul >li");
-        List<GGZYXZDataItem> dataItems = parseContent(elements);
-        String type = pageParams.get("type");
-        String businessType = pageParams.get("businessType");
-        dataItems.forEach(dataItem -> {
-            dataItem.setType(type);
-            dataItem.setBusinessType(businessType);
-        });
+        List<BidNewsOriginal> dataItems = parseContent(elements);
+        dataItems.forEach(dataItem -> dataItem.setType(type));
         if (!dataItems.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItems);
         } else {
@@ -79,15 +97,16 @@ public class GGZYXZPageProcessor implements BasePageProcessor {
 
     @Override
     public List parseContent(Elements items) {
-        List<GGZYXZDataItem> dataItems = Lists.newArrayList();
+        List<BidNewsOriginal> dataItems = Lists.newArrayList();
         for (Element element : items) {
             String url = element.select("a").attr("href");
             String title = element.select("a").attr("title");
             String date = element.select("div").text();
             if (StringUtils.isNotBlank(url)) {
-                GGZYXZDataItem ggzyxzDataItem = new GGZYXZDataItem(url);
+                BidNewsOriginal ggzyxzDataItem = new BidNewsOriginal(url, SourceCode.GGZYXZ);
                 ggzyxzDataItem.setUrl(url);
                 ggzyxzDataItem.setTitle(title);
+                ggzyxzDataItem.setProvince("西藏");
                 if (StringUtils.isNotBlank(date)) {
                     ggzyxzDataItem.setDate(PageProcessorUtil.dataTxt(date));
                 }

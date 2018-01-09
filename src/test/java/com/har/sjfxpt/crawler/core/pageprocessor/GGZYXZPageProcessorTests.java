@@ -1,7 +1,9 @@
 package com.har.sjfxpt.crawler.core.pageprocessor;
 
+import com.har.sjfxpt.crawler.core.annotation.SourceModel;
+import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
+import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyxz.GGZYXZPageProcessor;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzyxz.GGZYXZPipeline;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -11,7 +13,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 
-import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyxz.GGZYXZSpiderLauncher.requestGenerator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by Administrator on 2017/12/5.
@@ -21,37 +24,23 @@ import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyxz.GGZYXZSpiderLauncher.
 @RunWith(SpringRunner.class)
 public class GGZYXZPageProcessorTests {
 
-
     @Autowired
     GGZYXZPageProcessor ggzyxzPageProcessor;
 
     @Autowired
-    GGZYXZPipeline ggzyxzPipeline;
+    HBasePipeline hBasePipeline;
 
     @Test
-    public void testGGZYXZPageProcessor() {
-        String[] urls = {
-                "http://www.xzggzy.gov.cn:9090/zbzsgg/index_1.jhtml",
-                "http://www.xzggzy.gov.cn:9090/jyjggg/index_1.jhtml",
-                "http://www.xzggzy.gov.cn:9090/zbwjcq/index_1.jhtml",
-                "http://www.xzggzy.gov.cn:9090/zgysjg/index_1.jhtml",
-
-                "http://www.xzggzy.gov.cn:9090/cggg/index_1.jhtml",
-                "http://www.xzggzy.gov.cn:9090/zbgg/index_1.jhtml",
-                "http://www.xzggzy.gov.cn:9090/cght/index_1.jhtml",
-                "http://www.xzggzy.gov.cn:9090/gzsx/index_1.jhtml"
-        };
-        Request[] requests = new Request[urls.length];
-        for (int i = 0; i < urls.length; i++) {
-            requests[i] = requestGenerator(urls[i]);
-        }
+    public void testAnnotation() {
+        List<SourceModel> sourceModelList = SourceConfigAnnotationUtils.find(ggzyxzPageProcessor.getClass());
+        List<Request> requestList = sourceModelList.parallelStream().map(SourceModel::createRequest)
+                .collect(Collectors.toList());
         Spider.create(ggzyxzPageProcessor)
-                .addRequest(requests)
-                .addPipeline(ggzyxzPipeline)
-                .thread(4)
+                .addRequest(requestList.toArray(new Request[requestList.size()]))
+                .addPipeline(hBasePipeline)
+                .thread(8)
                 .run();
     }
-
 
 
 }
