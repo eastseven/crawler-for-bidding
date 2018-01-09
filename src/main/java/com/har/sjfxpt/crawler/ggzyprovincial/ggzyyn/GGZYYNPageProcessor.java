@@ -1,6 +1,10 @@
 package com.har.sjfxpt.crawler.ggzyprovincial.ggzyyn;
 
 import com.google.common.collect.Lists;
+import com.har.sjfxpt.crawler.core.annotation.Source;
+import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
+import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
@@ -20,9 +24,8 @@ import us.codecraft.webmagic.downloader.HttpClientDownloader;
 
 import java.text.ParseException;
 import java.util.List;
-import java.util.Map;
 
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
+import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyyn.GGZYYNPageProcessor.*;
 
 /**
  * Created by Administrator on 2017/11/30.
@@ -31,9 +34,34 @@ import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_
  */
 @Slf4j
 @Component
+@SourceConfig(
+        code = SourceCode.GGZYYN,
+        sources = {
+                @Source(url = GGZYYN_URL1, type = "招标公告,工程建设"),
+                @Source(url = GGZYYN_URL2, type = "更正事项,工程建设"),
+                @Source(url = GGZYYN_URL3, type = "评标报告,工程建设"),
+                @Source(url = GGZYYN_URL4, type = "中标结果公告,工程建设"),
+                @Source(url = GGZYYN_URL5, type = "招标异常,工程建设"),
+                @Source(url = GGZYYN_URL6, type = "采购公告,政府采购"),
+                @Source(url = GGZYYN_URL7, type = "更正事项,政府采购"),
+                @Source(url = GGZYYN_URL8, type = "开标记录,政府采购"),
+                @Source(url = GGZYYN_URL9, type = "中标结果,政府采购"),
+                @Source(url = GGZYYN_URL10, type = "异常公告,政府采购"),
+        }
+)
 public class GGZYYNPageProcessor implements BasePageProcessor {
 
-    final static String PAGE_PARAMS = "pageParams";
+    final static String GGZYYN_URL1 = "https://www.ynggzyxx.gov.cn/jyxx/jsgcZbgg?currentPage=1&area=000&industriesTypeCode=0&scrollValue=777";
+    final static String GGZYYN_URL2 = "https://www.ynggzyxx.gov.cn/jyxx/jsgcGzsx?currentPage=1&area=000&industriesTypeCode=0&scrollValue=0";
+    final static String GGZYYN_URL3 = "https://www.ynggzyxx.gov.cn/jyxx/jsgcpbjggs?currentPage=1&area=000&industriesTypeCode=0&scrollValue=0";
+    final static String GGZYYN_URL4 = "https://www.ynggzyxx.gov.cn/jyxx/jsgcZbjggs?currentPage=1&area=000&industriesTypeCode=0&scrollValue=0";
+    final static String GGZYYN_URL5 = "https://www.ynggzyxx.gov.cn/jyxx/jsgcZbyc?currentPage=1&area=000&industriesTypeCode=0&scrollValue=0";
+    final static String GGZYYN_URL6 = "https://www.ynggzyxx.gov.cn/jyxx/zfcg/cggg?currentPage=1&area=000&industriesTypeCode=0&scrollValue=0";
+    final static String GGZYYN_URL7 = "https://www.ynggzyxx.gov.cn/jyxx/zfcg/gzsx?currentPage=1&area=000&industriesTypeCode=0&scrollValue=0";
+    final static String GGZYYN_URL8 = "https://www.ynggzyxx.gov.cn/jyxx/zfcg/kbjl?currentPage=1&area=000&industriesTypeCode=0&scrollValue=0";
+    final static String GGZYYN_URL9 = "https://www.ynggzyxx.gov.cn/jyxx/zfcg/zbjggs?currentPage=1&area=000&industriesTypeCode=0&scrollValue=0";
+    final static String GGZYYN_URL10 = "https://www.ynggzyxx.gov.cn/jyxx/zfcg/zfcgYcgg?currentPage=1&area=000&industriesTypeCode=0&scrollValue=0";
+
 
     final int limit = 10;
     final int secondPage = 2;
@@ -43,18 +71,16 @@ public class GGZYYNPageProcessor implements BasePageProcessor {
 
     @Override
     public void handlePaging(Page page) {
-        Map<String, String> pageParams = (Map<String, String>) page.getRequest().getExtras().get("pageParams");
-        log.debug("type=={},bussinessType=={}", pageParams.get("type"), pageParams.get("businessType"));
+        String type = page.getRequest().getExtra("type").toString();
         int currentPage = Integer.parseInt(StringUtils.substringBetween(page.getUrl().toString(), "currentPage=", "&area"));
         if (currentPage == 1) {
             Elements elements = page.getHtml().getDocument().body().select("div.biaogie > div > div > a:nth-child(7)");
-
             int totalPage = Integer.parseInt(elements.text());
             totalPage = totalPage >= limit ? limit : totalPage;
             for (int i = secondPage; i <= totalPage; i++) {
                 String url = page.getUrl().toString().replace("currentPage=1", "currentPage=" + i);
                 Request request = new Request(url);
-                request.putExtra(PAGE_PARAMS, pageParams);
+                request.putExtra("type", type);
                 page.addTargetRequest(request);
             }
 
@@ -63,15 +89,11 @@ public class GGZYYNPageProcessor implements BasePageProcessor {
 
     @Override
     public void handleContent(Page page) {
-        Map<String, String> pageParams = (Map<String, String>) page.getRequest().getExtras().get("pageParams");
-        String type = pageParams.get("type");
-        String businessType = pageParams.get("businessType");
+        String type = page.getRequest().getExtra("type").toString();
         Elements elements = page.getHtml().getDocument().body().select("#data_tab > tbody > tr");
-        List<GGZYYNDataItem> dataItems = parseContent(elements, pageParams);
-        dataItems.forEach(dataItem -> {
-            dataItem.setType(type);
-            dataItem.setBusinessType(businessType);
-        });
+        List<BidNewsOriginal> dataItems = parseContent(elements, type);
+        String typeField = StringUtils.substringBefore(type, ",");
+        dataItems.forEach(dataItem -> dataItem.setType(typeField));
         if (!dataItems.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItems);
         } else {
@@ -84,23 +106,21 @@ public class GGZYYNPageProcessor implements BasePageProcessor {
         return null;
     }
 
-    public List parseContent(Elements items, Map<String, String> pageParams) {
-        String type = pageParams.get("type");
-        String businessType = pageParams.get("businessType");
-        List<GGZYYNDataItem> dataItems = Lists.newArrayList();
+    public List parseContent(Elements items, String typeField) {
+        String type = StringUtils.substringBefore(typeField, ",");
+        String businessType = StringUtils.substringAfter(typeField, ",");
+        List<BidNewsOriginal> dataItems = Lists.newArrayList();
         for (Element element : items) {
             String href = element.select("a").attr("href");
             if (StringUtils.isNotBlank(href)) {
                 String url = "https://www.ynggzyxx.gov.cn" + href;
-                GGZYYNDataItem yuNanDataItem = new GGZYYNDataItem(url);
-                yuNanDataItem.setUrl(url);
+                BidNewsOriginal yuNanDataItem = new BidNewsOriginal(url, SourceCode.GGZYYN);
+                yuNanDataItem.setProvince("云南");
                 String field2 = element.select("td:nth-child(2)").text();
                 String field3 = element.select("td:nth-child(3)").text();
                 String field4 = element.select("td:nth-child(4)").text();
                 String field5 = element.select("td:nth-child(5)").text();
-                String field6 = element.select("td:nth-child(6)").text();
                 if ("招标公告".equals(type) || "更正事项".equals(type) || "采购公告".equals(type)) {
-                    yuNanDataItem.setAnnouncementId(field2);
                     yuNanDataItem.setTitle(field3);
                     if ("更正事项".equals(type) && "政府采购".equals(businessType)) {
                         String date = DateTime.parse(field4, DateTimeFormat.forPattern("yyyyMMddHH")).toString("yyyy-MM-dd HH:mm");
@@ -108,12 +128,8 @@ public class GGZYYNPageProcessor implements BasePageProcessor {
                     } else {
                         yuNanDataItem.setDate(PageProcessorUtil.dataTxt(field4));
                     }
-                    yuNanDataItem.setCloseTime(field5);
-                    yuNanDataItem.setStatus(field6);
                 }
                 if ("评标报告".equals(type) || "开标记录".equals(type)) {
-
-                    yuNanDataItem.setAnnouncementId(field2);
                     yuNanDataItem.setTitle(field3);
                     if ("评标报告".equals(type)) {
                         DateTime dateTime = DateTime.parse(field4, DateTimeFormat.forPattern("yyyyMMddHHmmss"));
@@ -123,24 +139,19 @@ public class GGZYYNPageProcessor implements BasePageProcessor {
                     } else {
                         yuNanDataItem.setDate(PageProcessorUtil.dataTxt(field4));
                     }
-
                 }
                 if ("中标结果公告".equals(type) || "中标结果".equals(type)) {
                     yuNanDataItem.setTitle(field2);
                     yuNanDataItem.setDate(PageProcessorUtil.dataTxt(field3));
                 }
-
                 if ("招标异常".equals(type) || "异常公告".equals(type)) {
-                    yuNanDataItem.setAnnouncementId(field2);
-                    yuNanDataItem.setTitle(field3);
-                    yuNanDataItem.setStatus(field4);
                     yuNanDataItem.setDate(PageProcessorUtil.dataTxt(field5));
                 }
 
                 //正文处理
                 try {
                     Page page = httpClientDownloader.download(new Request(url), SiteUtil.get().setTimeOut(30000).toTask());
-                    Elements contentElements = page.getHtml().getDocument().body().select("body > div.w1200s > div > div.detail_contect > div.con");
+                    Elements contentElements = page.getHtml().getDocument().body().select("body > div.w1200s > div > div.detail_contect");
                     String formatContent = PageProcessorUtil.formatElementsByWhitelist(contentElements.first());
                     if (StringUtils.isNotBlank(formatContent)) {
                         //只抓当天的
@@ -170,11 +181,6 @@ public class GGZYYNPageProcessor implements BasePageProcessor {
                             if (tdText.equalsIgnoreCase("建设单位：")) {
                                 String purchaser = td.nextElementSibling().text();
                                 yuNanDataItem.setPurchaser(StringUtils.strip(purchaser));
-                            }
-
-                            if (tdText.equalsIgnoreCase("招标代理机构：")) {
-                                String purchaserAgent = td.nextElementSibling().text();
-                                yuNanDataItem.setPurchaserAgent(StringUtils.strip(purchaserAgent));
                             }
                         }
                     }

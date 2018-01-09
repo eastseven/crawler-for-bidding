@@ -1,6 +1,9 @@
 package com.har.sjfxpt.crawler.core.pageprocessor;
 
+import com.har.sjfxpt.crawler.core.annotation.SourceModel;
+import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
+import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyyn.GGZYYNPageProcessor;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyyn.GGZYYNPipeline;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +19,9 @@ import us.codecraft.webmagic.Spider;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyyn.GGZYYNSpiderLauncher.requestGenerator;
 
@@ -30,10 +35,13 @@ public class GGZYYNPageProcessorTests {
 
 
     @Autowired
-    GGZYYNPageProcessor GGZYYNPageProcessor;
+    GGZYYNPageProcessor ggzyYNPageProcessor;
 
     @Autowired
     GGZYYNPipeline GGZYYNPipeline;
+
+    @Autowired
+    HBasePipeline hBasePipeline;
 
     @Test
     public void testYNPageProcessor() {
@@ -57,7 +65,7 @@ public class GGZYYNPageProcessorTests {
             requests[i] = request;
         }
 
-        Spider.create(GGZYYNPageProcessor)
+        Spider.create(ggzyYNPageProcessor)
                 .addRequest(requests)
                 .addPipeline(GGZYYNPipeline)
                 .thread(4)
@@ -80,7 +88,19 @@ public class GGZYYNPageProcessorTests {
     public void testTimeCompare() throws ParseException {
         String time = "2017-12-07 09:58";
         log.info("compare=={}", PageProcessorUtil.timeDetailCompare(time));
-        log.info("time=={}",DateTime.now().toString("yyyy-MM-dd HH:mm"));
+        log.info("time=={}", DateTime.now().toString("yyyy-MM-dd HH:mm"));
+    }
+
+    @Test
+    public void testAnnotation() {
+        List<SourceModel> sourceModelList = SourceConfigAnnotationUtils.find(ggzyYNPageProcessor.getClass());
+        List<Request> requestList = sourceModelList.parallelStream().map(SourceModel::createRequest)
+                .collect(Collectors.toList());
+        Spider.create(ggzyYNPageProcessor)
+                .addRequest(requestList.toArray(new Request[requestList.size()]))
+                .addPipeline(hBasePipeline)
+                .thread(8)
+                .run();
     }
 
 }

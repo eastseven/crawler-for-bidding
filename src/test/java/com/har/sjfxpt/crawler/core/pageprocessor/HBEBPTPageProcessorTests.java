@@ -1,10 +1,12 @@
 package com.har.sjfxpt.crawler.core.pageprocessor;
 
 import com.google.common.collect.Lists;
+import com.har.sjfxpt.crawler.core.annotation.SourceModel;
+import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
+import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import com.har.sjfxpt.crawler.ggzyprovincial.hbebtp.HBEBTPPageProcessor;
-import com.har.sjfxpt.crawler.ggzyprovincial.hbebtp.HBEBTPPipeline;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.select.Elements;
@@ -19,6 +21,7 @@ import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.THREAD_NUM;
 
@@ -31,10 +34,11 @@ import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.THREAD_NU
 public class HBEBPTPageProcessorTests {
 
     @Autowired
-    HBEBTPPageProcessor HBEBTPPageProcessor;
+    HBEBTPPageProcessor hbebtpPageProcessor;
+
 
     @Autowired
-    HBEBTPPipeline hbebtpPipeline;
+    HBasePipeline hBasePipeline;
 
     @Test
     public void testHBEBPTPageProcessor() {
@@ -55,12 +59,13 @@ public class HBEBPTPageProcessorTests {
         Request[] requests = new Request[listsDetail.size()];
         for (int i = 0; i < listsDetail.size(); i++) {
             Request request = new Request(listsDetail.get(i));
+            log.debug("url={}", listsDetail.get(i));
             requests[i] = request;
         }
-        Spider.create(HBEBTPPageProcessor)
+        Spider.create(hbebtpPageProcessor)
                 .addRequest(requests)
                 .thread(THREAD_NUM)
-                .addPipeline(hbebtpPipeline)
+//                .addPipeline(hbebtpPipeline)
                 .run();
     }
 
@@ -75,5 +80,17 @@ public class HBEBPTPageProcessorTests {
             content = StringUtils.remove(content, StringUtils.substringBetween(content, "<h4>", "</h4>"));
             log.info("content=={}", content);
         }
+    }
+
+    @Test
+    public void testAnnotation() {
+        List<SourceModel> sourceModelList = SourceConfigAnnotationUtils.find(hbebtpPageProcessor.getClass());
+        List<Request> requestList = sourceModelList.parallelStream().map(SourceModel::createRequest)
+                .collect(Collectors.toList());
+        Spider.create(hbebtpPageProcessor)
+                .addRequest(requestList.toArray(new Request[requestList.size()]))
+                .addPipeline(hBasePipeline)
+                .thread(8)
+                .run();
     }
 }

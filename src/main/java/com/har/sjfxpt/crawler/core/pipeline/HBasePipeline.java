@@ -17,7 +17,7 @@ import static com.har.sjfxpt.crawler.core.processor.BasePageProcessor.KEY_DATA_I
 
 /**
  * @author dongqi
- * 通用存储
+ *         通用存储
  */
 @Slf4j
 @Component

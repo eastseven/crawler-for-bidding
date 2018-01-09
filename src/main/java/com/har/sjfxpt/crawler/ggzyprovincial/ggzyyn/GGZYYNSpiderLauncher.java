@@ -16,7 +16,8 @@ import java.util.Map;
  * Created by Administrator on 2017/12/4.
  */
 @Slf4j
-@Component@Deprecated
+@Component
+@Deprecated
 public class GGZYYNSpiderLauncher extends BaseSpiderLauncher {
 
     private final String uuid = SourceCode.GGZYYN.toString().toLowerCase() + "-current";
@@ -111,6 +112,7 @@ public class GGZYYNSpiderLauncher extends BaseSpiderLauncher {
                 pageParams.put("type", "异常公告");
                 pageParams.put("businessType", "政府采购");
                 break;
+            default:
         }
         request.putExtra("pageParams", pageParams);
         return request;

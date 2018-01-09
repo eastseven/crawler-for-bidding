@@ -62,22 +62,13 @@ public class GGZYXZPageProcessor implements BasePageProcessor {
             Elements elements = page.getHtml().getDocument().body().select("body > div.content-old > div.jyxxcontent-old > div.article-content-old > div.pagesite > div > ul > li:nth-child(1) > a");
             int pageCount = Integer.parseInt(StringUtils.substringBetween(elements.text(), "/", "页"));
             if (pageCount >= 2) {
-                if (pageCount >= 10) {
-                    for (int i = 2; i <= 10; i++) {
-                        String urlTarget = url.replace("index_1", "index_" + i);
-                        Request request = new Request(urlTarget);
-                        request.putExtra("type", type);
-                        page.addTargetRequest(request);
-                    }
-                } else {
-                    for (int i = 2; i <= pageCount; i++) {
-                        String urlTarget = url.replace("index_1", "index_" + i);
-                        Request request = new Request(urlTarget);
-                        request.putExtra("type", type);
-                        page.addTargetRequest(request);
-                    }
+                int cycleNum = pageCount >= 10 ? 10 : 2;
+                for (int i = 2; i <= cycleNum; i++) {
+                    String urlTarget = url.replace("index_1", "index_" + i);
+                    Request request = new Request(urlTarget);
+                    request.putExtra("type", type);
+                    page.addTargetRequest(request);
                 }
-
             }
         }
     }
