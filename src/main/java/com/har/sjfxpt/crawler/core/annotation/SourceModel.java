@@ -76,18 +76,27 @@ public class SourceModel {
                             postParams.put(dateStartField, start);
                             postParams.put(dateEndField, end);
                             break;
-                        case "3D": break;
-                        case "10D": break;
-                        case "1M": break;
-                        case "3M": break;
+                        case "3D":
+                            break;
+                        case "10D":
+                            break;
+                        case "1M":
+                            break;
+                        case "3M":
+                            break;
                         default:
                     }
                 }
             }
-
-            request.setMethod(HttpConstant.Method.POST);
-            request.setRequestBody(HttpRequestBody.form(pageParams, "UTF-8"));
-            request.putExtra("pageParams", pageParams);
+            if(StringUtils.isNotBlank(dateStartField) &&dateStartField.equalsIgnoreCase("sdt")){
+                request.setMethod(HttpConstant.Method.POST);
+                request.setRequestBody(HttpRequestBody.json(JSONObject.toJSONString(pageParams), "UTF-8"));
+                request.putExtra("pageParams", pageParams);
+            }else {
+                request.setMethod(HttpConstant.Method.POST);
+                request.setRequestBody(HttpRequestBody.form(pageParams, "UTF-8"));
+                request.putExtra("pageParams", pageParams);
+            }
         }
 
         if (!post && ArrayUtils.isNotEmpty(needPlaceholderFields)) {

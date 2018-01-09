@@ -1,8 +1,11 @@
 package com.har.sjfxpt.crawler.ggzyprovincial.ggzyhebeinew;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONPath;
+import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.core.annotation.Source;
 import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
+import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
 import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
@@ -16,12 +19,14 @@ import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
+import us.codecraft.webmagic.model.HttpRequestBody;
+import us.codecraft.webmagic.selector.Selectable;
+import us.codecraft.webmagic.utils.HttpConstant;
 
 import java.util.List;
 import java.util.Map;
 
 import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyhebeinew.GGZYHeBeiPageProcessor.*;
-import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyhebeinew.GGZYHeBeiSpiderLauncher.requestGenerator;
 
 /**
  * Created by Administrator on 2017/12/26.
@@ -31,73 +36,73 @@ import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyhebeinew.GGZYHeBeiSpider
 @SourceConfig(
         code = SourceCode.GGZYHEBEI,
         sources = {
-                @Source(url = GGZYHEBEI_URL, post = true, postParams = POST_PARAMS_1),
-                @Source(url = GGZYHEBEI_URL, post = true, postParams = POST_PARAMS_2),
-                @Source(url = GGZYHEBEI_URL, post = true, postParams = POST_PARAMS_3),
-                @Source(url = GGZYHEBEI_URL, post = true, postParams = POST_PARAMS_4),
-                @Source(url = GGZYHEBEI_URL, post = true, postParams = POST_PARAMS_5),
-                @Source(url = GGZYHEBEI_URL, post = true, postParams = POST_PARAMS_6),
-                @Source(url = GGZYHEBEI_URL, post = true, postParams = POST_PARAMS_7),
-                @Source(url = GGZYHEBEI_URL, post = true, postParams = POST_PARAMS_8)
+                @Source(url = GGZYHEBEI_URL, post = true, postParams = POST_PARAMS_1, dateStartField = "sdt", dateEndField = "edt", dayScope = "1D"),
+                @Source(url = GGZYHEBEI_URL, post = true, postParams = POST_PARAMS_2, dateStartField = "sdt", dateEndField = "edt", dayScope = "1D"),
+                @Source(url = GGZYHEBEI_URL, post = true, postParams = POST_PARAMS_3, dateStartField = "sdt", dateEndField = "edt", dayScope = "1D"),
+                @Source(url = GGZYHEBEI_URL, post = true, postParams = POST_PARAMS_4, dateStartField = "sdt", dateEndField = "edt", dayScope = "1D"),
+                @Source(url = GGZYHEBEI_URL, post = true, postParams = POST_PARAMS_5, dateStartField = "sdt", dateEndField = "edt", dayScope = "1D"),
+                @Source(url = GGZYHEBEI_URL, post = true, postParams = POST_PARAMS_6, dateStartField = "sdt", dateEndField = "edt", dayScope = "1D"),
+                @Source(url = GGZYHEBEI_URL, post = true, postParams = POST_PARAMS_7, dateStartField = "sdt", dateEndField = "edt", dayScope = "1D"),
+                @Source(url = GGZYHEBEI_URL, post = true, postParams = POST_PARAMS_8, dateStartField = "sdt", dateEndField = "edt", dayScope = "1D")
         }
 )
 public class GGZYHeBeiPageProcessor implements BasePageProcessor {
 
     final static String GGZYHEBEI_URL = "http://www.hebpr.cn/inteligentsearch/rest/inteligentSearch/getFullTextDataNew";
 
-    final static String POST_PARAMS_1 = "{'accuracy':'','cl':200,'condition':[{'equal':'003005002001','fieldName':'categorynum','isLike':true,'likeType':2}],'edt':'2018-01-08 23:59:59','fields':'title','highlights':'title','isBusiness':1,'noParticiple':'0','pn':0,'rn':10,'sdt':'2018-01-08 00:00:00','sort':'{\"showdate\":\"0\"}','ssort':'title','token':''}";
-    final static String POST_PARAMS_2 = "{'accuracy':'','cl':200,'condition':[{'equal':'003005002002','fieldName':'categorynum','isLike':true,'likeType':2}],'edt':'2018-01-08 23:59:59','fields':'title','highlights':'title','isBusiness':1,'noParticiple':'0','pn':0,'rn':10,'sdt':'2018-01-08 00:00:00','sort':'{\"showdate\":\"0\"}','ssort':'title','token':''}";
-    final static String POST_PARAMS_3 = "{'accuracy':'','cl':200,'condition':[{'equal':'003005002003','fieldName':'categorynum','isLike':true,'likeType':2}],'edt':'2018-01-08 23:59:59','fields':'title','highlights':'title','isBusiness':1,'noParticiple':'0','pn':0,'rn':10,'sdt':'2018-01-08 00:00:00','sort':'{\"showdate\":\"0\"}','ssort':'title','token':''}";
-    final static String POST_PARAMS_4 = "{'accuracy':'','cl':200,'condition':[{'equal':'003005002004','fieldName':'categorynum','isLike':true,'likeType':2}],'edt':'2018-01-08 23:59:59','fields':'title','highlights':'title','isBusiness':1,'noParticiple':'0','pn':0,'rn':10,'sdt':'2018-01-08 00:00:00','sort':'{\"showdate\":\"0\"}','ssort':'title','token':''}";
-    final static String POST_PARAMS_5 = "{'accuracy':'','cl':200,'condition':[{'equal':'003005001001','fieldName':'categorynum','isLike':true,'likeType':2}],'edt':'2018-01-08 23:59:59','fields':'title','highlights':'title','isBusiness':1,'noParticiple':'0','pn':0,'rn':10,'sdt':'2018-01-08 00:00:00','sort':'{\"showdate\":\"0\"}','ssort':'title','token':''}";
-    final static String POST_PARAMS_6 = "{'accuracy':'','cl':200,'condition':[{'equal':'003005001002','fieldName':'categorynum','isLike':true,'likeType':2}],'edt':'2018-01-08 23:59:59','fields':'title','highlights':'title','isBusiness':1,'noParticiple':'0','pn':0,'rn':10,'sdt':'2018-01-08 00:00:00','sort':'{\"showdate\":\"0\"}','ssort':'title','token':''}";
-    final static String POST_PARAMS_7 = "{'accuracy':'','cl':200,'condition':[{'equal':'003005001003','fieldName':'categorynum','isLike':true,'likeType':2}],'edt':'2018-01-08 23:59:59','fields':'title','highlights':'title','isBusiness':1,'noParticiple':'0','pn':0,'rn':10,'sdt':'2018-01-08 00:00:00','sort':'{\"showdate\":\"0\"}','ssort':'title','token':''}";
-    final static String POST_PARAMS_8 = "{'accuracy':'','cl':200,'condition':[{'equal':'003005001004','fieldName':'categorynum','isLike':true,'likeType':2}],'edt':'2018-01-08 23:59:59','fields':'title','highlights':'title','isBusiness':1,'noParticiple':'0','pn':0,'rn':10,'sdt':'2018-01-08 00:00:00','sort':'{\"showdate\":\"0\"}','ssort':'title','token':''}";
+    final static String POST_PARAMS_1 = "{'accuracy':'','cl':200,'condition':[{'equal':'003005002001','fieldName':'categorynum','isLike':true,'likeType':2}],'edt':'','fields':'title','highlights':'title','isBusiness':1,'noParticiple':'0','pn':0,'rn':10,'sdt':'','sort':'{\"showdate\":\"0\"}','ssort':'title','token':''}";
+    final static String POST_PARAMS_2 = "{'accuracy':'','cl':200,'condition':[{'equal':'003005002002','fieldName':'categorynum','isLike':true,'likeType':2}],'edt':'','fields':'title','highlights':'title','isBusiness':1,'noParticiple':'0','pn':0,'rn':10,'sdt':'','sort':'{\"showdate\":\"0\"}','ssort':'title','token':''}";
+    final static String POST_PARAMS_3 = "{'accuracy':'','cl':200,'condition':[{'equal':'003005002003','fieldName':'categorynum','isLike':true,'likeType':2}],'edt':'','fields':'title','highlights':'title','isBusiness':1,'noParticiple':'0','pn':0,'rn':10,'sdt':'','sort':'{\"showdate\":\"0\"}','ssort':'title','token':''}";
+    final static String POST_PARAMS_4 = "{'accuracy':'','cl':200,'condition':[{'equal':'003005002004','fieldName':'categorynum','isLike':true,'likeType':2}],'edt':'','fields':'title','highlights':'title','isBusiness':1,'noParticiple':'0','pn':0,'rn':10,'sdt':'','sort':'{\"showdate\":\"0\"}','ssort':'title','token':''}";
+    final static String POST_PARAMS_5 = "{'accuracy':'','cl':200,'condition':[{'equal':'003005001001','fieldName':'categorynum','isLike':true,'likeType':2}],'edt':'','fields':'title','highlights':'title','isBusiness':1,'noParticiple':'0','pn':0,'rn':10,'sdt':'','sort':'{\"showdate\":\"0\"}','ssort':'title','token':''}";
+    final static String POST_PARAMS_6 = "{'accuracy':'','cl':200,'condition':[{'equal':'003005001002','fieldName':'categorynum','isLike':true,'likeType':2}],'edt':'','fields':'title','highlights':'title','isBusiness':1,'noParticiple':'0','pn':0,'rn':10,'sdt':'','sort':'{\"showdate\":\"0\"}','ssort':'title','token':''}";
+    final static String POST_PARAMS_7 = "{'accuracy':'','cl':200,'condition':[{'equal':'003005001003','fieldName':'categorynum','isLike':true,'likeType':2}],'edt':'','fields':'title','highlights':'title','isBusiness':1,'noParticiple':'0','pn':0,'rn':10,'sdt':'','sort':'{\"showdate\":\"0\"}','ssort':'title','token':''}";
+    final static String POST_PARAMS_8 = "{'accuracy':'','cl':200,'condition':[{'equal':'003005001004','fieldName':'categorynum','isLike':true,'likeType':2}],'edt':'','fields':'title','highlights':'title','isBusiness':1,'noParticiple':'0','pn':0,'rn':10,'sdt':'','sort':'{\"showdate\":\"0\"}','ssort':'title','token':''}";
 
     HttpClientDownloader httpClientDownloader;
 
     @Override
     public void handlePaging(Page page) {
-        Map<String, Object> pageParams = page.getRequest().getExtras();
-        GGZYHeBeiPageParameter ggzyHeBeiPageParameter = (GGZYHeBeiPageParameter) pageParams.get("pageParams");
-        int pageCount = ggzyHeBeiPageParameter.getPn();
+        Map<String, Object> pageParams = (Map<String, Object>) page.getRequest().getExtras().get("pageParams");
+        int pageCount = (int) pageParams.get("pn");
         if (pageCount == 0) {
-            GGZYHeBeiDirectoryParameter ggzyHeBeiDirectoryParameter = JSONObject.parseObject(page.getRawText(), GGZYHeBeiDirectoryParameter.class);
-            int totalCount = ggzyHeBeiDirectoryParameter.getResult().getTotalcount();
-            int cycleCount = totalCount % 10 == 0 ? totalCount / 10 : totalCount / 10 + 1;
-            int cyclePage = cycleCount >= 20 ? 20 : cycleCount;
-            for (int i = 1; i <= cyclePage; i++) {
-                String url = page.getUrl().get();
-                String typeId = ggzyHeBeiPageParameter.getCondition().get(0).getEqual();
-                Request request = requestGenerator(url, typeId, i * 10);
-                page.addTargetRequest(request);
+            JSONObject jsonObject = (JSONObject) JSONObject.parse(page.getRawText());
+            int totalCount = Integer.parseInt(JSONPath.eval(jsonObject, "$.result.totalcount").toString());
+            log.debug("totalCount={}", totalCount);
+            if (totalCount >= 1) {
+                for (int i = 1; i <= totalCount; i++) {
+                    Request request = new Request(page.getUrl().get());
+                    Map<String, Object> nextPageParams = Maps.newHashMap(pageParams);
+                    nextPageParams.put("pn", i);
+                    request.setMethod(HttpConstant.Method.POST);
+                    request.setRequestBody(HttpRequestBody.json(JSONObject.toJSONString(pageParams), "UTF-8"));
+                    request.putExtra("pageParams", nextPageParams);
+                    page.addTargetRequest(request);
+                }
             }
         }
     }
 
     @Override
     public void handleContent(Page page) {
-        Map<String, Object> pageParams = page.getRequest().getExtras();
-        GGZYHeBeiPageParameter ggzyHeBeiPageParameter = (GGZYHeBeiPageParameter) pageParams.get("pageParams");
-        GGZYHeBeiDirectoryParameter ggzyHeBeiDirectoryParameter = JSONObject.parseObject(page.getRawText(), GGZYHeBeiDirectoryParameter.class);
-        List<GGZYHeBeiDirectoryParameter.ResultBean.RecordsBean> recordsBeanList = ggzyHeBeiDirectoryParameter.getResult().getRecords();
-        List<GGZYHeBeiDataItem> dataItems = Lists.newArrayList();
-        for (GGZYHeBeiDirectoryParameter.ResultBean.RecordsBean recordsBean : recordsBeanList) {
-            String href = recordsBean.getLinkurl();
+        List<BidNewsOriginal> dataItems = Lists.newArrayList();
+        Selectable recoredList = page.getJson().jsonPath("$.result.records");
+        List<String> stringList = recoredList.all();
+        for (String field : stringList) {
+            JSONObject jsonObject = (JSONObject) JSONObject.parse(field);
+            String href = JSONPath.eval(jsonObject, "$.linkurl").toString();
             if (StringUtils.isNotBlank(href)) {
                 if (!StringUtils.startsWith(href, "http:")) {
                     href = "http://www.hebpr.cn" + href;
                 }
-                String type = recordsBean.getCategoryname();
-                String date = recordsBean.getShowdate();
-                String title = recordsBean.getTitle();
-                String businessType = businessTypeJudge(ggzyHeBeiPageParameter.getCondition().get(0).getEqual());
-                GGZYHeBeiDataItem ggzyHeBeiDataItem = new GGZYHeBeiDataItem(href);
-                ggzyHeBeiDataItem.setUrl(href);
+                String type = JSONPath.eval(jsonObject, "$.categoryname").toString();
+                String date = JSONPath.eval(jsonObject, "$.showdate").toString();
+                String title = JSONPath.eval(jsonObject, "$.title").toString();
+                BidNewsOriginal ggzyHeBeiDataItem = new BidNewsOriginal(href, SourceCode.GGZYHEBEI);
                 ggzyHeBeiDataItem.setType(type);
                 ggzyHeBeiDataItem.setDate(PageProcessorUtil.dataTxt(date));
-                ggzyHeBeiDataItem.setBusinessType(businessType);
                 ggzyHeBeiDataItem.setTitle(title);
+                ggzyHeBeiDataItem.setProvince("河北");
 
                 if (PageProcessorUtil.timeCompare(ggzyHeBeiDataItem.getDate())) {
                     log.info("{} {} is not the same day", ggzyHeBeiDataItem.getUrl(), ggzyHeBeiDataItem.getDate());
@@ -134,16 +139,5 @@ public class GGZYHeBeiPageProcessor implements BasePageProcessor {
     public Site getSite() {
         httpClientDownloader = new HttpClientDownloader();
         return SiteUtil.get().setSleepTime(10000);
-    }
-
-    public static String businessTypeJudge(String typeId) {
-        String businessType = null;
-        if (typeId.startsWith("003005001")) {
-            businessType = "政府采购";
-        }
-        if (typeId.startsWith("003005002")) {
-            businessType = "工程建设";
-        }
-        return businessType;
     }
 }
