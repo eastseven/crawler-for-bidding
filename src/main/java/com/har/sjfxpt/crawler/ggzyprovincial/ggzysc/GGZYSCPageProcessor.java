@@ -1,7 +1,12 @@
 package com.har.sjfxpt.crawler.ggzyprovincial.ggzysc;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONPath;
 import com.google.common.collect.Lists;
+import com.har.sjfxpt.crawler.core.annotation.Source;
+import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
+import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
+import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
@@ -16,28 +21,40 @@ import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
+import us.codecraft.webmagic.selector.Selectable;
 
 import java.net.URLEncoder;
 import java.util.List;
 
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.KEY_DATA_ITEMS;
+import static com.har.sjfxpt.crawler.ggzyprovincial.ggzysc.GGZYSCPageProcessor.*;
 
 /**
  * Created by Administrator on 2017/11/27.
  */
 @Slf4j
 @Component
+@SourceConfig(
+        code = SourceCode.GGZYSC,
+        sources = {
+                @Source(url = GGZYSC_URL1, dayPattern = "TIMESTAMP", needPlaceholderFields = {"TIMESTAMP"}),
+                @Source(url = GGZYSC_URL2, dayPattern = "TIMESTAMP", needPlaceholderFields = {"TIMESTAMP"})
+        }
+)
 public class GGZYSCPageProcessor implements BasePageProcessor {
 
     HttpClientDownloader httpClientDownloader;
+
+    final static String GGZYSC_URL1 = "http://www.scggzy.gov.cn/Info/GetInfoListNew?keywords=&times=1&timesStart=&timesEnd=&province=&area=&businessType=project&informationType=&industryType=&page=1&parm=TIMESTAMP";
+    final static String GGZYSC_URL2 = "http://www.scggzy.gov.cn/Info/GetInfoListNew?keywords=&times=1&timesStart=&timesEnd=&province=&area=&businessType=purchase&informationType=&industryType=&page=1&parm=TIMESTAMP";
 
     @Override
     public void handlePaging(Page page) {
         String url = page.getUrl().get();
         int currentPage = Integer.parseInt(StringUtils.substringBetween(page.getUrl().toString(), "page=", "&parm"));
         if (currentPage == 1) {
-            GGZYSCAnnouncement data = JSONObject.parseObject(page.getRawText(), GGZYSCAnnouncement.class);
-            int size = data.getPageCount();
+            JSONObject jsonObject = (JSONObject) JSONObject.parse(page.getRawText());
+            int size = Integer.parseInt(JSONPath.eval(jsonObject, "$.pageCount").toString());
+            log.debug("size={}", size);
             if (size >= 2) {
                 for (int i = 2; i <= size; i++) {
                     String urlTarget = url.replace("page=1", "page=" + i);
@@ -49,7 +66,7 @@ public class GGZYSCPageProcessor implements BasePageProcessor {
 
     @Override
     public void handleContent(Page page) throws Exception {
-        List<GGZYSCDataItem> dataItems = parseContent(page);
+        List<BidNewsOriginal> dataItems = parseContent(page);
         if (!dataItems.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItems);
         } else {
@@ -63,36 +80,29 @@ public class GGZYSCPageProcessor implements BasePageProcessor {
     }
 
     public List parseContent(Page page) throws Exception {
-        GGZYSCAnnouncement data = JSONObject.parseObject(page.getRawText(), GGZYSCAnnouncement.class);
-        List<GGZYSCDataItem> dataItems = Lists.newArrayList();
-        String targets[] = StringUtils.substringsBetween(data.getData(), "{", "}");
-        if (targets.length != 0) {
-            for (String target : targets) {
+        List<BidNewsOriginal> dataItems = Lists.newArrayList();
+        Selectable data = page.getJson().jsonPath("$.data");
+        List<String> stringList = data.all();
+        if (stringList.size() != 0) {
+            for (String target : stringList) {
                 String href = StringUtils.substringBetween(target, "\"Link\":\"", "\",");
                 String title = StringUtils.substringBetween(target, "\"Title\":\"", "\",");
                 String date = StringUtils.substringBetween(target, "\"CreateDateAll\":\"", "\",");
                 String type = StringUtils.substringBetween(target, "\"TableName\":\"", "\",");
-                String businessType = StringUtils.substringBetween(target, "\"businessType\":\"", "\",");
 
-                GGZYSCDataItem GGZYSCDataItem = new GGZYSCDataItem("http://www.scztb.gov.cn" + href);
                 String encode = URLEncoder.encode(StringUtils.substringBefore(StringUtils.substringAfterLast(href, "/"), ".html"), "utf-8");
-                String urlEncoder = "http://www.scztb.gov.cn" + StringUtils.substringBeforeLast(href, "/") + "/" + encode + ".html";
-                GGZYSCDataItem.setUrl(urlEncoder);
+                String urlEncoder = "http://www.scggzy.gov.cn" + StringUtils.substringBeforeLast(href, "/") + "/" + encode + ".html";
+                BidNewsOriginal GGZYSCDataItem = new BidNewsOriginal(urlEncoder, SourceCode.GGZYSC);
                 GGZYSCDataItem.setTitle(title);
                 GGZYSCDataItem.setDate(PageProcessorUtil.dataTxt(date));
                 GGZYSCDataItem.setType(type);
-                GGZYSCDataItem.setBusinessType(businessType);
+                GGZYSCDataItem.setProvince("四川");
                 try {
                     Page page1 = httpClientDownloader.download(new Request(GGZYSCDataItem.getUrl()), SiteUtil.get().setTimeOut(30000).toTask());
                     Element element = page1.getHtml().getDocument().body();
-                    Elements elements = element.select("body > div.wmain > div.ContentMiddle > div > div.Middle > div.ChangeMidle > div.detailedTitle");
-                    Elements elements1 = element.select("body > div.wmain > div.ContentMiddle > div > div.Middle > div.ChangeMidle > div.detailedIntroduc");
+                    Elements elements = element.select("body > div > div.ContentMiddle > div > div.Middle > div.ChangeMidle > div.detailedIntroduc");
                     String formatContent = "";
-                    String detailedTitle = PageProcessorUtil.formatElementsByWhitelist(elements.first());
-                    String detailedIntroduc = PageProcessorUtil.formatElementsByWhitelist(elements1.first());
-                    if (StringUtils.isNotBlank(detailedTitle)) {
-                        formatContent = formatContent + detailedTitle;
-                    }
+                    String detailedIntroduc = PageProcessorUtil.formatElementsByWhitelist(elements.first());
                     if (StringUtils.isNotBlank(detailedIntroduc)) {
                         formatContent = formatContent + detailedIntroduc;
                     }

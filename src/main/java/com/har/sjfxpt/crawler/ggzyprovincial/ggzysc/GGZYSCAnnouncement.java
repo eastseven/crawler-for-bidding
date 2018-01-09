@@ -2,7 +2,7 @@ package com.har.sjfxpt.crawler.ggzyprovincial.ggzysc;
 
 /**
  * Created by Administrator on 2017/11/27.
- */
+ */@Deprecated
 public class GGZYSCAnnouncement {
 
     /**

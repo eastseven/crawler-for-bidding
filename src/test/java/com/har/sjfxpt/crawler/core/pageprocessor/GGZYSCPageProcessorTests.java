@@ -1,5 +1,8 @@
 package com.har.sjfxpt.crawler.core.pageprocessor;
 
+import com.har.sjfxpt.crawler.core.annotation.SourceModel;
+import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
+import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzysc.GGZYSCPageProcessor;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzysc.GGZYSCPipeline;
 import lombok.extern.slf4j.Slf4j;
@@ -14,11 +17,14 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
+import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Created by Administrator on 2017/11/27.
@@ -29,10 +35,13 @@ import java.net.URLEncoder;
 public class GGZYSCPageProcessorTests {
 
     @Autowired
-    GGZYSCPageProcessor GGZYSCPageProcessor;
+    GGZYSCPageProcessor ggzySCPageProcessor;
 
     @Autowired
     GGZYSCPipeline GGZYSCPipeline;
+
+    @Autowired
+    HBasePipeline hBasePipeline;
 
     //mvn test -Dtest=testSCPageProcessor -Dspring.profiles.active=prod -Dapp.fetch.current.day=false
     @Test
@@ -42,7 +51,7 @@ public class GGZYSCPageProcessorTests {
                 "http://www.scztb.gov.cn/Info/GetInfoListNew?keywords=&times=2&timesStart=&timesEnd=&province=&area=&businessType=project&informationType=&page=1&parm=" + DateTime.now().getMillis(),
                 "http://www.scztb.gov.cn/Info/GetInfoListNew?keywords=&times=2&timesStart=&timesEnd=&province=&area=&businessType=purchase&informationType=&page=1&parm=" + DateTime.now().getMillis()
         };
-        Spider.create(GGZYSCPageProcessor)
+        Spider.create(ggzySCPageProcessor)
                 .addPipeline(GGZYSCPipeline)
                 .addUrl(urls)
                 .thread(4)
@@ -87,7 +96,6 @@ public class GGZYSCPageProcessorTests {
                 whitelist.removeTags("iframe");
                 System.out.println(Jsoup.clean(content, whitelist));
             }
-
         }
     }
 
@@ -95,6 +103,18 @@ public class GGZYSCPageProcessorTests {
     public void testTime() {
         long datimeNow = DateTime.now().getMillis();
         log.info("datimeNow=={}", datimeNow);
+    }
+
+    @Test
+    public void testAnnotation(){
+        List<SourceModel> sourceModelList = SourceConfigAnnotationUtils.find(ggzySCPageProcessor.getClass());
+        List<Request> requestList = sourceModelList.parallelStream().map(SourceModel::createRequest)
+                .collect(Collectors.toList());
+        Spider.create(ggzySCPageProcessor)
+                .addRequest(requestList.toArray(new Request[requestList.size()]))
+                .addPipeline(hBasePipeline)
+                .thread(8)
+                .run();
     }
 
 

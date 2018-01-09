@@ -4,6 +4,6 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 /**
  * Created by Administrator on 2017/11/27.
- */
+ */@Deprecated
 public interface GGZYSCDataItemRepository extends MongoRepository<GGZYSCDataItem,String>{
 }

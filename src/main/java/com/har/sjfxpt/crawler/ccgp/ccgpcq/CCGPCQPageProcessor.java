@@ -35,14 +35,12 @@ import java.util.List;
 @SourceConfig(
         code = SourceCode.CCGPCQ,
         sources = {
-                @Source(url = "https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable?pi=1&ps=20&startDate=&type=100,200,201,202,203,204,205,206,207,309,400,401,402,3091,4001&timestamp=TIMESTAMP", type = "采购公告", needPlaceholderFields = {"TIMESTAMP"}),
-                @Source(url = "https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable?pi=1&ps=20&startDate=&type=301,303&timestamp=TIMESTAMP", type = "采购预公示", needPlaceholderFields = {"TIMESTAMP"}),
-                @Source(url = "https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable?pi=1&ps=20&startDate=&type=300,302,304,3041,305,306,307,308&timestamp=TIMESTAMP", type = "采购结果公告", needPlaceholderFields = {"TIMESTAMP"})
+                @Source(url = "https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable?pi=1&ps=20&startDate=&type=100,200,201,202,203,204,205,206,207,309,400,401,402,3091,4001&timestamp=TIMESTAMP", type = "采购公告", dayPattern = "TIMESTAMP", needPlaceholderFields = {"TIMESTAMP"}),
+                @Source(url = "https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable?pi=1&ps=20&startDate=&type=301,303&timestamp=TIMESTAMP", type = "采购预公示", dayPattern = "TIMESTAMP", needPlaceholderFields = {"TIMESTAMP"}),
+                @Source(url = "https://www.cqgp.gov.cn/gwebsite/api/v1/notices/stable?pi=1&ps=20&startDate=&type=300,302,304,3041,305,306,307,308&timestamp=TIMESTAMP", type = "采购结果公告", dayPattern = "TIMESTAMP", needPlaceholderFields = {"TIMESTAMP"})
         }
 )
 public class CCGPCQPageProcessor implements BasePageProcessor {
-
-    final static String PAGE_PARAMS = "pageParams";
 
     final static int ARTICLE_NUM = 20;
 
