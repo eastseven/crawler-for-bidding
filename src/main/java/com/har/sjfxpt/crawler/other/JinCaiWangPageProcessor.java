@@ -65,6 +65,7 @@ public class JinCaiWangPageProcessor implements BasePageProcessor {
     @Override
     public void handlePaging(Page page) {
         String url = page.getUrl().toString();
+        String type = page.getRequest().getExtra("type").toString();
         String pageNum = StringUtils.substringBefore(StringUtils.substringAfter(url, "pageNo="), "&kflag=");
         int num = Integer.parseInt(pageNum);
         if (num == 1) {
@@ -79,6 +80,7 @@ public class JinCaiWangPageProcessor implements BasePageProcessor {
                 for (int i = 2; i <= sizeNum; i++) {
                     String urlTarget = url.replace("1", "" + i);
                     Request request = new Request(urlTarget);
+                    request.putExtra("type", type);
                     page.addTargetRequest(request);
                 }
             }

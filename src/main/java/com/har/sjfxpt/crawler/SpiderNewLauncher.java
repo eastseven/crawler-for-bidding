@@ -32,8 +32,8 @@ import java.util.concurrent.ExecutorService;
 
 /**
  * @author dongqi
- * <p>
- * https://stackoverflow.com/questions/259140/scanning-java-annotations-at-runtime
+ *         <p>
+ *         https://stackoverflow.com/questions/259140/scanning-java-annotations-at-runtime
  */
 @Slf4j
 @Service
@@ -132,7 +132,6 @@ public class SpiderNewLauncher implements CommandLineRunner {
 
     public void start() {
         if (spiders.isEmpty()) return;
-
         spiders.forEach((uuid, spider) -> {
             if (!spider.getStatus().equals(Spider.Status.Running)) {
                 List<SourceModel> sourceModelList = spider.getSourceModelList();

@@ -100,12 +100,16 @@ public class HNPageProcessor implements BasePageProcessor {
                         date = PageProcessorUtil.dataTxt(date);
                     }
                     ggzyHNDataItem.setDate(date);
-                    Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
-                    Elements elements = page.getHtml().getDocument().body().select("body > div.container > div > div.newsTex > div.newsCon");
-                    String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
-                    if (StringUtils.isNotBlank(formatContent)) {
-                        ggzyHNDataItem.setFormatContent(formatContent);
-                        dataItems.add(ggzyHNDataItem);
+                    try {
+                        Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
+                        Elements elements = page.getHtml().getDocument().body().select("body > div.container > div > div.newsTex > div.newsCon");
+                        String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
+                        if (StringUtils.isNotBlank(formatContent)) {
+                            ggzyHNDataItem.setFormatContent(formatContent);
+                            dataItems.add(ggzyHNDataItem);
+                        }
+                    } catch (Exception e) {
+                        log.warn("e{}", e);
                     }
                 }
             }
