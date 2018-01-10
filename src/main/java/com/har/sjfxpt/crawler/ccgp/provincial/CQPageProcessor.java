@@ -57,7 +57,6 @@ public class CQPageProcessor implements BasePageProcessor {
             int pageNum = announcementNum % ARTICLE_NUM == 0 ? announcementNum / ARTICLE_NUM : announcementNum / ARTICLE_NUM + 1;
             if (pageNum >= 2) {
                 int cycleNum = pageNum >= 10 ? 10 : pageNum;
-                log.info("cycleNum={}", cycleNum);
                 for (int i = 2; i <= cycleNum; i++) {
                     String url = page.getUrl().toString().replace("pi=1", "pi=" + i);
                     Request request = new Request(url);
@@ -73,7 +72,6 @@ public class CQPageProcessor implements BasePageProcessor {
     @Override
     public void handleContent(Page page) {
         String type = (String) page.getRequest().getExtra("type");
-        log.info("pageUrl=={}", page.getUrl().get());
         List<BidNewsOriginal> dataItems = parseContent(page);
         dataItems.forEach(dataItem -> dataItem.setType(type));
         if (!dataItems.isEmpty()) {

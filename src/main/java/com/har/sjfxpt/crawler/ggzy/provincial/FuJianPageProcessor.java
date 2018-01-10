@@ -63,7 +63,6 @@ public class FuJianPageProcessor implements BasePageProcessor {
             JSONObject root = (JSONObject) JSONObject.parse(page.getRawText());
             int announcementNum = (int) JSONPath.eval(root, "$.total");
             int pageCount = announcementNum % pageSize == 0 ? announcementNum / pageSize : announcementNum / pageSize + 1;
-            log.debug("pageCount=={}", pageCount);
             for (int i = 2; i <= pageCount; i++) {
                 pageParams.put("pageNo", i);
                 Request request = new Request(url);

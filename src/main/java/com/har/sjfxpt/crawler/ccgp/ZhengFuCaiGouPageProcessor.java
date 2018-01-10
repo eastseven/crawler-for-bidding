@@ -149,7 +149,6 @@ public class ZhengFuCaiGouPageProcessor implements BasePageProcessor {
             BidNewsOriginal dataItem = new BidNewsOriginal(href, SourceCode.CCGP);
             dataItem.setTitle(title);
 
-            log.debug("href=={}", dataItem.getUrl());
             String text = element.select("span").text();
             String[] lines = text.split("\\|");
             String pubDate = null, purchaser = null, purchaserAgent = null;

@@ -54,7 +54,6 @@ public class SCPageProcessor implements BasePageProcessor {
         if (currentPage == 1) {
             JSONObject jsonObject = (JSONObject) JSONObject.parse(page.getRawText());
             int size = Integer.parseInt(JSONPath.eval(jsonObject, "$.pageCount").toString());
-            log.debug("size={}", size);
             if (size >= 2) {
                 for (int i = 2; i <= size; i++) {
                     String urlTarget = url.replace("page=1", "page=" + i);

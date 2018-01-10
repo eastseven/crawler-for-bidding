@@ -68,7 +68,6 @@ public class SunWayWorldPageProcessor implements BasePageProcessor {
             Elements pager = page.getHtml().getDocument().body().select("body > div.main_1 > div.rightbx > div.page > table > tbody > tr > td:nth-child(4)");
             String pageNum = pager.text();
             int num = Integer.parseInt(StringUtils.substringBefore(StringUtils.substringAfter(pageNum, "/ "), " 页"));
-            log.debug("num=={}", num);
             if (num > 1) {
                 for (int i = 2; i <= num; i++) {
                     Map<String, Object> params = Maps.newHashMap(pageParams);
@@ -78,7 +77,6 @@ public class SunWayWorldPageProcessor implements BasePageProcessor {
                     request.setRequestBody(HttpRequestBody.form(params, "UTF-8"));
                     request.putExtra(PAGE_PARAMS, params);
                     request.putExtra("type", type);
-                    log.debug("request=={}", request);
                     page.addTargetRequest(request);
 
                     if ("采购信息".equalsIgnoreCase(type) && i >= 10) {
@@ -102,7 +100,6 @@ public class SunWayWorldPageProcessor implements BasePageProcessor {
 
         List<BidNewsOriginal> dataItems = parseContent(elements);
         String type = (String) page.getRequest().getExtra("type");
-        log.debug("type=={}", type);
         dataItems.forEach(dataItem -> dataItem.setType(type));
         if (!dataItems.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItems);
@@ -132,10 +129,6 @@ public class SunWayWorldPageProcessor implements BasePageProcessor {
                 dataItem.setDate(PageProcessorUtil.dataTxt(date));
                 dataItem.setUrl(url);
                 dataItem.setProvince(ProvinceUtil.get(title));
-
-                log.debug("dataItem=={}", dataItem);
-
-                log.debug(">>> download {}", url);
                 httpClientDownloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
                 try {
                     Element root = httpClientDownloader.download(new Request(url), getSite().toTask())
@@ -155,7 +148,6 @@ public class SunWayWorldPageProcessor implements BasePageProcessor {
 
     @Override
     public void process(Page page) {
-        log.debug(">>> url {}", page.getUrl().get());
         handlePaging(page);
         handleContent(page);
     }

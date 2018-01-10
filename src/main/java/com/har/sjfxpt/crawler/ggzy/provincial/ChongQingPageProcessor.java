@@ -63,7 +63,6 @@ public class ChongQingPageProcessor implements BasePageProcessor {
                 Object size = JSONObject.parse(page1.getRawText());
                 int announcementNum = Integer.parseInt(StringUtils.substringBetween(size.toString(), "\":", "}"));
                 int pageNum = announcementNum % ARTICLE_NUM == 0 ? announcementNum / ARTICLE_NUM : announcementNum / ARTICLE_NUM + 1;
-                log.debug("size=={}", pageNum);
                 for (int i = 2; i < 10; i++) {
                     String url = page.getUrl().toString().replaceAll("pageIndex=1", "pageIndex=" + i);
                     page.addTargetRequest(url);
@@ -75,7 +74,6 @@ public class ChongQingPageProcessor implements BasePageProcessor {
                 Object size = JSONObject.parse(page1.getRawText());
                 int announcementNum = Integer.parseInt(StringUtils.substringBetween(size.toString(), "\":", "}"));
                 int pageNum = announcementNum % ARTICLE_NUM == 0 ? announcementNum / ARTICLE_NUM : announcementNum / ARTICLE_NUM + 1;
-                log.debug("size=={}", pageNum);
                 for (int i = 2; i < 10; i++) {
                     String url = page.getUrl().toString().replaceAll("pageIndex=1", "pageIndex=" + i);
                     page.addTargetRequest(url);

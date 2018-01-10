@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
-import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.core.annotation.Source;
@@ -105,7 +104,6 @@ public class ZGZhaoTouPageProcessor implements BasePageProcessor {
         if (currentPage == 1) {
             JSONObject jsonObject = (JSONObject) JSONObject.parse(page.getRawText());
             int size = Integer.parseInt(JSONPath.eval(jsonObject, "$.object.page.totalPage").toString());
-            log.debug("size=={}", size);
             for (int i = 2; i <= size; i++) {
                 Map<String, Object> nextPage = Maps.newHashMap(pageParams);
                 nextPage.put("pageNo", i);
@@ -192,8 +190,6 @@ public class ZGZhaoTouPageProcessor implements BasePageProcessor {
         Map<String, Object> pageParams = (Map<String, Object>) page.getRequest().getExtras().get(PAGE_PARAMS);
 
         Object root = JSONObject.parse(page.getRawText());
-        log.debug(">>> \n{}", JSON.toJSONString(JSONObject.parse(page.getRawText()), true));
-
         boolean success = (boolean) JSONPath.eval(root, "$.success");
         if (!success) return dataItems;
 
@@ -210,8 +206,6 @@ public class ZGZhaoTouPageProcessor implements BasePageProcessor {
             }
 
             if (!JSONPath.contains(object, "$.businessObjectName")) continue;
-            log.debug(">>> \n{}", JSON.toJSONString(object, true));
-
             BidNewsOriginal dataItem = new BidNewsOriginal(id, SourceCode.ZGZT);
             dataItem.setTitle(JSONPath.eval(object, "$.businessObjectName").toString());
 
@@ -281,8 +275,6 @@ public class ZGZhaoTouPageProcessor implements BasePageProcessor {
 
         boolean success = (boolean) JSONPath.eval(json, "$.success");
         if (!success) return;
-        log.debug(">>> \n{}", JSON.toJSONString(json, SerializerFeature.PrettyFormat));
-
         try {
             String path = "$.object.openBidRecord[0].goodsOpenBidList";
             if (JSONPath.contains(json, path)) {
@@ -317,8 +309,6 @@ public class ZGZhaoTouPageProcessor implements BasePageProcessor {
     private void type03(Page page, BidNewsOriginal dataItem) {
         JSONObject json = JSONObject.parseObject(page.getRawText());
         if (!json.getBoolean("success")) return;
-
-        log.debug(">>> \n{}", JSON.toJSONString(json, SerializerFeature.PrettyFormat));
 
         try {
             JSONArray winBidBulletins = (JSONArray) JSONPath.eval(json, "$.object.winBidBulletin");
@@ -355,8 +345,6 @@ public class ZGZhaoTouPageProcessor implements BasePageProcessor {
         Object root = JSON.parse(page.getRawText());
         boolean success = (boolean) JSONPath.eval(root, "$.success");
         if (!success) return;
-
-        log.debug(">>> type 02 招标公告\n{}", JSONObject.toJSONString(root, true));
 
         StringBuilder html = new StringBuilder();
 
@@ -411,9 +399,6 @@ public class ZGZhaoTouPageProcessor implements BasePageProcessor {
         JSONObject root = (JSONObject) JSONObject.parse(json);
         boolean success = (boolean) JSONPath.eval(root, "$.success");
         if (!success) return;
-
-        log.debug(">>> type 01 招标项目\n{}", JSONObject.toJSONString(root, true));
-
         JSONObject tenderProject = (JSONObject) JSONPath.eval(root, "$.object.tenderProject[0]");
         Map<String, Object> map = JSONPath.paths(tenderProject);
         StringBuilder table = new StringBuilder();

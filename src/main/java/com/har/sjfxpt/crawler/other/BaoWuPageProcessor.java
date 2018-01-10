@@ -70,7 +70,6 @@ public class BaoWuPageProcessor implements BasePageProcessor {
         if (pageNow == 1) {
             JSONObject root = (JSONObject) JSONObject.parse(page.getRawText());
             int pages = (int) JSONPath.eval(root, "$.obj.pages");
-            log.debug("pages={}", pages);
             int cycleNum = pages >= 3 ? 3 : pages;
             for (int i = 2; i <= cycleNum; i++) {
                 Map<String, Object> pageParamsNew = Maps.newHashMap();

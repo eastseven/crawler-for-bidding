@@ -67,7 +67,6 @@ public class SuNingPageProcessor implements BasePageProcessor {
             }
 
             if (pageSize != 0) {
-                log.debug("pageSize=={}", pageSize);
                 if (pageSize > 1) {
                     for (int i = 2; i <= pageSize; i++) {
                         pageParams.put("pageNum", i + "");

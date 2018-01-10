@@ -1,6 +1,6 @@
 logging:
   level:
-    com.har.sjfxpt.crawler.ggzy: info
+    com.har.sjfxpt.crawler: info
     us.codecraft.webmagic.downloader: error
 
 spring:
@@ -18,7 +18,7 @@ spring:
   profiles:
     include: conf
 
-hbase.zookeeper.quorum: s97,s98,s99
+hbase.zookeeper.quorum: s94,s95,s96
 hbase.table.clean: false
 hbase.table.namespace: bid_news_test
 

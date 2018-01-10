@@ -72,12 +72,10 @@ public class SiChuanPageProcessor implements BasePageProcessor {
         String type = (String) page.getRequest().getExtra("type");
         String url = page.getUrl().toString();
         int num = Integer.parseInt(StringUtils.substringAfter(url, "page="));
-        log.debug("pageNum=={}", num);
         if (num == 1) {
             Elements pageNum = page.getHtml().getDocument().body().select("#QuotaList_paginate>span");
             int totalPageNum = Integer.parseInt(StringUtils.substringBetween(pageNum.text(), "页次：1/", "页"));
             int cycleNum = totalPageNum >= 40 ? 40 : totalPageNum;
-            log.debug("cycleNum={}", cycleNum);
             for (int i = 2; i <= cycleNum; i++) {
                 String targetUrl = StringUtils.replace(url, "page=1", "page=" + i);
                 Request request = new Request(targetUrl);

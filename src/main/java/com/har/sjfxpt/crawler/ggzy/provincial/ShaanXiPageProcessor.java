@@ -62,7 +62,6 @@ public class ShaanXiPageProcessor implements BasePageProcessor {
             if (!elements.isEmpty()) {
                 int pageCount = Integer.parseInt(StringUtils.substringAfter(elements.text(), "/"));
                 int cycleCount = pageCount >= 4 ? 4 : pageCount;
-                log.info("cycleCount=={}", cycleCount);
                 for (int i = 2; i <= cycleCount; i++) {
                     String urlTarget = url.replace("1.html", i + ".html");
                     Request request = new Request(urlTarget);
