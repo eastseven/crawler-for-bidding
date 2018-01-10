@@ -4,7 +4,6 @@ import com.har.sjfxpt.crawler.core.annotation.SourceModel;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import com.har.sjfxpt.crawler.dongfeng.DongFengPageProcessor;
-import com.har.sjfxpt.crawler.dongfeng.DongFengPipeline;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,8 +16,6 @@ import us.codecraft.webmagic.Spider;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.THREAD_NUM;
-
 /**
  * Created by Administrator on 2017/11/13.
  */
@@ -29,9 +26,6 @@ public class DongFengPageProcessorTests {
 
     @Autowired
     DongFengPageProcessor dongFengPageProcessor;
-
-    @Autowired
-    DongFengPipeline dongFengPipeline;
 
     @Autowired
     HBasePipeline hBasePipeline;
@@ -47,21 +41,6 @@ public class DongFengPageProcessorTests {
         Spider.create(dongFengPageProcessor)
                 .addRequest(requestList.toArray(new Request[requestList.size()]))
                 .addPipeline(hBasePipeline)
-                .run();
-    }
-
-    @Test
-    public void testDongFeng() {
-        String[] urls = {
-                "http://jyzx.dfmbidding.com/zbgg/index_1.jhtml",
-                "http://jyzx.dfmbidding.com/pbgs/index_1.jhtml",
-                "http://jyzx.dfmbidding.com/zgys/index_1.jhtml",
-                "http://jyzx.dfmbidding.com/bggg/index_1.jhtml",
-        };
-        Spider.create(dongFengPageProcessor)
-                .addUrl(urls)
-                .addPipeline(dongFengPipeline)
-                .thread(THREAD_NUM)
                 .run();
     }
 

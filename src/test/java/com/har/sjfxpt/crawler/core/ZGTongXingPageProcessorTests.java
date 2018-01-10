@@ -15,11 +15,6 @@ import us.codecraft.webmagic.Request;
 @RunWith(SpringRunner.class)
 public class ZGTongXingPageProcessorTests {
 
-    String[] urls = {
-            "http://txzb.miit.gov.cn/DispatchAction.do?reg=denglu&pagesize=11",
-            "http://txzb.miit.gov.cn/DispatchAction.do?reg=denglu&pagesize=11"
-    };
-
     @Test
     public void testZGTongXingPageProcessor() {
 

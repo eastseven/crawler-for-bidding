@@ -4,7 +4,6 @@ import com.har.sjfxpt.crawler.core.annotation.SourceModel;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyningxia.GGZYNingXiaPageProcessor;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzyningxia.GGZYNingXiaPipeline;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
@@ -19,7 +18,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.THREAD_NUM;
-import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyningxia.GGZYNingXiaSpiderLauncher.requestGenerator;
 
 /**
  * Created by Administrator on 2017/12/17.
@@ -33,9 +31,6 @@ public class GGZYNingXiaPageProcessorTests {
     GGZYNingXiaPageProcessor ggzyNingXiaPageProcessor;
 
     @Autowired
-    GGZYNingXiaPipeline ggzyNingXiaPipeline;
-
-    @Autowired
     HBasePipeline hBasePipeline;
 
     String[] urls = {
@@ -47,19 +42,6 @@ public class GGZYNingXiaPageProcessorTests {
             "http://www.nxggzyjy.org/ningxiaweb/002/002002/002002002/1.html",
             "http://www.nxggzyjy.org/ningxiaweb/002/002002/002002003/1.html",
     };
-
-    @Test
-    public void testNingXiaPageProcessor() {
-        Request[] requests = new Request[urls.length];
-        for (int i = 0; i < urls.length; i++) {
-            requests[i] = requestGenerator(urls[i]);
-        }
-        Spider.create(ggzyNingXiaPageProcessor)
-                .addRequest(requests)
-                .addPipeline(ggzyNingXiaPipeline)
-                .thread(THREAD_NUM)
-                .run();
-    }
 
 
     /**

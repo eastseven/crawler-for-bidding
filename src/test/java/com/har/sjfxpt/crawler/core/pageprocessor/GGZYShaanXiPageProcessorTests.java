@@ -6,7 +6,6 @@ import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyshaanxi.GGZYShaanXiPageProcessor;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzyshaanxi.GGZYShaanXiPipeline;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
@@ -22,9 +21,6 @@ import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.THREAD_NUM;
-import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyshaanxi.GGZYShaanXiSpiderLauncher.requestGenerator;
-
 /**
  * Created by Administrator on 2017/12/15.
  */
@@ -37,34 +33,7 @@ public class GGZYShaanXiPageProcessorTests {
     GGZYShaanXiPageProcessor ggzyShaanXiPageProcessor;
 
     @Autowired
-    GGZYShaanXiPipeline ggzyShaanXiPipeline;
-
-    @Autowired
     HBasePipeline hBasePipeline;
-
-    String[] urls = {
-            "http://www.sxggzyjy.cn/jydt/001001/001001001/001001001001/1.html",
-            "http://www.sxggzyjy.cn/jydt/001001/001001001/001001001002/1.html",
-            "http://www.sxggzyjy.cn/jydt/001001/001001001/001001001005/1.html",
-            "http://www.sxggzyjy.cn/jydt/001001/001001001/001001001003/1.html",
-
-            "http://www.sxggzyjy.cn/jydt/001001/001001004/001001004001/1.html",
-            "http://www.sxggzyjy.cn/jydt/001001/001001004/001001004002/1.html",
-            "http://www.sxggzyjy.cn/jydt/001001/001001004/001001004003/1.html"
-    };
-
-    @Test
-    public void testGGZYShaanXiPageProcessor() {
-        Request[] requests = new Request[urls.length];
-        for (int i = 0; i < urls.length; i++) {
-            requests[i] = requestGenerator(urls[i]);
-        }
-        Spider.create(ggzyShaanXiPageProcessor)
-                .addPipeline(ggzyShaanXiPipeline)
-                .addRequest(requests)
-                .thread(THREAD_NUM)
-                .run();
-    }
 
     @Test
     public void testDate() {

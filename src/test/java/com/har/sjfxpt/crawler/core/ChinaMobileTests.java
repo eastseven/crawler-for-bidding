@@ -3,15 +3,12 @@ package com.har.sjfxpt.crawler.core;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.chinamobile.ChinaMobilePageProcessor;
-import com.har.sjfxpt.crawler.chinamobile.ChinaMobilePipeline;
-import com.har.sjfxpt.crawler.chinamobile.ChinaMobileSpiderLauncher;
 import com.har.sjfxpt.crawler.core.annotation.SourceModel;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.joda.time.DateTime;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -29,8 +26,6 @@ import us.codecraft.webmagic.utils.HttpConstant;
 import java.util.List;
 import java.util.Map;
 
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanUtil.YYYYMMDD;
-
 /**
  * 中国移动采购与招标网测试类
  */
@@ -39,8 +34,6 @@ import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanUtil.YYYYMMDD;
 @SpringBootTest
 public class ChinaMobileTests {
 
-    @Autowired
-    ChinaMobileSpiderLauncher spiderLauncher;
 
     @Autowired
     ChinaMobilePageProcessor pageProcessor;
@@ -48,8 +41,6 @@ public class ChinaMobileTests {
     @Autowired
     HBasePipeline hBasePipeline;
 
-    @Autowired
-    ChinaMobilePipeline pipeline;
 
     @Test
     public void testAnnotation() {
@@ -91,31 +82,6 @@ public class ChinaMobileTests {
 
         Spider.create(pageProcessor)
                 .addRequest(request)
-                .run();
-    }
-
-    @Test
-    public void testPipeline() {
-        Assert.assertNotNull(pipeline);
-        String date = DateTime.now().toString(YYYYMMDD);
-        String url = "https://b2b.10086.cn/b2b/main/listVendorNoticeResult.html?noticeBean.noticeType=2";
-
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("page.currentPage", 1);
-        params.put("page.perPageSize", 20);
-        params.put("noticeBean.sourceCH", "");
-        params.put("noticeBean.source", "");
-        params.put("noticeBean.title", "");
-        params.put("noticeBean.startDate", date);
-        params.put("noticeBean.endDate", date);
-        Request request = new Request(url);
-        request.setMethod(HttpConstant.Method.POST);
-        request.setRequestBody(HttpRequestBody.form(params, "UTF-8"));
-        request.putExtra("pageParams", params);
-
-        Spider.create(pageProcessor)
-                .addRequest(request)
-                .addPipeline(pipeline)
                 .run();
     }
 

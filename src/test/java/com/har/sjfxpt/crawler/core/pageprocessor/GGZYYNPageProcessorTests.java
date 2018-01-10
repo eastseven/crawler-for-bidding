@@ -5,7 +5,6 @@ import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyyn.GGZYYNPageProcessor;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzyyn.GGZYYNPipeline;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -23,7 +22,6 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyyn.GGZYYNSpiderLauncher.requestGenerator;
 
 /**
  * Created by Administrator on 2017/11/30.
@@ -37,40 +35,9 @@ public class GGZYYNPageProcessorTests {
     @Autowired
     GGZYYNPageProcessor ggzyYNPageProcessor;
 
-    @Autowired
-    GGZYYNPipeline GGZYYNPipeline;
 
     @Autowired
     HBasePipeline hBasePipeline;
-
-    @Test
-    public void testYNPageProcessor() {
-        String[] urls = {
-                "https://www.ynggzyxx.gov.cn/jyxx/jsgcZbgg?currentPage=1&area=000&industriesTypeCode=0&scrollValue=777",
-                "https://www.ynggzyxx.gov.cn/jyxx/jsgcGzsx?currentPage=1&area=000&industriesTypeCode=0&scrollValue=0",
-                "https://www.ynggzyxx.gov.cn/jyxx/jsgcpbjggs?currentPage=1&area=000&industriesTypeCode=0&scrollValue=0",
-                "https://www.ynggzyxx.gov.cn/jyxx/jsgcZbjggs?currentPage=1&area=000&industriesTypeCode=0&scrollValue=0",
-                "https://www.ynggzyxx.gov.cn/jyxx/jsgcZbyc?currentPage=1&area=000&industriesTypeCode=0&scrollValue=0",
-
-                "https://www.ynggzyxx.gov.cn/jyxx/zfcg/cggg?currentPage=1&area=000&industriesTypeCode=0&scrollValue=0",
-                "https://www.ynggzyxx.gov.cn/jyxx/zfcg/gzsx?currentPage=1&area=000&industriesTypeCode=0&scrollValue=0",
-                "https://www.ynggzyxx.gov.cn/jyxx/zfcg/kbjl?currentPage=1&area=000&industriesTypeCode=0&scrollValue=0",
-                "https://www.ynggzyxx.gov.cn/jyxx/zfcg/zbjggs?currentPage=1&area=000&industriesTypeCode=0&scrollValue=0",
-                "https://www.ynggzyxx.gov.cn/jyxx/zfcg/zfcgYcgg?currentPage=1&area=000&industriesTypeCode=0&scrollValue=0"
-        };
-
-        Request[] requests = new Request[urls.length];
-        for (int i = 0; i < urls.length; i++) {
-            Request request = requestGenerator(urls[i]);
-            requests[i] = request;
-        }
-
-        Spider.create(ggzyYNPageProcessor)
-                .addRequest(requests)
-                .addPipeline(GGZYYNPipeline)
-                .thread(4)
-                .run();
-    }
 
 
     final static Pattern yyyymmddhhmmPattern = Pattern.compile("[0-9]{4}[0-9]{2}[0-9]{2}[0-9]{2}[0-9]{2}");

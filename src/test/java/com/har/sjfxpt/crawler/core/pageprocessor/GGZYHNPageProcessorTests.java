@@ -5,7 +5,6 @@ import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn.GGZYHNPageProcessor;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn.GGZYHNPipeline;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,8 +19,6 @@ import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyhn.GGZYHNSpiderLauncher.requestGenerators;
-
 /**
  * Created by Administrator on 2017/11/29.
  */
@@ -34,9 +31,6 @@ public class GGZYHNPageProcessorTests {
     GGZYHNPageProcessor ggzyHNPageProcessor;
 
     @Autowired
-    GGZYHNPipeline GGZYHNPipeline;
-
-    @Autowired
     HBasePipeline hBasePipeline;
 
     String[] urls = {
@@ -45,22 +39,6 @@ public class GGZYHNPageProcessorTests {
             "http://www.ggzy.hi.gov.cn/ggzy/ggzy/cggg/index_1.jhtml",
             "http://www.ggzy.hi.gov.cn/ggzy/ggzy/cgzbgg/index_1.jhtml"
     };
-
-    @Test
-    public void test() {
-
-        Request[] requests = new Request[urls.length];
-
-        for (int i = 0; i < urls.length; i++) {
-            requests[i] = requestGenerators(urls[i]);
-        }
-
-        Spider.create(ggzyHNPageProcessor)
-                .addRequest(requests)
-                .addPipeline(GGZYHNPipeline)
-                .thread(4)
-                .run();
-    }
 
     @Test
     public void testHttpdown() {

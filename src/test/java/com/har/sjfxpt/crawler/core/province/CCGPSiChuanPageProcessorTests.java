@@ -1,15 +1,11 @@
 package com.har.sjfxpt.crawler.core.province;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.ccgp.ccgpsc.CCGPSiChuanPageProcessor;
-import com.har.sjfxpt.crawler.ccgp.ccgpsc.CCGPSiChuanPipeline;
 import com.har.sjfxpt.crawler.core.annotation.SourceModel;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
-import com.sun.org.apache.regexp.internal.RE;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -20,7 +16,6 @@ import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Administrator on 2017/11/8.
@@ -32,9 +27,6 @@ public class CCGPSiChuanPageProcessorTests {
 
     @Autowired
     CCGPSiChuanPageProcessor ccgpSiChuanPageProcessor;
-
-    @Autowired
-    CCGPSiChuanPipeline ccgpSiChuanPipeline;
 
     @Autowired
     HBasePipeline hBasePipeline;

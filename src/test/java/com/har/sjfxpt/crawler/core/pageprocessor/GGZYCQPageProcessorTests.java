@@ -6,7 +6,6 @@ import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.GGZYCQPageProcessor;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzycq.GGZYCQPipeline;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -36,9 +35,6 @@ public class GGZYCQPageProcessorTests {
     GGZYCQPageProcessor ggzycqPageProcessor;
 
     @Autowired
-    GGZYCQPipeline GGZYCQPipeline;
-
-    @Autowired
     HBasePipeline hBasePipeline;
 
     @Test
@@ -54,19 +50,6 @@ public class GGZYCQPageProcessorTests {
                 .run();
     }
 
-
-    @Test
-    public void testCQPageProcessor() {
-        String[] urls = {
-                "http://www.cqggzy.com/web/services/PortalsWebservice/getInfoList?response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014005001&title=&infoC=&_=1511837748941",
-                "http://www.cqggzy.com/web/services/PortalsWebservice/getInfoList?response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014001001&title=&infoC=&_=1511837779151"
-        };
-        Spider.create(ggzycqPageProcessor)
-                .addPipeline(GGZYCQPipeline)
-                .addUrl(urls)
-                .thread(4)
-                .run();
-    }
 
     @Test
     public void test() {

@@ -5,7 +5,6 @@ import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyjiangxi.GGZYJiangXiPageProcessor;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzyjiangxi.GGZYJiangXiPipeline;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -24,7 +23,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.THREAD_NUM;
-import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyjiangxi.GGZYJiangXiSpiderLauncher.requestGenerator;
 
 /**
  * Created by Administrator on 2017/12/14.
@@ -36,9 +34,6 @@ public class GGZYJiangXiPageProcessorTests {
 
     @Autowired
     GGZYJiangXiPageProcessor ggzyJiangXiPageProcessor;
-
-    @Autowired
-    GGZYJiangXiPipeline ggzyJiangXiPipeline;
 
     @Autowired
     HBasePipeline hBasePipeline;
@@ -70,19 +65,6 @@ public class GGZYJiangXiPageProcessorTests {
             "http://jxsggzy.cn/web/jyxx/002005/002005003/1.html",
             "http://jxsggzy.cn/web/jyxx/002005/002005004/1.html",
     };
-
-    @Test
-    public void testGGZYJiangXiPageProcessor() {
-        Request[] requests = new Request[urls.length];
-        for (int i = 0; i < urls.length; i++) {
-            requests[i] = requestGenerator(urls[i]);
-        }
-        Spider.create(ggzyJiangXiPageProcessor)
-                .addRequest(requests)
-                .addPipeline(ggzyJiangXiPipeline)
-                .thread(THREAD_NUM)
-                .run();
-    }
 
 
     @Test

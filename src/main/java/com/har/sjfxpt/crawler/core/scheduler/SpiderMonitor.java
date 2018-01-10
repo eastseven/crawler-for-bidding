@@ -1,6 +1,5 @@
 package com.har.sjfxpt.crawler.core.scheduler;
 
-import com.har.sjfxpt.crawler.SpiderLauncher;
 import com.har.sjfxpt.crawler.SpiderNewLauncher;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +22,7 @@ public class SpiderMonitor {
     @Scheduled(initialDelay = 10000, fixedRate = 60 * 1000)
     public void monitor() {
         log.info("\n");
-        context.getBean(SpiderLauncher.class).info();
+//        context.getBean(SpiderNLauncher.class).info();
 
         log.info("\n");
     }

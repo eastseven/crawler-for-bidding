@@ -1,16 +1,9 @@
 package com.har.sjfxpt.crawler.core.pageprocessor;
 
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.core.annotation.SourceModel;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
-import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzyfujian.GGZYFuJianContentAnnouncement;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzyfujian.GGZYFuJianPageProcessor;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzyfujian.GGZYFuJianPipeline;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzyfujian.GGZYFuJianZFCGContentAnnouncement;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -19,19 +12,11 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
-import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
-import us.codecraft.webmagic.downloader.HttpClientDownloader;
-import us.codecraft.webmagic.model.HttpRequestBody;
-import us.codecraft.webmagic.utils.HttpConstant;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
-
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.THREAD_NUM;
-import static com.har.sjfxpt.crawler.ggzyprovincial.ggzyfujian.GGZYFuJianSpiderLauncher.requestGenerator;
 
 /**
  * Created by Administrator on 2017/12/12.
@@ -45,24 +30,7 @@ public class GGZYFuJianPageProcessorTests {
     GGZYFuJianPageProcessor ggzyFuJianPageProcessor;
 
     @Autowired
-    GGZYFuJianPipeline ggzyFuJianPipeline;
-
-    @Autowired
     HBasePipeline hBasePipeline;
-
-    @Test
-    public void testGGZYFuJianPageProcessor() {
-        String url = "https://www.fjggfw.gov.cn/Website/AjaxHandler/BuilderHandler.ashx";
-        Request[] requests = {
-                requestGenerator(url, DateTime.now().toString("yyyy-MM-dd"), "GCJS"),
-                requestGenerator(url, DateTime.now().toString("yyyy-MM-dd"), "ZFCG")
-        };
-        Spider.create(ggzyFuJianPageProcessor)
-                .addRequest(requests)
-                .thread(THREAD_NUM)
-                .addPipeline(ggzyFuJianPipeline)
-                .run();
-    }
 
     @Test
     public void testGGZYFuJianAnnotation() {
@@ -77,46 +45,6 @@ public class GGZYFuJianPageProcessorTests {
                 .run();
     }
 
-
-    @Test
-    public void testJsonGenerator() {
-        String url = "https://www.fjggfw.gov.cn/Website/AjaxHandler/BuilderHandler.ashx";
-        Request request = requestGenerator(url, DateTime.now().toString("yyyy-MM-dd"), "ZFCG");
-        Map<String, Object> pageParams = (Map<String, Object>) request.getExtras().get("pageParams");
-        String json = JSONObject.toJSONString(pageParams, SerializerFeature.UseSingleQuotes);
-        log.debug("json={}", json);
-    }
-
-    @Test
-    public void testFuJian() {
-        HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
-        Page page = httpClientDownloader.download(new Request("https://www.fjggfw.gov.cn/Website/AjaxHandler/BuilderHandler.ashx?OPtype=GetGGInfoPC&ID=61426&GGTYPE=3&url=AjaxHandler%2FBuilderHandler.ashx"), SiteUtil.get().setTimeOut(30000).toTask());
-        GGZYFuJianContentAnnouncement ggzyFuJianContentAnnouncement = JSONObject.parseObject(page.getRawText(), GGZYFuJianContentAnnouncement.class);
-        int resultNum = ggzyFuJianContentAnnouncement.getResult2();
-        log.info("{}", ggzyFuJianContentAnnouncement.getData().get(resultNum - 1).toString());
-    }
-
-    @Test
-    public void testDownloadPage() {
-        HttpClientDownloader httpClientDownloader = new HttpClientDownloader();
-        Request request = new Request("https://www.fjggfw.gov.cn/Website/AjaxHandler/BuilderHandler.ashx");
-        Map<String, Object> pageParams = Maps.newHashMap();
-        pageParams.put("OPtype", "GetJYXXContentZFCG");
-        pageParams.put("PROCODE", "D03-12350000315580441D-20170928-105294-5");
-        request.setMethod(HttpConstant.Method.POST);
-        request.setRequestBody(HttpRequestBody.form(pageParams, "UTF-8"));
-        Page page = httpClientDownloader.download(request, SiteUtil.get().setTimeOut(30000).toTask());
-        GGZYFuJianZFCGContentAnnouncement ggzyFuJianZFCGContentAnnouncement = JSONObject.parseObject(page.getRawText(), GGZYFuJianZFCGContentAnnouncement.class);
-        GGZYFuJianZFCGContentAnnouncement.Data3Bean data3Bean = ggzyFuJianZFCGContentAnnouncement.getData3().get(0);
-        String purchaser_name = data3Bean.getPURCHASER_NAME();
-        String supplier_name = data3Bean.getSUPPLIER_NAME();
-        int contract_amount = data3Bean.getCONTRACT_AMOUNT();
-        String price_unit_text = data3Bean.getPRICE_UNIT_TEXT();
-        String currency_code_text = data3Bean.getCURRENCY_CODE_TEXT();
-        String contract_term = data3Bean.getCONTRACT_TERM();
-        String formatContent = "<div class=\"detail_content\"><table class=\"detail_Table\" cellspacing=\"1\" cellpadding=\"1\"><tbody><tr><th>采购人名称</th><td>" + purchaser_name + "</td></tr><tr><th>中标（成交）供应商名称</th><td>" + supplier_name + "</td></tr><tr><th>合同金额</th><td>" + contract_amount + price_unit_text + currency_code_text + "</td></tr><tr><th>合同期限</th><td>" + contract_term + "</td></tr></tbody></table></div>";
-        log.info("formatContent=={}", formatContent);
-    }
 
     @Test
     public void testTime() {

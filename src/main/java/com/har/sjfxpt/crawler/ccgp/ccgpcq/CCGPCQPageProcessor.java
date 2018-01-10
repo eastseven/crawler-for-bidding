@@ -52,8 +52,8 @@ public class CCGPCQPageProcessor implements BasePageProcessor {
         String type = (String) page.getRequest().getExtra("type");
         int count = Integer.parseInt(StringUtils.substringBetween(page.getUrl().toString(), "pi=", "&ps="));
         if (count == 1) {
-            CCGPCQAnnouncement ccgpcqAnnouncement = JSONObject.parseObject(page.getRawText(), CCGPCQAnnouncement.class);
-            int announcementNum = ccgpcqAnnouncement.getTotal();
+            JSONObject jsonObject = (JSONObject) JSONObject.parse(page.getRawText());
+            int announcementNum = Integer.parseInt(JSONPath.eval(jsonObject, "$.total").toString());
             int pageNum = announcementNum % ARTICLE_NUM == 0 ? announcementNum / ARTICLE_NUM : announcementNum / ARTICLE_NUM + 1;
             if (pageNum >= 2) {
                 int cycleNum = pageNum >= 10 ? 10 : pageNum;

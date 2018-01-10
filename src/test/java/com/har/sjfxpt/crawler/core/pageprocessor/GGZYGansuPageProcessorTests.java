@@ -11,7 +11,6 @@ import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzygansu.GGZYGanSuFormJsonField;
 import com.har.sjfxpt.crawler.ggzyprovincial.ggzygansu.GGZYGanSuPageProcessor;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzygansu.GGZYGanSuPipeline;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Element;
@@ -30,10 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.har.sjfxpt.crawler.core.utils.GongGongZiYuanConstant.THREAD_NUM;
-import static com.har.sjfxpt.crawler.ggzyprovincial.ggzygansu.GGZYGanSuSpiderLauncher.jsonGenerator;
-import static com.har.sjfxpt.crawler.ggzyprovincial.ggzygansu.GGZYGanSuSpiderLauncher.requestGenerator;
-
 /**
  * Created by Administrator on 2017/12/17.
  */
@@ -45,8 +40,6 @@ public class GGZYGansuPageProcessorTests {
     @Autowired
     GGZYGanSuPageProcessor ggzyGanSuPageProcessor;
 
-    @Autowired
-    GGZYGanSuPipeline ggzyGanSuPipeline;
 
     @Autowired
     HBasePipeline hBasePipeline;
@@ -83,29 +76,6 @@ public class GGZYGansuPageProcessorTests {
         BidNewsSpider.create(ggzyGanSuPageProcessor)
                 .addRequest(SourceConfigAnnotationUtils.toRequests(ggzyGanSuPageProcessor.getClass()))
                 .addPipeline(hBasePipeline)
-                .run();
-    }
-
-    @Test
-    public void testggzyGansuPageProcessorTests() {
-
-        Request[] requests = {
-                requestGenerator("http://www.gsggfw.cn/w/bid/tenderAnnQuaInqueryAnn/pageList?pageNo=1&pageSize=20", "620000", "1", "2", "0", "资格预审公告"),
-                requestGenerator("http://www.gsggfw.cn/w/bid/tenderAnnQuaInqueryAnn/pageList?pageNo=1&pageSize=20", "620000", "1", "1", "1", "招标公告"),
-                requestGenerator("http://www.gsggfw.cn/w/bid/tenderAnnQuaInqueryAnn/pageList?pageNo=1&pageSize=20", "620000", "2", "", "1", "更正公告"),
-                requestGenerator("http://www.gsggfw.cn/w/bid/qualiInqueryResult/pageList?pageNo=1&pageSize=20", "620000", "2", "", "3", "资格预审公示"),
-                requestGenerator("http://www.gsggfw.cn/w/bid/winResultAnno/pageList?pageNo=1&pageSize=20", "620000", "1", "3", "3", "中标结果公告"),
-                requestGenerator("http://www.gsggfw.cn/w/bid/winResultAnno/pageList?pageNo=1&pageSize=20", "620000", "2", "3", "3", "中标结果更正公告"),
-
-                requestGenerator("http://www.gsggfw.cn/w/bid/purchaseQualiInqueryAnn/pageList?pageNo=1&pageSize=20", "620000", "1", "1", "", "采购（资格预审）公告"),
-                requestGenerator("http://www.gsggfw.cn/w/bid/correctionItem/pageList?pageNo=1&pageSize=20", "620000", "1", "1", "", "更正事项"),
-                requestGenerator("http://www.gsggfw.cn/w/bid/bidDealAnnounce/pageList?pageNo=1&pageSize=20", "620000", "1", "1", "", "中标(成交)结果公告")
-        };
-
-        Spider.create(ggzyGanSuPageProcessor)
-                .addRequest(requests)
-                .thread(THREAD_NUM)
-                .addPipeline(ggzyGanSuPipeline)
                 .run();
     }
 

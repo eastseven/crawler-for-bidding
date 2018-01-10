@@ -1,7 +1,6 @@
 package com.har.sjfxpt.crawler.core;
 
 import com.har.sjfxpt.crawler.chinaunicom.ChinaUnicomPageProcessor;
-import com.har.sjfxpt.crawler.chinaunicom.ChinaUnicomPipeline;
 import com.har.sjfxpt.crawler.core.annotation.SourceModel;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
@@ -31,25 +30,7 @@ public class ChinaUnicomTests {
     ChinaUnicomPageProcessor chinaUnicomPageProcessor;
 
     @Autowired
-    ChinaUnicomPipeline chinaUnicomPipeline;
-
-    @Autowired
     HBasePipeline hBasePipeline;
-
-    String[] urls = {
-            "http://www.chinaunicombidding.cn/jsp/cnceb/web/info1/infoList.jsp?page=1&type=1",
-            "http://www.chinaunicombidding.cn/jsp/cnceb/web/info1/infoList.jsp?page=1&type=2",
-            "http://www.chinaunicombidding.cn/jsp/cnceb/web/info1/infoList.jsp?page=1&type=3",
-    };
-
-    @Test
-    public void testChinaUnicomPageProcessor() {
-        Spider.create(chinaUnicomPageProcessor)
-                .addUrl(urls)
-                .addPipeline(chinaUnicomPipeline)
-                .thread(THREAD_NUM)
-                .run();
-    }
 
     @Test
     public void testChinaUnicomAnnotation() {
