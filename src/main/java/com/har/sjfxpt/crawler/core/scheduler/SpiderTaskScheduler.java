@@ -27,9 +27,10 @@ public class SpiderTaskScheduler {
     /**
      * 启动后10秒执行，5分钟一次
      */
-    @Scheduled(initialDelay = 10000, fixedRate = 5 * 60 * 1000)
+    @Scheduled(initialDelay = 10000, fixedRate = 10 * 60 * 1000)
     public void fetch() {
         if (flag) {
+            log.info("spider start");
             context.getBean(SpiderNewLauncher.class).start();
         }
     }

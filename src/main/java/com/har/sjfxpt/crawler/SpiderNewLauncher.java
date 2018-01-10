@@ -1,5 +1,6 @@
 package com.har.sjfxpt.crawler;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
 import com.har.sjfxpt.crawler.core.annotation.SourceConfigModel;
@@ -145,6 +146,8 @@ public class SpiderNewLauncher implements CommandLineRunner {
                 spider.addRequest(requests);
 
                 spider.start();
+//                log.info(">>> \n{}", JSONObject.toJSONString(requests, true));
+
             }
             log.info(">>> uuid={}, status={}, startTime={}", uuid, spider.getStatus(), spider.getStartTime());
         });
