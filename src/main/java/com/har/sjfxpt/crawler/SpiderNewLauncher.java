@@ -5,11 +5,13 @@ import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
 import com.har.sjfxpt.crawler.core.annotation.SourceConfigModel;
 import com.har.sjfxpt.crawler.core.annotation.SourceConfigModelRepository;
 import com.har.sjfxpt.crawler.core.annotation.SourceModel;
+import com.har.sjfxpt.crawler.core.listener.FinishSpiderListener;
 import com.har.sjfxpt.crawler.core.model.BidNewsSpider;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.service.ProxyService;
 import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.util.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.CommandLineRunner;
@@ -57,6 +59,9 @@ public class SpiderNewLauncher implements CommandLineRunner {
 
     @Autowired
     SourceConfigModelRepository sourceConfigModelRepository;
+
+    @Autowired
+    private FinishSpiderListener spiderListener;
 
     private static final String BASE_PACKAGE = "com.har.sjfxpt.crawler";
 
@@ -120,6 +125,7 @@ public class SpiderNewLauncher implements CommandLineRunner {
 
             BidNewsSpider bidNewsSpider = (BidNewsSpider) spider;
             bidNewsSpider.setSourceModelList(sourceModelList);
+            bidNewsSpider.setSpiderListeners(Lists.newArrayList(spiderListener));
             spiders.put(uuid, bidNewsSpider);
 
             saveConfig(config);

@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
  */
 @Slf4j
 @Component
-@Profile({"test", "prod"})
+@Profile({"test", "prod"})@Deprecated
 public class SpiderMonitor {
 
     @Autowired
