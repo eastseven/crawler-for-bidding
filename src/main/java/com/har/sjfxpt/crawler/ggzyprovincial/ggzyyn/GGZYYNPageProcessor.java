@@ -66,7 +66,6 @@ public class GGZYYNPageProcessor implements BasePageProcessor {
     final int limit = 10;
     final int secondPage = 2;
 
-    @Autowired
     HttpClientDownloader httpClientDownloader;
 
     @Override
@@ -145,13 +144,14 @@ public class GGZYYNPageProcessor implements BasePageProcessor {
                     yuNanDataItem.setDate(PageProcessorUtil.dataTxt(field3));
                 }
                 if ("招标异常".equals(type) || "异常公告".equals(type)) {
+                    yuNanDataItem.setTitle(field3);
                     yuNanDataItem.setDate(PageProcessorUtil.dataTxt(field5));
                 }
 
                 //正文处理
                 try {
                     Page page = httpClientDownloader.download(new Request(url), SiteUtil.get().setTimeOut(30000).toTask());
-                    Elements contentElements = page.getHtml().getDocument().body().select("body > div.w1200s > div > div.detail_contect");
+                    Elements contentElements = page.getHtml().getDocument().body().select("body > div.w1200s");
                     String formatContent = PageProcessorUtil.formatElementsByWhitelist(contentElements.first());
                     if (StringUtils.isNotBlank(formatContent)) {
                         //只抓当天的
@@ -220,6 +220,7 @@ public class GGZYYNPageProcessor implements BasePageProcessor {
 
     @Override
     public Site getSite() {
+        httpClientDownloader = new HttpClientDownloader();
         return SiteUtil.get().setSleepTime(10000);
     }
 }
