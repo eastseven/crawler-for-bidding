@@ -66,7 +66,6 @@ public class CQPageProcessor implements BasePageProcessor {
             }
         }
 
-
     }
 
     @Override

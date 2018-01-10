@@ -26,9 +26,9 @@ import java.util.List;
 
 /**
  * @author dongqi
- * <p>
- * 中国石油物资采购网
- * http://eportal.energyahead.com/wps/portal/eportal
+ *         <p>
+ *         中国石油物资采购网
+ *         http://eportal.energyahead.com/wps/portal/eportal
  */
 @Slf4j
 @Component
@@ -83,6 +83,7 @@ public class PetroChinaPageProcessor implements BasePageProcessor {
             dataItem.setTitle(title);
             dataItem.setProvince(ProvinceUtil.get(purchaser));
             dataItem.setPurchaser(purchaser);
+            dataItem.setUrl(null);
 
             try {
                 Document document = Jsoup.connect(formAction).data("documentId", documentId).get();
@@ -113,8 +114,6 @@ public class PetroChinaPageProcessor implements BasePageProcessor {
 
     @Override
     public void process(Page page) {
-        log.debug(">>> url {}", page.getUrl().get());
-
         handlePaging(page);
         handleContent(page);
     }
