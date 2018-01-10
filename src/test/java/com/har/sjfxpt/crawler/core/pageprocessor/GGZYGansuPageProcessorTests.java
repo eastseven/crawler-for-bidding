@@ -9,8 +9,7 @@ import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzygansu.GGZYGanSuFormJsonField;
-import com.har.sjfxpt.crawler.ggzyprovincial.ggzygansu.GGZYGanSuPageProcessor;
+import com.har.sjfxpt.crawler.ggzy.provincial.GanSuPageProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.nodes.Element;
@@ -38,54 +37,27 @@ import java.util.stream.Collectors;
 public class GGZYGansuPageProcessorTests {
 
     @Autowired
-    GGZYGanSuPageProcessor ggzyGanSuPageProcessor;
+    GanSuPageProcessor ganSuPageProcessor;
 
 
     @Autowired
     HBasePipeline hBasePipeline;
 
     @Test
-    public void testPostParams() {
-        String areaCode = "620000";
-        String noticeNature = "2";
-        String bulletinType = "";
-        String assortmentIndex = "3";
-
-        GGZYGanSuFormJsonField ggzyGanSuFormJsonField = new GGZYGanSuFormJsonField();
-        ggzyGanSuFormJsonField.setAreaCode(areaCode);
-        GGZYGanSuFormJsonField.WorkNoticeBean workNoticeBean = new GGZYGanSuFormJsonField.WorkNoticeBean();
-        workNoticeBean.setNoticeNature(noticeNature);
-        workNoticeBean.setBulletinType(bulletinType);
-        ggzyGanSuFormJsonField.setWorkNotice(workNoticeBean);
-        ggzyGanSuFormJsonField.setAssortmentindex(assortmentIndex);
-
-        String json = JSONObject.toJSONString(ggzyGanSuFormJsonField, SerializerFeature.UseSingleQuotes);
-        log.debug(">>> {}", json);
-
-        Map<String, Object> params = Maps.newHashMap();
-        params.put("filterparam", json);
-
-        log.debug(">>> {}", params);
-
-        String finalJson = JSONObject.toJSONString(params, SerializerFeature.UseSingleQuotes);
-        log.debug(">>> final post params {}", finalJson);
-    }
-
-    @Test
     public void test() {
-        BidNewsSpider.create(ggzyGanSuPageProcessor)
-                .addRequest(SourceConfigAnnotationUtils.toRequests(ggzyGanSuPageProcessor.getClass()))
+        BidNewsSpider.create(ganSuPageProcessor)
+                .addRequest(SourceConfigAnnotationUtils.toRequests(ganSuPageProcessor.getClass()))
                 .addPipeline(hBasePipeline)
                 .run();
     }
 
     @Test
     public void testggzyGanSuAnnotation() {
-        List<SourceModel> list = SourceConfigAnnotationUtils.find(ggzyGanSuPageProcessor.getClass());
+        List<SourceModel> list = SourceConfigAnnotationUtils.find(ganSuPageProcessor.getClass());
         List<Request> requestList = list.parallelStream().map(SourceModel::createRequest)
                 .collect(Collectors.toList());
         log.debug("request={}", requestList);
-        Spider.create(ggzyGanSuPageProcessor)
+        Spider.create(ganSuPageProcessor)
                 .addRequest(requestList.toArray(new Request[requestList.size()]))
                 .addPipeline(hBasePipeline)
                 .thread(8)

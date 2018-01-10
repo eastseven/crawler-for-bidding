@@ -1,12 +1,12 @@
-package com.har.sjfxpt.crawler.core.province;
+package com.har.sjfxpt.crawler.core.other;
 
 import com.google.common.collect.Lists;
-import com.har.sjfxpt.crawler.ccgp.provincial.HaiNanPageProcessor;
+import com.har.sjfxpt.crawler.other.BaoWuPageProcessor;
 import com.har.sjfxpt.crawler.core.annotation.SourceModel;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
+import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,29 +18,29 @@ import us.codecraft.webmagic.Spider;
 import java.util.List;
 
 /**
- * Created by Administrator on 2017/11/7.
+ * Created by Administrator on 2017/12/22.
  */
 @Slf4j
 @RunWith(SpringRunner.class)
 @SpringBootTest
-public class CCGPCCGPHaiNanPageProcessorTests {
+public class BaoWuPageProcessorTests {
 
     @Autowired
-    HaiNanPageProcessor haiNanPageProcessor;
+    BaoWuPageProcessor baoWuPageProcessor;
 
     @Autowired
     HBasePipeline hBasePipeline;
 
     @Test
-    public void testCCGPHaiNanAnnouncation() {
-        List<SourceModel> list = SourceConfigAnnotationUtils.find(haiNanPageProcessor.getClass());
+    public void testAnnotationPageProcessors() {
+        List<SourceModel> list = SourceConfigAnnotationUtils.find(baoWuPageProcessor.getClass());
         List<Request> requests = Lists.newArrayList();
         for (SourceModel sourceModel : list) {
             Request request = sourceModel.createRequest();
             requests.add(request);
         }
         if (!requests.isEmpty()) {
-            Spider.create(haiNanPageProcessor)
+            Spider.create(baoWuPageProcessor)
                     .addRequest(requests.toArray(new Request[requests.size()]))
                     .addPipeline(hBasePipeline)
                     .thread(8)
@@ -50,16 +50,11 @@ public class CCGPCCGPHaiNanPageProcessorTests {
         }
     }
 
-
     @Test
-    public void testString() {
-        String txt = "四川恒鑫工程管理咨询有限公司关于码头租赁项目合同公示";
-
-        String projectName = StringUtils.substringBeforeLast(txt, "-");
-
-        String project = StringUtils.defaultString(projectName, "");
-
-        log.debug("project=={}", project);
+    public void testDate() {
+        String date = "2017-12-22 00:00:00.0";
+        log.info("date={}", PageProcessorUtil.dataTxt(date));
     }
+
 
 }
