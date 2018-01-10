@@ -110,7 +110,7 @@ public class SpiderNewLauncher implements CommandLineRunner {
             // 创建 Request 对象集合
             Request[] requests = sourceModelList.stream().map(SourceModel::createRequest).toArray(Request[]::new);
             Spider spider = BidNewsSpider.create((PageProcessor) pageProcessor).setUUID(uuid)
-                    .thread(executorService, 10)
+                    .thread(10)
                     .setExitWhenComplete(true)
                     .addRequest(requests)
                     .addPipeline(ctx.getBean(HBasePipeline.class));
