@@ -1,5 +1,6 @@
 package com.har.sjfxpt.crawler.api;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.SpiderNewLauncher;
 import com.har.sjfxpt.crawler.core.model.BidNewsSpider;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import us.codecraft.webmagic.Spider;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -34,6 +36,13 @@ public class BidNewsSpiderResource {
         response.put("threadAlive", spider.getThreadAlive());
         response.put("uuid", spider.getUUID());
         return response;
+    }
+
+    @GetMapping
+    public Object list() {
+        List<Map<String, Object>> list = Lists.newArrayList();
+        spiderNewLauncher.getSpiders().forEach((s, bidNewsSpider) -> list.add(getSpiderResponse(bidNewsSpider)));
+        return list;
     }
 
     @GetMapping("/{sourceCode}")
