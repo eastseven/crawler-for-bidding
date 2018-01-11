@@ -1,8 +1,5 @@
 package com.har.sjfxpt.crawler.core.pageprocessor;
 
-import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.serializer.SerializerFeature;
-import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.core.annotation.SourceModel;
 import com.har.sjfxpt.crawler.core.model.BidNewsSpider;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
@@ -25,7 +22,6 @@ import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**

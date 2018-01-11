@@ -2,12 +2,12 @@ package com.har.sjfxpt.crawler.core.other;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.har.sjfxpt.crawler.other.ChinaMobilePageProcessor;
 import com.har.sjfxpt.crawler.core.annotation.SourceModel;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
+import com.har.sjfxpt.crawler.other.ChinaMobilePageProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
