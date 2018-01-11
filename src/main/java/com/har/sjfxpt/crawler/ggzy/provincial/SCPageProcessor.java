@@ -26,7 +26,8 @@ import us.codecraft.webmagic.selector.Selectable;
 import java.net.URLEncoder;
 import java.util.List;
 
-import static com.har.sjfxpt.crawler.ggzy.provincial.SCPageProcessor.*;
+import static com.har.sjfxpt.crawler.ggzy.provincial.SCPageProcessor.GGZYSC_URL1;
+import static com.har.sjfxpt.crawler.ggzy.provincial.SCPageProcessor.GGZYSC_URL2;
 
 /**
  * Created by Administrator on 2017/11/27.

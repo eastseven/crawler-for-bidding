@@ -18,6 +18,7 @@ import java.util.Map;
 
 /**
  * @author dongqi
+ * @author luofei
  */
 @Data
 @Slf4j
@@ -88,11 +89,11 @@ public class SourceModel {
                     }
                 }
             }
-            if(StringUtils.isNotBlank(dateStartField) &&dateStartField.equalsIgnoreCase("sdt")){
+            if (StringUtils.isNotBlank(dateStartField) && dateStartField.equalsIgnoreCase("sdt")) {
                 request.setMethod(HttpConstant.Method.POST);
                 request.setRequestBody(HttpRequestBody.json(JSONObject.toJSONString(pageParams), "UTF-8"));
                 request.putExtra("pageParams", pageParams);
-            }else {
+            } else {
                 request.setMethod(HttpConstant.Method.POST);
                 request.setRequestBody(HttpRequestBody.form(pageParams, "UTF-8"));
                 request.putExtra("pageParams", pageParams);

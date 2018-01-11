@@ -1,6 +1,6 @@
 package com.har.sjfxpt.crawler;
 
-import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
 import com.har.sjfxpt.crawler.core.annotation.SourceConfigModel;
@@ -12,7 +12,6 @@ import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
 import com.har.sjfxpt.crawler.core.service.ProxyService;
 import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.assertj.core.util.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.boot.CommandLineRunner;
@@ -73,27 +72,9 @@ public class SpiderNewLauncher implements CommandLineRunner {
     }
 
     public void init() {
-        ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
-        scanner.addIncludeFilter(new AnnotationTypeFilter(SourceConfig.class));
-        for (BeanDefinition bd : scanner.findCandidateComponents(BASE_PACKAGE)) {
-            String pageProcessorClassName = bd.getBeanClassName();
-            Object pageProcessor = null;
-
-            log.debug(">>> {}, {}, {}, {}", bd.getParentName(), pageProcessorClassName, bd.getDescription(), bd.getResourceDescription());
-
-            try {
-                Class cls = Class.forName(pageProcessorClassName);
-                pageProcessor = ctx.getBean(cls);
-            } catch (ClassNotFoundException e) {
-                log.error("", e);
-            }
-
-            if (pageProcessor == null) {
-                log.warn(">>> {} is null", pageProcessorClassName);
-                continue;
-            }
-
-            SourceConfigModel config = SourceConfigAnnotationUtils.get(pageProcessor.getClass());
+        List<Class> pageProcessorList = getPageProcessorClasses();
+        for (Class pageProcessor : pageProcessorList) {
+            SourceConfigModel config = SourceConfigAnnotationUtils.get(pageProcessor);
             if (config.isDisable()) {
                 continue;
             }
@@ -109,8 +90,8 @@ public class SpiderNewLauncher implements CommandLineRunner {
 
             // 创建 Request 对象集合
             Request[] requests = sourceModelList.stream().map(SourceModel::createRequest).toArray(Request[]::new);
-            Spider spider = BidNewsSpider.create((PageProcessor) pageProcessor).setUUID(uuid)
-                    .thread(10)
+            Spider spider = BidNewsSpider.create((PageProcessor) ctx.getBean(pageProcessor)).setUUID(uuid)
+                    .thread(requests.length * 2)
                     .setExitWhenComplete(true)
                     .addRequest(requests)
                     .addPipeline(ctx.getBean(HBasePipeline.class));
@@ -133,12 +114,40 @@ public class SpiderNewLauncher implements CommandLineRunner {
         }
     }
 
+    private List<Class> getPageProcessorClasses() {
+        List<Class> classList = Lists.newArrayList();
+
+        ClassPathScanningCandidateComponentProvider scanner = new ClassPathScanningCandidateComponentProvider(false);
+        scanner.addIncludeFilter(new AnnotationTypeFilter(SourceConfig.class));
+        for (BeanDefinition bd : scanner.findCandidateComponents(BASE_PACKAGE)) {
+            String pageProcessorClassName = bd.getBeanClassName();
+            Object pageProcessor = null;
+
+            try {
+                Class cls = Class.forName(pageProcessorClassName);
+                classList.add(cls);
+                pageProcessor = ctx.getBean(cls);
+            } catch (ClassNotFoundException e) {
+                log.error("", e);
+                log.error(">>> {}, {}, {}, {}", bd.getParentName(), pageProcessorClassName, bd.getDescription(), bd.getResourceDescription());
+            }
+
+            if (pageProcessor == null) {
+                log.warn(">>> {} is null", pageProcessorClassName);
+                continue;
+            }
+        }
+
+        return classList;
+    }
+
     private void saveConfig(SourceConfigModel config) {
         sourceConfigModelRepository.save(config);
     }
 
     public void start() {
         if (spiders.isEmpty()) return;
+
         spiders.forEach((uuid, spider) -> {
             if (!spider.getStatus().equals(Spider.Status.Running)) {
                 List<SourceModel> sourceModelList = spider.getSourceModelList();

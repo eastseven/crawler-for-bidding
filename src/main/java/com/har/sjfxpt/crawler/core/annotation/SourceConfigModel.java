@@ -29,6 +29,7 @@ public class SourceConfigModel {
 
     private boolean disable;
 
+    @Field("use_selenium")
     private boolean useSelenium;
 
     private List<SourceModel> sources = Lists.newArrayList();
