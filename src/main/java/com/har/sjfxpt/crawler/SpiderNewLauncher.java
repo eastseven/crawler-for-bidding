@@ -1,6 +1,5 @@
 package com.har.sjfxpt.crawler;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
 import com.har.sjfxpt.crawler.core.annotation.SourceConfigModel;
@@ -33,8 +32,8 @@ import java.util.concurrent.ExecutorService;
 
 /**
  * @author dongqi
- * <p>
- * https://stackoverflow.com/questions/259140/scanning-java-annotations-at-runtime
+ *         <p>
+ *         https://stackoverflow.com/questions/259140/scanning-java-annotations-at-runtime
  */
 @Slf4j
 @Service
@@ -58,6 +57,9 @@ public class SpiderNewLauncher implements CommandLineRunner {
 
     @Autowired
     SourceConfigModelRepository sourceConfigModelRepository;
+
+    @Autowired
+    private FinishSpiderListener spiderListener;
 
     private static final String BASE_PACKAGE = "com.har.sjfxpt.crawler";
 
@@ -87,6 +89,7 @@ public class SpiderNewLauncher implements CommandLineRunner {
             // 创建 Request 对象集合
             Request[] requests = sourceModelList.stream().map(SourceModel::createRequest).toArray(Request[]::new);
             Spider spider = BidNewsSpider.create((PageProcessor) ctx.getBean(pageProcessor)).setUUID(uuid)
+                    .thread(requests.length * 2)
                     .setExitWhenComplete(true)
                     .addRequest(requests)
                     .addPipeline(ctx.getBean(HBasePipeline.class));
@@ -102,6 +105,7 @@ public class SpiderNewLauncher implements CommandLineRunner {
 
             BidNewsSpider bidNewsSpider = (BidNewsSpider) spider;
             bidNewsSpider.setSourceModelList(sourceModelList);
+            bidNewsSpider.setSpiderListeners(Lists.newArrayList(spiderListener));
             spiders.put(uuid, bidNewsSpider);
 
             saveConfig(config);

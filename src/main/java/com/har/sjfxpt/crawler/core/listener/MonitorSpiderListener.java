@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
-@Component
+@Component@Deprecated
 public class MonitorSpiderListener implements SpiderListener {
 
     private final AtomicInteger successCount = new AtomicInteger(0);
