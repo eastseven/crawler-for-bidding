@@ -71,6 +71,10 @@ public class SpiderNewLauncher implements CommandLineRunner {
         return spiders;
     }
 
+    public BidNewsSpider getSpider(String id) {
+        return spiders.get(id);
+    }
+
     public void init() {
         List<Class> pageProcessorList = getPageProcessorClasses();
         for (Class pageProcessor : pageProcessorList) {
