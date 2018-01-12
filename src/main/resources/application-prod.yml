@@ -3,7 +3,7 @@ logging:
     com.har.sjfxpt.crawler.ggzy: info
     us.codecraft.webmagic.downloader: error
     com.har.sjfxpt.crawler.ccgp.ZhengFuCaiGouDownloader: warn
-  file: ggzy.log
+  file: app.log
 
 spring:
   data:
