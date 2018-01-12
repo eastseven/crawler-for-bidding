@@ -67,7 +67,7 @@ public class ChongQingPageProcessor implements BasePageProcessor {
             String pageUrl = page.getUrl().get();
             int pageCount = findPageCount(pageUrl);
             if (pageCount >= 2) {
-                for (int i = 2; i <= pageCount; i++) {
+                for (int i = 2; i <= 10; i++) {
                     String url = pageUrl.replaceAll("pageIndex=1", "pageIndex=" + i);
                     Request request = new Request(url);
                     request.putExtra("type", type);
@@ -124,7 +124,7 @@ public class ChongQingPageProcessor implements BasePageProcessor {
                 ggzyCQDataItem.setProvince("重庆");
                 Page page1 = httpClientDownloader.download(new Request(ggzyCQDataItem.getUrl()), SiteUtil.get().setTimeOut(3000).toTask());
                 Element element = page1.getHtml().getDocument().body();
-                Elements elements = element.select("body > div:nth-child(4) > div > div.detail-block");
+                Elements elements = element.select("#mainContent");
                 String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
                 if (StringUtils.isNotBlank(formatContent)) {
                     Document doc = Jsoup.parse(formatContent);
