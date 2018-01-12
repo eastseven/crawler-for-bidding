@@ -29,6 +29,7 @@ public final class SourceConfigAnnotationUtils {
         configModel.setId(config.code().name());
         configModel.setName(config.code().getValue());
         configModel.setUseSelenium(config.useSelenium());
+        configModel.setUrl(config.url());
 
         Source[] sources = config.sources();
         if (ArrayUtils.isNotEmpty(sources)) {
