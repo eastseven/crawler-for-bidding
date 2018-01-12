@@ -14,6 +14,8 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface SourceConfig {
 
+    String url() default "";
+
     Source[] sources() default {};
 
     SourceCode code() default SourceCode.DEFAULT;

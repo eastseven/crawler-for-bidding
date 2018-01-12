@@ -25,9 +25,9 @@ public class SpiderTaskScheduler {
     ApplicationContext context;
 
     /**
-     * 启动后10秒执行，10分钟一次
+     * 启动后10秒执行，30分钟一次
      */
-    @Scheduled(initialDelay = 10000, fixedRate = 30 * 60 * 1000)
+    @Scheduled(initialDelay = 10000, fixedRateString = "${app.fetch.fixed.rate:1800000}")
     public void fetch() {
         if (flag) {
             log.info("spider start");
@@ -35,11 +35,4 @@ public class SpiderTaskScheduler {
         }
     }
 
-    @Scheduled(initialDelay = 10001, fixedRate = 30 * 1000)
-    public void monitor() {
-        context.getBean(SpiderNewLauncher.class).getSpiders().forEach((uuid, spider) -> {
-            String dt = new DateTime(spider.getStartTime()).toString("yyyy-MM-dd HH:mm:ss");
-            log.info(">>> spider info, uuid={}, status={}, start={}, thread alive={}, page count={}", uuid, spider.getStatus(), dt, spider.getThreadAlive(), spider.getPageCount());
-        });
-    }
 }

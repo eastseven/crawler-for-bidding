@@ -36,7 +36,7 @@ import static com.har.sjfxpt.crawler.core.processor.GongGongZiYuanPageProcessor.
 @Slf4j
 @Component
 @SourceConfig(
-        code = SourceCode.GGZY,
+        code = SourceCode.GGZY, url = "http://deal.ggzy.gov.cn/ds/deal/dealList.jsp",
         sources = {
                 @Source(url = SEED_URL, post = true, postParams = POST_PARAMS_01, needPlaceholderFields = {"TIMEEND_SHOW", "TIMEBEGIN_SHOW", "TIMEEND", "TIMEBEGIN"}),
                 @Source(url = SEED_URL, post = true, postParams = POST_PARAMS_02, needPlaceholderFields = {"TIMEEND_SHOW", "TIMEBEGIN_SHOW", "TIMEEND", "TIMEBEGIN"})

@@ -3,7 +3,7 @@ logging:
     com.har.sjfxpt.crawler.ggzy: info
     us.codecraft.webmagic.downloader: error
     com.har.sjfxpt.crawler.ccgp.ZhengFuCaiGouDownloader: warn
-  file: ggzy.log
+  file: app.log
 
 spring:
   data:
@@ -25,3 +25,4 @@ hbase.table.clean: false
 hbase.table.namespace: bid_news
 
 app.fetch.current.day: true
+app.fetch.fixed.rate: 1800000

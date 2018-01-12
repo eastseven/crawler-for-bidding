@@ -19,6 +19,8 @@ public class SourceConfigModel {
     @Id
     private String id;
 
+    private String url;
+
     @Field("code")
     private SourceCode sourceCode;
 

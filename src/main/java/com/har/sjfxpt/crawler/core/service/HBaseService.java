@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 @Service
 public class HBaseService {
 
-    final int ROW_KEY_LENGTH = 41;
+    private final int ROW_KEY_LENGTH = 41;
 
     @Autowired
     StringRedisTemplate redisTemplate;
@@ -45,8 +45,8 @@ public class HBaseService {
     @Autowired
     HBaseConfig config;
 
-    final byte[] family = Bytes.toBytes("f");
-    final String charsetName = "utf-8";
+    private final byte[] family = Bytes.toBytes("f");
+    private final String charsetName = "utf-8";
 
     private Connection conn;
 
@@ -82,6 +82,7 @@ public class HBaseService {
 
     /**
      * 只是为了兼容以前的代码，后面逐步替换调用该方法的类
+     *
      * @param dataItemList
      */
     @Deprecated
@@ -94,7 +95,6 @@ public class HBaseService {
     }
 
     /**
-     *
      * @param dataItemList
      */
     public void saveBidNewsOriginals(List<BidNewsOriginal> dataItemList) {
@@ -153,6 +153,9 @@ public class HBaseService {
                     originalTable.put(row);
                     log.info("save {} {}[mongo={}] to {}", sourceCode, rowKey, original.getId(), DataItem.T_NAME_HTML);
                     counter++;
+
+                    String KEY = sourceCode + ":" + date;
+                    redisTemplate.boundSetOps(KEY).add(rowKey);
                 }
 
                 if (original.isForceUpdate()) {
@@ -191,7 +194,6 @@ public class HBaseService {
     }
 
     /**
-     *
      * @param rowKey
      * @param dataItem
      * @return
