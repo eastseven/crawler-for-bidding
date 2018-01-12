@@ -1,6 +1,7 @@
 package com.har.sjfxpt.crawler.ggzy.provincial;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONPath;
 import com.google.common.collect.Lists;
 import com.har.sjfxpt.crawler.core.annotation.Source;
 import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
@@ -24,8 +25,7 @@ import us.codecraft.webmagic.downloader.HttpClientDownloader;
 
 import java.util.List;
 
-import static com.har.sjfxpt.crawler.ggzy.provincial.ChongQingPageProcessor.GGZYCQ_URl1;
-import static com.har.sjfxpt.crawler.ggzy.provincial.ChongQingPageProcessor.GGZYCQ_URl2;
+import static com.har.sjfxpt.crawler.ggzy.provincial.ChongQingPageProcessor.*;
 
 /**
  * Created by Administrator on 2017/11/28.
@@ -35,8 +35,13 @@ import static com.har.sjfxpt.crawler.ggzy.provincial.ChongQingPageProcessor.GGZY
 @SourceConfig(
         code = SourceCode.GGZYCQ,
         sources = {
-                @Source(url = GGZYCQ_URl1),
-                @Source(url = GGZYCQ_URl2)
+                @Source(url = GGZYCQ_URl1, type = "采购公告"),
+                @Source(url = GGZYCQ_URl2, type = "答疑变更"),
+                @Source(url = GGZYCQ_URl3, type = "采购结果公告"),
+                @Source(url = GGZYCQ_URl4, type = "招标公告"),
+                @Source(url = GGZYCQ_URl5, type = "答疑补遗"),
+                @Source(url = GGZYCQ_URl6, type = "中标候选人"),
+                @Source(url = GGZYCQ_URl7, type = "中标公示")
         }
 )
 public class ChongQingPageProcessor implements BasePageProcessor {
@@ -45,52 +50,53 @@ public class ChongQingPageProcessor implements BasePageProcessor {
 
     final static int ARTICLE_NUM = 18;
 
-    final static String GGZYCQ_URl1 = "http://www.cqggzy.com/web/services/PortalsWebservice/getInfoList?response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014005001&title=&infoC=&_=1511837748941";
+    final static String GGZYCQ_URl1 = "http://www.cqggzy.com/web/services/PortalsWebservice/getInfoList?response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014005001&title=&infoC=";
+    final static String GGZYCQ_URl2 = "http://www.cqggzy.com/web/services/PortalsWebservice/getInfoList?response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014005002&title=&infoC=";
+    final static String GGZYCQ_URl3 = "http://www.cqggzy.com/web/services/PortalsWebservice/getInfoList?response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014005004&title=&infoC=";
 
-    final static String GGZYCQ_URl2 = "http://www.cqggzy.com/web/services/PortalsWebservice/getInfoList?response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014001001&title=&infoC=&_=1511837779151";
+    final static String GGZYCQ_URl4 = "http://www.cqggzy.com/web/services/PortalsWebservice/getInfoList?response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014001001&title=&infoC=";
+    final static String GGZYCQ_URl5 = "http://www.cqggzy.com/web/services/PortalsWebservice/getInfoList?response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014001002&title=&infoC=";
+    final static String GGZYCQ_URl6 = "http://www.cqggzy.com/web/services/PortalsWebservice/getInfoList?response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014001003&title=&infoC=";
+    final static String GGZYCQ_URl7 = "http://www.cqggzy.com/web/services/PortalsWebservice/getInfoList?response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014001004&title=&infoC=";
 
     @Override
     public void handlePaging(Page page) {
-
-        String urlId = StringUtils.substringAfter(page.getUrl().toString(), "infoC=&_=");
-
+        String type = (String) page.getRequest().getExtra("type");
         int currentPage = Integer.parseInt(StringUtils.substringBetween(page.getUrl().toString(), "&pageIndex=", "&pageSize="));
-
         if (currentPage == 1) {
-            if (urlId.equalsIgnoreCase("1511837748941")) {
-                Request request = new Request("http://www.cqggzy.com/web/services/PortalsWebservice/getInfoListCount?response=application/json&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014005001&title=&infoC=&_=1511841106613");
-                Page page1 = httpClientDownloader.download(request, SiteUtil.get().toTask());
-                Object size = JSONObject.parse(page1.getRawText());
-                int announcementNum = Integer.parseInt(StringUtils.substringBetween(size.toString(), "\":", "}"));
-                int pageNum = announcementNum % ARTICLE_NUM == 0 ? announcementNum / ARTICLE_NUM : announcementNum / ARTICLE_NUM + 1;
-                for (int i = 2; i < 10; i++) {
-                    String url = page.getUrl().toString().replaceAll("pageIndex=1", "pageIndex=" + i);
-                    page.addTargetRequest(url);
-                }
-            }
-            if (urlId.equalsIgnoreCase("1511837779151")) {
-                Request request = new Request("http://www.cqggzy.com/web/services/PortalsWebservice/getInfoListCount?response=application/json&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014001001&title=&infoC=&_=1511841357683");
-                Page page1 = httpClientDownloader.download(request, SiteUtil.get().toTask());
-                Object size = JSONObject.parse(page1.getRawText());
-                int announcementNum = Integer.parseInt(StringUtils.substringBetween(size.toString(), "\":", "}"));
-                int pageNum = announcementNum % ARTICLE_NUM == 0 ? announcementNum / ARTICLE_NUM : announcementNum / ARTICLE_NUM + 1;
-                for (int i = 2; i < 10; i++) {
-                    String url = page.getUrl().toString().replaceAll("pageIndex=1", "pageIndex=" + i);
-                    page.addTargetRequest(url);
+            String pageUrl = page.getUrl().get();
+            int pageCount = findPageCount(pageUrl);
+            if (pageCount >= 2) {
+                for (int i = 2; i <= pageCount; i++) {
+                    String url = pageUrl.replaceAll("pageIndex=1", "pageIndex=" + i);
+                    Request request = new Request(url);
+                    request.putExtra("type", type);
+                    page.addTargetRequest(request);
                 }
             }
         }
     }
 
+    public int findPageCount(String url) {
+        String typeId = StringUtils.substringBetween(url, "&categorynum=", "&title=");
+        String findCountUrl = "http://www.cqggzy.com/web/services/PortalsWebservice/getInfoListCount?response=application/json&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=" + typeId + "&title=&infoC=";
+        Page page = httpClientDownloader.download(new Request(findCountUrl), SiteUtil.get().setTimeOut(10000).toTask());
+        JSONObject jsonObject = (JSONObject) JSONObject.parse(page.getRawText());
+        int count = Integer.parseInt(JSONPath.eval(jsonObject, "$.return").toString());
+        int cycleNum = count % ARTICLE_NUM == 0 ? count / ARTICLE_NUM : count / ARTICLE_NUM + 1;
+        return cycleNum;
+    }
+
     @Override
     public void handleContent(Page page) {
+        String type = (String) page.getRequest().getExtra("type");
         List<BidNewsOriginal> dataItems = parseContent(page);
+        dataItems.forEach(dataItem -> dataItem.setType(type));
         if (!dataItems.isEmpty()) {
             page.putField(KEY_DATA_ITEMS, dataItems);
         } else {
             log.warn("fetch {} no data", page.getUrl().get());
         }
-
     }
 
     @Override
@@ -100,7 +106,6 @@ public class ChongQingPageProcessor implements BasePageProcessor {
 
     public List parseContent(Page page) {
         List<BidNewsOriginal> dataItems = Lists.newArrayList();
-        String urlId = StringUtils.substringAfter(page.getUrl().toString(), "infoC=&_=");
         String Json = StringUtils.substringBetween(page.getRawText(), "\"[", "]\"");
         String targets[] = StringUtils.substringsBetween(Json, "{", "}");
         for (String target : targets) {
@@ -112,18 +117,12 @@ public class ChongQingPageProcessor implements BasePageProcessor {
             } else {
                 BidNewsOriginal ggzyCQDataItem = new BidNewsOriginal(href, SourceCode.GGZYCQ);
                 ggzyCQDataItem.setTitle(title);
-                if (urlId.equalsIgnoreCase("1511837748941")) {
-                    ggzyCQDataItem.setType("采购公告");
-                }
-                if (urlId.equalsIgnoreCase("1511837779151")) {
-                    ggzyCQDataItem.setType("招标公告");
-                }
                 if (date.length() == 10) {
                     date = date + DateTime.now().toString(" HH:mm");
                 }
                 ggzyCQDataItem.setDate(date);
                 ggzyCQDataItem.setProvince("重庆");
-                Page page1 = httpClientDownloader.download(new Request(ggzyCQDataItem.getUrl()), SiteUtil.get().toTask());
+                Page page1 = httpClientDownloader.download(new Request(ggzyCQDataItem.getUrl()), SiteUtil.get().setTimeOut(3000).toTask());
                 Element element = page1.getHtml().getDocument().body();
                 Elements elements = element.select("body > div:nth-child(4) > div > div.detail-block");
                 String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
