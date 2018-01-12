@@ -25,3 +25,4 @@ hbase.table.clean: false
 hbase.table.namespace: bid_news
 
 app.fetch.current.day: true
+app.fetch.fixed.rate: 1800000
