@@ -172,7 +172,6 @@ public class SpiderNewLauncher implements CommandLineRunner {
             spiderLog.setStatus(spider.getStatus().toString());
             spiderLog.setCurrentTime(DateTime.now().toString());
             spiderLog.setFetchDate(DateTime.now().toString("yyyy-MM-dd HH:mm"));
-            spiderLog.setStartTime(spider.getStartTime().toString());
             spiderLog.setPageCount(spider.getPageCount());
             spiderLog.setThreadAlive(spider.getThreadAlive());
             spiderLog.setSite(spider.getSite().toString());
