@@ -1,8 +1,11 @@
 package com.har.sjfxpt.crawler.core.other;
 
+import com.har.sjfxpt.crawler.core.annotation.SourceConfigModel;
+import com.har.sjfxpt.crawler.core.annotation.SourceModel;
 import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
 import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
+import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import com.har.sjfxpt.crawler.other.JinCaiWangPageProcessor;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
@@ -17,7 +20,9 @@ import us.codecraft.webmagic.Spider;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by Administrator on 2017/10/24.
@@ -32,6 +37,19 @@ public class JinCaiWangPageProcessorTests {
 
     @Autowired
     JinCaiWangPageProcessor jinCaiWangPageProcessor;
+
+
+    @Test
+    public void testAnnotation() {
+        List<SourceModel> sourceModelList = SourceConfigAnnotationUtils.find(jinCaiWangPageProcessor.getClass());
+        List<Request> requestList = sourceModelList.parallelStream().map(SourceModel::createRequest)
+                .collect(Collectors.toList());
+        Spider.create(jinCaiWangPageProcessor)
+                .addRequest(requestList.toArray(new Request[requestList.size()]))
+                .addPipeline(pipeline)
+                .thread(8)
+                .run();
+    }
 
     @Test
     public void test() {
