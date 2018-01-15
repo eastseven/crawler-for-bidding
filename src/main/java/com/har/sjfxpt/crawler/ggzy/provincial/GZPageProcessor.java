@@ -105,11 +105,6 @@ public class GZPageProcessor implements BasePageProcessor {
                 Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
                 String dataDetail = page.getHtml().getDocument().body().select("body > div.main > div.content_box > div.infos > span:nth-child(2)").text();
                 ggzyGZDataItem.setDate(PageProcessorUtil.dataTxt(dataDetail));
-                String source = page.getHtml().getDocument().body().select("body > div.main > div.content_box > div.infos > span:nth-child(3)").text();
-                if (source.contains("来源平台：")) {
-                    source = StringUtils.remove(source, "来源平台：");
-                }
-                ggzyGZDataItem.setSource(source);
                 Elements elements = page.getHtml().getDocument().body().select("body > div.main > div.content_box");
                 String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
                 if (StringUtils.isNotBlank(formatContent)) {

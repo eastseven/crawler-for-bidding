@@ -29,6 +29,4 @@ public class SpiderLog {
     private String site;
 
     private int threadAlive;
-
-    private String scheduler;
 }
