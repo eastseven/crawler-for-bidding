@@ -119,38 +119,44 @@ public class GanSuPageProcessor implements BasePageProcessor {
     public List parseContent(Elements items) {
         List<BidNewsOriginal> dataItems = Lists.newArrayList();
         for (Element element : items) {
-            String hrefFiled = element.select("a").attr("onclick");
-            String href = StringUtils.substringBetween(hrefFiled, "='", "'");
-            if (StringUtils.isNotBlank(href)) {
-                if (!StringUtils.startsWith(href, "http:")) {
-                    href = "http://www.gsggfw.cn" + href;
-                }
-                String title = element.select("a").attr("title");
-                String date = element.select("span").text();
-                BidNewsOriginal ggzyGanSuDataItem = new BidNewsOriginal(href, SourceCode.GGZYGANSU);
-                ggzyGanSuDataItem.setProvince("甘肃");
-                ggzyGanSuDataItem.setTitle(title);
-                ggzyGanSuDataItem.setDate(PageProcessorUtil.dataTxt(date));
-                if (PageProcessorUtil.timeCompare(ggzyGanSuDataItem.getDate())) {
-                    log.warn("{} is not the same day", ggzyGanSuDataItem.getUrl());
-                } else {
-                    Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
-                    Elements elements = page.getHtml().getDocument().body().select("body > div.mod-content.clear > div.mod-cont-lft.clear > div.mod-arti-area > div.mod-arti-body");
-                    String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
-                    Elements elements1 = elements.select("iframe");
-                    if (!elements1.isEmpty()) {
-                        String iframeUrl = elements1.attr("src");
-                        Page page1 = httpClientDownloader.download(new Request(iframeUrl), SiteUtil.get().setTimeOut(30000).toTask());
-                        Element element1 = page1.getHtml().getDocument().body();
-                        String formatContentAdd = PageProcessorUtil.formatElementsByWhitelist(element1);
-                        formatContent = formatContent + formatContentAdd;
+            try {
+                String hrefFiled = element.select("a").attr("onclick");
+                String href = StringUtils.substringBetween(hrefFiled, "='", "'");
+                if (StringUtils.isNotBlank(href)) {
+                    if (!StringUtils.startsWith(href, "http:")) {
+                        href = "http://www.gsggfw.cn" + href;
                     }
-                    if (StringUtils.isNotBlank(formatContent)) {
-                        ggzyGanSuDataItem.setFormatContent(formatContent);
-                        dataItems.add(ggzyGanSuDataItem);
+                    String title = element.select("a").attr("title");
+                    String date = element.select("span").text();
+                    BidNewsOriginal ggzyGanSuDataItem = new BidNewsOriginal(href, SourceCode.GGZYGANSU);
+                    ggzyGanSuDataItem.setProvince("甘肃");
+                    ggzyGanSuDataItem.setTitle(title);
+                    ggzyGanSuDataItem.setDate(PageProcessorUtil.dataTxt(date));
+                    if (PageProcessorUtil.timeCompare(ggzyGanSuDataItem.getDate())) {
+                        log.warn("{} is not the same day", ggzyGanSuDataItem.getUrl());
+                    } else {
+                        Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
+                        Elements elements = page.getHtml().getDocument().body().select("body > div.mod-content.clear > div.mod-cont-lft.clear > div.mod-arti-area > div.mod-arti-body");
+                        String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
+                        Elements elements1 = elements.select("div.arti-des-con iframe");
+                        if (!elements1.isEmpty()) {
+                            String iframeUrl = elements1.attr("src");
+                            Page page1 = httpClientDownloader.download(new Request(iframeUrl), SiteUtil.get().setTimeOut(30000).toTask());
+                            Element element1 = page1.getHtml().getDocument().body();
+                            String formatContentAdd = PageProcessorUtil.formatElementsByWhitelist(element1);
+                            formatContent = formatContent + formatContentAdd;
+                        }
+                        if (StringUtils.isNotBlank(formatContent)) {
+                            ggzyGanSuDataItem.setFormatContent(formatContent);
+                            dataItems.add(ggzyGanSuDataItem);
+                        }
                     }
                 }
+            } catch (Exception e) {
+                log.error("", e);
+                log.error("{}", element);
             }
+
         }
         return dataItems;
     }

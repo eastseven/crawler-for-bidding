@@ -37,8 +37,8 @@ import java.util.concurrent.ExecutorService;
 
 /**
  * @author dongqi
- *         <p>
- *         https://stackoverflow.com/questions/259140/scanning-java-annotations-at-runtime
+ * <p>
+ * https://stackoverflow.com/questions/259140/scanning-java-annotations-at-runtime
  */
 @Slf4j
 @Service
@@ -160,24 +160,43 @@ public class SpiderNewLauncher implements CommandLineRunner {
         if (spiders.isEmpty()) return;
 
         spiders.forEach((uuid, spider) -> {
-            if (!spider.getStatus().equals(Spider.Status.Running)) {
-                List<SourceModel> sourceModelList = spider.getSourceModelList();
-                Request[] requests = sourceModelList.stream().map(SourceModel::createRequest).toArray(Request[]::new);
-                spider.addRequest(requests);
+            switch (spider.getStatus()) {
+                case Running:
+                    break;
+                case Init:
+                case Stopped:
 
-                spider.start();
+                    List<SourceModel> sourceModelList = spider.getSourceModelList();
+                    Request[] requests = sourceModelList.stream().map(SourceModel::createRequest).toArray(Request[]::new);
+                    spider.addRequest(requests);
+
+                    spider.start();
+
+                    save(spider);
+                    log.info(">>> uuid={}, status={}, startTime={}", uuid, spider.getStatus(), spider.getStartTime());
+
+                    break;
+                default:
             }
+        });
+    }
+
+    private void save(Spider spider) {
+        try {
+            DateTime dt = DateTime.now();
             SpiderLog spiderLog = new SpiderLog();
-            spiderLog.setUuid(uuid);
+            spiderLog.setUuid(spider.getUUID());
             spiderLog.setStatus(spider.getStatus().toString());
-            spiderLog.setCurrentTime(DateTime.now().toString());
-            spiderLog.setFetchDate(DateTime.now().toString("yyyy-MM-dd HH:mm"));
+            spiderLog.setCurrentTime(dt.toString());
+            spiderLog.setFetchDate(dt.toString("yyyy-MM-dd HH:mm"));
             spiderLog.setPageCount(spider.getPageCount());
             spiderLog.setThreadAlive(spider.getThreadAlive());
             spiderLog.setSite(spider.getSite().toString());
+
             spiderLogRepository.save(spiderLog);
-            log.info(">>> uuid={}, status={}, startTime={}", uuid, spider.getStatus(), spider.getStartTime());
-        });
+        } catch (Exception e) {
+            log.error("", e);
+        }
     }
 
     @Override

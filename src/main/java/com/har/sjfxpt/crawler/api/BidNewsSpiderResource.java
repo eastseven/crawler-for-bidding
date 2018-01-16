@@ -92,4 +92,9 @@ public class BidNewsSpiderResource {
         return getSpiderResponse(spider);
     }
 
+    @GetMapping("/startAll")
+    public Object startAll() {
+        spiderNewLauncher.start();
+        return true;
+    }
 }

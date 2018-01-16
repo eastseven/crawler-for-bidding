@@ -50,14 +50,14 @@ public class ChongQingPageProcessor implements BasePageProcessor {
 
     final static int ARTICLE_NUM = 18;
 
-    final static String GGZYCQ_URl1 = "http://www.cqggzy.com/web/services/PortalsWebservice/getInfoList?response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014005001&title=&infoC=";
-    final static String GGZYCQ_URl2 = "http://www.cqggzy.com/web/services/PortalsWebservice/getInfoList?response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014005002&title=&infoC=";
-    final static String GGZYCQ_URl3 = "http://www.cqggzy.com/web/services/PortalsWebservice/getInfoList?response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014005004&title=&infoC=";
-
-    final static String GGZYCQ_URl4 = "http://www.cqggzy.com/web/services/PortalsWebservice/getInfoList?response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014001001&title=&infoC=";
-    final static String GGZYCQ_URl5 = "http://www.cqggzy.com/web/services/PortalsWebservice/getInfoList?response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014001002&title=&infoC=";
-    final static String GGZYCQ_URl6 = "http://www.cqggzy.com/web/services/PortalsWebservice/getInfoList?response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014001003&title=&infoC=";
-    final static String GGZYCQ_URl7 = "http://www.cqggzy.com/web/services/PortalsWebservice/getInfoList?response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014001004&title=&infoC=";
+    final static String GGZYCQ_URl = "http://www.cqggzy.com/web/services/PortalsWebservice/getInfoList?";
+    final static String GGZYCQ_URl1 = GGZYCQ_URl + "response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014005001&title=&infoC=";
+    final static String GGZYCQ_URl2 = GGZYCQ_URl + "response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014005002&title=&infoC=";
+    final static String GGZYCQ_URl3 = GGZYCQ_URl + "response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014005004&title=&infoC=";
+    final static String GGZYCQ_URl4 = GGZYCQ_URl + "response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014001001&title=&infoC=";
+    final static String GGZYCQ_URl5 = GGZYCQ_URl + "response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014001002&title=&infoC=";
+    final static String GGZYCQ_URl6 = GGZYCQ_URl + "response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014001003&title=&infoC=";
+    final static String GGZYCQ_URl7 = GGZYCQ_URl + "response=application/json&pageIndex=1&pageSize=18&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=014001004&title=&infoC=";
 
     @Override
     public void handlePaging(Page page) {
@@ -80,11 +80,17 @@ public class ChongQingPageProcessor implements BasePageProcessor {
     public int findPageCount(String url) {
         String typeId = StringUtils.substringBetween(url, "&categorynum=", "&title=");
         String findCountUrl = "http://www.cqggzy.com/web/services/PortalsWebservice/getInfoListCount?response=application/json&siteguid=d7878853-1c74-4913-ab15-1d72b70ff5e7&categorynum=" + typeId + "&title=&infoC=";
-        Page page = httpClientDownloader.download(new Request(findCountUrl), SiteUtil.get().setTimeOut(10000).toTask());
-        JSONObject jsonObject = (JSONObject) JSONObject.parse(page.getRawText());
-        int count = Integer.parseInt(JSONPath.eval(jsonObject, "$.return").toString());
-        int cycleNum = count % ARTICLE_NUM == 0 ? count / ARTICLE_NUM : count / ARTICLE_NUM + 1;
-        return cycleNum;
+        try {
+            Page page = httpClientDownloader.download(new Request(findCountUrl), SiteUtil.get().setTimeOut(10000).toTask());
+            JSONObject jsonObject = (JSONObject) JSONObject.parse(page.getRawText());
+            int count = Integer.parseInt(JSONPath.eval(jsonObject, "$.return").toString());
+            int cycleNum = count % ARTICLE_NUM == 0 ? count / ARTICLE_NUM : count / ARTICLE_NUM + 1;
+            return cycleNum;
+        } catch (Exception e) {
+            log.error("", e);
+            log.error("{}", findCountUrl);
+            return 1;
+        }
     }
 
     @Override
@@ -114,14 +120,18 @@ public class ChongQingPageProcessor implements BasePageProcessor {
             String date = StringUtils.substringBetween(target, "\"infodate\\\":\\\"", "\\\",");
             if (PageProcessorUtil.timeCompare(date)) {
                 log.info("{} is not on the same day", href);
-            } else {
-                BidNewsOriginal ggzyCQDataItem = new BidNewsOriginal(href, SourceCode.GGZYCQ);
-                ggzyCQDataItem.setTitle(title);
-                if (date.length() == 10) {
-                    date = date + DateTime.now().toString(" HH:mm");
-                }
-                ggzyCQDataItem.setDate(date);
-                ggzyCQDataItem.setProvince("重庆");
+                continue;
+            }
+
+            BidNewsOriginal ggzyCQDataItem = new BidNewsOriginal(href, SourceCode.GGZYCQ);
+            ggzyCQDataItem.setTitle(title);
+            if (date.length() == 10) {
+                date = date + DateTime.now().toString(" HH:mm");
+            }
+            ggzyCQDataItem.setDate(date);
+            ggzyCQDataItem.setProvince("重庆");
+
+            try {
                 Page page1 = httpClientDownloader.download(new Request(ggzyCQDataItem.getUrl()), SiteUtil.get().setTimeOut(3000).toTask());
                 Element element = page1.getHtml().getDocument().body();
                 Elements elements = element.select("#mainContent");
@@ -142,7 +152,12 @@ public class ChongQingPageProcessor implements BasePageProcessor {
                     ggzyCQDataItem.setFormatContent(formatContent);
                     dataItems.add(ggzyCQDataItem);
                 }
+            } catch (Exception e) {
+                log.error("", e);
+                log.error("{}", ggzyCQDataItem.getUrl());
             }
+
+
         }
         return dataItems;
     }

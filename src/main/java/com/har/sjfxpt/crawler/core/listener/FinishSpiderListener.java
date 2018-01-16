@@ -20,11 +20,12 @@ public class FinishSpiderListener implements SpiderListener {
     @Autowired
     StringRedisTemplate stringRedisTemplate;
 
-    final static String KEY_SUCCESS="log_success";
-    final static String KEY_FAIL="log_fail";
+    final static String KEY_SUCCESS = "log_success";
+    final static String KEY_FAIL = "log_fail";
+
     @Override
     public void onSuccess(Request request) {
-        log.info(">>> {}", request.getUrl());
+        log.debug(">>> {}", request.getUrl());
         String msg = DateTime.now().toString("yyyy-MM-dd HH:mm:ss") + ": " + request.getUrl();
         stringRedisTemplate.boundValueOps(KEY_SUCCESS).set(msg);
     }
