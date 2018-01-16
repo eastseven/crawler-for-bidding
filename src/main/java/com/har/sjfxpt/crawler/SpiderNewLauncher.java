@@ -173,11 +173,11 @@ public class SpiderNewLauncher implements CommandLineRunner {
                     spider.start();
 
                     save(spider);
+                    log.info(">>> uuid={}, status={}, startTime={}", uuid, spider.getStatus(), spider.getStartTime());
+
                     break;
                 default:
             }
-
-            log.info(">>> uuid={}, status={}, startTime={}", uuid, spider.getStatus(), spider.getStartTime());
         });
     }
 

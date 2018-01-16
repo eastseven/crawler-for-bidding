@@ -195,51 +195,56 @@ public class ZGZhaoTouPageProcessor implements BasePageProcessor {
 
         JSONArray returnList = (JSONArray) JSONPath.eval(root, "$.object.returnlist");
         for (Object object : returnList) {
-            String type = (String) pageParams.get("businessType");
-            Object schemaVersion = JSONPath.eval(object, "$.schemaVersion");
-            Object tenderProjectCode = JSONPath.eval(object, "$.tenderProjectCode");
-            String id = schemaVersion + businessKeyWord(type) + tenderProjectCode;
-            long value = stringRedisTemplate.boundSetOps(KEY_URLS).add(id);
-            if (value == 0L) {
-                log.warn("{} is duplication", id);
-                continue;
+            try {
+                String type = (String) pageParams.get("businessType");
+                Object schemaVersion = JSONPath.eval(object, "$.schemaVersion");
+                Object tenderProjectCode = JSONPath.eval(object, "$.tenderProjectCode");
+                String id = schemaVersion + businessKeyWord(type) + tenderProjectCode;
+                long value = stringRedisTemplate.boundSetOps(KEY_URLS).add(id);
+                if (value == 0L) {
+                    log.warn("{} is duplication", id);
+                    continue;
+                }
+
+                if (!JSONPath.contains(object, "$.businessObjectName")) continue;
+                BidNewsOriginal dataItem = new BidNewsOriginal(id, SourceCode.ZGZT);
+                dataItem.setTitle(JSONPath.eval(object, "$.businessObjectName").toString());
+
+                if (!JSONPath.contains(object, "$.regionName")) {
+                    dataItem.setProvince(ProvinceUtil.get(JSONPath.eval(object, "$.regionName").toString()));
+                } else if (!JSONPath.contains(object, "$.transactionPlatfName")) {
+                    dataItem.setProvince(ProvinceUtil.get(JSONPath.eval(object, "$.transactionPlatfName").toString()));
+                }
+
+                dataItem.setDate(PageProcessorUtil.dataTxt(JSONPath.eval(object, "$.receiveTime").toString()));
+                dataItem.setType(type);
+                dataItem.setProjectCode(tenderProjectCode.toString());
+
+                Page _page = pageGenerator(schemaVersion.toString(), tenderProjectCode.toString(), type);
+                switch (type) {
+                    case "招标项目":
+                        type01(_page, dataItem);
+                        break;
+                    case "招标公告":
+                        type02(_page, dataItem);
+                        break;
+                    case "中标公告":
+                        type03(_page, dataItem);
+                        break;
+                    case "开标记录":
+                        type04(_page, dataItem);
+                        break;
+                    case "评标公示":
+                        type05(_page, dataItem);
+                        break;
+                    default:
+                }
+
+                dataItems.add(dataItem);
+            } catch (Exception e) {
+                log.error("", e);
+                log.error("\n{}", object);
             }
-
-            if (!JSONPath.contains(object, "$.businessObjectName")) continue;
-            BidNewsOriginal dataItem = new BidNewsOriginal(id, SourceCode.ZGZT);
-            dataItem.setTitle(JSONPath.eval(object, "$.businessObjectName").toString());
-
-            if (!JSONPath.contains(object, "$.regionName")) {
-                dataItem.setProvince(ProvinceUtil.get(JSONPath.eval(object, "$.regionName").toString()));
-            } else if (!JSONPath.contains(object, "$.transactionPlatfName")) {
-                dataItem.setProvince(ProvinceUtil.get(JSONPath.eval(object, "$.transactionPlatfName").toString()));
-            }
-
-            dataItem.setDate(PageProcessorUtil.dataTxt(JSONPath.eval(object, "$.receiveTime").toString()));
-            dataItem.setType(type);
-            dataItem.setProjectCode(tenderProjectCode.toString());
-
-            Page _page = pageGenerator(schemaVersion.toString(), tenderProjectCode.toString(), type);
-            switch (type) {
-                case "招标项目":
-                    type01(_page, dataItem);
-                    break;
-                case "招标公告":
-                    type02(_page, dataItem);
-                    break;
-                case "中标公告":
-                    type03(_page, dataItem);
-                    break;
-                case "开标记录":
-                    type04(_page, dataItem);
-                    break;
-                case "评标公示":
-                    type05(_page, dataItem);
-                    break;
-                default:
-            }
-
-            dataItems.add(dataItem);
         }
 
         return dataItems;
