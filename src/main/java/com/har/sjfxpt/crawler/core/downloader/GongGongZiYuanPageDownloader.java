@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutorService;
  */
 @Slf4j
 @Component
+@Deprecated
 public class GongGongZiYuanPageDownloader {
 
     final int ten = 10;

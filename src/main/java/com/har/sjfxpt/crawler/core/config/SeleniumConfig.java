@@ -1,5 +1,6 @@
 package com.har.sjfxpt.crawler.core.config;
 
+import com.har.sjfxpt.crawler.core.downloader.WebDriverPoolExt;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +17,11 @@ public class SeleniumConfig implements CommandLineRunner {
     @Bean
     SeleniumDownloader seleniumDownloader() {
         return new SeleniumDownloader();
+    }
+
+    @Bean
+    WebDriverPoolExt webDriverPoolExt() {
+        return new WebDriverPoolExt();
     }
 
     @Override
