@@ -5,6 +5,7 @@ import com.har.sjfxpt.crawler.core.service.HBaseService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.ResultItems;
@@ -29,6 +30,8 @@ public class HBasePipeline implements Pipeline {
     @Autowired
     ApplicationContext ctx;
 
+    @Value("${app.hbase.save:true}") private boolean save;
+
     @Override
     public void process(ResultItems resultItems, Task task) {
         List dataItemList = resultItems.get(KEY_DATA_ITEMS);
@@ -38,7 +41,9 @@ public class HBasePipeline implements Pipeline {
             // 只是为了快速查看数据，实际数据还是以HBase中的为准
             ctx.getBean(BidNewsOriginalRepository.class).save(dataItemList);
 
-            HBaseService.saveBidNewsOriginals(dataItemList);
+            if (save) {
+                HBaseService.saveBidNewsOriginals(dataItemList);
+            }
         }
     }
 
