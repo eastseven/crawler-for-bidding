@@ -160,6 +160,6 @@ public class HaiNanPageProcessor implements BasePageProcessor {
     @Override
     public Site getSite() {
         httpClientDownloader = new HttpClientDownloader();
-        return SiteUtil.get();
+        return SiteUtil.get().setSleepTime(10000);
     }
 }

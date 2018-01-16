@@ -145,6 +145,6 @@ public class CQPageProcessor implements BasePageProcessor {
     @Override
     public Site getSite() {
         httpClientDownloader = new HttpClientDownloader();
-        return SiteUtil.get().setTimeOut(10000);
+        return SiteUtil.get().setSleepTime(10000);
     }
 }

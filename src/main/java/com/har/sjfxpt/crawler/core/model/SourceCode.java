@@ -30,6 +30,7 @@ public enum SourceCode {
     CCGPHN("海南政府采购"),
     CCGPSC("四川政府采购"),
     CCGPCQ("重庆政府采购"),
+    CCGPBEIJING("北京政府采购"),
 
     CM("中国移动采购与招标网"),
     JC("金采网"),
