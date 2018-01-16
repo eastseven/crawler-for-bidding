@@ -210,13 +210,17 @@ public class ZGZhaoTouPageProcessor implements BasePageProcessor {
                 BidNewsOriginal dataItem = new BidNewsOriginal(id, SourceCode.ZGZT);
                 dataItem.setTitle(JSONPath.eval(object, "$.businessObjectName").toString());
 
-                if (!JSONPath.contains(object, "$.regionName")) {
+                if (JSONPath.contains(object, "$.regionName")) {
                     dataItem.setProvince(ProvinceUtil.get(JSONPath.eval(object, "$.regionName").toString()));
-                } else if (!JSONPath.contains(object, "$.transactionPlatfName")) {
+                }
+
+                if (JSONPath.contains(object, "$.transactionPlatfName")) {
                     dataItem.setProvince(ProvinceUtil.get(JSONPath.eval(object, "$.transactionPlatfName").toString()));
                 }
 
-                dataItem.setDate(PageProcessorUtil.dataTxt(JSONPath.eval(object, "$.receiveTime").toString()));
+                if (JSONPath.contains(object, "$.receiveTime")) {
+                    dataItem.setDate(PageProcessorUtil.dataTxt(JSONPath.eval(object, "$.receiveTime").toString()));
+                }
                 dataItem.setType(type);
                 dataItem.setProjectCode(tenderProjectCode.toString());
 

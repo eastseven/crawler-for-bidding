@@ -107,7 +107,7 @@ public class HBaseService {
         for (BidNewsOriginal original : dataItemList) {
             Set<ConstraintViolation<BidNewsOriginal>> violations = validator.validate(original);
             violations.forEach(violation -> log.error(">>> {}, {}, {}", violation.getPropertyPath(), violation.getMessage(), violation.getInvalidValue()));
-            Assert.isTrue(violations.isEmpty(), "");
+            Assert.isTrue(violations.isEmpty(), original.getId());
 
             if (StringUtils.isBlank(original.getFormatContent())) {
                 log.error("{} {} save to hbase fail, formatContent is empty, {}", original.getSourceCode(), original.getId(), original.getUrl());

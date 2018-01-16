@@ -138,7 +138,7 @@ public class GanSuPageProcessor implements BasePageProcessor {
                         Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
                         Elements elements = page.getHtml().getDocument().body().select("body > div.mod-content.clear > div.mod-cont-lft.clear > div.mod-arti-area > div.mod-arti-body");
                         String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
-                        Elements elements1 = elements.select("iframe");
+                        Elements elements1 = elements.select("div.arti-des-con iframe");
                         if (!elements1.isEmpty()) {
                             String iframeUrl = elements1.attr("src");
                             Page page1 = httpClientDownloader.download(new Request(iframeUrl), SiteUtil.get().setTimeOut(30000).toTask());
