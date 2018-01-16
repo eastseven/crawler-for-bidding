@@ -38,19 +38,19 @@ public class HBasePipeline implements Pipeline {
     public void process(ResultItems resultItems, Task task) {
         List<BidNewsOriginal> dataItemList = resultItems.get(KEY_DATA_ITEMS);
         if (CollectionUtils.isEmpty(dataItemList)) {
-            log.warn(">>> save nothing, {}", task.getSite());
-        } else {
+            log.warn(">>> save nothing, {}", task.getUUID());
+            return;
+        }
 
-            List<BidNewsOriginal> list = dataItemList.stream()
-                    .filter(bidNewsOriginal -> StringUtils.isNotBlank(bidNewsOriginal.getFormatContent()))
-                    .collect(Collectors.toList());
+        List<BidNewsOriginal> list = dataItemList.stream()
+                .filter(bidNewsOriginal -> StringUtils.isNotBlank(bidNewsOriginal.getFormatContent()))
+                .collect(Collectors.toList());
 
-            // 只是为了快速查看数据，实际数据还是以HBase中的为准
-            repository.save(list);
+        // 只是为了快速查看数据，实际数据还是以HBase中的为准
+        repository.save(list);
 
-            if (save) {
-                HBaseService.saveBidNewsOriginals(list);
-            }
+        if (save) {
+            HBaseService.saveBidNewsOriginals(list);
         }
     }
 
