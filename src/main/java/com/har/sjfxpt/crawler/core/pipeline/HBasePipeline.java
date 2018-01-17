@@ -32,7 +32,8 @@ public class HBasePipeline implements Pipeline {
     @Autowired
     BidNewsOriginalRepository repository;
 
-    @Value("${app.hbase.save:true}") private boolean save;
+    @Value("${app.hbase.save:true}")
+    private boolean save;
 
     @Override
     public void process(ResultItems resultItems, Task task) {
