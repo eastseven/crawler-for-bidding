@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @SpringBootTest
 @RunWith(SpringRunner.class)
-public class HeBeiPageProcessorTests {
+public class HBPageProcessorTests {
 
     @Autowired
     HeBeiPageProcessor heBeiPageProcessor;
