@@ -32,5 +32,4 @@ app.hbase.save: false
 swagger:
   base-package: com.har.sjfxpt.crawler.api
 
-server.port: ${random.int[9000,9999]}
-
+#server.port: ${random.int[9000,9999]}

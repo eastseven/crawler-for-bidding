@@ -28,9 +28,11 @@ import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Spider;
 import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.downloader.selenium.SeleniumDownloader;
+import us.codecraft.webmagic.monitor.SpiderMonitor;
 import us.codecraft.webmagic.processor.PageProcessor;
 import us.codecraft.webmagic.proxy.SimpleProxyProvider;
 
+import javax.management.JMException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -122,6 +124,14 @@ public class SpiderNewLauncher implements CommandLineRunner {
             spiders.put(uuid, bidNewsSpider);
 
             saveConfig(config);
+        }
+
+        if (!spiders.isEmpty()) {
+            try {
+                SpiderMonitor.instance().register(spiders.values().toArray(new BidNewsSpider[spiders.size()]));
+            } catch (JMException e) {
+                log.error("", e);
+            }
         }
     }
 
