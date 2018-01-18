@@ -30,20 +30,20 @@ import static com.har.sjfxpt.crawler.ccgp.provincial.HBPageProcessor.*;
  */
 @Slf4j
 @Component
-@SourceConfig(
-        code = SourceCode.CCGPHEBEI,
-        sources = {
-                @Source(url = URL1, post = true, postParams = POST_PARAMS_1, type = "招标公告"),
-                @Source(url = URL1, post = true, postParams = POST_PARAMS_2, type = "招标公告"),
-                @Source(url = URL2, post = true, postParams = POST_PARAMS_3, type = "中标公告"),
-                @Source(url = URL2, post = true, postParams = POST_PARAMS_4, type = "中标公告"),
-                @Source(url = URL3, post = true, postParams = POST_PARAMS_5, type = "更正公告"),
-                @Source(url = URL3, post = true, postParams = POST_PARAMS_6, type = "更正公告"),
-                @Source(url = URL4, post = true, postParams = POST_PARAMS_7, type = "废标公告"),
-                @Source(url = URL4, post = true, postParams = POST_PARAMS_8, type = "废标公告"),
-                @Source(url = URL5, post = true, postParams = POST_PARAMS_9, type = "单一来源")
-        }
-)
+//@SourceConfig(
+//        code = SourceCode.CCGPHEBEI,
+//        sources = {
+//                @Source(url = URL1, post = true, postParams = POST_PARAMS_1, type = "招标公告"),
+//                @Source(url = URL1, post = true, postParams = POST_PARAMS_2, type = "招标公告"),
+//                @Source(url = URL2, post = true, postParams = POST_PARAMS_3, type = "中标公告"),
+//                @Source(url = URL2, post = true, postParams = POST_PARAMS_4, type = "中标公告"),
+//                @Source(url = URL3, post = true, postParams = POST_PARAMS_5, type = "更正公告"),
+//                @Source(url = URL3, post = true, postParams = POST_PARAMS_6, type = "更正公告"),
+//                @Source(url = URL4, post = true, postParams = POST_PARAMS_7, type = "废标公告"),
+//                @Source(url = URL4, post = true, postParams = POST_PARAMS_8, type = "废标公告"),
+//                @Source(url = URL5, post = true, postParams = POST_PARAMS_9, type = "单一来源")
+//        }
+//)
 public class HBPageProcessor implements BasePageProcessor {
 
     final static String URL1 = "http://www.ccgp-hebei.gov.cn/zfcg/web/getBidingList_1.html";
