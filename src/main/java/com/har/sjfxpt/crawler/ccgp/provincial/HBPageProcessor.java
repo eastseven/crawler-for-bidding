@@ -1,10 +1,12 @@
 package com.har.sjfxpt.crawler.ccgp.provincial;
 
+import com.google.common.collect.Lists;
 import com.har.sjfxpt.crawler.core.annotation.Source;
 import com.har.sjfxpt.crawler.core.annotation.SourceConfig;
 import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
 import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.processor.BasePageProcessor;
+import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Component;
 import us.codecraft.webmagic.Page;
 import us.codecraft.webmagic.Request;
 import us.codecraft.webmagic.Site;
+import us.codecraft.webmagic.downloader.HttpClientDownloader;
 import us.codecraft.webmagic.model.HttpRequestBody;
 import us.codecraft.webmagic.utils.HttpConstant;
 
@@ -59,6 +62,8 @@ public class HBPageProcessor implements BasePageProcessor {
     final static String POST_PARAMS_8 = "{'cancellFlag':'second','citycode':'130000000','cityname':'省本级'}";
     final static String POST_PARAMS_9 = "{'citycode':'130000000','cityname':'省本级'}";
 
+    HttpClientDownloader httpClientDownloader;
+
     @Override
     public void handlePaging(Page page) {
         String url = page.getUrl().get();
@@ -80,21 +85,44 @@ public class HBPageProcessor implements BasePageProcessor {
 
     @Override
     public void handleContent(Page page) {
+        String type = page.getRequest().getExtra("type").toString();
         Elements elements = page.getHtml().getDocument().body().select("#moredingannctable > tbody > tr");
         List<BidNewsOriginal> dataItems = parseContent(elements);
+        if (!dataItems.isEmpty()) {
+            dataItems.forEach(dataItem -> dataItem.setType(type));
+            page.putField(KEY_DATA_ITEMS, dataItems);
+        } else {
+            log.warn("fetch {} no data", page.getUrl().get());
+        }
     }
 
     @Override
     public List parseContent(Elements items) {
+        List<BidNewsOriginal> dataItems = Lists.newArrayList();
         for (Element element : items) {
             String onclick = element.attr("onclick");
             if (StringUtils.isNotBlank(onclick)) {
-                if(StringUtils.startsWith(onclick,"watchContent")){
+                if (StringUtils.startsWith(onclick, "watchContent")) {
+                    String flag = StringUtils.substringBetween(onclick, "','", "')");
+                    String fid = StringUtils.substringBetween(onclick, "watchContent('", "','");
+                    String href = "http://www.ccgp-hebei.gov.cn/zfcg/" + flag + "/bidingAnncDetail_" + fid + ".html";
+                    String title = element.text();
 
+                    BidNewsOriginal bidNewsOriginal = new BidNewsOriginal(href, SourceCode.CCGPHEBEI);
+                    bidNewsOriginal.setTitle(title);
+                    bidNewsOriginal.setProvince("河北");
+
+                    Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
+                    Elements elements = page.getHtml().getDocument().body().select("body > table");
+                    String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
+                    if (StringUtils.isNotBlank(formatContent)) {
+                        bidNewsOriginal.setFormatContent(formatContent);
+                        dataItems.add(bidNewsOriginal);
+                    }
                 }
             }
         }
-        return null;
+        return dataItems;
     }
 
     @Override
@@ -105,6 +133,7 @@ public class HBPageProcessor implements BasePageProcessor {
 
     @Override
     public Site getSite() {
+        httpClientDownloader = new HttpClientDownloader();
         return SiteUtil.get().setSleepTime(10000);
     }
 }
