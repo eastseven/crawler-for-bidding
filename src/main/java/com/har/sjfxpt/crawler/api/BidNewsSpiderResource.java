@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.SpiderNewLauncher;
 import com.har.sjfxpt.crawler.core.model.BidNewsSpider;
+import com.spring4all.swagger.EnableSwagger2Doc;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,17 +22,18 @@ import java.util.Map;
  */
 @Slf4j
 @RestController
+@EnableSwagger2Doc
 @RequestMapping("/spider")
 public class BidNewsSpiderResource {
 
     @Autowired
-    SpiderNewLauncher spiderNewLauncher;
+    private SpiderNewLauncher spiderNewLauncher;
 
     private Map<String, Object> getSpiderResponse(Spider spider) {
         Map<String, Object> response = Maps.newConcurrentMap();
         response.put("status", spider.getStatus());
         response.put("pageCount", spider.getPageCount());
-        response.put("site", spider.getSite());
+        response.put("site", spider.getSite().getDomain());
         response.put("startTime", new DateTime(spider.getStartTime()).toString("yyyy-MM-dd HH:mm:ss"));
         response.put("threadAlive", spider.getThreadAlive());
         response.put("uuid", spider.getUUID());

@@ -30,3 +30,5 @@ hbase.table.namespace: bid_news
 app.fetch.current.day: true
 app.fetch.fixed.rate: 1800000
 app.hbase.save: true
+swagger:
+  title: 爬虫监控接口文档

@@ -2,10 +2,8 @@ package com.har.sjfxpt.crawler.core.scheduler;
 
 import com.har.sjfxpt.crawler.SpiderNewLauncher;
 import lombok.extern.slf4j.Slf4j;
-import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -22,7 +20,7 @@ public class SpiderTaskScheduler {
     boolean flag;
 
     @Autowired
-    ApplicationContext context;
+    SpiderNewLauncher launcher;
 
     /**
      * 启动后10秒执行，30分钟一次
@@ -31,7 +29,7 @@ public class SpiderTaskScheduler {
     public void fetch() {
         if (flag) {
             log.info("spider start");
-            context.getBean(SpiderNewLauncher.class).start();
+            launcher.start();
         }
     }
 
