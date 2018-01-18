@@ -30,20 +30,20 @@ import static com.har.sjfxpt.crawler.ccgp.provincial.HBPageProcessor.*;
  */
 @Slf4j
 @Component
-//@SourceConfig(
-//        code = SourceCode.CCGPHEBEI,
-//        sources = {
-//                @Source(url = URL1, post = true, postParams = POST_PARAMS_1, type = "招标公告"),
-//                @Source(url = URL1, post = true, postParams = POST_PARAMS_2, type = "招标公告"),
-//                @Source(url = URL2, post = true, postParams = POST_PARAMS_3, type = "中标公告"),
-//                @Source(url = URL2, post = true, postParams = POST_PARAMS_4, type = "中标公告"),
-//                @Source(url = URL3, post = true, postParams = POST_PARAMS_5, type = "更正公告"),
-//                @Source(url = URL3, post = true, postParams = POST_PARAMS_6, type = "更正公告"),
-//                @Source(url = URL4, post = true, postParams = POST_PARAMS_7, type = "废标公告"),
-//                @Source(url = URL4, post = true, postParams = POST_PARAMS_8, type = "废标公告"),
-//                @Source(url = URL5, post = true, postParams = POST_PARAMS_9, type = "单一来源")
-//        }
-//)
+@SourceConfig(
+        code = SourceCode.CCGPHEBEI,
+        sources = {
+                @Source(url = URL1, post = true, postParams = POST_PARAMS_1, type = "招标公告"),
+                @Source(url = URL1, post = true, postParams = POST_PARAMS_2, type = "招标公告"),
+                @Source(url = URL2, post = true, postParams = POST_PARAMS_3, type = "中标公告"),
+                @Source(url = URL2, post = true, postParams = POST_PARAMS_4, type = "中标公告"),
+                @Source(url = URL3, post = true, postParams = POST_PARAMS_5, type = "更正公告"),
+                @Source(url = URL3, post = true, postParams = POST_PARAMS_6, type = "更正公告"),
+                @Source(url = URL4, post = true, postParams = POST_PARAMS_7, type = "废标公告"),
+                @Source(url = URL4, post = true, postParams = POST_PARAMS_8, type = "废标公告"),
+                @Source(url = URL5, post = true, postParams = POST_PARAMS_9, type = "单一来源")
+        }
+)
 public class HBPageProcessor implements BasePageProcessor {
 
     final static String URL1 = "http://www.ccgp-hebei.gov.cn/zfcg/web/getBidingList_1.html";
@@ -86,39 +86,88 @@ public class HBPageProcessor implements BasePageProcessor {
     @Override
     public void handleContent(Page page) {
         String type = page.getRequest().getExtra("type").toString();
-        Elements elements = page.getHtml().getDocument().body().select("#moredingannctable > tbody > tr");
-        List<BidNewsOriginal> dataItems = parseContent(elements);
+        Elements elements = elementsJudge(page, type);
+        List<BidNewsOriginal> dataItems = parseContent(elements, type);
         if (!dataItems.isEmpty()) {
-            dataItems.forEach(dataItem -> dataItem.setType(type));
             page.putField(KEY_DATA_ITEMS, dataItems);
         } else {
             log.warn("fetch {} no data", page.getUrl().get());
         }
     }
 
+    public Elements elementsJudge(Page page, String type) {
+        Elements elements = null;
+        if ("招标公告".equalsIgnoreCase(type)) {
+            elements = page.getHtml().getDocument().body().select("#moredingannctable > tbody > tr");
+        } else {
+            elements = page.getHtml().getDocument().body().select("body > table > tbody > tr > td > table > tbody > tr:nth-child(2) > td:nth-child(2) > table:nth-child(2) > tbody > tr");
+        }
+        return elements;
+    }
+
+    public String urlJudge(String onclick, String type) {
+        String href = null;
+        if (StringUtils.isNotBlank(onclick)) {
+            String[] params = StringUtils.substringsBetween(onclick, "'", "'");
+            switch (type) {
+                case "招标公告":
+                    href = "http://www.ccgp-hebei.gov.cn/zfcg/" + params[1] + "/bidingAnncDetail_" + params[0] + ".html";
+                    break;
+                case "中标公告":
+                    href = "http://www.ccgp-hebei.gov.cn/zfcg/bidWinAnncDetail_" + params[0] + ".html";
+                    break;
+                case "更正公告":
+                    href = "http://www.ccgp-hebei.gov.cn/zfcg/correctionAnncDetail_" + params[0] + ".html";
+                    break;
+                case "废标公告":
+                    href = "http://www.ccgp-hebei.gov.cn/zfcg/cancelBidAnncDetail_" + params[0] + ".html";
+                    break;
+                case "单一来源":
+                    href = "http://www.ccgp-hebei.gov.cn/zfcg/" + params[1] + "/singleSourceDetail_" + params[0] + ".html";
+                    break;
+                default:
+            }
+        }
+        return href;
+    }
+
+
     @Override
     public List parseContent(Elements items) {
+        return null;
+    }
+
+    public List parseContent(Elements items, String type) {
         List<BidNewsOriginal> dataItems = Lists.newArrayList();
         for (Element element : items) {
             String onclick = element.attr("onclick");
-            if (StringUtils.isNotBlank(onclick)) {
-                if (StringUtils.startsWith(onclick, "watchContent")) {
-                    String flag = StringUtils.substringBetween(onclick, "','", "')");
-                    String fid = StringUtils.substringBetween(onclick, "watchContent('", "','");
-                    String href = "http://www.ccgp-hebei.gov.cn/zfcg/" + flag + "/bidingAnncDetail_" + fid + ".html";
-                    String title = element.text();
+            String href = urlJudge(onclick, type);
+            if (StringUtils.isNotBlank(href)) {
+                String title = element.text();
+                BidNewsOriginal bidNewsOriginal = new BidNewsOriginal(href, SourceCode.CCGPHEBEI);
+                bidNewsOriginal.setTitle(title);
+                bidNewsOriginal.setProvince("河北");
+                bidNewsOriginal.setType(type);
 
-                    BidNewsOriginal bidNewsOriginal = new BidNewsOriginal(href, SourceCode.CCGPHEBEI);
-                    bidNewsOriginal.setTitle(title);
-                    bidNewsOriginal.setProvince("河北");
-
+                try {
                     Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
                     Elements elements = page.getHtml().getDocument().body().select("body > table");
+                    Elements elements1 = page.getHtml().getDocument().body().select("body > table > tbody > tr > td > table > tbody > tr:nth-child(4) > td > table > tbody > tr:nth-child(7) > td > span");
+                    log.debug("url={}", bidNewsOriginal.getUrl());
+                    if (StringUtils.isNotBlank(elements1.text())) {
+                        bidNewsOriginal.setDate(PageProcessorUtil.dataTxt(elements1.text()));
+                    }
+                    if(PageProcessorUtil.timeCompare(bidNewsOriginal.getDate())){
+                        log.warn("{} is not the same day",bidNewsOriginal.getUrl());
+                        continue;
+                    }
                     String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
                     if (StringUtils.isNotBlank(formatContent)) {
                         bidNewsOriginal.setFormatContent(formatContent);
                         dataItems.add(bidNewsOriginal);
                     }
+                } catch (Exception e) {
+                    log.error("", e);
                 }
             }
         }
