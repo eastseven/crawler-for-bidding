@@ -29,3 +29,8 @@ hbase.table.namespace: bid_news_test
 app.fetch.current.day: false
 app.fetch.fixed.rate: 1800000
 app.hbase.save: false
+swagger:
+  base-package: com.har.sjfxpt.crawler.api
+
+server.port: ${random.int[9000,9999]}
+
