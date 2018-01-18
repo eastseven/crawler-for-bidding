@@ -6,6 +6,7 @@ import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.ccgp.provincial.HBPageProcessor;
 import com.har.sjfxpt.crawler.core.annotation.SourceModel;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
+import com.har.sjfxpt.crawler.core.pipeline.MongoPipeline;
 import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -34,6 +35,9 @@ public class HBPageProcessorTests {
     @Autowired
     HBasePipeline hBasePipeline;
 
+    @Autowired
+    MongoPipeline mongoPipeline;
+
     @Test
     public void testHebeiPageProcessor() {
         List<SourceModel> sourceModelList = SourceConfigAnnotationUtils.find(HBPageProcessor.getClass());
@@ -41,7 +45,7 @@ public class HBPageProcessorTests {
                 .collect(Collectors.toList());
         Spider.create(HBPageProcessor)
                 .addRequest(requestList.toArray(new Request[requestList.size()]))
-//                .addPipeline(hBasePipeline)
+                .addPipeline(mongoPipeline)
                 .thread(8)
                 .run();
     }

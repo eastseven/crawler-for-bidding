@@ -64,6 +64,7 @@ public class ShangHaiPageProcessor implements BasePageProcessor {
                     request.setMethod(HttpConstant.Method.POST);
                     request.setRequestBody(HttpRequestBody.form(nextPage, "UTF-8"));
                     request.putExtra("pageParams", nextPage);
+                    log.debug("userAgent={}", getSite().getUserAgent());
                     page.addTargetRequest(request);
                 }
             }

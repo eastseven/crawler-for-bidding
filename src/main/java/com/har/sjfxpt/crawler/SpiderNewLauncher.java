@@ -10,6 +10,7 @@ import com.har.sjfxpt.crawler.core.listener.FinishSpiderListener;
 import com.har.sjfxpt.crawler.core.model.BidNewsSpider;
 import com.har.sjfxpt.crawler.core.model.SpiderLog;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
+import com.har.sjfxpt.crawler.core.pipeline.MongoPipeline;
 import com.har.sjfxpt.crawler.core.repository.SpiderLogRepository;
 import com.har.sjfxpt.crawler.core.service.ProxyService;
 import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
@@ -51,9 +52,6 @@ public class SpiderNewLauncher implements CommandLineRunner {
     ApplicationContext ctx;
 
     @Autowired
-    ExecutorService executorService;
-
-    @Autowired
     ProxyService proxyService;
 
     @Autowired
@@ -70,6 +68,9 @@ public class SpiderNewLauncher implements CommandLineRunner {
 
     @Autowired
     private FinishSpiderListener spiderListener;
+
+    @Autowired
+    MongoPipeline mongoPipeline;
 
     private static final String BASE_PACKAGE = "com.har.sjfxpt.crawler";
 
@@ -107,7 +108,9 @@ public class SpiderNewLauncher implements CommandLineRunner {
                     .thread(num)
                     .setExitWhenComplete(true)
                     .addRequest(requests)
+                    .addPipeline(mongoPipeline)
                     .addPipeline(ctx.getBean(HBasePipeline.class));
+
 
             // 由于SeleniumDownloader 不能使用代理，所以useSelenium 属性跟useProxy属性 互斥，都为true配置无效
             if (config.isUseSelenium() && !config.isUseProxy()) {

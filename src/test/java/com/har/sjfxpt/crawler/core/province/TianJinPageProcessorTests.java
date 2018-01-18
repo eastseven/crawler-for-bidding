@@ -6,6 +6,7 @@ import com.har.sjfxpt.crawler.core.annotation.SourceModel;
 import com.har.sjfxpt.crawler.core.config.SeleniumConfig;
 import com.har.sjfxpt.crawler.core.downloader.WebDriverPoolExt;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
+import com.har.sjfxpt.crawler.core.pipeline.MongoPipeline;
 import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
@@ -40,6 +41,9 @@ public class TianJinPageProcessorTests {
     @Autowired
     HBasePipeline hBasePipeline;
 
+    @Autowired
+    MongoPipeline mongoPipeline;
+
     @Test
     public void testTianJinPageProcessor() {
         List<SourceModel> sourceModelList = SourceConfigAnnotationUtils.find(tianJinPageProcessor.getClass());
@@ -47,7 +51,7 @@ public class TianJinPageProcessorTests {
                 .collect(Collectors.toList());
         Spider.create(tianJinPageProcessor)
                 .addRequest(requestList.toArray(new Request[requestList.size()]))
-                .addPipeline(hBasePipeline)
+                .addPipeline(mongoPipeline)
                 .thread(8)
                 .run();
     }
