@@ -116,7 +116,9 @@ public class XJBTPageProcessor implements BasePageProcessor {
 
                 if (PageProcessorUtil.timeCompare(ggzyxjbtDataItem.getDate())) {
                     log.info("{} is not the same day", ggzyxjbtDataItem.getUrl());
-                } else {
+                    continue;
+                }
+                try {
                     Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
                     Elements elements = page.getHtml().getDocument().body().select("#TDContent");
                     String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
@@ -124,6 +126,8 @@ public class XJBTPageProcessor implements BasePageProcessor {
                         ggzyxjbtDataItem.setFormatContent(formatContent);
                         dataItems.add(ggzyxjbtDataItem);
                     }
+                } catch (Exception e) {
+                    log.error("", e);
                 }
             }
         }

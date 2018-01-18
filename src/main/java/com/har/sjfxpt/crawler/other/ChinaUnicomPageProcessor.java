@@ -99,7 +99,9 @@ public class ChinaUnicomPageProcessor implements BasePageProcessor {
 
                 if (PageProcessorUtil.timeCompare(chinaUnicomDataItem.getDate())) {
                     log.warn("{} is not the same day", chinaUnicomDataItem.getUrl());
-                } else {
+                    continue;
+                }
+                try {
                     Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
                     String dateDetail = page.getHtml().getDocument().body().select("body > div > table > tbody > tr > td:nth-child(2) > span").text();
                     if (StringUtils.isNotBlank(dateDetail)) {
@@ -110,9 +112,9 @@ public class ChinaUnicomPageProcessor implements BasePageProcessor {
                     if (StringUtils.isNotBlank(formatContent)) {
                         chinaUnicomDataItem.setFormatContent(formatContent);
                         dataItems.add(chinaUnicomDataItem);
-                    } else {
-                        log.warn("{} formatContent is null", chinaUnicomDataItem.getUrl());
                     }
+                } catch (Exception e) {
+                    log.error("", e);
                 }
             }
         }

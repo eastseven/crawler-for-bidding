@@ -111,12 +111,14 @@ public class DongFengPageProcessor implements BasePageProcessor {
                 dongFengDataItem.setProvince(ProvinceUtil.get(title));
                 dongFengDataItem.setDate(PageProcessorUtil.dataTxt(date));
 
-                Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
-                Elements timeDetail = page.getHtml().getDocument().body().select("#main > div.listPage.wrap > div.wrap01 > div.mleft > div > div > div.ninfo-title > span");
-                String dateDetail = PageProcessorUtil.dataTxt(timeDetail.text());
-                if (PageProcessorUtil.timeCompare(dateDetail)) {
-                    log.info("{} is not the same day", href);
-                } else {
+                try {
+                    Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
+                    Elements timeDetail = page.getHtml().getDocument().body().select("#main > div.listPage.wrap > div.wrap01 > div.mleft > div > div > div.ninfo-title > span");
+                    String dateDetail = PageProcessorUtil.dataTxt(timeDetail.text());
+                    if (PageProcessorUtil.timeCompare(dateDetail)) {
+                        log.info("{} is not the same day", href);
+                        continue;
+                    }
                     if (StringUtils.isNotBlank(dateDetail)) {
                         dongFengDataItem.setDate(dateDetail);
                     }
@@ -126,6 +128,8 @@ public class DongFengPageProcessor implements BasePageProcessor {
                         dongFengDataItem.setFormatContent(formatContent);
                         dataItems.add(dongFengDataItem);
                     }
+                } catch (Exception e) {
+                    log.error("", e);
                 }
             }
 

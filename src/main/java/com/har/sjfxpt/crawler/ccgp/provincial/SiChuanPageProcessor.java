@@ -123,27 +123,26 @@ public class SiChuanPageProcessor implements BasePageProcessor {
             if (value == 0L) {
                 //重复数据
                 log.debug("{} is duplication", href);
-            } else {
+                continue;
+            }
+            try {
                 Request request = new Request(href);
                 Page page = httpClientDownloader.download(request, SiteUtil.get().setTimeOut(30000).toTask());
-                try {
-                    String html = page.getHtml().getDocument().html();
-                    Element element = page.getHtml().getDocument().body();
-                    Elements dateDetailElement = element.select("#myPrintArea > div >span");
-                    String dateDetail = StringUtils.substringAfter(dateDetailElement.text(), "系统发布时间：");
-                    if (StringUtils.isNotBlank(dateDetail)) {
-                        ccgpSiChuanDataItem.setDate(dateDetail);
-                    }
-                    Element formatContentHtml = element.select("#myPrintArea").first();
-                    String formatContent = PageProcessorUtil.formatElementsByWhitelist(formatContentHtml);
-                    if (StringUtils.isNotBlank(html)) {
-                        ccgpSiChuanDataItem.setFormatContent(formatContent);
-                    }
-                    dataItems.add(ccgpSiChuanDataItem);
-                } catch (Exception e) {
-                    log.debug("url=={}", request.getUrl());
-                    log.debug("e", e);
+                String html = page.getHtml().getDocument().html();
+                Element element = page.getHtml().getDocument().body();
+                Elements dateDetailElement = element.select("#myPrintArea > div >span");
+                String dateDetail = StringUtils.substringAfter(dateDetailElement.text(), "系统发布时间：");
+                if (StringUtils.isNotBlank(dateDetail)) {
+                    ccgpSiChuanDataItem.setDate(dateDetail);
                 }
+                Element formatContentHtml = element.select("#myPrintArea").first();
+                String formatContent = PageProcessorUtil.formatElementsByWhitelist(formatContentHtml);
+                if (StringUtils.isNotBlank(html)) {
+                    ccgpSiChuanDataItem.setFormatContent(formatContent);
+                }
+                dataItems.add(ccgpSiChuanDataItem);
+            } catch (Exception e) {
+                log.error("", e);
             }
 
         }

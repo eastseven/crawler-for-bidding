@@ -5,6 +5,7 @@ import com.har.sjfxpt.crawler.core.annotation.SourceModel;
 import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
 import com.har.sjfxpt.crawler.core.model.SourceCode;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
+import com.har.sjfxpt.crawler.core.pipeline.MongoPipeline;
 import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import com.har.sjfxpt.crawler.other.JinCaiWangPageProcessor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,6 +37,9 @@ public class JinCaiWangPageProcessorTests {
     HBasePipeline pipeline;
 
     @Autowired
+    MongoPipeline mongoPipeline;
+
+    @Autowired
     JinCaiWangPageProcessor jinCaiWangPageProcessor;
 
 
@@ -46,7 +50,7 @@ public class JinCaiWangPageProcessorTests {
                 .collect(Collectors.toList());
         Spider.create(jinCaiWangPageProcessor)
                 .addRequest(requestList.toArray(new Request[requestList.size()]))
-                .addPipeline(pipeline)
+                .addPipeline(mongoPipeline)
                 .thread(8)
                 .run();
     }

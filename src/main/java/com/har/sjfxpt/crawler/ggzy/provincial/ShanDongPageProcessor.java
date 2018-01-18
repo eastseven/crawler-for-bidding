@@ -89,34 +89,33 @@ public class ShanDongPageProcessor implements BasePageProcessor {
     public List parseContent(Elements items) {
         List<BidNewsOriginal> dataItems = Lists.newArrayList();
         for (Element element : items) {
-            try {
-                String href = element.select("div.article-list3-t > a").attr("href");
-                if (StringUtils.isNotBlank(href)) {
-                    String title = element.select("div.article-list3-t > a").text();
-                    String date = element.select("div.article-list3-t > div").text();
-                    String type = element.select("div.article-list3-t2 > div:nth-child(3)").text();
+            String href = element.select("div.article-list3-t > a").attr("href");
+            if (StringUtils.isNotBlank(href)) {
+                String title = element.select("div.article-list3-t > a").text();
+                String date = element.select("div.article-list3-t > div").text();
+                String type = element.select("div.article-list3-t2 > div:nth-child(3)").text();
 
-                    BidNewsOriginal dataItem = new BidNewsOriginal(href, SourceCode.GGZYSHANDONG);
-                    dataItem.setUrl(href);
-                    dataItem.setTitle(title);
-                    dataItem.setDate(PageProcessorUtil.dataTxt(date));
-                    dataItem.setProvince("山东");
-                    dataItem.setType(StringUtils.substringAfter(type, "："));
-                    if (PageProcessorUtil.timeCompare(dataItem.getDate())) {
-                        log.warn("{} is not the same day", dataItem.getUrl());
-                    } else {
-                        Page page = httpClientDownloader.download(new Request(dataItem.getUrl()), SiteUtil.get().setTimeOut(30000).toTask());
-                        Elements elements = page.getHtml().getDocument().body().select("body > div.content > div.div-content.clearfix > div:nth-child(5) > div.div-article2");
-                        String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
-                        if (StringUtils.isNotBlank(formatContent)) {
-                            dataItem.setFormatContent(formatContent);
-                            dataItems.add(dataItem);
-                        }
-                    }
+                BidNewsOriginal dataItem = new BidNewsOriginal(href, SourceCode.GGZYSHANDONG);
+                dataItem.setUrl(href);
+                dataItem.setTitle(title);
+                dataItem.setDate(PageProcessorUtil.dataTxt(date));
+                dataItem.setProvince("山东");
+                dataItem.setType(StringUtils.substringAfter(type, "："));
+                if (PageProcessorUtil.timeCompare(dataItem.getDate())) {
+                    log.warn("{} is not the same day", dataItem.getUrl());
+                    continue;
                 }
-            } catch (Exception e) {
-                log.error("", e);
-                log.error("{}", element);
+                try {
+                    Page page = httpClientDownloader.download(new Request(dataItem.getUrl()), SiteUtil.get().setTimeOut(30000).toTask());
+                    Elements elements = page.getHtml().getDocument().body().select("body > div.content > div.div-content.clearfix > div:nth-child(5) > div.div-article2");
+                    String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
+                    if (StringUtils.isNotBlank(formatContent)) {
+                        dataItem.setFormatContent(formatContent);
+                        dataItems.add(dataItem);
+                    }
+                } catch (Exception e) {
+                    log.error("", e);
+                }
             }
         }
         return dataItems;

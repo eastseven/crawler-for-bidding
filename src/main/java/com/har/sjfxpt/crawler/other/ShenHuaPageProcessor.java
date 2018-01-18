@@ -94,19 +94,19 @@ public class ShenHuaPageProcessor implements BasePageProcessor {
                     }
                     if (PageProcessorUtil.timeCompare(shenHuaDataItem.getDate())) {
                         log.warn("{} is not the same day", shenHuaDataItem.getUrl());
-                    } else {
-                        Elements elements = page.getHtml().getDocument().body().select("body > div.container.mt20 > div.row > div.article > div.article-info > div");
-                        String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
-                        if (StringUtils.isNotBlank(formatContent)) {
-                            if (formatContent.contains("无标题文档")) {
-                                formatContent = StringUtils.remove(formatContent, "无标题文档");
-                            }
-                            shenHuaDataItem.setFormatContent(formatContent);
-                            dataItems.add(shenHuaDataItem);
+                        continue;
+                    }
+                    Elements elements = page.getHtml().getDocument().body().select("body > div.container.mt20 > div.row > div.article > div.article-info > div");
+                    String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
+                    if (StringUtils.isNotBlank(formatContent)) {
+                        if (formatContent.contains("无标题文档")) {
+                            formatContent = StringUtils.remove(formatContent, "无标题文档");
                         }
+                        shenHuaDataItem.setFormatContent(formatContent);
+                        dataItems.add(shenHuaDataItem);
                     }
                 } catch (Exception e) {
-                    log.warn("e{}", e);
+                    log.error("", e);
                 }
             }
         }

@@ -7,6 +7,7 @@ import com.har.sjfxpt.crawler.core.SpiderApplicationTests;
 import com.har.sjfxpt.crawler.core.annotation.SourceModel;
 import com.har.sjfxpt.crawler.core.model.BidNewsSpider;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
+import com.har.sjfxpt.crawler.core.pipeline.MongoPipeline;
 import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import com.har.sjfxpt.crawler.other.SuNingPageProcessor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,13 +44,16 @@ public class SuNingPageProcessorTests extends SpiderApplicationTests {
         log.debug(">>> {}\n{}", params, JSON.toJSONString(params, SerializerFeature.UseSingleQuotes));
     }
 
+    @Autowired
+    MongoPipeline mongoPipeline;
+
     @Test
     public void test() {
         List<SourceModel> list = SourceConfigAnnotationUtils.find(suNingPageProcessor.getClass());
         Assert.assertTrue(CollectionUtils.isNotEmpty(list));
 
         Request[] requests = list.parallelStream().map(SourceModel::createRequest).toArray(Request[]::new);
-        BidNewsSpider.create(suNingPageProcessor).addRequest(requests).addPipeline(pipeline).run();
+        BidNewsSpider.create(suNingPageProcessor).addRequest(requests).addPipeline(mongoPipeline).thread(8).run();
     }
 
 }

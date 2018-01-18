@@ -134,7 +134,9 @@ public class JiangXiPageProcessor implements BasePageProcessor {
                 ggzyJiangXiDataItem.setDate(PageProcessorUtil.dataTxt(date));
                 if (PageProcessorUtil.timeCompare(ggzyJiangXiDataItem.getDate())) {
                     log.info("{} is not the same day", ggzyJiangXiDataItem.getUrl());
-                } else {
+                    continue;
+                }
+                try {
                     ggzyJiangXiDataItem.setTitle(title);
                     Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
                     String dateParse = DateTime.parse(date, DateTimeFormat.forPattern("yyyy-MM-dd")).toString("yyyyMMdd");
@@ -164,7 +166,10 @@ public class JiangXiPageProcessor implements BasePageProcessor {
                         ggzyJiangXiDataItem.setFormatContent(formatContent);
                         dataItems.add(ggzyJiangXiDataItem);
                     }
+                } catch (Exception e) {
+                    log.error("", e);
                 }
+
             }
         }
         return dataItems;

@@ -132,7 +132,7 @@ public class ChongQingPageProcessor implements BasePageProcessor {
             ggzyCQDataItem.setProvince("重庆");
 
             try {
-                Page page1 = httpClientDownloader.download(new Request(ggzyCQDataItem.getUrl()), SiteUtil.get().setTimeOut(3000).toTask());
+                Page page1 = httpClientDownloader.download(new Request(ggzyCQDataItem.getUrl()), SiteUtil.get().setTimeOut(30000).toTask());
                 Element element = page1.getHtml().getDocument().body();
                 Elements elements = element.select("#mainContent");
                 String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());

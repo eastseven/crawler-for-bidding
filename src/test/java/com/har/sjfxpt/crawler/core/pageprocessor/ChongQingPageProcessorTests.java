@@ -2,6 +2,7 @@ package com.har.sjfxpt.crawler.core.pageprocessor;
 
 import com.har.sjfxpt.crawler.core.annotation.SourceModel;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
+import com.har.sjfxpt.crawler.core.pipeline.MongoPipeline;
 import com.har.sjfxpt.crawler.core.utils.PageProcessorUtil;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
@@ -37,6 +38,9 @@ public class ChongQingPageProcessorTests {
     @Autowired
     HBasePipeline hBasePipeline;
 
+    @Autowired
+    MongoPipeline mongoPipeline;
+
     @Test
     public void testGGZYCQAnnotation() {
         List<SourceModel> list = SourceConfigAnnotationUtils.find(ChongQingPageProcessor.getClass());
@@ -46,7 +50,7 @@ public class ChongQingPageProcessorTests {
                 .collect(Collectors.toList());
         Spider.create(ChongQingPageProcessor)
                 .addRequest(requestList.toArray(new Request[requestList.size()]))
-                .addPipeline(hBasePipeline)
+                .addPipeline(mongoPipeline)
                 .thread(8)
                 .run();
     }

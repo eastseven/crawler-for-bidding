@@ -94,7 +94,9 @@ public class HLJPageProcessor implements BasePageProcessor {
                 ggzyhljDataItem.setDate(PageProcessorUtil.dataTxt(date));
                 if (PageProcessorUtil.timeCompare(ggzyhljDataItem.getDate())) {
                     log.warn("{} is not the same day", ggzyhljDataItem.getUrl());
-                } else {
+                    continue;
+                }
+                try {
                     Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
                     Elements elements = page.getHtml().getDocument().select("#contentdiv");
                     String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
@@ -102,6 +104,8 @@ public class HLJPageProcessor implements BasePageProcessor {
                         ggzyhljDataItem.setFormatContent(formatContent);
                         dataItems.add(ggzyhljDataItem);
                     }
+                } catch (Exception e) {
+                    log.error("", e);
                 }
             }
         }

@@ -96,12 +96,12 @@ public class ShaanXiPageProcessor implements BasePageProcessor {
                     href = "http://www.sxggzyjy.cn" + href;
                 }
                 String title = element.select("a").attr("title");
-                BidNewsOriginal ggzyShaanXiDataItem = new BidNewsOriginal(href,SourceCode.GGZYSHAANXI);
+                BidNewsOriginal ggzyShaanXiDataItem = new BidNewsOriginal(href, SourceCode.GGZYSHAANXI);
                 ggzyShaanXiDataItem.setUrl(href);
                 ggzyShaanXiDataItem.setTitle(title);
                 ggzyShaanXiDataItem.setProvince("陕西");
-                Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
                 try {
+                    Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
                     String dataInformation = page.getHtml().getDocument().body().select("body > div.ewb-container > div.ewb-main > div.info-source").text();
                     String dataReal = StringUtils.substringBetween(dataInformation, "信息时间：", "】");
                     if (StringUtils.isNotBlank(dataReal)) {
@@ -109,13 +109,13 @@ public class ShaanXiPageProcessor implements BasePageProcessor {
                     }
                     if (PageProcessorUtil.timeCompare(ggzyShaanXiDataItem.getDate())) {
                         log.info("{} is not the sameday", ggzyShaanXiDataItem.getUrl());
-                    } else {
-                        Elements elements = page.getHtml().getDocument().body().select("#mainContent");
-                        String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
-                        if (StringUtils.isNotBlank(formatContent)) {
-                            ggzyShaanXiDataItem.setFormatContent(formatContent);
-                            dataItems.add(ggzyShaanXiDataItem);
-                        }
+                        continue;
+                    }
+                    Elements elements = page.getHtml().getDocument().body().select("#mainContent");
+                    String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
+                    if (StringUtils.isNotBlank(formatContent)) {
+                        ggzyShaanXiDataItem.setFormatContent(formatContent);
+                        dataItems.add(ggzyShaanXiDataItem);
                     }
                 } catch (Exception e) {
                     log.info("url=={}", ggzyShaanXiDataItem.getUrl());

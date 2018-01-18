@@ -91,25 +91,30 @@ public class NingXiaPageProcessor implements BasePageProcessor {
                     href = "http://www.nxggzyjy.org" + href;
                 }
                 String title = element.text();
-                BidNewsOriginal ggzyNingXiaDataItem = new BidNewsOriginal(href,SourceCode.GGZYNINGXIA);
+                BidNewsOriginal ggzyNingXiaDataItem = new BidNewsOriginal(href, SourceCode.GGZYNINGXIA);
                 ggzyNingXiaDataItem.setUrl(href);
                 ggzyNingXiaDataItem.setProvince("宁夏");
                 ggzyNingXiaDataItem.setTitle(title);
 
-                Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
-                String dateContext = page.getHtml().getDocument().body().select("body > div:nth-child(4) > div > div.ewb-main-bar").text();
-                String dateReal = StringUtils.substringBetween(dateContext, "【信息时间：", "】");
-                ggzyNingXiaDataItem.setDate(PageProcessorUtil.dataTxt(dateReal));
-                if (PageProcessorUtil.timeCompare(ggzyNingXiaDataItem.getDate())) {
-                    log.info("{} is not the same day", ggzyNingXiaDataItem.getUrl());
-                } else {
+                try {
+                    Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
+                    String dateContext = page.getHtml().getDocument().body().select("body > div:nth-child(4) > div > div.ewb-main-bar").text();
+                    String dateReal = StringUtils.substringBetween(dateContext, "【信息时间：", "】");
+                    ggzyNingXiaDataItem.setDate(PageProcessorUtil.dataTxt(dateReal));
+                    if (PageProcessorUtil.timeCompare(ggzyNingXiaDataItem.getDate())) {
+                        log.info("{} is not the same day", ggzyNingXiaDataItem.getUrl());
+                        continue;
+                    }
                     Elements elements = page.getHtml().getDocument().body().select("#gonggaoid");
                     String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
                     if (StringUtils.isNotBlank(formatContent)) {
                         ggzyNingXiaDataItem.setFormatContent(formatContent);
                         dataItems.add(ggzyNingXiaDataItem);
                     }
+                } catch (Exception e) {
+                    log.error("", e);
                 }
+
             }
         }
         return dataItems;

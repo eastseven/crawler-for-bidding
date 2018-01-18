@@ -3,6 +3,7 @@ package com.har.sjfxpt.crawler.core.other;
 import com.har.sjfxpt.crawler.core.SpiderApplicationTests;
 import com.har.sjfxpt.crawler.core.model.BidNewsSpider;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
+import com.har.sjfxpt.crawler.core.pipeline.MongoPipeline;
 import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import com.har.sjfxpt.crawler.other.PetroChinaPageProcessor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,10 +19,16 @@ public class PetroChinaPageProcessorTests extends SpiderApplicationTests {
 
     @Autowired
     HBasePipeline pipeline;
+    @Autowired
+    MongoPipeline mongoPipeline;
 
     @Test
     public void test() {
         Request[] requests = SourceConfigAnnotationUtils.toRequests(pageProcessor.getClass());
-        BidNewsSpider.create(pageProcessor).addPipeline(pipeline).addRequest(requests).run();
+        BidNewsSpider.create(pageProcessor)
+                .addPipeline(mongoPipeline)
+                .addRequest(requests)
+                .thread(8)
+                .run();
     }
 }

@@ -180,21 +180,21 @@ public class HBEBTPPageProcessor implements BasePageProcessor {
                 hbebtpDataItem.setProvince("湖北");
                 if (PageProcessorUtil.timeCompare(hbebtpDataItem.getDate())) {
                     log.warn("{} is not the same day", hbebtpDataItem.getUrl());
-                } else {
+                    continue;
+                }
+                try {
                     Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
-                    try {
-                        Elements elements = page.getHtml().getDocument().body().select("#tblInfo");
-                        String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
-                        if (StringUtils.contains(formatContent, "阅读次数：")) {
-                            formatContent = StringUtils.remove(formatContent, StringUtils.substringBetween(formatContent, "<h4>", "</h4>"));
-                        }
-                        if (StringUtils.isNotBlank(formatContent)) {
-                            hbebtpDataItem.setFormatContent(formatContent);
-                            dataItems.add(hbebtpDataItem);
-                        }
-                    } catch (Exception e) {
-                        log.info("href=={}", href);
+                    Elements elements = page.getHtml().getDocument().body().select("#tblInfo");
+                    String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
+                    if (StringUtils.contains(formatContent, "阅读次数：")) {
+                        formatContent = StringUtils.remove(formatContent, StringUtils.substringBetween(formatContent, "<h4>", "</h4>"));
                     }
+                    if (StringUtils.isNotBlank(formatContent)) {
+                        hbebtpDataItem.setFormatContent(formatContent);
+                        dataItems.add(hbebtpDataItem);
+                    }
+                } catch (Exception e) {
+                   log.error("",e);
                 }
             }
         }

@@ -103,7 +103,9 @@ public class XZPageProcessor implements BasePageProcessor {
                 }
                 if (PageProcessorUtil.timeCompare(ggzyxzDataItem.getDate())) {
                     log.warn("{} is not the same day", ggzyxzDataItem.getUrl());
-                } else {
+                    continue;
+                }
+                try {
                     Page page = httpClientDownloader.download(new Request(url), SiteUtil.get().setTimeOut(20000).toTask());
                     Elements elements = page.getHtml().getDocument().body().select("body > div.content > div.div-content > div.div-article2 > div");
                     String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
@@ -111,6 +113,8 @@ public class XZPageProcessor implements BasePageProcessor {
                         ggzyxzDataItem.setFormatContent(formatContent);
                         dataItems.add(ggzyxzDataItem);
                     }
+                } catch (Exception e) {
+                    log.error("", e);
                 }
             }
         }

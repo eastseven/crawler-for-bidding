@@ -105,7 +105,9 @@ public class HeBeiPageProcessor implements BasePageProcessor {
 
                 if (PageProcessorUtil.timeCompare(ggzyHeBeiDataItem.getDate())) {
                     log.info("{} {} is not the same day", ggzyHeBeiDataItem.getUrl(), ggzyHeBeiDataItem.getDate());
-                } else {
+                    continue;
+                }
+                try {
                     Page page1 = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
                     Elements elements = page1.getHtml().getDocument().body().select("#hideDeil");
                     String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
@@ -113,6 +115,8 @@ public class HeBeiPageProcessor implements BasePageProcessor {
                         ggzyHeBeiDataItem.setFormatContent(formatContent);
                         dataItems.add(ggzyHeBeiDataItem);
                     }
+                } catch (Exception e) {
+                    log.error("", e);
                 }
             }
         }
