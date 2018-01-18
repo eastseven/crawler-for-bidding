@@ -104,18 +104,14 @@ public class GZPageProcessor implements BasePageProcessor {
                 ggzyGZDataItem.setTitle(title);
                 ggzyGZDataItem.setProvince("贵州");
 
-                try {
-                    Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
-                    String dataDetail = page.getHtml().getDocument().body().select("body > div.main > div.content_box > div.infos > span:nth-child(2)").text();
-                    ggzyGZDataItem.setDate(PageProcessorUtil.dataTxt(dataDetail));
-                    Elements elements = page.getHtml().getDocument().body().select("body > div.main > div.content_box");
-                    String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
-                    if (StringUtils.isNotBlank(formatContent)) {
-                        ggzyGZDataItem.setFormatContent(formatContent);
-                        ggzyGZDataItems.add(ggzyGZDataItem);
-                    }
-                } catch (Exception e) {
-                    log.error("", e);
+                Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
+                String dataDetail = page.getHtml().getDocument().body().select("body > div.main > div.content_box > div.infos > span:nth-child(2)").text();
+                ggzyGZDataItem.setDate(PageProcessorUtil.dataTxt(dataDetail));
+                Elements elements = page.getHtml().getDocument().body().select("body > div.main > div.content_box");
+                String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
+                if (StringUtils.isNotBlank(formatContent)) {
+                    ggzyGZDataItem.setFormatContent(formatContent);
+                    ggzyGZDataItems.add(ggzyGZDataItem);
                 }
             } catch (Exception e) {
                 log.error("", e);
