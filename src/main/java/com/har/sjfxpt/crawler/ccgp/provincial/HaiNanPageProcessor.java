@@ -111,29 +111,24 @@ public class HaiNanPageProcessor implements BasePageProcessor {
                 for (Element td : Jsoup.parse(format).select("td")) {
                     String tdText = td.text();
                     if (StringUtils.endsWithIgnoreCase(tdText, "项目编号")) {
-                        log.debug(">>> {}, {}", tdText, td.nextElementSibling().text());
                         haiNanDataItem.setProjectCode(StringUtils.trim(td.nextElementSibling().text()));
                     }
 
                     if (StringUtils.endsWithIgnoreCase(tdText, "预算金额")) {
-                        log.debug(">>> {}, {}", tdText, td.nextElementSibling().text());
                         haiNanDataItem.setBudget(StringUtils.trim(td.nextElementSibling().text()));
                     }
 
                     if (StringUtils.endsWithIgnoreCase(tdText, "中标金额(万元)") ||
                             StringUtils.contains(tdText, "成交金额(万元)")) {
-                        log.debug(">>> {}, {}", tdText, td.nextElementSibling().text());
                         haiNanDataItem.setTotalBidMoney(StringUtils.trim(td.nextElementSibling().text()) + "万元");
                     }
 
                     if (StringUtils.endsWithIgnoreCase(tdText, "中标供应商名称") ||
-                            StringUtils.contains(tdText, "成交供应商名称")) {
-                        log.debug(">>> {}, {}", tdText, td.nextElementSibling().text());
+                            StringUtils.endsWithIgnoreCase(tdText, "成交供应商名称")) {
                         haiNanDataItem.setBidCompanyName(StringUtils.trim(td.nextElementSibling().text()));
                     }
 
                     if (StringUtils.endsWithIgnoreCase(tdText, "采购人单位名称")) {
-                        log.debug(">>> {}, {}", tdText, td.nextElementSibling().text());
                         haiNanDataItem.setPurchaser(StringUtils.trim(td.nextElementSibling().text()));
                     }
                 }
