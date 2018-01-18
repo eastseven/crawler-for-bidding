@@ -33,7 +33,6 @@ import static com.har.sjfxpt.crawler.ccgp.provincial.ShangHaiPageProcessor.*;
 @Component
 @SourceConfig(
         code = SourceCode.CCGPSHANGHAI,
-        useSelenium = true,
         sources = {
                 @Source(url = CCGPSHANGHAI_URL1, post = true, postParams = CCGPSHANGHAI_POSTPARAMS1),
         }

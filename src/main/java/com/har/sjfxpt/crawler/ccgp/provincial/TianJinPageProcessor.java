@@ -36,6 +36,7 @@ import static com.har.sjfxpt.crawler.ccgp.provincial.TianJinPageProcessor.*;
 @Component
 @SourceConfig(
         code = SourceCode.CCGPTIANJIN,
+        useSelenium = true,
         sources = {
                 @Source(url = URL1, type = "采购公告"),
                 @Source(url = URL2, type = "采购公告"),
