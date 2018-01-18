@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import us.codecraft.webmagic.downloader.selenium.SeleniumDownloader;
 
+import javax.annotation.PreDestroy;
+
 /**
  * @author dongqi
  */
@@ -22,6 +24,11 @@ public class SeleniumConfig implements CommandLineRunner {
     @Bean
     WebDriverPoolExt webDriverPoolExt() {
         return new WebDriverPoolExt();
+    }
+
+    @PreDestroy
+    public void clean() {
+        webDriverPoolExt().closeAll();
     }
 
     @Override
