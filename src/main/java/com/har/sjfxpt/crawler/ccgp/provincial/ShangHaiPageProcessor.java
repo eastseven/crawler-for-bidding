@@ -24,10 +24,13 @@ import us.codecraft.webmagic.utils.HttpConstant;
 import java.util.List;
 import java.util.Map;
 
-import static com.har.sjfxpt.crawler.ccgp.provincial.ShangHaiPageProcessor.*;
+import static com.har.sjfxpt.crawler.ccgp.provincial.ShangHaiPageProcessor.CCGPSHANGHAI_POSTPARAMS1;
+import static com.har.sjfxpt.crawler.ccgp.provincial.ShangHaiPageProcessor.CCGPSHANGHAI_URL1;
 
 /**
  * Created by Administrator on 2018/1/16.
+ * @author luofei
+ * @author dongqi
  */
 @Slf4j
 @Component
@@ -104,18 +107,19 @@ public class ShangHaiPageProcessor implements BasePageProcessor {
 
                     if (PageProcessorUtil.timeCompare(bidNewsOriginal.getDate())) {
                         log.warn("{} is not the same day", bidNewsOriginal.getUrl());
-                    } else {
-                        Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
-                        Element element1 = page.getHtml().getDocument().body();
-                        String formatContent = PageProcessorUtil.formatElementsByWhitelist(element1);
-                        if (StringUtils.isNotBlank(formatContent)) {
-                            bidNewsOriginal.setFormatContent(formatContent);
-                            dataItems.add(bidNewsOriginal);
-                        }
+                        continue;
+                    }
+
+                    Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
+                    Element element1 = page.getHtml().getDocument().body();
+                    String formatContent = PageProcessorUtil.formatElementsByWhitelist(element1);
+                    if (StringUtils.isNotBlank(formatContent)) {
+                        bidNewsOriginal.setFormatContent(formatContent);
+                        dataItems.add(bidNewsOriginal);
                     }
                 }
             } catch (Exception e) {
-                log.warn("e{}", e);
+                log.error("", e);
             }
         }
         return dataItems;
@@ -130,6 +134,6 @@ public class ShangHaiPageProcessor implements BasePageProcessor {
     @Override
     public Site getSite() {
         httpClientDownloader = new HttpClientDownloader();
-        return SiteUtil.get().setSleepTime(100000);
+        return SiteUtil.getIE8().setSleepTime(100000);
     }
 }

@@ -1,8 +1,14 @@
 package com.har.sjfxpt.crawler.core.utils;
 
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.RandomUtils;
 import us.codecraft.webmagic.Site;
 
+/**
+ * @author dongqi
+ *
+ * http://www.useragentstring.com/pages/useragentstring.php?name=All
+ */
 public final class SiteUtil {
 
     private SiteUtil() {
@@ -11,6 +17,14 @@ public final class SiteUtil {
 
     public static final Site get() {
         String userAgent = USER_AGENTS[RandomUtils.nextInt(0, USER_AGENTS.length - 1)];
+        return get(userAgent);
+    }
+
+    public static final Site getIE8() {
+        return get(getIE8UserAgent());
+    }
+
+    public static final Site get(String userAgent) {
         return Site.me()
                 .setUserAgent(userAgent)
                 .setSleepTime(4321)
@@ -18,6 +32,10 @@ public final class SiteUtil {
                 .setTimeOut(30000)
                 .setRetrySleepTime(5432)
                 .setRetryTimes(3);
+    }
+
+    public static final String getIE8UserAgent() {
+        return Lists.newArrayList(USER_AGENTS).stream().filter(ua -> !ua.contains("MSIE 8.0;")).findAny().get();
     }
 
     private static final String[] USER_AGENTS = {
