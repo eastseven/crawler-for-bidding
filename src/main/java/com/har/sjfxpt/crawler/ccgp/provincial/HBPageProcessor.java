@@ -151,9 +151,8 @@ public class HBPageProcessor implements BasePageProcessor {
 
                 try {
                     Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
-                    Elements elements = page.getHtml().getDocument().body().select("body > table");
+                    Elements elements = page.getHtml().getDocument().body().select("body > table > tbody > tr > td > table > tbody > tr:nth-child(4) > td > table");
                     Elements elements1 = page.getHtml().getDocument().body().select("body > table > tbody > tr > td > table > tbody > tr:nth-child(4) > td > table > tbody > tr:nth-child(7) > td > span");
-                    log.debug("url={}", bidNewsOriginal.getUrl());
                     if (StringUtils.isNotBlank(elements1.text())) {
                         bidNewsOriginal.setDate(PageProcessorUtil.dataTxt(elements1.text()));
                     }
