@@ -34,6 +34,7 @@ public enum SourceCode {
     CCGPSHANGHAI("上海政府采购"),
     CCGPTIANJIN("天津政府采购"),
     CCGPHEBEI("河北政府采购"),
+    CCGPHENAN("河南政府采购"),
 
     CM("中国移动采购与招标网"),
     JC("金采网"),
