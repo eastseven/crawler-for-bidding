@@ -17,15 +17,15 @@ import org.springframework.stereotype.Component;
 public class SpiderTaskScheduler {
 
     @Value("${app.fetch.current.day:false}")
-    boolean flag;
+    private boolean flag;
 
     @Autowired
-    SpiderNewLauncher launcher;
+    private SpiderNewLauncher launcher;
 
     /**
      * 启动后10秒执行，30分钟一次
      */
-    @Scheduled(initialDelay = 10000, fixedRateString = "${app.fetch.fixed.rate:1800000}")
+    @Scheduled(initialDelay = 10000L, fixedRateString = "${app.fetch.fixed.rate:1800000}")
     public void fetch() {
         if (flag) {
             log.info("spider start");
@@ -33,4 +33,8 @@ public class SpiderTaskScheduler {
         }
     }
 
+    @Scheduled(initialDelay = 60 * 1000L, fixedRate = 60 * 1000L)
+    public void log() {
+        launcher.saveSpiderLogs();
+    }
 }

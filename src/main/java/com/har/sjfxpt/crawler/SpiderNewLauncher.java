@@ -33,10 +33,8 @@ import us.codecraft.webmagic.monitor.SpiderMonitor;
 import us.codecraft.webmagic.processor.PageProcessor;
 import us.codecraft.webmagic.proxy.SimpleProxyProvider;
 
-import javax.management.JMException;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
 
 /**
  * @author dongqi
@@ -49,38 +47,35 @@ import java.util.concurrent.ExecutorService;
 public class SpiderNewLauncher implements CommandLineRunner {
 
     @Autowired
-    ApplicationContext ctx;
+    private ApplicationContext ctx;
 
     @Autowired
-    ProxyService proxyService;
+    private ProxyService proxyService;
 
     @Autowired
-    HttpClientDownloader httpClientDownloader;
+    private HttpClientDownloader httpClientDownloader;
 
     @Autowired
-    SeleniumDownloader seleniumDownloader;
+    private SeleniumDownloader seleniumDownloader;
 
     @Autowired
-    SourceConfigModelRepository sourceConfigModelRepository;
+    private SourceConfigModelRepository sourceConfigModelRepository;
 
     @Autowired
-    SpiderLogRepository spiderLogRepository;
+    private SpiderLogRepository spiderLogRepository;
 
     @Autowired
     private FinishSpiderListener spiderListener;
 
-    @Autowired
-    MongoPipeline mongoPipeline;
-
     private static final String BASE_PACKAGE = "com.har.sjfxpt.crawler";
 
-    private Map<String, BidNewsSpider> spiders = Maps.newConcurrentMap();
+    private Map<String, Spider> spiders = Maps.newConcurrentMap();
 
-    public Map<String, BidNewsSpider> getSpiders() {
+    public Map<String, Spider> getSpiders() {
         return spiders;
     }
 
-    public BidNewsSpider getSpider(String id) {
+    public Spider getSpider(String id) {
         return spiders.get(id);
     }
 
@@ -92,50 +87,19 @@ public class SpiderNewLauncher implements CommandLineRunner {
                 continue;
             }
 
-            final String uuid = "spider_" + config.getSourceCode().name().toLowerCase();
-            if (spiders.containsKey(uuid)) {
-                log.warn(">>> spider uuid[{}] is exists, status is {}", uuid, spiders.get(uuid).getStatus());
-                continue;
+            Spider spider = create(config, pageProcessor);
+            if (spider != null) {
+                try {
+                    spider.start();
+                    SpiderMonitor.instance().register(spider);
+                } catch (Exception e) {
+                    log.error("", e);
+                }
             }
-
-            List<SourceModel> sourceModelList = config.getSources();
-            if (sourceModelList.isEmpty()) continue;
-
-            // 创建 Request 对象集合
-            Request[] requests = sourceModelList.stream().map(SourceModel::createRequest).toArray(Request[]::new);
-            int num = requests.length * 2 >= 10 ? 10 : requests.length * 2;
-            Spider spider = BidNewsSpider.create((PageProcessor) ctx.getBean(pageProcessor)).setUUID(uuid)
-                    .thread(num)
-                    .setExitWhenComplete(true)
-                    .addRequest(requests)
-                    .addPipeline(mongoPipeline)
-                    .addPipeline(ctx.getBean(HBasePipeline.class));
-
-
-            // 由于SeleniumDownloader 不能使用代理，所以useSelenium 属性跟useProxy属性 互斥，都为true配置无效
-            if (config.isUseSelenium() && !config.isUseProxy()) {
-                spider.setDownloader(seleniumDownloader);
-                log.debug(">>> {} use selenium downloader", config.getSourceCode());
-            } else if (config.isUseProxy() && !config.isUseSelenium()) {
-                httpClientDownloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
-                spider.setDownloader(httpClientDownloader);
-            }
-
-            BidNewsSpider bidNewsSpider = (BidNewsSpider) spider;
-            bidNewsSpider.setSourceModelList(sourceModelList);
-            bidNewsSpider.setSpiderListeners(Lists.newArrayList(spiderListener));
-            spiders.put(uuid, bidNewsSpider);
 
             saveConfig(config);
         }
 
-        if (!spiders.isEmpty()) {
-            try {
-                SpiderMonitor.instance().register(spiders.values().toArray(new BidNewsSpider[spiders.size()]));
-            } catch (JMException e) {
-                log.error("", e);
-            }
-        }
     }
 
     private List<Class> getPageProcessorClasses() {
@@ -169,32 +133,52 @@ public class SpiderNewLauncher implements CommandLineRunner {
         sourceConfigModelRepository.save(config);
     }
 
-    public void start() {
+    public void saveSpiderLogs() {
         if (spiders.isEmpty()) return;
 
         spiders.forEach((uuid, spider) -> {
-            switch (spider.getStatus()) {
-                case Running:
-                    break;
-                case Init:
-                case Stopped:
-
-                    List<SourceModel> sourceModelList = spider.getSourceModelList();
-                    Request[] requests = sourceModelList.stream().map(SourceModel::createRequest).toArray(Request[]::new);
-                    spider.addRequest(requests);
-
-                    spider.start();
-
-                    save(spider);
-                    log.info(">>> uuid={}, status={}, startTime={}", uuid, spider.getStatus(), spider.getStartTime());
-
-                    break;
-                default:
-            }
+            saveSpiderLog(spider);
+            log.info(">>> uuid={}, status={}, startTime={}", uuid, spider.getStatus(), spider.getStartTime());
         });
     }
 
-    private void save(Spider spider) {
+    public Spider create(SourceConfigModel config, Class pageProcessor) {
+        List<SourceModel> sourceModelList = config.getSources();
+        if (sourceModelList.isEmpty()) return null;
+
+        // 创建 Request 对象集合
+        Request[] requests = sourceModelList.stream().map(SourceModel::createRequest).toArray(Request[]::new);
+        final int num = 10;
+        Spider spider = BidNewsSpider.create((PageProcessor) ctx.getBean(pageProcessor))
+                .thread(num)
+                .setExitWhenComplete(true)
+                .addRequest(requests)
+                .addPipeline(ctx.getBean(MongoPipeline.class))
+                .addPipeline(ctx.getBean(HBasePipeline.class));
+
+
+        // 由于SeleniumDownloader 不能使用代理，所以useSelenium 属性跟useProxy属性 互斥，都为true配置无效
+        if (config.isUseSelenium() && !config.isUseProxy()) {
+            spider.setDownloader(seleniumDownloader);
+            log.debug(">>> {} use selenium downloader", config.getSourceCode());
+        } else if (config.isUseProxy() && !config.isUseSelenium()) {
+            httpClientDownloader.setProxyProvider(SimpleProxyProvider.from(proxyService.getAliyunProxies()));
+            spider.setDownloader(httpClientDownloader);
+        }
+
+        String uuid = "spider_" + config.getSourceCode().name().toLowerCase() + '_' + DateTime.now().toString("yyyyMMdd_HHmmss");
+        spider.setUUID(uuid);
+        spider.setExitWhenComplete(true);
+
+        spiders.put(uuid, spider);
+        return spider;
+    }
+
+    public void start() {
+        init();
+    }
+
+    private void saveSpiderLog(Spider spider) {
         try {
             DateTime dt = DateTime.now();
             SpiderLog spiderLog = new SpiderLog();
@@ -214,6 +198,5 @@ public class SpiderNewLauncher implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        init();
     }
 }

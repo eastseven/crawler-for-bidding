@@ -35,4 +35,7 @@ public class SourceConfigModel {
     private boolean useSelenium;
 
     private List<SourceModel> sources = Lists.newArrayList();
+
+    @Field("page_process_class")
+    private String pageProcessor;
 }

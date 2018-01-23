@@ -35,7 +35,6 @@ public class HBasePipeline implements Pipeline {
     public void process(ResultItems resultItems, Task task) {
         List<BidNewsOriginal> dataItemList = resultItems.get(KEY_DATA_ITEMS);
         if (CollectionUtils.isEmpty(dataItemList)) {
-            log.warn(">>> save nothing, {}", task.getUUID());
             return;
         }
 
