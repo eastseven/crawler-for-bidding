@@ -84,14 +84,16 @@ public class HNPageProcessor implements BasePageProcessor {
     public List parseContent(Elements items) {
         List<BidNewsOriginal> dataItems = Lists.newArrayList();
         for (Element element : items) {
-            String href = element.select("td > a").attr("href");
-            if (StringUtils.isNotBlank(href)) {
-                String title = element.select("td > a").attr("title");
-                String date = element.select(" td:nth-child(4)").text();
-                log.debug("date={}", date);
-                if (PageProcessorUtil.timeCompare(date)) {
-                    log.info("{} is not on the same day", href);
-                } else {
+            try {
+                String href = element.select("td > a").attr("href");
+                if (StringUtils.isNotBlank(href)) {
+                    String title = element.select("td > a").attr("title");
+                    String date = element.select(" td:nth-child(4)").text();
+                    log.debug("date={}", date);
+                    if (PageProcessorUtil.timeCompare(date)) {
+                        log.info("{} is not on the same day", href);
+                        continue;
+                    }
                     BidNewsOriginal ggzyHNDataItem = new BidNewsOriginal(href, SourceCode.GGZYHN);
                     ggzyHNDataItem.setUrl(href);
                     ggzyHNDataItem.setTitle(title);
@@ -100,18 +102,16 @@ public class HNPageProcessor implements BasePageProcessor {
                         date = PageProcessorUtil.dataTxt(date);
                     }
                     ggzyHNDataItem.setDate(date);
-                    try {
-                        Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
-                        Elements elements = page.getHtml().getDocument().body().select("body > div.container > div > div.newsTex > div.newsCon");
-                        String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
-                        if (StringUtils.isNotBlank(formatContent)) {
-                            ggzyHNDataItem.setFormatContent(formatContent);
-                            dataItems.add(ggzyHNDataItem);
-                        }
-                    } catch (Exception e) {
-                        log.warn("e{}", e);
+                    Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
+                    Elements elements = page.getHtml().getDocument().body().select("body > div.container > div > div.newsTex > div.newsCon");
+                    String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
+                    if (StringUtils.isNotBlank(formatContent)) {
+                        ggzyHNDataItem.setFormatContent(formatContent);
+                        dataItems.add(ggzyHNDataItem);
                     }
                 }
+            } catch (Exception e) {
+                log.error("", e);
             }
         }
         return dataItems;
