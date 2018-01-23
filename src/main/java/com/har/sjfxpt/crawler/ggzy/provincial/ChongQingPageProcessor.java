@@ -115,15 +115,14 @@ public class ChongQingPageProcessor implements BasePageProcessor {
         String Json = StringUtils.substringBetween(page.getRawText(), "\"[", "]\"");
         String targets[] = StringUtils.substringsBetween(Json, "{", "}");
         for (String target : targets) {
+            String href = "http://www.cqggzy.com" + StringUtils.substringBetween(target, "\"infourl\\\":\\\"", "\\\",").replace("\\", "");
+            String title = StringUtils.substringBetween(target, "\"title\\\":\\\"", "\\\",");
+            String date = StringUtils.substringBetween(target, "\"infodate\\\":\\\"", "\\\",");
+            if (PageProcessorUtil.timeCompare(date)) {
+                log.info("{} is not on the same day", href);
+                continue;
+            }
             try {
-                String href = "http://www.cqggzy.com" + StringUtils.substringBetween(target, "\"infourl\\\":\\\"", "\\\",").replace("\\", "");
-                String title = StringUtils.substringBetween(target, "\"title\\\":\\\"", "\\\",");
-                String date = StringUtils.substringBetween(target, "\"infodate\\\":\\\"", "\\\",");
-                if (PageProcessorUtil.timeCompare(date)) {
-                    log.info("{} is not on the same day", href);
-                    continue;
-                }
-
                 BidNewsOriginal ggzyCQDataItem = new BidNewsOriginal(href, SourceCode.GGZYCQ);
                 ggzyCQDataItem.setTitle(title);
                 if (date.length() == 10) {
@@ -154,6 +153,7 @@ public class ChongQingPageProcessor implements BasePageProcessor {
                 }
             } catch (Exception e) {
                 log.error("", e);
+                log.error("url={}", href);
             }
 
         }

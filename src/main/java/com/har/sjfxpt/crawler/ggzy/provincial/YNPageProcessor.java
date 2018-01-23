@@ -111,8 +111,8 @@ public class YNPageProcessor implements BasePageProcessor {
         for (Element element : items) {
             String href = element.select("a").attr("href");
             if (StringUtils.isNotBlank(href)) {
+                String url = "https://www.ynggzyxx.gov.cn" + href;
                 try {
-                    String url = "https://www.ynggzyxx.gov.cn" + href;
                     BidNewsOriginal yuNanDataItem = new BidNewsOriginal(url, SourceCode.GGZYYN);
                     yuNanDataItem.setProvince("云南");
                     String field2 = element.select("td:nth-child(2)").text();
@@ -205,6 +205,7 @@ public class YNPageProcessor implements BasePageProcessor {
                     }
                 } catch (Exception e) {
                     log.error("", e);
+                    log.error("url={}", url);
                 }
             }
         }

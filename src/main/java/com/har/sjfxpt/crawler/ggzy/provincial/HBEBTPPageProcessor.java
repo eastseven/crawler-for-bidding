@@ -194,7 +194,8 @@ public class HBEBTPPageProcessor implements BasePageProcessor {
                         dataItems.add(hbebtpDataItem);
                     }
                 } catch (Exception e) {
-                   log.error("",e);
+                    log.error("", e);
+                    log.error("url={}", href);
                 }
             }
         }

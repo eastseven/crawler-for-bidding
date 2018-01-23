@@ -119,13 +119,13 @@ public class GanSuPageProcessor implements BasePageProcessor {
     public List parseContent(Elements items) {
         List<BidNewsOriginal> dataItems = Lists.newArrayList();
         for (Element element : items) {
-            try {
-                String hrefFiled = element.select("a").attr("onclick");
-                String href = StringUtils.substringBetween(hrefFiled, "='", "'");
-                if (StringUtils.isNotBlank(href)) {
-                    if (!StringUtils.startsWith(href, "http:")) {
-                        href = "http://www.gsggfw.cn" + href;
-                    }
+            String hrefFiled = element.select("a").attr("onclick");
+            String href = StringUtils.substringBetween(hrefFiled, "='", "'");
+            if (StringUtils.isNotBlank(href)) {
+                if (!StringUtils.startsWith(href, "http:")) {
+                    href = "http://www.gsggfw.cn" + href;
+                }
+                try {
                     String title = element.select("a").attr("title");
                     String date = element.select("span").text();
                     BidNewsOriginal ggzyGanSuDataItem = new BidNewsOriginal(href, SourceCode.GGZYGANSU);
@@ -151,11 +151,12 @@ public class GanSuPageProcessor implements BasePageProcessor {
                         ggzyGanSuDataItem.setFormatContent(formatContent);
                         dataItems.add(ggzyGanSuDataItem);
                     }
+                } catch (Exception e) {
+                    log.error("", e);
+                    log.error("url={}", href);
                 }
-            } catch (Exception e) {
-                log.error("", e);
-                log.error("{}", element);
             }
+
         }
         return dataItems;
     }

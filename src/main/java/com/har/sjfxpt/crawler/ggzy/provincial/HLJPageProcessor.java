@@ -83,10 +83,10 @@ public class HLJPageProcessor implements BasePageProcessor {
     public List parseContent(Elements items) {
         List<BidNewsOriginal> dataItems = Lists.newArrayList();
         for (Element element : items) {
-            try {
-                String url = element.select("a").attr("href");
-                if (StringUtils.isNotBlank(url)) {
-                    String href = "http://hljggzyjyw.gov.cn" + url;
+            String url = element.select("a").attr("href");
+            if (StringUtils.isNotBlank(url)) {
+                String href = "http://hljggzyjyw.gov.cn" + url;
+                try {
                     String title = element.select("a").attr("title");
                     String date = element.select("span.date").text();
                     BidNewsOriginal ggzyhljDataItem = new BidNewsOriginal(href, SourceCode.GGZYHLJ);
@@ -104,10 +104,11 @@ public class HLJPageProcessor implements BasePageProcessor {
                         ggzyhljDataItem.setFormatContent(formatContent);
                         dataItems.add(ggzyhljDataItem);
                     }
+                } catch (Exception e) {
+                    log.error("", e);
                 }
-            } catch (Exception e) {
-                log.error("", e);
             }
+
         }
         return dataItems;
     }

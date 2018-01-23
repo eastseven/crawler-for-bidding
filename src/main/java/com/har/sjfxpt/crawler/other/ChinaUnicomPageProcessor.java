@@ -88,20 +88,21 @@ public class ChinaUnicomPageProcessor implements BasePageProcessor {
                 if (!StringUtils.startsWith(href, "http:")) {
                     href = "http://www.chinaunicombidding.cn" + href;
                 }
-                String title = element.select("td:nth-child(1) > span").attr("title");
-                String date = element.select("td:nth-child(2)").text();
-                String provice = element.select("td:nth-child(3)").text();
-
-                BidNewsOriginal chinaUnicomDataItem = new BidNewsOriginal(href, SourceCode.CU);
-                chinaUnicomDataItem.setTitle(title);
-                chinaUnicomDataItem.setDate(PageProcessorUtil.dataTxt(date));
-                chinaUnicomDataItem.setProvince(ProvinceUtil.get(provice));
-
-                if (PageProcessorUtil.timeCompare(chinaUnicomDataItem.getDate())) {
-                    log.warn("{} is not the same day", chinaUnicomDataItem.getUrl());
-                    continue;
-                }
                 try {
+                    String title = element.select("td:nth-child(1) > span").attr("title");
+                    String date = element.select("td:nth-child(2)").text();
+                    String provice = element.select("td:nth-child(3)").text();
+
+                    BidNewsOriginal chinaUnicomDataItem = new BidNewsOriginal(href, SourceCode.CU);
+                    chinaUnicomDataItem.setTitle(title);
+                    chinaUnicomDataItem.setDate(PageProcessorUtil.dataTxt(date));
+                    chinaUnicomDataItem.setProvince(ProvinceUtil.get(provice));
+
+                    if (PageProcessorUtil.timeCompare(chinaUnicomDataItem.getDate())) {
+                        log.warn("{} is not the same day", chinaUnicomDataItem.getUrl());
+                        continue;
+                    }
+
                     Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
                     String dateDetail = page.getHtml().getDocument().body().select("body > div > table > tbody > tr > td:nth-child(2) > span").text();
                     if (StringUtils.isNotBlank(dateDetail)) {
@@ -115,6 +116,7 @@ public class ChinaUnicomPageProcessor implements BasePageProcessor {
                     }
                 } catch (Exception e) {
                     log.error("", e);
+                    log.error("href={}", href);
                 }
             }
         }

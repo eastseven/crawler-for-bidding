@@ -132,37 +132,41 @@ public class ChinaMobilePageProcessor implements BasePageProcessor {
 
             String id = StringUtils.substringBetween(element.attr("onclick"), "('", "')");
             String url = URL + id;
-            String purchaser = element.select("td").get(0).text();
-            String type = StringUtils.defaultString(element.select("td").get(1).text(), "其他");
+            try {
+                String purchaser = element.select("td").get(0).text();
+                String type = StringUtils.defaultString(element.select("td").get(1).text(), "其他");
 
-            String title = element.select("td").get(2).select("a").attr("title");
-            if (StringUtils.isBlank(title)) {
-                title = element.select("td").get(2).text();
+                String title = element.select("td").get(2).select("a").attr("title");
+                if (StringUtils.isBlank(title)) {
+                    title = element.select("td").get(2).text();
+                }
+                String projectName = StringUtils.substringBefore(title, "_");
+
+                String date = element.select("td").get(3).text();
+                date = new DateTime(date).toString(YYYYMMDD);
+
+                BidNewsOriginal dataItem = new BidNewsOriginal(url, SourceCode.CM);
+                dataItem.setDate(PageProcessorUtil.dataTxt(date));
+                dataItem.setTitle(title);
+                dataItem.setProjectName(StringUtils.defaultString(projectName, ""));
+                dataItem.setType(type);
+                dataItem.setPurchaser(purchaser);
+                dataItem.setProvince(ProvinceUtil.get(purchaser + " " + title));
+
+                Document document = httpClientDownloader.download(new Request(url), SiteUtil.get().setTimeOut(60000).toTask()).getHtml().getDocument();
+                Element root;
+                if (!document.body().select("div#mobanDiv").isEmpty()) {
+                    root = document.body().select("div#mobanDiv").first();
+                } else {
+                    root = document.body().select("div#container table").first();
+                }
+                String formatContent = PageProcessorUtil.formatElementsByWhitelist(root);
+                dataItem.setFormatContent(formatContent);
+                dataItems.add(dataItem);
+            } catch (Exception e) {
+                log.error("", e);
+                log.error("url={}", url);
             }
-            String projectName = StringUtils.substringBefore(title, "_");
-
-            String date = element.select("td").get(3).text();
-            date = new DateTime(date).toString(YYYYMMDD);
-
-            BidNewsOriginal dataItem = new BidNewsOriginal(url, SourceCode.CM);
-            dataItem.setDate(PageProcessorUtil.dataTxt(date));
-            dataItem.setTitle(title);
-            dataItem.setProjectName(StringUtils.defaultString(projectName, ""));
-            dataItem.setType(type);
-            dataItem.setPurchaser(purchaser);
-            dataItem.setProvince(ProvinceUtil.get(purchaser + " " + title));
-
-            Document document = httpClientDownloader.download(new Request(url), SiteUtil.get().setTimeOut(60000).toTask()).getHtml().getDocument();
-            Element root;
-            if (!document.body().select("div#mobanDiv").isEmpty()) {
-                root = document.body().select("div#mobanDiv").first();
-            } else {
-                root = document.body().select("div#container table").first();
-            }
-            String formatContent = PageProcessorUtil.formatElementsByWhitelist(root);
-            dataItem.setFormatContent(formatContent);
-            dataItems.add(dataItem);
-            log.debug(">>> {}", dataItem);
         }
         return dataItems;
     }

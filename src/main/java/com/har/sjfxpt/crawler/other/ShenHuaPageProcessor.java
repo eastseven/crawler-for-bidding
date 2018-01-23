@@ -78,14 +78,15 @@ public class ShenHuaPageProcessor implements BasePageProcessor {
                 if (!StringUtils.startsWith(href, "http:")) {
                     href = "http://www.shenhuabidding.com.cn" + href;
                 }
-                String title = element.select("div > a.infolink").attr("title");
-                String date = element.select("span").text();
-                BidNewsOriginal shenHuaDataItem = new BidNewsOriginal(href, SourceCode.SHENHUA);
-                shenHuaDataItem.setTitle(title);
-                shenHuaDataItem.setProvince(ProvinceUtil.get(title));
-                shenHuaDataItem.setDate(PageProcessorUtil.dataTxt(date));
-
                 try {
+                    String title = element.select("div > a.infolink").attr("title");
+                    String date = element.select("span").text();
+                    BidNewsOriginal shenHuaDataItem = new BidNewsOriginal(href, SourceCode.SHENHUA);
+                    shenHuaDataItem.setTitle(title);
+                    shenHuaDataItem.setProvince(ProvinceUtil.get(title));
+                    shenHuaDataItem.setDate(PageProcessorUtil.dataTxt(date));
+
+
                     Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
                     Elements dateDetail = page.getHtml().getDocument().body().select("body > div.container.mt20 > div.row > div.article > div.article-info > p");
                     String dateField = StringUtils.substringBetween(dateDetail.text(), "【发布时间：", " 阅读次数：");
@@ -107,6 +108,7 @@ public class ShenHuaPageProcessor implements BasePageProcessor {
                     }
                 } catch (Exception e) {
                     log.error("", e);
+                    log.error("href={}", href);
                 }
             }
         }

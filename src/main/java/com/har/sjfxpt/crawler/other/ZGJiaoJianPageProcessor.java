@@ -112,21 +112,26 @@ public class ZGJiaoJianPageProcessor implements BasePageProcessor {
                 zgJiaoJianDataItem.setProvince(ProvinceUtil.get(title));
                 zgJiaoJianDataItem.setDate(PageProcessorUtil.dataTxt(date));
 
-                Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
-                String dateDetail = page.getHtml().getDocument().body().select("body > div:nth-child(2)").text();
-                dateDetail = PageProcessorUtil.dataTxt(dateDetail);
-                if (StringUtils.isNotBlank(dateDetail)) {
-                    zgJiaoJianDataItem.setDate(dateDetail);
-                }
-                if (PageProcessorUtil.timeCompare(zgJiaoJianDataItem.getDate())) {
-                    log.warn("{} in not the same day", zgJiaoJianDataItem.getUrl());
-                } else {
+                try {
+                    Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
+                    String dateDetail = page.getHtml().getDocument().body().select("body > div:nth-child(2)").text();
+                    dateDetail = PageProcessorUtil.dataTxt(dateDetail);
+                    if (StringUtils.isNotBlank(dateDetail)) {
+                        zgJiaoJianDataItem.setDate(dateDetail);
+                    }
+                    if (PageProcessorUtil.timeCompare(zgJiaoJianDataItem.getDate())) {
+                        log.warn("{} in not the same day", zgJiaoJianDataItem.getUrl());
+                        continue;
+                    }
                     Elements elements = page.getHtml().getDocument().body().select("body > div:nth-child(3)");
                     String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
                     if (StringUtils.isNotBlank(formatContent)) {
                         zgJiaoJianDataItem.setFormatContent(formatContent);
                         dataItems.add(zgJiaoJianDataItem);
                     }
+                } catch (Exception e) {
+                    log.error("", e);
+                    log.error("href={}", href);
                 }
             }
         }

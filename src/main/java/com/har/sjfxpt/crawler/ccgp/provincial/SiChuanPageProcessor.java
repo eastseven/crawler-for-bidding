@@ -143,6 +143,7 @@ public class SiChuanPageProcessor implements BasePageProcessor {
                 dataItems.add(ccgpSiChuanDataItem);
             } catch (Exception e) {
                 log.error("", e);
+                log.error("url={}", href);
             }
 
         }

@@ -112,25 +112,25 @@ public class CQPageProcessor implements BasePageProcessor {
             ccgpcqDataItem.setUrl(hrefLook);
             if (PageProcessorUtil.timeCompare(ccgpcqDataItem.getDate())) {
                 log.warn("{} is not the same day", ccgpcqDataItem.getUrl());
-            } else {
-                try {
-                    Page page1 = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
-                    JSONObject pageJson = (JSONObject) JSONObject.parse(page1.getRawText());
-                    String htmlJson = (String) JSONPath.eval(pageJson, "$.notice.html");
-                    Whitelist whitelist = Whitelist.relaxed();
-                    whitelist.removeTags("style");
-                    whitelist.removeTags("script");
-                    whitelist.removeAttributes("table", "style", "width", "height");
-                    whitelist.removeAttributes("td", "style", "width", "height");
-                    String formatContent = Jsoup.clean(htmlJson, whitelist);
-                    formatContent = StringUtils.removeAll(formatContent, "<!-{2,}.*?-{2,}>|(&nbsp;)|<o:p>|</o:p>");
-                    if (StringUtils.isNotBlank(formatContent)) {
-                        ccgpcqDataItem.setFormatContent(formatContent);
-                        dataItems.add(ccgpcqDataItem);
-                    }
-                } catch (Exception e) {
-                    log.warn("{}", e);
+            }
+            try {
+                Page page1 = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
+                JSONObject pageJson = (JSONObject) JSONObject.parse(page1.getRawText());
+                String htmlJson = (String) JSONPath.eval(pageJson, "$.notice.html");
+                Whitelist whitelist = Whitelist.relaxed();
+                whitelist.removeTags("style");
+                whitelist.removeTags("script");
+                whitelist.removeAttributes("table", "style", "width", "height");
+                whitelist.removeAttributes("td", "style", "width", "height");
+                String formatContent = Jsoup.clean(htmlJson, whitelist);
+                formatContent = StringUtils.removeAll(formatContent, "<!-{2,}.*?-{2,}>|(&nbsp;)|<o:p>|</o:p>");
+                if (StringUtils.isNotBlank(formatContent)) {
+                    ccgpcqDataItem.setFormatContent(formatContent);
+                    dataItems.add(ccgpcqDataItem);
                 }
+            } catch (Exception e) {
+                log.warn("", e);
+                log.warn("url={}", hrefLook);
             }
         }
         return dataItems;

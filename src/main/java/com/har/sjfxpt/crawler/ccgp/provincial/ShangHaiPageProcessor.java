@@ -29,6 +29,7 @@ import static com.har.sjfxpt.crawler.ccgp.provincial.ShangHaiPageProcessor.CCGPS
 
 /**
  * Created by Administrator on 2018/1/16.
+ *
  * @author luofei
  * @author dongqi
  */
@@ -90,10 +91,11 @@ public class ShangHaiPageProcessor implements BasePageProcessor {
     public List parseContent(Elements items) {
         List<BidNewsOriginal> dataItems = Lists.newArrayList();
         for (Element element : items) {
-            try {
-                String hrefId = element.select("a").attr("value");
-                if (StringUtils.isNotBlank(hrefId)) {
-                    String href = "http://www.ccgp-shanghai.gov.cn/emeb_bulletin.do?method=showbulletin&bulletin_id=" + hrefId;
+
+            String hrefId = element.select("a").attr("value");
+            if (StringUtils.isNotBlank(hrefId)) {
+                String href = "http://www.ccgp-shanghai.gov.cn/emeb_bulletin.do?method=showbulletin&bulletin_id=" + hrefId;
+                try {
                     String date = element.select("td:nth-child(3)").text();
                     String title = element.select("a").text();
                     String dateDetail = StringUtils.substringBetween(date, "(", " /");
@@ -117,10 +119,12 @@ public class ShangHaiPageProcessor implements BasePageProcessor {
                         bidNewsOriginal.setFormatContent(formatContent);
                         dataItems.add(bidNewsOriginal);
                     }
+                } catch (Exception e) {
+                    log.error("", e);
+                    log.error("url={}", href);
                 }
-            } catch (Exception e) {
-                log.error("", e);
             }
+
         }
         return dataItems;
     }

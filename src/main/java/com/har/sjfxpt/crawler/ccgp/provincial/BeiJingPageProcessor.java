@@ -105,20 +105,22 @@ public class BeiJingPageProcessor implements BasePageProcessor {
         List<BidNewsOriginal> bidNewsOriginalList = Lists.newArrayList();
         for (Element element : items) {
             String href = element.select("a").attr("href");
-            if (StringUtils.isNotBlank(href)) {
-                if (StringUtils.startsWith(href, "./")) {
-                    String urlPrefix = StringUtils.substringBefore(url, "/index");
-                    String announcementUrl = urlPrefix + StringUtils.substringAfter(href, ".");
+            try {
+                if (StringUtils.isNotBlank(href)) {
+                    if (StringUtils.startsWith(href, "./")) {
+                        String urlPrefix = StringUtils.substringBefore(url, "/index");
+                        String announcementUrl = urlPrefix + StringUtils.substringAfter(href, ".");
 
-                    String title = element.select("a").text();
-                    String date = element.select("span").text();
-                    BidNewsOriginal bidNewsOriginal = new BidNewsOriginal(announcementUrl, SourceCode.CCGPBEIJING);
-                    bidNewsOriginal.setTitle(title);
-                    bidNewsOriginal.setDate(PageProcessorUtil.dataTxt(date));
-                    bidNewsOriginal.setProvince("北京");
-                    if (PageProcessorUtil.timeCompare(bidNewsOriginal.getDate())) {
-                        log.warn("{} is not the same day", bidNewsOriginal.getUrl());
-                    } else {
+                        String title = element.select("a").text();
+                        String date = element.select("span").text();
+                        BidNewsOriginal bidNewsOriginal = new BidNewsOriginal(announcementUrl, SourceCode.CCGPBEIJING);
+                        bidNewsOriginal.setTitle(title);
+                        bidNewsOriginal.setDate(PageProcessorUtil.dataTxt(date));
+                        bidNewsOriginal.setProvince("北京");
+                        if (PageProcessorUtil.timeCompare(bidNewsOriginal.getDate())) {
+                            log.warn("{} is not the same day", bidNewsOriginal.getUrl());
+                            continue;
+                        }
                         Page page = httpClientDownloader.download(new Request(announcementUrl), SiteUtil.get().setTimeOut(30000).toTask());
                         Elements elements = page.getHtml().getDocument().body().select("body > div:nth-child(2) > div:nth-child(3)");
                         String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
@@ -128,6 +130,9 @@ public class BeiJingPageProcessor implements BasePageProcessor {
                         }
                     }
                 }
+            } catch (Exception e) {
+                log.error("", e);
+                log.error("url={}", href);
             }
         }
         return bidNewsOriginalList;

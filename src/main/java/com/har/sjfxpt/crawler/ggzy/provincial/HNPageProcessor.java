@@ -84,8 +84,8 @@ public class HNPageProcessor implements BasePageProcessor {
     public List parseContent(Elements items) {
         List<BidNewsOriginal> dataItems = Lists.newArrayList();
         for (Element element : items) {
+            String href = element.select("td > a").attr("href");
             try {
-                String href = element.select("td > a").attr("href");
                 if (StringUtils.isNotBlank(href)) {
                     String title = element.select("td > a").attr("title");
                     String date = element.select(" td:nth-child(4)").text();
@@ -112,6 +112,7 @@ public class HNPageProcessor implements BasePageProcessor {
                 }
             } catch (Exception e) {
                 log.error("", e);
+                log.error("url={}", href);
             }
         }
         return dataItems;

@@ -169,7 +169,7 @@ public class BaoWuPageProcessor implements BasePageProcessor {
 
 
     public List parseContent(Page page) {
-        log.info("request=={}", page.getRequest());
+        log.debug("request=={}", page.getRequest());
         List<BidNewsOriginal> dataItems = Lists.newArrayList();
         Map<String, Object> pageParams = (Map<String, Object>) page.getRequest().getExtras().get(PAGE_PARAMS);
         String typeField = pageParams.get("type").toString();

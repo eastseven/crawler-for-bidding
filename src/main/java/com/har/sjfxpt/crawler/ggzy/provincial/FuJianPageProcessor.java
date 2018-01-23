@@ -75,7 +75,6 @@ public class FuJianPageProcessor implements BasePageProcessor {
     }
 
 
-
     @Override
     public void handleContent(Page page) {
         List<BidNewsOriginal> dataItems = Lists.newArrayList();
@@ -101,16 +100,22 @@ public class FuJianPageProcessor implements BasePageProcessor {
                 ggzyFuJianDataItem.setType(type);
                 ggzyFuJianDataItem.setDate(DateTime.parse(date, DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ss")).toString("yyyy-MM-dd HH:mm"));
 
+
                 String getFormContentUrl = "https://www.fjggfw.gov.cn/Website/AjaxHandler/BuilderHandler.ashx?OPtype=GetGGInfoPC&ID=" + m_id + "&GGTYPE=" + ggType + "&url=AjaxHandler%2FBuilderHandler.ashx";
-                Page page1 = httpClientDownloader.download(new Request(getFormContentUrl), SiteUtil.get().setTimeOut(50000).toTask());
-                Selectable dataDetail = page1.getJson().jsonPath("$.data");
-                List<String> stringDetailList = dataDetail.all();
-                Selectable resultJsonNum = page1.getJson().jsonPath("$.result2");
-                int num = Integer.parseInt(resultJsonNum.toString());
-                String formatContentJson = stringDetailList.get(num - 1);
-                if (StringUtils.isNotBlank(formatContentJson)) {
-                    ggzyFuJianDataItem.setFormatContent(PageProcessorUtil.formatElementsByWhitelist(formatContentJson));
-                    dataItems.add(ggzyFuJianDataItem);
+                try {
+                    Page page1 = httpClientDownloader.download(new Request(getFormContentUrl), SiteUtil.get().setTimeOut(50000).toTask());
+                    Selectable dataDetail = page1.getJson().jsonPath("$.data");
+                    List<String> stringDetailList = dataDetail.all();
+                    Selectable resultJsonNum = page1.getJson().jsonPath("$.result2");
+                    int num = Integer.parseInt(resultJsonNum.toString());
+                    String formatContentJson = stringDetailList.get(num - 1);
+                    if (StringUtils.isNotBlank(formatContentJson)) {
+                        ggzyFuJianDataItem.setFormatContent(PageProcessorUtil.formatElementsByWhitelist(formatContentJson));
+                        dataItems.add(ggzyFuJianDataItem);
+                    }
+                } catch (Exception e) {
+                    log.error("", e);
+                    log.error("url={}", getFormContentUrl);
                 }
             }
 
@@ -130,44 +135,48 @@ public class FuJianPageProcessor implements BasePageProcessor {
                 request.setMethod(HttpConstant.Method.POST);
                 request.setRequestBody(HttpRequestBody.form(pageParams, "UTF-8"));
                 int filedCount = Integer.parseInt(ggType);
-                Page page1 = httpClientDownloader.download(request, SiteUtil.get().setTimeOut(30000).toTask());
-                String jsonContent = "";
-                if (filedCount == 3) {
-                    Selectable data3 = page1.getJson().jsonPath("$.data3");
-                    List<String> data3list = data3.all();
-                    String context = data3list.get(0);
-                    JSONObject jsonObject = (JSONObject) JSONObject.parse(context);
-                    String purchaserName = JSONPath.eval(jsonObject, "$.PURCHASER_NAME").toString();
-                    String supplierName = JSONPath.eval(jsonObject, "$.SUPPLIER_NAME").toString();
-                    String contractAmount = JSONPath.eval(jsonObject, "$.CONTRACT_AMOUNT").toString();
-                    String priceUnitText = JSONPath.eval(jsonObject, "$.PRICE_UNIT_TEXT").toString();
-                    String currencyCodeText = JSONPath.eval(jsonObject, "$.CURRENCY_CODE_TEXT").toString();
-                    String contractTerm = JSONPath.eval(jsonObject, "$.CONTRACT_TERM").toString();
-                    String formatContent = "<div class=\"detail_content\"><table class=\"detail_Table\" cellspacing=\"1\" cellpadding=\"1\"><tbody><tr><th>采购人名称</th><td>" + purchaserName + "</td></tr><tr><th>中标（成交）供应商名称</th><td>" + supplierName + "</td></tr><tr><th>合同金额</th><td>" + contractAmount + priceUnitText + currencyCodeText + "</td></tr><tr><th>合同期限</th><td>" + contractTerm + "</td></tr></tbody></table></div>";
-                    if (StringUtils.isNotBlank(purchaserName) || StringUtils.isNotBlank(supplierName)) {
-                        ggzyFuJianDataItem.setTotalBidMoney(contractAmount + priceUnitText + currencyCodeText);
-                        ggzyFuJianDataItem.setFormatContent(PageProcessorUtil.formatElementsByWhitelist(formatContent));
-                        dataItems.add(ggzyFuJianDataItem);
-                    }
-                } else {
-                    Selectable dataList = page1.getJson().jsonPath("$.data");
-                    List<String> datalist = dataList.all();
-                    if (filedCount == 1 || filedCount == 4) {
-                        jsonContent = datalist.get(0);
-                    }
-                    if (filedCount == 2) {
-                        if (datalist.size() == 1) {
-                            jsonContent = datalist.get(0).toString();
-                        } else {
-                            jsonContent = datalist.get(1).toString();
+                try {
+                    Page page1 = httpClientDownloader.download(request, SiteUtil.get().setTimeOut(30000).toTask());
+                    String jsonContent = "";
+                    if (filedCount == 3) {
+                        Selectable data3 = page1.getJson().jsonPath("$.data3");
+                        List<String> data3list = data3.all();
+                        String context = data3list.get(0);
+                        JSONObject jsonObject = (JSONObject) JSONObject.parse(context);
+                        String purchaserName = JSONPath.eval(jsonObject, "$.PURCHASER_NAME").toString();
+                        String supplierName = JSONPath.eval(jsonObject, "$.SUPPLIER_NAME").toString();
+                        String contractAmount = JSONPath.eval(jsonObject, "$.CONTRACT_AMOUNT").toString();
+                        String priceUnitText = JSONPath.eval(jsonObject, "$.PRICE_UNIT_TEXT").toString();
+                        String currencyCodeText = JSONPath.eval(jsonObject, "$.CURRENCY_CODE_TEXT").toString();
+                        String contractTerm = JSONPath.eval(jsonObject, "$.CONTRACT_TERM").toString();
+                        String formatContent = "<div class=\"detail_content\"><table class=\"detail_Table\" cellspacing=\"1\" cellpadding=\"1\"><tbody><tr><th>采购人名称</th><td>" + purchaserName + "</td></tr><tr><th>中标（成交）供应商名称</th><td>" + supplierName + "</td></tr><tr><th>合同金额</th><td>" + contractAmount + priceUnitText + currencyCodeText + "</td></tr><tr><th>合同期限</th><td>" + contractTerm + "</td></tr></tbody></table></div>";
+                        if (StringUtils.isNotBlank(purchaserName) || StringUtils.isNotBlank(supplierName)) {
+                            ggzyFuJianDataItem.setTotalBidMoney(contractAmount + priceUnitText + currencyCodeText);
+                            ggzyFuJianDataItem.setFormatContent(PageProcessorUtil.formatElementsByWhitelist(formatContent));
+                            dataItems.add(ggzyFuJianDataItem);
+                        }
+                    } else {
+                        Selectable dataList = page1.getJson().jsonPath("$.data");
+                        List<String> datalist = dataList.all();
+                        if (filedCount == 1 || filedCount == 4) {
+                            jsonContent = datalist.get(0);
+                        }
+                        if (filedCount == 2) {
+                            if (datalist.size() == 1) {
+                                jsonContent = datalist.get(0).toString();
+                            } else {
+                                jsonContent = datalist.get(1).toString();
+                            }
+                        }
+                        JSONObject jsonObject = (JSONObject) JSONObject.parse(jsonContent);
+                        String formatContent = JSONPath.eval(jsonObject, "$.CONTENT").toString();
+                        if (StringUtils.isNotBlank(formatContent)) {
+                            ggzyFuJianDataItem.setFormatContent(PageProcessorUtil.formatElementsByWhitelist(formatContent));
+                            dataItems.add(ggzyFuJianDataItem);
                         }
                     }
-                    JSONObject jsonObject = (JSONObject) JSONObject.parse(jsonContent);
-                    String formatContent = JSONPath.eval(jsonObject, "$.CONTENT").toString();
-                    if (StringUtils.isNotBlank(formatContent)) {
-                        ggzyFuJianDataItem.setFormatContent(PageProcessorUtil.formatElementsByWhitelist(formatContent));
-                        dataItems.add(ggzyFuJianDataItem);
-                    }
+                } catch (Exception e) {
+                    log.error("", e);
                 }
             }
         }

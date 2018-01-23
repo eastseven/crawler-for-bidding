@@ -109,26 +109,31 @@ public class HeNanPageProcessor implements BasePageProcessor {
                         log.warn("{} is not the same day", bidNewsOriginal.getUrl());
                         continue;
                     }
-
-                    Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
-                    String dateDetail = page.getHtml().getDocument().body().select("body > div.W1000.Center.Top10 > div.BorderEEE.BorderRedTop > div.TxtRight.Padding5 > span:nth-child(4)").text();
-                    String conversionDate = PageProcessorUtil.dataTxt(dateDetail);
-                    if (StringUtils.isNotBlank(conversionDate)) {
-                        bidNewsOriginal.setDate(conversionDate);
-                    }
-                    String script = page.getHtml().getDocument().select("body > script:nth-child(5)").toString();
-                    String[] urls = StringUtils.substringsBetween(script, "$.get(\"", "\", function");
-                    if (StringUtils.isNotBlank(urls[0])) {
-                        if (!StringUtils.startsWith(urls[0], "http:")) {
-                            urls[0] = "http://www.ccgp-henan.gov.cn/" + urls[0];
+                    
+                    try {
+                        Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
+                        String dateDetail = page.getHtml().getDocument().body().select("body > div.W1000.Center.Top10 > div.BorderEEE.BorderRedTop > div.TxtRight.Padding5 > span:nth-child(4)").text();
+                        String conversionDate = PageProcessorUtil.dataTxt(dateDetail);
+                        if (StringUtils.isNotBlank(conversionDate)) {
+                            bidNewsOriginal.setDate(conversionDate);
                         }
-                        Page page1 = httpClientDownloader.download(new Request(urls[0]), SiteUtil.get().setTimeOut(30000).toTask());
-                        Element formatContentElement = page1.getHtml().getDocument().body();
-                        String formatContent = PageProcessorUtil.formatElementsByWhitelist(formatContentElement);
-                        if (StringUtils.isNotBlank(formatContent)) {
-                            bidNewsOriginal.setFormatContent(formatContent);
-                            dataItems.add(bidNewsOriginal);
+                        String script = page.getHtml().getDocument().select("body > script:nth-child(5)").toString();
+                        String[] urls = StringUtils.substringsBetween(script, "$.get(\"", "\", function");
+                        if (StringUtils.isNotBlank(urls[0])) {
+                            if (!StringUtils.startsWith(urls[0], "http:")) {
+                                urls[0] = "http://www.ccgp-henan.gov.cn/" + urls[0];
+                            }
+                            Page page1 = httpClientDownloader.download(new Request(urls[0]), SiteUtil.get().setTimeOut(30000).toTask());
+                            Element formatContentElement = page1.getHtml().getDocument().body();
+                            String formatContent = PageProcessorUtil.formatElementsByWhitelist(formatContentElement);
+                            if (StringUtils.isNotBlank(formatContent)) {
+                                bidNewsOriginal.setFormatContent(formatContent);
+                                dataItems.add(bidNewsOriginal);
+                            }
                         }
+                    } catch (Exception e) {
+                        log.error("", e);
+                        log.error("url={}", href);
                     }
                 }
             }

@@ -160,6 +160,7 @@ public class JinCaiWangPageProcessor implements BasePageProcessor {
                 }
             } catch (IOException e) {
                 log.error("", e);
+                log.error("href={}", href);
             }
 
         }

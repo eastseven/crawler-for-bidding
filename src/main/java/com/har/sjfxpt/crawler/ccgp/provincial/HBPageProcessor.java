@@ -156,8 +156,8 @@ public class HBPageProcessor implements BasePageProcessor {
                     if (StringUtils.isNotBlank(elements1.text())) {
                         bidNewsOriginal.setDate(PageProcessorUtil.dataTxt(elements1.text()));
                     }
-                    if(PageProcessorUtil.timeCompare(bidNewsOriginal.getDate())){
-                        log.warn("{} is not the same day",bidNewsOriginal.getUrl());
+                    if (PageProcessorUtil.timeCompare(bidNewsOriginal.getDate())) {
+                        log.warn("{} is not the same day", bidNewsOriginal.getUrl());
                         continue;
                     }
                     String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
@@ -167,6 +167,7 @@ public class HBPageProcessor implements BasePageProcessor {
                     }
                 } catch (Exception e) {
                     log.error("", e);
+                    log.error("url={}", href);
                 }
             }
         }

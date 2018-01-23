@@ -157,22 +157,28 @@ public class ShanXiPageProcessor implements BasePageProcessor {
     }
 
     public void download(Element body, BidNewsOriginal dataItem) {
-        if (!body.select("div.jiaoyihuanjie.ct").isEmpty()) {
-            for (Element td : body.select("div.table_project_container table.table_content tr td")) {
-                String text = td.text();
-                if (text.equalsIgnoreCase("项目名称")) {
-                    dataItem.setProjectName(td.nextElementSibling().text());
-                }
+        try {
 
-                if (text.equalsIgnoreCase("招标人")) {
-                    dataItem.setPurchaser(td.nextElementSibling().text());
+
+            if (!body.select("div.jiaoyihuanjie.ct").isEmpty()) {
+                for (Element td : body.select("div.table_project_container table.table_content tr td")) {
+                    String text = td.text();
+                    if (text.equalsIgnoreCase("项目名称")) {
+                        dataItem.setProjectName(td.nextElementSibling().text());
+                    }
+
+                    if (text.equalsIgnoreCase("招标人")) {
+                        dataItem.setPurchaser(td.nextElementSibling().text());
+                    }
                 }
             }
-        }
 
-        if (!body.select("div.notice_content").isEmpty()) {
-            String formatContent = PageProcessorUtil.formatElementsByWhitelist(body.select("div.notice_content").first());
-            dataItem.setFormatContent(formatContent);
+            if (!body.select("div.notice_content").isEmpty()) {
+                String formatContent = PageProcessorUtil.formatElementsByWhitelist(body.select("div.notice_content").first());
+                dataItem.setFormatContent(formatContent);
+            }
+        } catch (Exception e) {
+            log.error("", e);
         }
     }
 }

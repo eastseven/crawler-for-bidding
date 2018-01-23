@@ -22,6 +22,6 @@ hbase.zookeeper.quorum: s94,s95,s96
 hbase.table.clean: false
 hbase.table.namespace: bid_news_test
 
-app.fetch.current.day: false
+app.fetch.current.day: true
 app.fetch.fixed.rate: 1800000
 app.hbase.save: true

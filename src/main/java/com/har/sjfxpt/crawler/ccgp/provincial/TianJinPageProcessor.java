@@ -113,34 +113,37 @@ public class TianJinPageProcessor implements BasePageProcessor {
     public List parseContent(Elements items) {
         List<BidNewsOriginal> bidNewsOriginalList = Lists.newArrayList();
         for (Element element : items) {
-            try {
-                String href = element.select("a").attr("href");
-                if (StringUtils.isNotBlank(href)) {
-                    String id = StringUtils.substringBetween(href, "id=", "&ver");
-                    String ver = StringUtils.substringAfter(href, "ver=");
-                    String title = element.select("a").attr("title");
-                    String date = element.select("span").text();
-                    String url = "http://www.ccgp-tianjin.gov.cn/portal/documentView.do?method=view&id=" + id + "&ver=" + ver;
-                    BidNewsOriginal bidNewsOriginal = new BidNewsOriginal(url, SourceCode.CCGPTIANJIN);
-                    bidNewsOriginal.setTitle(title);
-                    bidNewsOriginal.setDate(PageProcessorUtil.dataTxt(date));
-                    bidNewsOriginal.setProvince("天津");
 
-                    if (PageProcessorUtil.timeCompare(bidNewsOriginal.getDate())) {
-                        log.warn("{} is not the same day", bidNewsOriginal.getUrl());
-                    } else {
-                        Page page = httpClientDownloader.download(new Request(url), SiteUtil.get().setTimeOut(20000).toTask());
-                        Element element1 = page.getHtml().getDocument().body();
-                        String formatContent = PageProcessorUtil.formatElementsByWhitelist(element1);
-                        if (StringUtils.isNotBlank(formatContent)) {
-                            bidNewsOriginal.setFormatContent(formatContent);
-                            bidNewsOriginalList.add(bidNewsOriginal);
-                        }
-                    }
+            String href = element.select("a").attr("href");
+            if (StringUtils.isNotBlank(href)) {
+                String id = StringUtils.substringBetween(href, "id=", "&ver");
+                String ver = StringUtils.substringAfter(href, "ver=");
+                String title = element.select("a").attr("title");
+                String date = element.select("span").text();
+                String url = "http://www.ccgp-tianjin.gov.cn/portal/documentView.do?method=view&id=" + id + "&ver=" + ver;
+                BidNewsOriginal bidNewsOriginal = new BidNewsOriginal(url, SourceCode.CCGPTIANJIN);
+                bidNewsOriginal.setTitle(title);
+                bidNewsOriginal.setDate(PageProcessorUtil.dataTxt(date));
+                bidNewsOriginal.setProvince("天津");
+
+                if (PageProcessorUtil.timeCompare(bidNewsOriginal.getDate())) {
+                    log.warn("{} is not the same day", bidNewsOriginal.getUrl());
+                    continue;
                 }
-            } catch (Exception e) {
-                log.warn("", e);
+                try {
+                    Page page = httpClientDownloader.download(new Request(url), SiteUtil.get().setTimeOut(20000).toTask());
+                    Element element1 = page.getHtml().getDocument().body();
+                    String formatContent = PageProcessorUtil.formatElementsByWhitelist(element1);
+                    if (StringUtils.isNotBlank(formatContent)) {
+                        bidNewsOriginal.setFormatContent(formatContent);
+                        bidNewsOriginalList.add(bidNewsOriginal);
+                    }
+                } catch (Exception e) {
+                    log.warn("", e);
+                    log.warn("url={}", url);
+                }
             }
+
         }
         return bidNewsOriginalList;
     }

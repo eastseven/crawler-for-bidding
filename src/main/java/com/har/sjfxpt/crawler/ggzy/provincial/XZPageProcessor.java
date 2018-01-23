@@ -90,11 +90,12 @@ public class XZPageProcessor implements BasePageProcessor {
     public List parseContent(Elements items) {
         List<BidNewsOriginal> dataItems = Lists.newArrayList();
         for (Element element : items) {
-            try {
-                String url = element.select("a").attr("href");
-                String title = element.select("a").attr("title");
-                String date = element.select("div").text();
-                if (StringUtils.isNotBlank(url)) {
+
+            String url = element.select("a").attr("href");
+            String title = element.select("a").attr("title");
+            String date = element.select("div").text();
+            if (StringUtils.isNotBlank(url)) {
+                try {
                     BidNewsOriginal ggzyxzDataItem = new BidNewsOriginal(url, SourceCode.GGZYXZ);
                     ggzyxzDataItem.setUrl(url);
                     ggzyxzDataItem.setTitle(title);
@@ -113,10 +114,12 @@ public class XZPageProcessor implements BasePageProcessor {
                         ggzyxzDataItem.setFormatContent(formatContent);
                         dataItems.add(ggzyxzDataItem);
                     }
+                } catch (Exception e) {
+                    log.error("", e);
+                    log.error("url={}", url);
                 }
-            } catch (Exception e) {
-                log.error("", e);
             }
+
         }
         return dataItems;
     }

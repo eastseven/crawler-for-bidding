@@ -121,14 +121,14 @@ public class JiangXiPageProcessor implements BasePageProcessor {
     public List parseContent(Elements items) {
         List<BidNewsOriginal> dataItems = Lists.newArrayList();
         for (Element element : items) {
-            try {
-                String href = element.select("a").attr("href");
-                String title = element.select("a").text();
-                String date = element.select("span").text();
-                if (StringUtils.isNotBlank(href)) {
-                    if (!StringUtils.startsWith(href, "http:")) {
-                        href = "http://jxsggzy.cn" + href;
-                    }
+            String href = element.select("a").attr("href");
+            String title = element.select("a").text();
+            String date = element.select("span").text();
+            if (StringUtils.isNotBlank(href)) {
+                if (!StringUtils.startsWith(href, "http:")) {
+                    href = "http://jxsggzy.cn" + href;
+                }
+                try {
                     BidNewsOriginal ggzyJiangXiDataItem = new BidNewsOriginal(href, SourceCode.GGZYJIANGXI);
                     ggzyJiangXiDataItem.setUrl(href);
                     ggzyJiangXiDataItem.setProvince("江西");
@@ -167,9 +167,10 @@ public class JiangXiPageProcessor implements BasePageProcessor {
                         ggzyJiangXiDataItem.setFormatContent(formatContent);
                         dataItems.add(ggzyJiangXiDataItem);
                     }
+                } catch (Exception e) {
+                    log.error("", e);
+                    log.error("url={}", href);
                 }
-            } catch (Exception e) {
-                log.error("", e);
             }
         }
         return dataItems;

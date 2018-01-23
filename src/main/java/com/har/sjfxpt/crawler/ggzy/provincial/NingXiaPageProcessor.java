@@ -113,6 +113,7 @@ public class NingXiaPageProcessor implements BasePageProcessor {
                     }
                 } catch (Exception e) {
                     log.error("", e);
+                    log.error("href={}", href);
                 }
 
             }

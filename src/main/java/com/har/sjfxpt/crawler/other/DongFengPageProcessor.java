@@ -104,14 +104,15 @@ public class DongFengPageProcessor implements BasePageProcessor {
         for (Element element : items) {
             String href = element.select("a").attr("href");
             if (StringUtils.isNotBlank(href)) {
-                String title = element.select("a").attr("title");
-                String date = element.select("a > span.bidDate").text();
-                BidNewsOriginal dongFengDataItem = new BidNewsOriginal(href, SourceCode.DONGFENG);
-                dongFengDataItem.setTitle(title);
-                dongFengDataItem.setProvince(ProvinceUtil.get(title));
-                dongFengDataItem.setDate(PageProcessorUtil.dataTxt(date));
-
                 try {
+                    String title = element.select("a").attr("title");
+                    String date = element.select("a > span.bidDate").text();
+                    BidNewsOriginal dongFengDataItem = new BidNewsOriginal(href, SourceCode.DONGFENG);
+                    dongFengDataItem.setTitle(title);
+                    dongFengDataItem.setProvince(ProvinceUtil.get(title));
+                    dongFengDataItem.setDate(PageProcessorUtil.dataTxt(date));
+
+
                     Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
                     Elements timeDetail = page.getHtml().getDocument().body().select("#main > div.listPage.wrap > div.wrap01 > div.mleft > div > div > div.ninfo-title > span");
                     String dateDetail = PageProcessorUtil.dataTxt(timeDetail.text());
@@ -130,6 +131,7 @@ public class DongFengPageProcessor implements BasePageProcessor {
                     }
                 } catch (Exception e) {
                     log.error("", e);
+                    log.error("href={}", href);
                 }
             }
 
