@@ -151,6 +151,7 @@ public class YNPageProcessor implements BasePageProcessor {
 
                     //正文处理
                     Page page = httpClientDownloader.download(new Request(url), SiteUtil.get().setTimeOut(30000).toTask());
+                    //body > div.w1200s
                     Elements contentElements = page.getHtml().getDocument().body().select("body > div.w1200s");
                     String formatContent = PageProcessorUtil.formatElementsByWhitelist(contentElements.first());
                     if (StringUtils.isNotBlank(formatContent)) {

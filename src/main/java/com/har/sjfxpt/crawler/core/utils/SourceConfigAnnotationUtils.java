@@ -30,6 +30,7 @@ public final class SourceConfigAnnotationUtils {
         configModel.setName(config.code().getValue());
         configModel.setUseSelenium(config.useSelenium());
         configModel.setUrl(config.url());
+        configModel.setPageProcessor(pageProcessorClass.getSimpleName());
 
         Source[] sources = config.sources();
         if (ArrayUtils.isNotEmpty(sources)) {

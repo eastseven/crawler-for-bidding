@@ -1,6 +1,5 @@
 package com.har.sjfxpt.crawler.core.pipeline;
 
-import com.har.sjfxpt.crawler.core.annotation.Source;
 import com.har.sjfxpt.crawler.core.model.BidNewsOriginal;
 import com.har.sjfxpt.crawler.core.repository.BidNewsOriginalRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +18,8 @@ import static com.har.sjfxpt.crawler.core.processor.BasePageProcessor.KEY_DATA_I
 
 /**
  * Created by Administrator on 2018/1/18.
+ * @author luofei
+ * @author dongqi
  */
 @Slf4j
 @Component
@@ -31,7 +32,6 @@ public class MongoPipeline implements Pipeline {
     public void process(ResultItems resultItems, Task task) {
         List<BidNewsOriginal> dataItemList = resultItems.get(KEY_DATA_ITEMS);
         if (CollectionUtils.isEmpty(dataItemList)) {
-            log.warn(">>> save nothing, {}", task.getUUID());
             return;
         }
 

@@ -3,13 +3,11 @@ package com.har.sjfxpt.crawler.api;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.har.sjfxpt.crawler.SpiderNewLauncher;
-import com.har.sjfxpt.crawler.core.model.BidNewsSpider;
 import com.spring4all.swagger.EnableSwagger2Doc;
 import lombok.extern.slf4j.Slf4j;
 import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import us.codecraft.webmagic.Spider;
@@ -47,7 +45,7 @@ public class BidNewsSpiderResource {
         return list;
     }
 
-    @GetMapping("/{sourceCode}")
+    /*@GetMapping("/{sourceCode}")
     public Object get(@PathVariable String sourceCode) {
         log.debug(">>> api get spider info, {}", sourceCode);
         if (!sourceCode.startsWith("spider_")) {
@@ -92,7 +90,7 @@ public class BidNewsSpiderResource {
         }
 
         return getSpiderResponse(spider);
-    }
+    }*/
 
     @GetMapping("/startAll")
     public Object startAll() {
