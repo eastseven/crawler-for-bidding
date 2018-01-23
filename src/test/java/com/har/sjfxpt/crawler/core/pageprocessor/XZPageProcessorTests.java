@@ -2,6 +2,7 @@ package com.har.sjfxpt.crawler.core.pageprocessor;
 
 import com.har.sjfxpt.crawler.core.annotation.SourceModel;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
+import com.har.sjfxpt.crawler.core.pipeline.MongoPipeline;
 import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import com.har.sjfxpt.crawler.ggzy.provincial.XZPageProcessor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +31,9 @@ public class XZPageProcessorTests {
     @Autowired
     HBasePipeline hBasePipeline;
 
+    @Autowired
+    MongoPipeline mongoPipeline;
+
     @Test
     public void testAnnotation() {
         List<SourceModel> sourceModelList = SourceConfigAnnotationUtils.find(XZPageProcessor.getClass());
@@ -37,7 +41,7 @@ public class XZPageProcessorTests {
                 .collect(Collectors.toList());
         Spider.create(XZPageProcessor)
                 .addRequest(requestList.toArray(new Request[requestList.size()]))
-                .addPipeline(hBasePipeline)
+                .addPipeline(mongoPipeline)
                 .thread(8)
                 .run();
     }

@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.har.sjfxpt.crawler.ccgp.provincial.HaiNanPageProcessor;
 import com.har.sjfxpt.crawler.core.annotation.SourceModel;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
+import com.har.sjfxpt.crawler.core.pipeline.MongoPipeline;
 import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -31,6 +32,9 @@ public class CCGPCCGPHaiNanPageProcessorTests {
     @Autowired
     HBasePipeline hBasePipeline;
 
+    @Autowired
+    MongoPipeline mongoPipeline;
+
     @Test
     public void testCCGPHaiNanAnnouncation() {
         List<SourceModel> list = SourceConfigAnnotationUtils.find(haiNanPageProcessor.getClass());
@@ -42,7 +46,7 @@ public class CCGPCCGPHaiNanPageProcessorTests {
         if (!requests.isEmpty()) {
             Spider.create(haiNanPageProcessor)
                     .addRequest(requests.toArray(new Request[requests.size()]))
-                    .addPipeline(hBasePipeline)
+                    .addPipeline(mongoPipeline)
                     .thread(8)
                     .run();
         } else {

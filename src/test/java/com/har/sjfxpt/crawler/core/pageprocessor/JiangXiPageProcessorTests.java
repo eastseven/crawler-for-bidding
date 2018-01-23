@@ -2,6 +2,7 @@ package com.har.sjfxpt.crawler.core.pageprocessor;
 
 import com.har.sjfxpt.crawler.core.annotation.SourceModel;
 import com.har.sjfxpt.crawler.core.pipeline.HBasePipeline;
+import com.har.sjfxpt.crawler.core.pipeline.MongoPipeline;
 import com.har.sjfxpt.crawler.core.utils.SiteUtil;
 import com.har.sjfxpt.crawler.core.utils.SourceConfigAnnotationUtils;
 import com.har.sjfxpt.crawler.ggzy.provincial.JiangXiPageProcessor;
@@ -81,6 +82,9 @@ public class JiangXiPageProcessorTests {
         String JsonContent = page.getRawText();
     }
 
+    @Autowired
+    MongoPipeline mongoPipeline;
+
     @Test
     public void testAnnotation() {
         List<SourceModel> sourceModelList = SourceConfigAnnotationUtils.find(jiangXiPageProcessor.getClass());
@@ -88,7 +92,7 @@ public class JiangXiPageProcessorTests {
                 .collect(Collectors.toList());
         Spider.create(jiangXiPageProcessor)
                 .addRequest(requestList.toArray(new Request[requestList.size()]))
-                .addPipeline(hBasePipeline)
+                .addPipeline(mongoPipeline)
                 .thread(8)
                 .run();
     }

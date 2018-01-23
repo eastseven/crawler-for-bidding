@@ -83,20 +83,20 @@ public class HLJPageProcessor implements BasePageProcessor {
     public List parseContent(Elements items) {
         List<BidNewsOriginal> dataItems = Lists.newArrayList();
         for (Element element : items) {
-            String url = element.select("a").attr("href");
-            if (StringUtils.isNotBlank(url)) {
-                String href = "http://hljggzyjyw.gov.cn" + url;
-                String title = element.select("a").attr("title");
-                String date = element.select("span.date").text();
-                BidNewsOriginal ggzyhljDataItem = new BidNewsOriginal(href, SourceCode.GGZYHLJ);
-                ggzyhljDataItem.setTitle(title);
-                ggzyhljDataItem.setProvince("黑龙江");
-                ggzyhljDataItem.setDate(PageProcessorUtil.dataTxt(date));
-                if (PageProcessorUtil.timeCompare(ggzyhljDataItem.getDate())) {
-                    log.warn("{} is not the same day", ggzyhljDataItem.getUrl());
-                    continue;
-                }
-                try {
+            try {
+                String url = element.select("a").attr("href");
+                if (StringUtils.isNotBlank(url)) {
+                    String href = "http://hljggzyjyw.gov.cn" + url;
+                    String title = element.select("a").attr("title");
+                    String date = element.select("span.date").text();
+                    BidNewsOriginal ggzyhljDataItem = new BidNewsOriginal(href, SourceCode.GGZYHLJ);
+                    ggzyhljDataItem.setTitle(title);
+                    ggzyhljDataItem.setProvince("黑龙江");
+                    ggzyhljDataItem.setDate(PageProcessorUtil.dataTxt(date));
+                    if (PageProcessorUtil.timeCompare(ggzyhljDataItem.getDate())) {
+                        log.warn("{} is not the same day", ggzyhljDataItem.getUrl());
+                        continue;
+                    }
                     Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
                     Elements elements = page.getHtml().getDocument().select("#contentdiv");
                     String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
@@ -104,9 +104,9 @@ public class HLJPageProcessor implements BasePageProcessor {
                         ggzyhljDataItem.setFormatContent(formatContent);
                         dataItems.add(ggzyhljDataItem);
                     }
-                } catch (Exception e) {
-                    log.error("", e);
                 }
+            } catch (Exception e) {
+                log.error("", e);
             }
         }
         return dataItems;

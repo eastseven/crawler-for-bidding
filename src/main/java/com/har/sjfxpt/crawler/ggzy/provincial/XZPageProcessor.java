@@ -90,22 +90,22 @@ public class XZPageProcessor implements BasePageProcessor {
     public List parseContent(Elements items) {
         List<BidNewsOriginal> dataItems = Lists.newArrayList();
         for (Element element : items) {
-            String url = element.select("a").attr("href");
-            String title = element.select("a").attr("title");
-            String date = element.select("div").text();
-            if (StringUtils.isNotBlank(url)) {
-                BidNewsOriginal ggzyxzDataItem = new BidNewsOriginal(url, SourceCode.GGZYXZ);
-                ggzyxzDataItem.setUrl(url);
-                ggzyxzDataItem.setTitle(title);
-                ggzyxzDataItem.setProvince("西藏");
-                if (StringUtils.isNotBlank(date)) {
-                    ggzyxzDataItem.setDate(PageProcessorUtil.dataTxt(date));
-                }
-                if (PageProcessorUtil.timeCompare(ggzyxzDataItem.getDate())) {
-                    log.warn("{} is not the same day", ggzyxzDataItem.getUrl());
-                    continue;
-                }
-                try {
+            try {
+                String url = element.select("a").attr("href");
+                String title = element.select("a").attr("title");
+                String date = element.select("div").text();
+                if (StringUtils.isNotBlank(url)) {
+                    BidNewsOriginal ggzyxzDataItem = new BidNewsOriginal(url, SourceCode.GGZYXZ);
+                    ggzyxzDataItem.setUrl(url);
+                    ggzyxzDataItem.setTitle(title);
+                    ggzyxzDataItem.setProvince("西藏");
+                    if (StringUtils.isNotBlank(date)) {
+                        ggzyxzDataItem.setDate(PageProcessorUtil.dataTxt(date));
+                    }
+                    if (PageProcessorUtil.timeCompare(ggzyxzDataItem.getDate())) {
+                        log.warn("{} is not the same day", ggzyxzDataItem.getUrl());
+                        continue;
+                    }
                     Page page = httpClientDownloader.download(new Request(url), SiteUtil.get().setTimeOut(20000).toTask());
                     Elements elements = page.getHtml().getDocument().body().select("body > div.content > div.div-content > div.div-article2 > div");
                     String formatContent = PageProcessorUtil.formatElementsByWhitelist(elements.first());
@@ -113,9 +113,9 @@ public class XZPageProcessor implements BasePageProcessor {
                         ggzyxzDataItem.setFormatContent(formatContent);
                         dataItems.add(ggzyxzDataItem);
                     }
-                } catch (Exception e) {
-                    log.error("", e);
                 }
+            } catch (Exception e) {
+                log.error("", e);
             }
         }
         return dataItems;

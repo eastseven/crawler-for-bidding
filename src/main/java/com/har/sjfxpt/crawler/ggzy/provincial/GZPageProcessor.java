@@ -94,11 +94,11 @@ public class GZPageProcessor implements BasePageProcessor {
     public List parseContent(Elements items) {
         List<BidNewsOriginal> ggzyGZDataItems = Lists.newArrayList();
         for (Element element : items) {
-            String href = element.select("a").attr("href");
-            if (StringUtils.isBlank(href)) continue;
-
-            String title = element.select("a").attr("title");
             try {
+                String href = element.select("a").attr("href");
+                if (StringUtils.isBlank(href)) continue;
+                String title = element.select("a").attr("title");
+
                 BidNewsOriginal ggzyGZDataItem = new BidNewsOriginal(href, SourceCode.GGZYGZ);
                 ggzyGZDataItem.setUrl(href);
                 ggzyGZDataItem.setTitle(title);
@@ -115,7 +115,6 @@ public class GZPageProcessor implements BasePageProcessor {
                 }
             } catch (Exception e) {
                 log.error("", e);
-                log.error("{}", href);
             }
 
         }

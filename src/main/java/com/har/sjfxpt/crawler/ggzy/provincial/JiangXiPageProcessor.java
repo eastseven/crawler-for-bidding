@@ -121,22 +121,23 @@ public class JiangXiPageProcessor implements BasePageProcessor {
     public List parseContent(Elements items) {
         List<BidNewsOriginal> dataItems = Lists.newArrayList();
         for (Element element : items) {
-            String href = element.select("a").attr("href");
-            String title = element.select("a").text();
-            String date = element.select("span").text();
-            if (StringUtils.isNotBlank(href)) {
-                if (!StringUtils.startsWith(href, "http:")) {
-                    href = "http://jxsggzy.cn" + href;
-                }
-                BidNewsOriginal ggzyJiangXiDataItem = new BidNewsOriginal(href, SourceCode.GGZYJIANGXI);
-                ggzyJiangXiDataItem.setUrl(href);
-                ggzyJiangXiDataItem.setProvince("江西");
-                ggzyJiangXiDataItem.setDate(PageProcessorUtil.dataTxt(date));
-                if (PageProcessorUtil.timeCompare(ggzyJiangXiDataItem.getDate())) {
-                    log.info("{} is not the same day", ggzyJiangXiDataItem.getUrl());
-                    continue;
-                }
-                try {
+            try {
+                String href = element.select("a").attr("href");
+                String title = element.select("a").text();
+                String date = element.select("span").text();
+                if (StringUtils.isNotBlank(href)) {
+                    if (!StringUtils.startsWith(href, "http:")) {
+                        href = "http://jxsggzy.cn" + href;
+                    }
+                    BidNewsOriginal ggzyJiangXiDataItem = new BidNewsOriginal(href, SourceCode.GGZYJIANGXI);
+                    ggzyJiangXiDataItem.setUrl(href);
+                    ggzyJiangXiDataItem.setProvince("江西");
+                    ggzyJiangXiDataItem.setDate(PageProcessorUtil.dataTxt(date));
+                    if (PageProcessorUtil.timeCompare(ggzyJiangXiDataItem.getDate())) {
+                        log.info("{} is not the same day", ggzyJiangXiDataItem.getUrl());
+                        continue;
+                    }
+
                     ggzyJiangXiDataItem.setTitle(title);
                     Page page = httpClientDownloader.download(new Request(href), SiteUtil.get().setTimeOut(30000).toTask());
                     String dateParse = DateTime.parse(date, DateTimeFormat.forPattern("yyyy-MM-dd")).toString("yyyyMMdd");
@@ -166,10 +167,9 @@ public class JiangXiPageProcessor implements BasePageProcessor {
                         ggzyJiangXiDataItem.setFormatContent(formatContent);
                         dataItems.add(ggzyJiangXiDataItem);
                     }
-                } catch (Exception e) {
-                    log.error("", e);
                 }
-
+            } catch (Exception e) {
+                log.error("", e);
             }
         }
         return dataItems;

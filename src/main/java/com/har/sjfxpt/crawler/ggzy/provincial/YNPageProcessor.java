@@ -111,44 +111,45 @@ public class YNPageProcessor implements BasePageProcessor {
         for (Element element : items) {
             String href = element.select("a").attr("href");
             if (StringUtils.isNotBlank(href)) {
-                String url = "https://www.ynggzyxx.gov.cn" + href;
-                BidNewsOriginal yuNanDataItem = new BidNewsOriginal(url, SourceCode.GGZYYN);
-                yuNanDataItem.setProvince("云南");
-                String field2 = element.select("td:nth-child(2)").text();
-                String field3 = element.select("td:nth-child(3)").text();
-                String field4 = element.select("td:nth-child(4)").text();
-                String field5 = element.select("td:nth-child(5)").text();
-                if ("招标公告".equals(type) || "更正事项".equals(type) || "采购公告".equals(type)) {
-                    yuNanDataItem.setTitle(field3);
-                    if ("更正事项".equals(type) && "政府采购".equals(businessType)) {
-                        String date = DateTime.parse(field4, DateTimeFormat.forPattern("yyyyMMddHH")).toString("yyyy-MM-dd HH:mm");
-                        yuNanDataItem.setDate(date);
-                    } else {
-                        yuNanDataItem.setDate(PageProcessorUtil.dataTxt(field4));
-                    }
-                }
-                if ("评标报告".equals(type) || "开标记录".equals(type)) {
-                    yuNanDataItem.setTitle(field3);
-                    if ("评标报告".equals(type)) {
-                        DateTime dateTime = DateTime.parse(field4, DateTimeFormat.forPattern("yyyyMMddHHmmss"));
-                        if (StringUtils.isNotBlank(dateTime.toString())) {
-                            yuNanDataItem.setDate(dateTime.toString("yyyy-MM-dd HH:mm"));
-                        }
-                    } else {
-                        yuNanDataItem.setDate(PageProcessorUtil.dataTxt(field4));
-                    }
-                }
-                if ("中标结果公告".equals(type) || "中标结果".equals(type)) {
-                    yuNanDataItem.setTitle(field2);
-                    yuNanDataItem.setDate(PageProcessorUtil.dataTxt(field3));
-                }
-                if ("招标异常".equals(type) || "异常公告".equals(type)) {
-                    yuNanDataItem.setTitle(field3);
-                    yuNanDataItem.setDate(PageProcessorUtil.dataTxt(field5));
-                }
-
-                //正文处理
                 try {
+                    String url = "https://www.ynggzyxx.gov.cn" + href;
+                    BidNewsOriginal yuNanDataItem = new BidNewsOriginal(url, SourceCode.GGZYYN);
+                    yuNanDataItem.setProvince("云南");
+                    String field2 = element.select("td:nth-child(2)").text();
+                    String field3 = element.select("td:nth-child(3)").text();
+                    String field4 = element.select("td:nth-child(4)").text();
+                    String field5 = element.select("td:nth-child(5)").text();
+                    if ("招标公告".equals(type) || "更正事项".equals(type) || "采购公告".equals(type)) {
+                        yuNanDataItem.setTitle(field3);
+                        if ("更正事项".equals(type) && "政府采购".equals(businessType)) {
+                            String date = DateTime.parse(field4, DateTimeFormat.forPattern("yyyyMMddHH")).toString("yyyy-MM-dd HH:mm");
+                            yuNanDataItem.setDate(date);
+                        } else {
+                            yuNanDataItem.setDate(PageProcessorUtil.dataTxt(field4));
+                        }
+                    }
+                    if ("评标报告".equals(type) || "开标记录".equals(type)) {
+                        yuNanDataItem.setTitle(field3);
+                        if ("评标报告".equals(type)) {
+                            DateTime dateTime = DateTime.parse(field4, DateTimeFormat.forPattern("yyyyMMddHHmmss"));
+                            if (StringUtils.isNotBlank(dateTime.toString())) {
+                                yuNanDataItem.setDate(dateTime.toString("yyyy-MM-dd HH:mm"));
+                            }
+                        } else {
+                            yuNanDataItem.setDate(PageProcessorUtil.dataTxt(field4));
+                        }
+                    }
+                    if ("中标结果公告".equals(type) || "中标结果".equals(type)) {
+                        yuNanDataItem.setTitle(field2);
+                        yuNanDataItem.setDate(PageProcessorUtil.dataTxt(field3));
+                    }
+                    if ("招标异常".equals(type) || "异常公告".equals(type)) {
+                        yuNanDataItem.setTitle(field3);
+                        yuNanDataItem.setDate(PageProcessorUtil.dataTxt(field5));
+                    }
+
+
+                    //正文处理
                     Page page = httpClientDownloader.download(new Request(url), SiteUtil.get().setTimeOut(30000).toTask());
                     Elements contentElements = page.getHtml().getDocument().body().select("body > div.w1200s");
                     String formatContent = PageProcessorUtil.formatElementsByWhitelist(contentElements.first());
@@ -204,7 +205,6 @@ public class YNPageProcessor implements BasePageProcessor {
                     }
                 } catch (Exception e) {
                     log.error("", e);
-                    log.error("url {}", url);
                 }
             }
         }
