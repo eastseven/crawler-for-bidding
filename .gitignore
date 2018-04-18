@@ -22,3 +22,8 @@ nbbuild/
 dist/
 nbdist/
 .nb-gradle/
+src/test/data
+src/main/resources/application-d7.yml
+~$DataSource.xlsx
+*.log
+config.ini

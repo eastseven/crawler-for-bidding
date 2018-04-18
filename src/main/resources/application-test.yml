@@ -1,18 +1,27 @@
 logging:
   level:
-    com.har.sjfxpt.crawler.ggzy: info
+    com.har.sjfxpt.crawler: info
     us.codecraft.webmagic.downloader: error
 
 spring:
   data:
     mongodb:
       uri: mongodb://192.168.3.108:27017/ggzy
+    redis:
+      repositories:
+        enabled: false
   redis:
-      host: 192.168.3.83
+      host: 192.168.3.108
       port: 6379
-      password: har123
-      database: 2
+      password: 123456
+      database: 7
+  profiles:
+    include: conf
 
-hbase.zookeeper.quorum: s97,s98,s99
+hbase.zookeeper.quorum: s94,s95,s96
 hbase.table.clean: false
 hbase.table.namespace: bid_news_test
+
+app.fetch.current.day: true
+app.fetch.fixed.rate: 1800000
+app.hbase.save: true

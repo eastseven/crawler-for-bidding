@@ -1,19 +1,34 @@
 logging:
   level:
-    com.har.sjfxpt.crawler.ggzy: info
+    com.har.sjfxpt.crawler: info
+    com.har.sjfxpt.crawler.ggzy: error
+    com.har.sjfxpt.crawler.ccgp: error
+    com.har.sjfxpt.crawler.other: error
     us.codecraft.webmagic.downloader: error
-  file: ggzy.log
+    com.har.sjfxpt.crawler.ccgp.ZhengFuCaiGouDownloader: warn
+  file: logs/app.log
 
 spring:
   data:
     mongodb:
-      uri: mongodb://business:business123@192.168.3.95:27017/ggzy
+      uri: mongodb://business:business123@192.168.3.95:27017/business
+    redis:
+      repositories:
+        enabled: false
   redis:
-      host: 192.168.3.95
+      host: 192.168.3.108
       port: 6379
-      password: har123
-      database: 7
+      password: 123456
+      database: 14
+  profiles:
+    include: conf
 
 hbase.zookeeper.quorum: s94,s95,s96
 hbase.table.clean: false
 hbase.table.namespace: bid_news
+
+app.fetch.current.day: true
+app.fetch.fixed.rate: 1800000
+app.hbase.save: true
+swagger:
+  title: 爬虫监控接口文档

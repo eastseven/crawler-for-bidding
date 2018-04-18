@@ -1,0 +1,19 @@
+ggzy:
+  sichuan: {},
+  chongqing: {},
+  hainan: {},
+  shanxi:
+    url:
+      - http://prec.sxzwfw.gov.cn/TenderProjectSx/ColTableInfoOther.do
+    post: true
+    params: {
+      projectName: ~,
+      date: '1day',
+      begin_time: '2017-12-26', # 查指定时间不一定生效
+      end_time: '2017-12-26',
+      projectType: 'gcjs',
+      area: ~,
+      dataSource: ~,
+      huanJie: 'PUBLICITY', # 'NOTICE'
+      pageIndex: 1
+    }
